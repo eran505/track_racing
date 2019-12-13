@@ -1,1 +1,0 @@
-/usr/bin/c++  -g   CMakeFiles/Racing_car.dir/main.cpp.o CMakeFiles/Racing_car.dir/Grid.cpp.o CMakeFiles/Racing_car.dir/util_game.cpp.o CMakeFiles/Racing_car.dir/MdpPlaner.cpp.o CMakeFiles/Racing_car.dir/Agent.cpp.o CMakeFiles/Racing_car.dir/State.cpp.o CMakeFiles/Racing_car.dir/Game.cpp.o  -o Racing_car 

@@ -1,3 +1,0 @@
-/home/ise/CLionProjects/Racing_car/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-/home/ise/CLionProjects/Racing_car/cmake-build-debug/CMakeFiles/Racing_car.dir
-/home/ise/CLionProjects/Racing_car/cmake-build-debug/CMakeFiles/edit_cache.dir
