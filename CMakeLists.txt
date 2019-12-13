@@ -1,6 +1,26 @@
 cmake_minimum_required(VERSION 3.15)
-project(Racing_car)
+project(track_racing)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(Racing_car main.cpp headers/Grid.hpp Grid.cpp headers/util_game.hpp util_game.cpp headers/MdpPlaner.hpp MdpPlaner.cpp headers/Agent.hpp Agent.cpp headers/State.hpp State.cpp headers/Policy/Policy.hpp headers/Policy/Dog.hpp headers/Game.hpp Game.cpp headers/Game.hpp headers/transition_container.hpp)
+include_directories(.)
+include_directories(headers)
+include_directories(headers/Policy)
+
+add_executable(track_racing
+        headers/Policy/Dog.hpp
+        headers/Policy/Policy.hpp
+        headers/Agent.hpp
+        headers/Game.hpp
+        headers/Grid.hpp
+        headers/MdpPlaner.hpp
+        headers/State.hpp
+        headers/Transition.hpp
+        headers/util_game.hpp
+        Agent.cpp
+        Game.cpp
+        Grid.cpp
+        main.cpp
+        MdpPlaner.cpp
+        State.cpp
+        util_game.cpp)

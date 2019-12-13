@@ -5,7 +5,8 @@
 #include "headers/util_game.hpp"
 #include "headers/MdpPlaner.hpp"
 #include "headers/Game.hpp"
-#include "headers/transition_container.hpp"
+
+
 #include "headers/Policy/Dog.hpp"
 
 typedef unsigned int uint;

@@ -48,10 +48,10 @@ RM = /opt/clion-2019.2.5/bin/cmake/linux/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ise/CLionProjects/Racing_car
+CMAKE_SOURCE_DIR = /home/ise/eran/repo/track_racing
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ise/CLionProjects/Racing_car/cmake-build-debug
+CMAKE_BINARY_DIR = /home/ise/eran/repo/track_racing/cmake-build-debug
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,9 +80,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ise/CLionProjects/Racing_car/cmake-build-debug/CMakeFiles /home/ise/CLionProjects/Racing_car/cmake-build-debug/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles /home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ise/CLionProjects/Racing_car/cmake-build-debug/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -111,17 +111,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named Racing_car
+# Target rules for targets named track_racing
 
 # Build rule for target.
-Racing_car: cmake_check_build_system
-	$(MAKE) -f CMakeFiles/Makefile2 Racing_car
-.PHONY : Racing_car
+track_racing: cmake_check_build_system
+	$(MAKE) -f CMakeFiles/Makefile2 track_racing
+.PHONY : track_racing
 
 # fast build rule for target.
-Racing_car/fast:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/build
-.PHONY : Racing_car/fast
+track_racing/fast:
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/build
+.PHONY : track_racing/fast
 
 Agent.o: Agent.cpp.o
 
@@ -129,7 +129,7 @@ Agent.o: Agent.cpp.o
 
 # target to build an object file
 Agent.cpp.o:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/Agent.cpp.o
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/Agent.cpp.o
 .PHONY : Agent.cpp.o
 
 Agent.i: Agent.cpp.i
@@ -138,7 +138,7 @@ Agent.i: Agent.cpp.i
 
 # target to preprocess a source file
 Agent.cpp.i:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/Agent.cpp.i
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/Agent.cpp.i
 .PHONY : Agent.cpp.i
 
 Agent.s: Agent.cpp.s
@@ -147,7 +147,7 @@ Agent.s: Agent.cpp.s
 
 # target to generate assembly for a file
 Agent.cpp.s:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/Agent.cpp.s
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/Agent.cpp.s
 .PHONY : Agent.cpp.s
 
 Game.o: Game.cpp.o
@@ -156,7 +156,7 @@ Game.o: Game.cpp.o
 
 # target to build an object file
 Game.cpp.o:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/Game.cpp.o
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/Game.cpp.o
 .PHONY : Game.cpp.o
 
 Game.i: Game.cpp.i
@@ -165,7 +165,7 @@ Game.i: Game.cpp.i
 
 # target to preprocess a source file
 Game.cpp.i:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/Game.cpp.i
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/Game.cpp.i
 .PHONY : Game.cpp.i
 
 Game.s: Game.cpp.s
@@ -174,7 +174,7 @@ Game.s: Game.cpp.s
 
 # target to generate assembly for a file
 Game.cpp.s:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/Game.cpp.s
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/Game.cpp.s
 .PHONY : Game.cpp.s
 
 Grid.o: Grid.cpp.o
@@ -183,7 +183,7 @@ Grid.o: Grid.cpp.o
 
 # target to build an object file
 Grid.cpp.o:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/Grid.cpp.o
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/Grid.cpp.o
 .PHONY : Grid.cpp.o
 
 Grid.i: Grid.cpp.i
@@ -192,7 +192,7 @@ Grid.i: Grid.cpp.i
 
 # target to preprocess a source file
 Grid.cpp.i:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/Grid.cpp.i
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/Grid.cpp.i
 .PHONY : Grid.cpp.i
 
 Grid.s: Grid.cpp.s
@@ -201,7 +201,7 @@ Grid.s: Grid.cpp.s
 
 # target to generate assembly for a file
 Grid.cpp.s:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/Grid.cpp.s
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/Grid.cpp.s
 .PHONY : Grid.cpp.s
 
 MdpPlaner.o: MdpPlaner.cpp.o
@@ -210,7 +210,7 @@ MdpPlaner.o: MdpPlaner.cpp.o
 
 # target to build an object file
 MdpPlaner.cpp.o:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/MdpPlaner.cpp.o
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/MdpPlaner.cpp.o
 .PHONY : MdpPlaner.cpp.o
 
 MdpPlaner.i: MdpPlaner.cpp.i
@@ -219,7 +219,7 @@ MdpPlaner.i: MdpPlaner.cpp.i
 
 # target to preprocess a source file
 MdpPlaner.cpp.i:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/MdpPlaner.cpp.i
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/MdpPlaner.cpp.i
 .PHONY : MdpPlaner.cpp.i
 
 MdpPlaner.s: MdpPlaner.cpp.s
@@ -228,7 +228,7 @@ MdpPlaner.s: MdpPlaner.cpp.s
 
 # target to generate assembly for a file
 MdpPlaner.cpp.s:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/MdpPlaner.cpp.s
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/MdpPlaner.cpp.s
 .PHONY : MdpPlaner.cpp.s
 
 State.o: State.cpp.o
@@ -237,7 +237,7 @@ State.o: State.cpp.o
 
 # target to build an object file
 State.cpp.o:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/State.cpp.o
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/State.cpp.o
 .PHONY : State.cpp.o
 
 State.i: State.cpp.i
@@ -246,7 +246,7 @@ State.i: State.cpp.i
 
 # target to preprocess a source file
 State.cpp.i:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/State.cpp.i
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/State.cpp.i
 .PHONY : State.cpp.i
 
 State.s: State.cpp.s
@@ -255,7 +255,7 @@ State.s: State.cpp.s
 
 # target to generate assembly for a file
 State.cpp.s:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/State.cpp.s
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/State.cpp.s
 .PHONY : State.cpp.s
 
 main.o: main.cpp.o
@@ -264,7 +264,7 @@ main.o: main.cpp.o
 
 # target to build an object file
 main.cpp.o:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/main.cpp.o
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/main.cpp.o
 .PHONY : main.cpp.o
 
 main.i: main.cpp.i
@@ -273,7 +273,7 @@ main.i: main.cpp.i
 
 # target to preprocess a source file
 main.cpp.i:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/main.cpp.i
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/main.cpp.i
 .PHONY : main.cpp.i
 
 main.s: main.cpp.s
@@ -282,7 +282,7 @@ main.s: main.cpp.s
 
 # target to generate assembly for a file
 main.cpp.s:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/main.cpp.s
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/main.cpp.s
 .PHONY : main.cpp.s
 
 util_game.o: util_game.cpp.o
@@ -291,7 +291,7 @@ util_game.o: util_game.cpp.o
 
 # target to build an object file
 util_game.cpp.o:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/util_game.cpp.o
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/util_game.cpp.o
 .PHONY : util_game.cpp.o
 
 util_game.i: util_game.cpp.i
@@ -300,7 +300,7 @@ util_game.i: util_game.cpp.i
 
 # target to preprocess a source file
 util_game.cpp.i:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/util_game.cpp.i
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/util_game.cpp.i
 .PHONY : util_game.cpp.i
 
 util_game.s: util_game.cpp.s
@@ -309,7 +309,7 @@ util_game.s: util_game.cpp.s
 
 # target to generate assembly for a file
 util_game.cpp.s:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/util_game.cpp.s
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/util_game.cpp.s
 .PHONY : util_game.cpp.s
 
 # Help Target
@@ -319,7 +319,7 @@ help:
 	@echo "... clean"
 	@echo "... depend"
 	@echo "... rebuild_cache"
-	@echo "... Racing_car"
+	@echo "... track_racing"
 	@echo "... edit_cache"
 	@echo "... Agent.o"
 	@echo "... Agent.i"

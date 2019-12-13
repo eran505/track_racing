@@ -44,21 +44,21 @@ RM = /opt/clion-2019.2.5/bin/cmake/linux/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ise/CLionProjects/Racing_car
+CMAKE_SOURCE_DIR = /home/ise/eran/repo/track_racing
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ise/CLionProjects/Racing_car/cmake-build-debug
+CMAKE_BINARY_DIR = /home/ise/eran/repo/track_racing/cmake-build-debug
 
 #=============================================================================
 # Directory level rules for the build root directory
 
 # The main recursive "all" target.
-all: CMakeFiles/Racing_car.dir/all
+all: CMakeFiles/track_racing.dir/all
 
 .PHONY : all
 
 # The main recursive "clean" target.
-clean: CMakeFiles/Racing_car.dir/clean
+clean: CMakeFiles/track_racing.dir/clean
 
 .PHONY : clean
 
@@ -68,31 +68,31 @@ preinstall:
 .PHONY : preinstall
 
 #=============================================================================
-# Target rules for target CMakeFiles/Racing_car.dir
+# Target rules for target CMakeFiles/track_racing.dir
 
 # All Build rule for target.
-CMakeFiles/Racing_car.dir/all:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/depend
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ise/CLionProjects/Racing_car/cmake-build-debug/CMakeFiles --progress-num=1,2,3,4,5,6,7,8 "Built target Racing_car"
-.PHONY : CMakeFiles/Racing_car.dir/all
+CMakeFiles/track_racing.dir/all:
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/depend
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=1,2,3,4,5,6,7,8 "Built target track_racing"
+.PHONY : CMakeFiles/track_racing.dir/all
 
 # Build rule for subdir invocation for target.
-CMakeFiles/Racing_car.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ise/CLionProjects/Racing_car/cmake-build-debug/CMakeFiles 8
-	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/Racing_car.dir/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/ise/CLionProjects/Racing_car/cmake-build-debug/CMakeFiles 0
-.PHONY : CMakeFiles/Racing_car.dir/rule
+CMakeFiles/track_racing.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles 8
+	$(MAKE) -f CMakeFiles/Makefile2 CMakeFiles/track_racing.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles 0
+.PHONY : CMakeFiles/track_racing.dir/rule
 
 # Convenience name for target.
-Racing_car: CMakeFiles/Racing_car.dir/rule
+track_racing: CMakeFiles/track_racing.dir/rule
 
-.PHONY : Racing_car
+.PHONY : track_racing
 
 # clean rule for target.
-CMakeFiles/Racing_car.dir/clean:
-	$(MAKE) -f CMakeFiles/Racing_car.dir/build.make CMakeFiles/Racing_car.dir/clean
-.PHONY : CMakeFiles/Racing_car.dir/clean
+CMakeFiles/track_racing.dir/clean:
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/clean
+.PHONY : CMakeFiles/track_racing.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.
