@@ -29,6 +29,7 @@ public:
         this->agents_map= new std::map<char, map<string,Agent*>*>();
     }
     void set_grid(Grid *g);
+    Grid * get_Grid(){ return grid;};
     list<Agent *> *get_all_players(list<Agent *> *traget_list);
 
 protected:
@@ -38,10 +39,6 @@ protected:
     State *cur_state;
     Grid *grid;
     std::map<char, map<string,Agent*>*> *agents_map;
-    //list<Agent>
-
-
-
 };
 
 #endif //RACING_CAR_MDPPLANER_HPP

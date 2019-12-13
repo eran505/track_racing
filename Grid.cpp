@@ -6,13 +6,13 @@
 #include <utility>
 
 
-void Grid::build_grid() {
-    this->grid = new string*[this->x_size];
-    for (int i = 0; i < this->x_size; ++i)
-    {
-        this->grid[i] = new string[this->y_size];
-    }
-}
+//void Grid::build_grid() {
+//    this->grid = new string*[this->x_size];
+//    for (int i = 0; i < this->x_size; ++i)
+//    {
+//        this->grid[i] = new string[this->y_size];
+//    }
+//}
 
 Grid::~Grid() {
     for (auto i : *(this->all_golas)) {
@@ -21,28 +21,12 @@ Grid::~Grid() {
     delete(this->all_golas);
 }
 
-std::list<std::tuple<uint, uint>> Grid::get_goals() {
-    return std::list<std::tuple<uint, uint>>();
-}
-
-
-
-void Grid::init_grid(const game_params& parm) {
-    this->x_size=parm.X;
-    this->y_size=parm.Y;
-    this->all_golas=parm.list_goals;
-}
-
-Grid::Grid() {
-
-}
-
-
 
 
 void Grid::print_vaule() {
-    cout<<"X:\t"<<this->x_size<<endl;;
-    cout<<"Y:\t"<<this->y_size<<endl;;
+
+    cout<<"grid dimensions:\t";
+    cout<<this->size_point.to_str()<<endl;
     cout<<"Goals:\t";
     reverse_iterator<list<Point *>::iterator> revIt;
     int size_list_goal=this->all_golas->size();
@@ -55,6 +39,15 @@ void Grid::print_vaule() {
         ctr++;
     }
 
+
+}
+
+Grid::Grid(const game_params &parm) {
+//
+//    this->x_size=parm.X;
+//    this->y_size=parm.Y;
+    this->size_point=parm.size;
+    this->all_golas=parm.list_goals;
 
 }
 

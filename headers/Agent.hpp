@@ -15,21 +15,24 @@ class Agent{
 protected:
     static int ctr_object;
     Point* my_pos;
+    Policy* my_Policy;
     Point* my_speed;
-    Policy* my_policy;
     int my_budget;
     const char my_team;
     const string my_id;
+    string name;
+
 
 public:
-
+    const string* get_name_id(){ return &my_id;}
     Agent(Point* pos,Point* speed,string m_id , char m_team,int b_budget);
     Agent(Point* pos,Point* speed, char m_team,int b_budget);
     string get_id(){ return my_id; }
     char get_team() { return my_team; }
     string get_name();
-    Point do_action(State *s);
-    void set_policy(Policy *ptr_policy){this->my_policy=ptr_policy;}
+    const Policy* get_Policy(){ return my_Policy;};
+    void do_action(State *s);
+    void set_policy(Policy* p_ptr){p_ptr->set_id(this->my_id); this->my_Policy=p_ptr;}
     ~Agent();
 
     void set_speed(Point *cur_speed) {
@@ -61,6 +64,8 @@ public:
 
     string to_str();
     string to_print();
+
+
 
 };
 

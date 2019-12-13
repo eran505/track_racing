@@ -19,13 +19,11 @@ enum Section{
 class Point{
     enum D_point{ D = 2};
 public:
-    ~Point() {
-        //delete [] array;
-            }
+    ~Point() = default;
     Point(int x,int y);
     std::string to_str()
     {
-        std::string str_to_string = "";
+        std::string str_to_string;
         str_to_string+="(";
         for ( int i = 0; i < this->capacity-1; i++) {
             str_to_string += std::to_string(*(this->array+ sizeof(int)*i));
@@ -33,27 +31,34 @@ public:
         }
         str_to_string+= std::to_string(*(array + this->capacity-1));
         str_to_string+=')';
-          return str_to_string;
+        return str_to_string;
     }
     int capacity=D_point::D;
-    int array[D_point::D];
-    Point(){};
+    int array[D_point::D]{};
+    Point(){printf("POINT_EMPTY_CON\n");};
     Point(const Point &other):capacity(other.capacity)
     {
-
+        printf("COPY_CON POINT\n  ");
         for (int i = 0; i < this->capacity; ++i) {
             this->array[i]=other.array[i];
         }
     }
 
 
-    Point& operator+=(const Point* other){
+    void operator+=(const Point &other){
 
         for (int i = 0; i < this->capacity; ++i) {
-            this->array[i]=this->array[i]+other->array[i];
+            this->array[i]=this->array[i]+other.array[i];
         }
-        return *this;
+
     }
+//    Point& operator+=(const Point *other){
+//
+//        for (int i = 0; i < this->capacity; ++i) {
+//            this->array[i]=this->array[i]+other->array[i];
+//        }
+//        return *this;
+//    }
 
     Point& operator-=(const Point* other){
 
@@ -62,9 +67,40 @@ public:
         }
         return *this;
     }
+    bool any_bigger_equle(const Point &other){
+        for (int i = 0; i < this->capacity; ++i) {
+            if (this->array[i]<=other.array[i])
+                return true;
+        }
+        return false;
+    }
+    bool out_of_bound(const Point &bound){
+        for (int i = 0; i < this->capacity; ++i) {
+            if (this->array[i]>=bound.array[i] or this->array[i]<0)
+                return true;
+        }
+        return false;
+    }
 
-    bool operator== (const Point* other);
-
+    bool any_ngative(){
+        for (int i = 0; i < this->capacity; ++i) {
+            if (this->array[i]<0)
+                return true;
+        }
+        return false;
+    }
+    void change_speed_max(int absoult_max){
+        for (int i = 0; i < this->capacity; ++i) {
+            if (this->array[i]>absoult_max){
+                this->array[i]=absoult_max;
+                continue;
+            }
+            if(this->array[i]*-1>absoult_max)
+                this->array[i]=absoult_max*-1;
+        }
+    }
+    bool operator== (const Point &other);
+    bool is_equal(const Point *otehr)const;
 };
 
 int range_random(int min, int max); //range : [min, max)

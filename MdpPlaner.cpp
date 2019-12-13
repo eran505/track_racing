@@ -12,10 +12,10 @@ bool MdpPlaner::add_player(Agent *ptr_agent) {
     }
     map<string, Agent *>* team_dict;
     team_dict = (this->agents_map)->operator[](team);
-    if(team_dict->find(ptr_agent->get_name())==team_dict->end()){
-        team_dict->operator[](ptr_agent->get_name())=ptr_agent;
+    if(team_dict->find(*ptr_agent->get_name_id())==team_dict->end()){
+        team_dict->operator[](*ptr_agent->get_name_id())=ptr_agent;
     }else{
-        printf("the player %s is in the game!! ",(ptr_agent->get_name()).c_str());
+        printf("the player %s is in the game!! ",(*ptr_agent->get_name_id()).c_str());
     }
 }
 
@@ -32,13 +32,17 @@ Agent *MdpPlaner::get_player(string str_id_name) {
 
 MdpPlaner::~MdpPlaner() {
     for(auto it = this->agents_map->begin(); it != this->agents_map->end(); ++it) {
+
         for (auto item : *(it->second)) { //item == {key,value}
-            delete(item.second);
+
+            delete (item.second);
         }
         delete(it->second);
     }
+
     delete(this->agents_map);
     delete (this->grid);
+
     delete(this->cur_state);
 }
 
@@ -60,7 +64,7 @@ void MdpPlaner::set_state() {
     list<Agent*> all_agents;
     this->get_all_players(&all_agents);
     for (auto item : all_agents){
-        cur_state->add_player_state(item->get_name(),item->get_pos_v1(),
+        cur_state->add_player_state(*item->get_name_id(),item->get_pos_v1(),
                 item->get_speed_v1(),item->get_budget());
     }
     this->cur_state->g_grid=this->grid;

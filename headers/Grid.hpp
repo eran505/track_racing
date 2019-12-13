@@ -17,8 +17,7 @@ typedef unsigned int uint;
 --------------------------------------------------------------------------------*/
 struct game_params {
 
-    uint X;
-    uint Y;
+    Point size;
     list<Point *>* list_goals;
 
 
@@ -30,19 +29,31 @@ struct game_params {
 class Grid{
 private:
     //fields
-    uint x_size;
-    uint y_size;
+    Point size_point;
     string **grid;
     list<Point *>* all_golas;
 
-    void build_grid();
+
 
     public:
-        Grid();
+        Grid(const game_params&);
         void print_vaule();
-        void init_grid(const game_params&);
         ~Grid();
-        std::list<std::tuple<uint,uint>> get_goals();
+        list<Point*> get_goals() {
+            return *all_golas;
+        }
+
+        bool is_at_goal(const Point* loc_point ){
+            for (auto item_goal : *(this->all_golas)){
+                if (item_goal->is_equal(loc_point))
+                    return true;
+            }
+            return false;
+        }
+        bool is_wall(Point *ptr_point_loc){
+            return ptr_point_loc->out_of_bound(this->size_point);
+        }
+
 };
 
 class box{
@@ -52,10 +63,10 @@ public:
     box() {
         this->info="";
     }
-
     string info;
     friend ostream& operator<<(ostream& os,  const box& my_box);
     void set_agent(string &str_agent);
+
 };
 
 

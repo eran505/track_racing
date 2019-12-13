@@ -18,12 +18,12 @@ string State::to_string_state() {
     char sep='_';
     string str="";
 
-    for(auto item : this->pos_dict){
+    for(auto &item : this->pos_dict){
         string id_name = item.first;
-        auto my_pos = item.second;
-        auto my_speed = this->speed_dict[id_name];
+        auto my_pos = &item.second;
+        auto my_speed = &this->speed_dict[id_name];
         int my_budget = this->budget_dict[id_name];
-        str+=id_name+sep+my_pos.to_str()+sep+my_speed.to_str()+sep+to_string(my_budget);
+        str+=id_name+sep+my_pos->to_str()+sep+my_speed->to_str()+sep+to_string(my_budget);
         str+="|";
     }
     return str;
@@ -40,6 +40,7 @@ State::~State() {
 }
 
 State::State(const State &other) {
+    cout<<"COPY Constractor STATE"<<endl;
     for (auto item : other.pos_dict){
         string name_id = item.first;
         auto pos_i = other.pos_dict.at(name_id);
@@ -50,6 +51,23 @@ State::State(const State &other) {
         this->pos_dict.insert({name_id,pos_i});
         this->budget_dict.insert({name_id,budget_i});
     }
+}
+
+list<string> State::is_collusion() {
+    list<string> list_name;
+    for(auto item : this->pos_dict){
+        char team_id = item.first.operator[](0);
+
+
+    }
+
+
+    return list_name;
+}
+bool State::move_by_change_speed(const string& name_id, const Point& speed_m){
+    this->speed_dict[name_id]=speed_m;
+    this->pos_dict[name_id]+= speed_m;
+    return  this->g_grid->is_wall(&(this->pos_dict[name_id]));
 }
 
 

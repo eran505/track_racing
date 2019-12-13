@@ -11,11 +11,12 @@
 
 class Dog: public Policy{
     int x;
+
 public:
-    Dog(string idName, string namePolicy);
-    Dog(string idName, string namePolicy,int x);
+    Dog(string namePolicy, int speed_MAX, int x);
+    Dog(string namePolicy,int speed_MAX);
     void set_move(int x);
-    Point get_action(State s) override;
+    Point get_action(State *s) override;
     ~Dog();
     void set_x(int dest){this->x=dest;}
     void reset_policy() override;
@@ -23,9 +24,11 @@ public:
 
 };
 
-Point Dog::get_action(State s){
-    int move = this->x;
-    Point p(move,move);
+Point Dog::get_action(State *s){
+    //auto x = range_random(-1,1);
+    //auto y = range_random(-1,1);
+
+    Point p(0,0);
     return p;
 }
 
@@ -43,15 +46,15 @@ void Dog::policy_data() {
     printf("Dog::No Data is available");
 }
 
-Dog::Dog(string idName, string namePolicy) : Policy(idName, namePolicy) {
+Dog::Dog( string namePolicy,int MAX_SPEED) : Policy( std::move(namePolicy),MAX_SPEED) {
     this->x=1;
 }
 
 Dog::~Dog() {
-
+    //cout<<"DOG del"<<endl;
 }
 
-Dog::Dog(string idName, string namePolicy, int x) : Policy(idName, namePolicy) {
+Dog::Dog(string namePolicy, int speed_MAX,int x) : Policy(std::move(namePolicy),speed_MAX) {
     this->x=x;
 }
 

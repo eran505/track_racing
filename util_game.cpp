@@ -6,13 +6,21 @@
 
 
 Point::Point(int x, int y){
+    printf("POINT_CON\n");
     this->array[0]=x;
     this->array[1]=y;
 }
 
-bool Point::operator==(const Point *other) {
+bool Point::operator==(const Point &other) {
     for (int i = 0; i <this->capacity; ++i)
-        if (this->array[i]!=other->array[i])
+        if (this->array[i]!=other.array[i])
+            return false;
+    return true;
+}
+
+bool Point::is_equal(const Point *otehr) const{
+    for (int i = 0; i <this->capacity; ++i)
+        if (this->array[i]!=otehr->array[i])
             return false;
     return true;
 }

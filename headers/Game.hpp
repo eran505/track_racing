@@ -9,7 +9,8 @@
 
 class Game {
 
-    list<Agent*> *in_game;
+    list<Agent*> *in_game_adversaries;
+    list<Agent*> *in_game_guards;
     list<Agent*> *out_game;
     MdpPlaner *planer;
 
@@ -25,7 +26,13 @@ public:
     void fill_agents();
     void print_list_in_game();
     void loop_game();
-
+    void constraint_checking_end_game();
+    void del_palyer(Agent *agent,bool is_guard);
+    bool is_end_game();
+    void reset_game();
+    void del_all_player();
+    void del_list_func(list<Agent*> l,bool guard);
+    static bool validate_player(Agent *player);
 };
 
 
