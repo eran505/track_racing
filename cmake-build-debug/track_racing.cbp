@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6"/>
+	<Project>
+		<Option title="track_racing"/>
+		<Option makefile_is_custom="1"/>
+		<Option compiler="gcc"/>
+		<Option virtualFolders="CMake Files\;"/>
+		<Build>
+			<Target title="all">
+				<Option working_dir="/home/ise/eran/repo/track_racing/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 all"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rebuild_cache">
+				<Option working_dir="/home/ise/eran/repo/track_racing/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 rebuild_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="track_racing">
+				<Option output="/home/ise/eran/repo/track_racing/cmake-build-debug/track_racing" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/ise/eran/repo/track_racing/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/ise/eran/repo/track_racing/."/>
+					<Add directory="/home/ise/eran/repo/track_racing/headers"/>
+					<Add directory="/home/ise/eran/repo/track_racing/headers/Policy"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 track_racing"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="track_racing/fast">
+				<Option output="/home/ise/eran/repo/track_racing/cmake-build-debug/track_racing" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/ise/eran/repo/track_racing/cmake-build-debug"/>
+				<Option object_output="./"/>
+				<Option type="1"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add directory="/home/ise/eran/repo/track_racing/."/>
+					<Add directory="/home/ise/eran/repo/track_racing/headers"/>
+					<Add directory="/home/ise/eran/repo/track_racing/headers/Policy"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 track_racing/fast"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="edit_cache">
+				<Option working_dir="/home/ise/eran/repo/track_racing/cmake-build-debug"/>
+				<Option type="4"/>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 edit_cache"/>
+					<CompileFile command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j4 -f &quot;/home/ise/eran/repo/track_racing/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+		</Build>
+		<Unit filename="/home/ise/eran/repo/track_racing/Agent.cpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/Game.cpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/Grid.cpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/MdpPlaner.cpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/State.cpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/Agent.hpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/Game.hpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/Grid.hpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/MdpPlaner.hpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/Policy/Dog.hpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/Policy/Policy.hpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/Policy/RTDP_util.cpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/Policy/RTDP_util.hpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/Policy/RtdpAlgo.cpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/Policy/RtdpAlgo.hpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/State.hpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/Transition.hpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/graph/graph_util.hpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/util_game.hpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/main.cpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/util_game.cpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/CMakeLists.txt">
+			<Option virtualFolder="CMake Files\"/>
+		</Unit>
+	</Project>
+</CodeBlocks_project_file>

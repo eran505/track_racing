@@ -33,6 +33,8 @@ public:
     void del_all_player();
     void del_list_func(list<Agent*> l,bool guard);
     static bool validate_player(Agent *player);
+
+    void start_game(int numIter);
 };
 
 

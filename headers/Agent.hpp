@@ -18,21 +18,24 @@ protected:
     Policy* my_Policy;
     Point* my_speed;
     int my_budget;
+    bool is_wall;
     const char my_team;
     const string my_id;
     string name;
 
 
 public:
+    bool get_is_wall(){ return is_wall;}
+    void rest(){is_wall= false;}
     const string* get_name_id(){ return &my_id;}
     Agent(Point* pos,Point* speed,string m_id , char m_team,int b_budget);
     Agent(Point* pos,Point* speed, char m_team,int b_budget);
     string get_id(){ return my_id; }
     char get_team() { return my_team; }
     string get_name();
-    const Policy* get_Policy(){ return my_Policy;};
-    void do_action(State *s);
-    void set_policy(Policy* p_ptr){p_ptr->set_id(this->my_id); this->my_Policy=p_ptr;}
+    const Policy* getPolicy(){ return my_Policy;};
+    void doAction(State *s);
+    void setPolicy(Policy* pPtr){pPtr->set_id(this->my_id); this->my_Policy=pPtr;}
     ~Agent();
 
     void set_speed(Point *cur_speed) {
@@ -49,12 +52,12 @@ public:
     int get_budget(){ return this->my_budget;}
 
     Point* get_speed(){
-        Point *p = new Point(*this->my_speed);
+        auto *p = new Point(*this->my_speed);
         return p;
     }
 
     Point* get_pos(){
-        Point *p = new Point(*this->my_pos);
+        auto *p = new Point(*this->my_pos);
         return p;
     }
     Point get_pos_v1(){

@@ -68,9 +68,7 @@ void MdpPlaner::set_state() {
                 item->get_speed_v1(),item->get_budget());
     }
     this->cur_state->g_grid=this->grid;
-    cout<<"----"<<endl;
-    cout<<this->cur_state->to_string_state()<<endl;
-    cout<<"----"<<endl;
+
 }
 
 

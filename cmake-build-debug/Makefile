@@ -258,6 +258,60 @@ State.cpp.s:
 	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/State.cpp.s
 .PHONY : State.cpp.s
 
+headers/Policy/RTDP_util.o: headers/Policy/RTDP_util.cpp.o
+
+.PHONY : headers/Policy/RTDP_util.o
+
+# target to build an object file
+headers/Policy/RTDP_util.cpp.o:
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.o
+.PHONY : headers/Policy/RTDP_util.cpp.o
+
+headers/Policy/RTDP_util.i: headers/Policy/RTDP_util.cpp.i
+
+.PHONY : headers/Policy/RTDP_util.i
+
+# target to preprocess a source file
+headers/Policy/RTDP_util.cpp.i:
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.i
+.PHONY : headers/Policy/RTDP_util.cpp.i
+
+headers/Policy/RTDP_util.s: headers/Policy/RTDP_util.cpp.s
+
+.PHONY : headers/Policy/RTDP_util.s
+
+# target to generate assembly for a file
+headers/Policy/RTDP_util.cpp.s:
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.s
+.PHONY : headers/Policy/RTDP_util.cpp.s
+
+headers/Policy/RtdpAlgo.o: headers/Policy/RtdpAlgo.cpp.o
+
+.PHONY : headers/Policy/RtdpAlgo.o
+
+# target to build an object file
+headers/Policy/RtdpAlgo.cpp.o:
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.o
+.PHONY : headers/Policy/RtdpAlgo.cpp.o
+
+headers/Policy/RtdpAlgo.i: headers/Policy/RtdpAlgo.cpp.i
+
+.PHONY : headers/Policy/RtdpAlgo.i
+
+# target to preprocess a source file
+headers/Policy/RtdpAlgo.cpp.i:
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.i
+.PHONY : headers/Policy/RtdpAlgo.cpp.i
+
+headers/Policy/RtdpAlgo.s: headers/Policy/RtdpAlgo.cpp.s
+
+.PHONY : headers/Policy/RtdpAlgo.s
+
+# target to generate assembly for a file
+headers/Policy/RtdpAlgo.cpp.s:
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.s
+.PHONY : headers/Policy/RtdpAlgo.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -336,6 +390,12 @@ help:
 	@echo "... State.o"
 	@echo "... State.i"
 	@echo "... State.s"
+	@echo "... headers/Policy/RTDP_util.o"
+	@echo "... headers/Policy/RTDP_util.i"
+	@echo "... headers/Policy/RTDP_util.s"
+	@echo "... headers/Policy/RtdpAlgo.o"
+	@echo "... headers/Policy/RtdpAlgo.i"
+	@echo "... headers/Policy/RtdpAlgo.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

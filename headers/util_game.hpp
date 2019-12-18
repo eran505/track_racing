@@ -8,7 +8,10 @@
 #include <string>
 #include <list>
 #include <iostream>
+#include <vector>
+#include <unordered_map>
 #include <map>
+#include <set>
 using namespace std;
 
 enum Section{
@@ -35,15 +38,15 @@ public:
     }
     int capacity=D_point::D;
     int array[D_point::D]{};
-    Point(){printf("POINT_EMPTY_CON\n");};
+    Point(){//printf("POINT_EMPTY_CON\n");
+         };
     Point(const Point &other):capacity(other.capacity)
     {
-        printf("COPY_CON POINT\n  ");
+        //printf("COPY_CON POINT\n  ");
         for (int i = 0; i < this->capacity; ++i) {
             this->array[i]=other.array[i];
         }
     }
-
 
     void operator+=(const Point &other){
 
@@ -52,13 +55,15 @@ public:
         }
 
     }
-//    Point& operator+=(const Point *other){
-//
-//        for (int i = 0; i < this->capacity; ++i) {
-//            this->array[i]=this->array[i]+other->array[i];
-//        }
-//        return *this;
+    int hash2D() const
+    {
+        return  (53 + (array[0])) * 53 + (array[1]);
+    }
+//    int hash3D(){
+//        return  ((53 +  array[0]) * 53 +  array[1]) * 53 + array[2];
 //    }
+
+
 
     Point& operator-=(const Point* other){
 
@@ -104,5 +109,7 @@ public:
 };
 
 int range_random(int min, int max); //range : [min, max)
+
+
 
 #endif //RACING_CAR_UTIL_GAME_HPP

@@ -42,7 +42,13 @@ private:
         list<Point*> get_goals() {
             return *all_golas;
         }
-
+        int getSizeIntGrid(){
+            int size = 1;
+            for (int i = 0; i < this->size_point.capacity; ++i) {
+                size*=this->size_point.array[i];
+            }
+            return size;
+        }
         bool is_at_goal(const Point* loc_point ){
             for (auto item_goal : *(this->all_golas)){
                 if (item_goal->is_equal(loc_point))

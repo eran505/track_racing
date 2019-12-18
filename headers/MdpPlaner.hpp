@@ -16,6 +16,7 @@ public:
     Agent* get_player(string str_id_name);
     State* get_cur_state(){ return cur_state;};
     State get_copy_state(){ return *cur_state;};
+
     ~MdpPlaner();
     void set_state();
     MdpPlaner():
@@ -31,7 +32,10 @@ public:
     void set_grid(Grid *g);
     Grid * get_Grid(){ return grid;};
     list<Agent *> *get_all_players(list<Agent *> *traget_list);
-
+    void reset_state(){
+        delete(this->cur_state);
+        this->set_state();
+    }
 protected:
     double goal_reward;
     double collusion_reward;

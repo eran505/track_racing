@@ -6,7 +6,7 @@
 
 
 Point::Point(int x, int y){
-    printf("POINT_CON\n");
+    //printf("POINT_CON\n");
     this->array[0]=x;
     this->array[1]=y;
 }
@@ -24,6 +24,8 @@ bool Point::is_equal(const Point *otehr) const{
             return false;
     return true;
 }
+
+
 
 
 int range_random(int min, int max) //range : [min, max)

@@ -8,7 +8,7 @@
 
 int Agent::ctr_object = 0;
 Agent::Agent( Point* pos, Point* speed, string m_id, char m_team, int b_budget)
-: my_id(m_id), my_team(m_team) {
+: my_id(m_id), my_team(m_team),is_wall(false) {
     this->my_pos=pos;
     this->my_speed=speed;
     this->my_budget=b_budget;
@@ -41,19 +41,19 @@ Agent::~Agent() {
 }
 
 Agent::Agent( Point* pos, Point* speed, char m_team, int b_budget)
-        : my_id(std::to_string(ctr_object)+m_team), my_team(m_team)  {
+        : my_id(std::to_string(ctr_object)+m_team), my_team(m_team),is_wall(false) {
     this->my_pos=pos;
     this->my_speed=speed;
     this->my_budget=b_budget;
     ctr_object++;
 }
 
-void Agent::do_action(State *s) {
+void Agent::doAction(State *s) {
     //do something with the state
     Point action_a = this->my_Policy->get_action(s);
-
-    this->my_Policy->apply_action_to_state(s,&action_a);
-
+    //cout<<"action_a"<<action_a.to_str()<<endl;
+    this->my_Policy->applyActionToState(s, &action_a);
+    is_wall=my_Policy->is_wall;
     // check for max speed
 
     //cout<<s->to_string_state()<<endl;
