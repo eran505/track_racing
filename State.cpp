@@ -4,24 +4,23 @@
 
 #include "headers/State.hpp"
 
-void State::add_player_state(string name_id,Point m_pos,Point m_speed,int budget_b) {
+void State::add_player_state(const string& name_id, const Point *m_pos, const Point *m_speed, int budget_b) {
+    this->pos_dict.emplace(name_id,*m_pos);
 
-    this->pos_dict[name_id]=m_pos;
-
-    this->speed_dict[name_id]=m_speed;
+    this->speed_dict.emplace(name_id,*m_speed);
 
     this->budget_dict[name_id]=budget_b;
 }
 
-string State::to_string_state() {
+string State::to_string_state() const {
     char sep='_';
     string str="";
-
-    for(auto &item : this->pos_dict){
+    for(const auto &item : this->pos_dict){
         string id_name = item.first;
         auto my_pos = &item.second;
-        auto my_speed = &this->speed_dict[id_name];
-        int my_budget = this->budget_dict[id_name];
+        auto pos_speed = this->speed_dict.find(id_name);
+        auto my_speed = &pos_speed->second;
+        int my_budget = this->budget_dict.at(id_name);
         str+=id_name+sep+my_pos->to_str()+sep+my_speed->to_str()+sep+to_string(my_budget);
         str+="|";
     }
@@ -39,7 +38,8 @@ State::~State() {
 }
 
 State::State(const State &other) {
-    //cout<<"COPY Constractor STATE"<<endl;
+   // cout<<"COPY Constractor STATE"<<endl;
+
     for (auto item : other.pos_dict){
         string name_id = item.first;
         auto pos_i = other.pos_dict.at(name_id);
@@ -107,6 +107,38 @@ bool State::isGoal() {
         }
     }
     return false;
+}
+
+bool State::applyAction(const string &id, Point &action, int max_speed) {
+    auto pos = this->speed_dict.find(id);
+    if (pos==this->speed_dict.end())
+        throw;
+    pos->second+=action;
+    pos->second.change_speed_max(max_speed);
+    auto pos_on_grid = this->pos_dict.find(id);
+    pos_on_grid->second+=pos->second;
+    return this->g_grid->is_wall(&(pos_on_grid->second));;
+}
+
+void State::assignment(State &other)
+{
+    for(const auto &item: other.budget_dict)
+        this->assignment(other,item.first);
+}
+
+void State::assignment(State &other, const string &id) {
+    this->pos_dict[id]=other.get_position(id);
+    this->speed_dict[id]=other.get_speed(id);
+    this->budget_dict[id]=other.get_budget(id);
+}
+
+void State::getAllPosOpponent(vector<Point> &results,char team) {
+    for(auto &pos: this->pos_dict)
+    {
+        if (pos.first[1]==team)
+            continue;
+        results.push_back(pos.second);
+    }
 }
 
 

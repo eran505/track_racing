@@ -312,6 +312,33 @@ headers/Policy/RtdpAlgo.cpp.s:
 	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.s
 .PHONY : headers/Policy/RtdpAlgo.cpp.s
 
+headers/serach/Astar.o: headers/serach/Astar.cpp.o
+
+.PHONY : headers/serach/Astar.o
+
+# target to build an object file
+headers/serach/Astar.cpp.o:
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.o
+.PHONY : headers/serach/Astar.cpp.o
+
+headers/serach/Astar.i: headers/serach/Astar.cpp.i
+
+.PHONY : headers/serach/Astar.i
+
+# target to preprocess a source file
+headers/serach/Astar.cpp.i:
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.i
+.PHONY : headers/serach/Astar.cpp.i
+
+headers/serach/Astar.s: headers/serach/Astar.cpp.s
+
+.PHONY : headers/serach/Astar.s
+
+# target to generate assembly for a file
+headers/serach/Astar.cpp.s:
+	$(MAKE) -f CMakeFiles/track_racing.dir/build.make CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.s
+.PHONY : headers/serach/Astar.cpp.s
+
 main.o: main.cpp.o
 
 .PHONY : main.o
@@ -396,6 +423,9 @@ help:
 	@echo "... headers/Policy/RtdpAlgo.o"
 	@echo "... headers/Policy/RtdpAlgo.i"
 	@echo "... headers/Policy/RtdpAlgo.s"
+	@echo "... headers/serach/Astar.o"
+	@echo "... headers/serach/Astar.i"
+	@echo "... headers/serach/Astar.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

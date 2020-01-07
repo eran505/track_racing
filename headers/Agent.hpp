@@ -26,8 +26,8 @@ protected:
 
 public:
     bool get_is_wall(){ return is_wall;}
-    void rest(){is_wall= false;}
-    const string* get_name_id(){ return &my_id;}
+    void rest(){is_wall= false; this->my_Policy->reset_policy();}
+    const string& get_name_id(){ return my_id;}
     Agent(Point* pos,Point* speed,string m_id , char m_team,int b_budget);
     Agent(Point* pos,Point* speed, char m_team,int b_budget);
     string get_id(){ return my_id; }
@@ -51,14 +51,12 @@ public:
     }
     int get_budget(){ return this->my_budget;}
 
-    Point* get_speed(){
-        auto *p = new Point(*this->my_speed);
-        return p;
+    const Point* get_speed(){
+        return this->my_speed;
     }
 
-    Point* get_pos(){
-        auto *p = new Point(*this->my_pos);
-        return p;
+    const Point* get_pos(){
+        return this->my_pos;
     }
     Point get_pos_v1(){
         return *my_pos;

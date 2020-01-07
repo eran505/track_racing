@@ -13,10 +13,19 @@ class Game {
     list<Agent*> *in_game_guards;
     list<Agent*> *out_game;
     MdpPlaner *planer;
+    int ctr_coll=0;
+    int ctr_at_gal=0;
+    int ctr_wall=0;
+    int ctr_round=0;
 
 public:
-    Game(MdpPlaner *planer_m);
-
+    explicit Game(MdpPlaner *planer_m);
+    void print_stats(){
+        cout<<"ctr_round= "<<ctr_round;
+        cout<<"\tctr_coll= "<<ctr_coll;
+        cout<<"\tctr_at_goal= "<<ctr_at_gal;
+        cout<<"\tctr_wall= "<<ctr_wall<<endl;
+    }
     unsigned int ctr_game;
     unsigned int uper_limt;
     ~Game();
@@ -34,7 +43,7 @@ public:
     void del_list_func(list<Agent*> l,bool guard);
     static bool validate_player(Agent *player);
 
-    void start_game(int numIter);
+    vector<int*>* startGame(int numIter);
 };
 
 

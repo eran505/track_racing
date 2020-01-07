@@ -1,28 +1,30 @@
 //
 // Created by ise on 14.12.2019.
 //
-
-#ifndef TRACK_RACING_GRAPH_UTIL_HPP
-#define TRACK_RACING_GRAPH_UTIL_HPP
+//
+//#ifndef TRACK_RACING_GRAPH_UTIL_HPP
+//#define TRACK_RACING_GRAPH_UTIL_HPP
 //
 //#include <boost/graph/grid_graph.hpp>
-//#include <boost/graph/graphviz.hpp>
-//#include <boost/array.hpp>
+////#include <boost/graph/graphviz.hpp>
+////#include <boost/array.hpp>
 //#include <cstddef>
+//#include <boost/graph/adjacency_list.hpp>
+//#include <boost/graph/breadth_first_search.hpp>
 //#include "util_game.hpp"
 //#include <boost/graph/graph_utility.hpp> // print_graph
 //
 ////
 //using namespace boost;
-//typedef grid_graph<2> Graph;
-//typedef graph_traits<Graph> Traits;
+//typedef grid_graph<2> Graph_dummy;
+//typedef graph_traits<Graph_dummy> Traits;
 //typedef list<Point*> list_point;
 //
 //
 //
 //class GraphUtil{
 //
-//    Graph *g_graph;
+//    Graph_dummy *g_graph;
 //public:
 //    void print_me(){print_graph(*g_graph);}
 //    void GraphUtil_ShortestPath(size_t x,size_t y);
@@ -37,7 +39,7 @@
 //void GraphUtil::GraphUtil_ShortestPath(size_t x, size_t y) {
 //
 //    boost::array<size_t, 2> lengths = { { x, y } };
-//    Graph graph(lengths);
+//    Graph_dummy graph(lengths);
 //    g_graph = &graph;
 //    for (Traits::vertices_size_type v_index = 0;
 //         v_index < num_vertices(graph); ++v_index) {
@@ -66,10 +68,5 @@
 //    Traits::vertex_descriptor first_vertex = vertex(3, graph);
 //    Traits::vertex_descriptor goal_vertex = vertex(0, graph);
 //
-//    print_graph(graph, std::cout);
-//
 //}
-
-
-
-#endif //TRACK_RACING_GRAPH_UTIL_HPP
+//

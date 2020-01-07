@@ -12,8 +12,6 @@ Game::Game(MdpPlaner *planer_m) {
     this->planer = planer_m;
     this->ctr_game=15;
     this->uper_limt=300;
-
-
 }
 
 Game::~Game() {
@@ -21,8 +19,6 @@ Game::~Game() {
     delete(this->in_game_guards);
     delete(this->in_game_adversaries);
     delete(this->planer);
-
-
 }
 
 
@@ -81,24 +77,35 @@ void Game::print_list_in_game() {
         cout<<i->to_str()<<endl;
 }
 
-void Game::start_game(int numIter)
+vector<int*>* Game::startGame(int numIter)
 {
+    auto info = new vector<int*>();
     this->init_game();
     this->fill_agents();
     //this->reset_game();
     for (int i = 0; i < numIter; ++i) {
+        //cout<<"game: "<<i<<endl;
         this->loop_game();
         this->reset_game();
+        ctr_round++;
+        //this->print_stats();
+        int *tmp = new int[4];
+        tmp[0]=ctr_round;
+        tmp[1]=this->ctr_wall;
+        tmp[2]=this->ctr_coll;
+        tmp[3] = this->ctr_at_gal;
+        info->emplace_back(tmp);
     }
+    return info;
 
 }
 
 void Game::loop_game() {
-    cout<<"-----New Game------"<<endl;
-    cout<<this->planer->get_cur_state()->to_string_state()<<endl;
+    //cout<<"-----New Game------"<<endl;
+    //cout<<this->planer->get_cur_state()->to_string_state()<<endl;
     int i=0;
     for (i = 0; i < this->ctr_game; ++i) {
-        cout<<"round: "<<i<<endl;
+        //cout<<"round: "<<i<<endl;
         //print the state of the game
         //cout<<this->planer->get_copy_state().to_string_state();
         for (auto i : *(this->in_game_guards)){
@@ -111,7 +118,7 @@ void Game::loop_game() {
             i->doAction(planer->get_cur_state());
         }
 
-        cout<<this->planer->get_cur_state()->to_string_state()<<endl;
+        //cout<<this->planer->get_cur_state()->to_string_state()<<endl;
 
 
         // check constrain end game (Wall/Budget/Coll/Goal)
@@ -138,9 +145,9 @@ void Game::constraint_checking_end_game(){
     list<Agent*> to_del_ad;
     list<Agent*> to_del_gu;
     for (auto i : *(this->in_game_adversaries)){
-        auto pos = &(planer->get_cur_state()->get_position(*i->get_name_id())); // call the copy con
+        auto pos = &(planer->get_cur_state()->get_position(i->get_name_id())); // call the copy con
         if (validate_player(i)){
-            cout<<"Del\t"<<i->get_id()<<"\tbudget/wall"<<endl;
+            //cout<<"Del\t"<<i->get_id()<<"\tbudget/wall"<<endl;
             //push to list of del player
             to_del_ad.push_front(i);
             continue;
@@ -150,9 +157,10 @@ void Game::constraint_checking_end_game(){
         if (this->planer->get_Grid()->is_at_goal(pos))
         {
             //remove this player from the game
-            cout<<"Del\t"<<i->get_id()<<"\tAt Goal"<<endl;
+            //cout<<"Del\t"<<i->get_id()<<"\tAt Goal"<<endl;
             // push to list of del player
             to_del_ad.push_front(i);
+            this->ctr_at_gal++;
 
         }
     }
@@ -162,15 +170,16 @@ void Game::constraint_checking_end_game(){
     for (auto i : *(this->in_game_guards)) {
         if (validate_player(i)){
             //remove player
-            cout<<"Del\t"<<i->get_id()<<"\tbudget/wall"<<endl;
+            //cout<<"Del\t"<<i->get_id()<<"\tbudget/wall"<<endl;
             to_del_gu.push_front(i);
+            ctr_wall++;
             continue;
         }
-        auto pos = &(planer->get_cur_state()->get_position(*i->get_name_id()));
+        auto pos = &(planer->get_cur_state()->get_position(i->get_name_id()));
         //coll
         list<Agent*> l;
         for(auto adversary:*(this->in_game_adversaries)){
-            auto pos_bad = &planer->get_cur_state()->get_position(*adversary->get_name_id());
+            auto pos_bad = &planer->get_cur_state()->get_position(adversary->get_name_id());
             if( pos_bad->is_equal(pos)){
                 l.push_front(adversary);
             }
@@ -178,12 +187,13 @@ void Game::constraint_checking_end_game(){
         if (l.size()>0){
             for (auto player: l){
                 //remove  player
-                cout<<"Del\t"<<player->get_id()<<" - Coll"<<endl;
+                //cout<<"Del\t"<<player->get_id()<<" - Coll"<<endl;
                 to_del_ad.push_front(player);
             }
             // remove guard
-            cout<<"Del\t"<<i->get_id()<<" - Coll"<<endl;
+            //cout<<"Del\t"<<i->get_id()<<" - Coll"<<endl;
             to_del_gu.push_front(i);
+            ctr_coll++;
         }
     }
     // remove all guards agents

@@ -36,6 +36,7 @@ private:
 
 
     public:
+        Point getPointSzie(){ return size_point;}
         Grid(const game_params&);
         void print_vaule();
         ~Grid();

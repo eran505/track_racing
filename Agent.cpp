@@ -17,7 +17,7 @@ Agent::Agent( Point* pos, Point* speed, string m_id, char m_team, int b_budget)
 
 string Agent::to_str() {
     string str_res;
-    str_res = *this->get_name_id()+"_"+this->my_pos->to_str()+"_"+this->my_speed->to_str()+"_"+
+    str_res = this->get_name_id()+"_"+this->my_pos->to_str()+"_"+this->my_speed->to_str()+"_"+
             std::to_string(this->my_budget);
     return str_res;
 }

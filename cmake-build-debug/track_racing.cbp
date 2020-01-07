@@ -120,6 +120,9 @@
 		<Unit filename="/home/ise/eran/repo/track_racing/headers/Policy/Dog.hpp">
 			<Option target="track_racing"/>
 		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/Policy/PathPolicy.hpp">
+			<Option target="track_racing"/>
+		</Unit>
 		<Unit filename="/home/ise/eran/repo/track_racing/headers/Policy/Policy.hpp">
 			<Option target="track_racing"/>
 		</Unit>
@@ -141,7 +144,22 @@
 		<Unit filename="/home/ise/eran/repo/track_racing/headers/Transition.hpp">
 			<Option target="track_racing"/>
 		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/graph/graph_dummy.hpp">
+			<Option target="track_racing"/>
+		</Unit>
 		<Unit filename="/home/ise/eran/repo/track_racing/headers/graph/graph_util.hpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/serach/Astar.cpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/serach/Astar.hpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/util/csvfile.hpp">
+			<Option target="track_racing"/>
+		</Unit>
+		<Unit filename="/home/ise/eran/repo/track_racing/headers/util/utilClass.hpp">
 			<Option target="track_racing"/>
 		</Unit>
 		<Unit filename="/home/ise/eran/repo/track_racing/headers/util_game.hpp">

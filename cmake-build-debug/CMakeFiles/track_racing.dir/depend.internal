@@ -36,21 +36,32 @@ CMakeFiles/track_racing.dir/State.cpp.o
  /home/ise/eran/repo/track_racing/headers/util_game.hpp
 CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.o
  /home/ise/eran/repo/track_racing/headers/Grid.hpp
+ /home/ise/eran/repo/track_racing/headers/Policy/Policy.hpp
  /home/ise/eran/repo/track_racing/headers/Policy/RTDP_util.cpp
  /home/ise/eran/repo/track_racing/headers/Policy/RTDP_util.hpp
  /home/ise/eran/repo/track_racing/headers/State.hpp
+ /home/ise/eran/repo/track_racing/headers/util/csvfile.hpp
  /home/ise/eran/repo/track_racing/headers/util_game.hpp
 CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.o
  ../headers/Policy/Policy.hpp
  /home/ise/eran/repo/track_racing/headers/Grid.hpp
+ /home/ise/eran/repo/track_racing/headers/Policy/Policy.hpp
  /home/ise/eran/repo/track_racing/headers/Policy/RTDP_util.hpp
  /home/ise/eran/repo/track_racing/headers/Policy/RtdpAlgo.cpp
  /home/ise/eran/repo/track_racing/headers/Policy/RtdpAlgo.hpp
  /home/ise/eran/repo/track_racing/headers/State.hpp
+ /home/ise/eran/repo/track_racing/headers/util/csvfile.hpp
  /home/ise/eran/repo/track_racing/headers/util_game.hpp
+CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.o
+ ../headers/util_game.hpp
+ /home/ise/eran/repo/track_racing/headers/serach/Astar.cpp
+ /home/ise/eran/repo/track_racing/headers/serach/Astar.hpp
 CMakeFiles/track_racing.dir/main.cpp.o
+ ../headers/Policy/PathPolicy.hpp
  ../headers/Policy/RTDP_util.hpp
  ../headers/Policy/RtdpAlgo.hpp
+ ../headers/serach/Astar.hpp
+ ../headers/util/csvfile.hpp
  /home/ise/eran/repo/track_racing/headers/Agent.hpp
  /home/ise/eran/repo/track_racing/headers/Game.hpp
  /home/ise/eran/repo/track_racing/headers/Grid.hpp
@@ -58,6 +69,7 @@ CMakeFiles/track_racing.dir/main.cpp.o
  /home/ise/eran/repo/track_racing/headers/Policy/Dog.hpp
  /home/ise/eran/repo/track_racing/headers/Policy/Policy.hpp
  /home/ise/eran/repo/track_racing/headers/State.hpp
+ /home/ise/eran/repo/track_racing/headers/graph/graph_dummy.hpp
  /home/ise/eran/repo/track_racing/headers/graph/graph_util.hpp
  /home/ise/eran/repo/track_racing/headers/util_game.hpp
  /home/ise/eran/repo/track_racing/main.cpp

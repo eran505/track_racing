@@ -18,42 +18,32 @@ public:
     bool is_wall;
     int D=2;
     string id_agent;
-    map<int,Point*> MapindexAction;
-    map<int,int> *hashActionMap{};
-    list<Policy*> tran;
+    unordered_map<int,Point*>* hashActionMap;
+    vector<Policy*> tran;
     Policy(string name_policy,int max_speed_agent)
     :max_speed(max_speed_agent){
         this->name=std::move(name_policy);
         this->is_wall=false;
         this->out_budget= false;
-        this->hashActionMap = new map<int,int>();
-        this->setUpMapAction();
+        this->hashActionMap = Point::getDictAction();
     }
     const string* get_id_name(){ return &id_agent;}
-
-    int get_hash_index(const Point &point)
-    {
-
-        auto pos = this->hashActionMap->find(point.hash2D());
-        if (pos==this->hashActionMap->end())
-        throw;
-        return pos->second;
-    }
+    const string& GetId(){ return id_agent;}
 
     virtual ~Policy(){
-        for (auto &item : this->MapindexAction)
+        for (auto &item : *this->hashActionMap)
             delete(item.second);
         delete(hashActionMap);
     }
 
     void set_id(string id_m){this->id_agent=std::move(id_m);}
     virtual Point get_action(State *s)=0;
-    virtual void reset_policy() {cout<<"reset_policy base"<<endl;};
-    virtual void policy_data(){cout<<"policy_data base"<<endl;}
-    virtual vector<float >* TransitionAction(State *s)=0;
+    virtual void reset_policy() {};
+    virtual void policy_data()const=0;
+    virtual const vector<float >* TransitionAction(State *s)=0;
     void add_tran(Policy *ptr_tran)
     {
-        this->tran.push_front(ptr_tran);
+        this->tran.push_back(ptr_tran);
     }
     void applyActionToState(State *my_state, Point *action ){
         // change the budget according the budget function
@@ -76,23 +66,7 @@ public:
         auto new_budget = (state_now->get_budget(id_agent));
         state_now->set_budget(id_agent,new_budget);
     }
-    void setUpMapAction()
-    {
-        int ctrState=0;
-        if (D == 2)
-        {
-            //this->MapindexAction = new map<int,Point*>();
 
-            for (int i = -1; i < 2 ; i++) {
-                for (int j = -1; j < 2; j++) {
-                    auto *pPoint = new Point(i, j);
-                    this->MapindexAction.insert({ctrState, pPoint});
-                    this->hashActionMap->insert({pPoint->hash2D(),ctrState});
-                    ctrState++;
-                }
-            }
-        }
-    }
 };
 
 

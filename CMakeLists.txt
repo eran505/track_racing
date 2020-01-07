@@ -23,4 +23,4 @@ add_executable(track_racing
         main.cpp
         MdpPlaner.cpp
         State.cpp
-        util_game.cpp headers/graph/graph_util.hpp headers/Policy/RTDP_util.hpp headers/Policy/RTDP_util.cpp headers/Policy/RtdpAlgo.hpp headers/Policy/RtdpAlgo.cpp)
+        util_game.cpp headers/graph/graph_util.hpp headers/Policy/RTDP_util.hpp headers/Policy/RTDP_util.cpp headers/Policy/RtdpAlgo.hpp headers/Policy/RtdpAlgo.cpp headers/graph/graph_dummy.hpp headers/serach/Astar.hpp headers/serach/Astar.cpp headers/Policy/PathPolicy.hpp headers/util/csvfile.hpp headers/util/utilClass.hpp)
