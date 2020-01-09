@@ -7,13 +7,13 @@
 
 #include "../serach/Astar.hpp"
 #include "Policy.hpp"
-
+#include <assert.h>
 #include <utility>
 
 typedef vector<tuple<Point*,double>> listPointWeighted;
 
 class PathPolicy:public Policy{
-
+    unsigned long maxPathsNumber;
     listPointWeighted goalPoint;
     listPointWeighted startPoint;
     unordered_map<int,vector<float>*> *dictPolicy;
@@ -23,36 +23,40 @@ public:
         return dictPolicy->size();
     }
     PathPolicy(string namePolicy, int maxSpeedAgent,listPointWeighted endPoint_, listPointWeighted startPoint_,
-               Point &gridSzie_) : Policy(std::move(namePolicy), maxSpeedAgent) {
+               Point &gridSzie, unsigned long maxPathz=ULONG_MAX) : Policy(std::move(namePolicy), maxSpeedAgent) {
         this->goalPoint=std::move(endPoint_);
         this->dictPolicy= nullptr;
+        this->maxPathsNumber = maxPathz;
         this->startPoint=std::move(startPoint_);
-        this->initPolicy(gridSzie_);
+        this->initPolicy(gridSzie);
         printf("\ndone!\n");
     }
     void initPolicy(Point &girdSize){
+        dictPolicy = new unordered_map<int, vector<float>*>();
+        double weightEnd;
         cout<<"A star..."<<endl;
         auto *xx = new AStar::Generator(this->max_speed,girdSize);
+        xx->setMaxPATH(this->maxPathsNumber);
         for (unsigned long i = 0; i < this->startPoint.size(); ++i) {
             for (unsigned long k = 0; k < this->goalPoint.size(); ++k) {
-                for (unsigned int s=1 ; s<=this->max_speed;++s)
+                for (unsigned int s=max_speed ; s<=this->max_speed;++s)
                 {
                     auto startP = std::get<0>(startPoint[i]);
-                    auto endP = std::get<0>(goalPoint[i]);
-                    auto weightEnd = std::get<1>(goalPoint[i]);
+                    auto endP = std::get<0>(goalPoint[k]);
+                    weightEnd = std::get<1>(goalPoint[k]);
                     auto zeroSrc  = Point();
                     auto zeroDest  = Point();
                     auto src = AStar::StatePoint{Point(*startP),zeroSrc};
                     auto dest = AStar::StatePoint{Point(*endP),zeroDest};
                     xx->changeMaxSpeed(s);
                     auto res = xx->findPath(src,dest);
-                    dictPolicy =xx->getDict(weightEnd);
-
                 }
+                xx->getDict(dictPolicy,weightEnd);
+                xx->dictPolyClean();
             }
         }
 
-
+        normalizeDict();
         delete(xx);
     }
     Point get_action(State *s) override;
@@ -64,7 +68,7 @@ public:
     void reset_policy() override{};
     void policy_data() const override{};
     const std::vector<float>* TransitionAction(State*) override;
-
+    void normalizeDict();
 };
 
 Point PathPolicy::get_action(State *s) {
@@ -105,6 +109,38 @@ int PathPolicy::getAgentSateHash(State *s) {
     int EntryIndx = Point::hashNnN(hPos,hSpeed);
     return EntryIndx;
 }
+
+void PathPolicy::normalizeDict(){
+    for(auto &item : *this->dictPolicy)
+    {
+        const size_t vecSize = item.second->size();
+        float sumProbability=0;
+        int indx=0;
+        for (auto sec_Item : *item.second) {
+            if (indx%2==1)
+                sumProbability+=sec_Item;
+            indx++;
+        }
+        //assert(sumProbability<=1.0);
+
+        if (sumProbability>1.0) {
+            cout<<"";
+        }
+
+
+        if (sumProbability==1.0) {
+            continue;
+        }
+
+
+        for(indx=1; indx<vecSize;indx=indx+2)
+        {
+            item.second->operator[](indx)=item.second->operator[](indx)/sumProbability;
+        }
+
+    }
+}
+
 
 //            int sumAll = accumulate(itemFirst.second->begin(), itemFirst.second->end(), 0,
 //                    [](int v, map<int,int>::value_type& pair){

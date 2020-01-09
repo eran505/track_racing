@@ -62,7 +62,7 @@ void RTDP_util::heuristic(State *s,int entry_index)
 
         oldState->assignment(*s,this->my_policy->id_agent);
         // insert to Q table
-        val=11;
+        //val=11;
         this->set_value_matrix(entry_index,*item_action.second,val);
     }
     delete(oldState);

@@ -80,7 +80,7 @@ int  AStar::Generator::count_pathz(vector<Node*> *l ){
 
 
 AStar::listNode AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_) {
-    double epsilon = 0.000; // e>0 eliminate unnecessary movement in z-axis
+    double epsilon = 0.0000; // e>0 eliminate unnecessary movement in z-axis
     int k = 0; // finding sp+k  TODO: fix it missing paths
     Node *current = nullptr;
     int optCost = this->gridSize.multi();
@@ -192,10 +192,10 @@ AStar::listNode AStar::Generator::findPath( StatePoint& source_,const StatePoint
     }
     this->allPath.clear();
     printMee(res);
-    //auto ctr_path = this->count_pathz(&res);
+    auto ctr_path = this->count_pathz(&res);
     //this->getDictPolicy(res);
     // remove path if need
-
+    cout<<"allPath:\t"<<this->allPath.size()<<endl;
     //shuffle path
     std::shuffle(allPath.begin(), allPath.end(),   std::default_random_engine(rand()));
 
@@ -231,6 +231,7 @@ void AStar::Generator::pathsToDict() {
     for (auto &itemF : this->allPath) {
         if (maxPath<ctr)
             break;
+        ctr++;
         for (unsigned long i = 0; i < itemF.size() - 1; ++i) {
             Point difAction = itemF[i]->coordinates->speed.operator-(itemF[i + 1]->coordinates->speed);
 
@@ -299,25 +300,38 @@ void AStar::Generator::releaseMAP(unordered_map<string, Node *> map_) {
     }
 }
 
-unordered_map<int, vector<float>*>* AStar::Generator::getDict(const double weight) {
-    auto *res = new unordered_map<int, vector<float>*>();
+void AStar::Generator::getDict(unordered_map<int, vector<float>*>* mapStateAction,const double weight) {
+
     for(const auto &item: *this->dictPoly)
     {
         int sumAll = accumulate( item.second->begin(), item.second->end(), 0,
                               []( int acc, std::pair<int, int> p ) { return ( acc + p.second ); } );
 
 
-        auto *vec = new vector<float>();
-        for (auto mapItem: *item.second) {
-            //cout<<"in"<<endl;
-            int tmp = mapItem.first;
-            int tmp2 = mapItem.second;
-            vec->push_back(tmp);
-            vec->push_back(float(tmp2)/float(sumAll)*weight);
+        auto pos_tmp = mapStateAction->find(item.first);
+        if (pos_tmp==mapStateAction->end())
+        {
+            auto *vec = new vector<float>();
+            for (auto mapItem: *item.second) {
+                //cout<<"in"<<endl;
+                int tmp = mapItem.first;
+                int tmp2 = mapItem.second;
+                vec->push_back(tmp);
+                vec->push_back(float(tmp2)/float(sumAll)*weight);
+            }
+            mapStateAction->insert({item.first,vec});
         }
-        res->insert({item.first,vec});
+        else
+            {
+                for (auto mapItem: *item.second) {
+                    //cout<<"in"<<endl;
+                    int tmp = mapItem.first;
+                    int tmp2 = mapItem.second;
+                    pos_tmp->second->push_back(tmp);
+                    pos_tmp->second->push_back(float(tmp2)/float(sumAll)*weight);
+                }
+            }
     }
-    return res;
 }
 
 void AStar::Generator::print_pathz(Node *l) {
@@ -326,12 +340,12 @@ void AStar::Generator::print_pathz(Node *l) {
     {
         vector<Node*> x;
         for (auto &item:listPrint){
-            cout<<item->toStr()<<" <- ";
+            //cout<<item->toStr()<<" <- ";
             x.push_back(item);
         }
         allPath.push_back(x);
         listPrint.remove(l);
-        cout<<endl;
+        //cout<<endl;
         return;
     }
     for (int i = 0; i < l->parent.size(); ++i) {

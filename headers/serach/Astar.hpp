@@ -67,7 +67,7 @@ namespace AStar
     public:
         unordered_map<int, map<int,int>*> *dictPoly;
         void print_pathz(Node *l);
-        unordered_map<int,vector<float>*>* getDict(double weight=1.0);
+        void getDict(unordered_map<int,vector<float>*>* dict,double weight=1.0);
         void pathsToDict();
         void pathsToDict_rec(Node &item);
         void getDictPolicy(const listNode &l);
@@ -81,9 +81,14 @@ namespace AStar
         listNode findPath( StatePoint& source_, const StatePoint& target_);
         int count_pathz(vector<Node*> *l );
         void changeMaxSpeed(uint speedMaxNew){this->absMaxSpeed=speedMaxNew;}
-        void setMaxPATH(uint numberMax){maxPath=numberMax;}
+        void setMaxPATH(unsigned long numberMax){maxPath=numberMax;}
+        void dictPolyClean(){
+            for (auto &itemI:*this->dictPoly)
+                delete(itemI.second);
+            this->dictPoly->clear();
+        }
     private:
-        uint maxPath=5;
+        unsigned long maxPath;
         uint absMaxSpeed;
         Point gridSize;
         HeuristicFunction heuristic;
@@ -91,6 +96,8 @@ namespace AStar
         vector<Point> operatorAction;
         list<Node*> listPrint;
         vector<vector<Node*>> allPath;
+
+
         StatePoint* applyActionState(const StatePoint &cur,const Point &action){
             auto speed_copy = Point(cur.speed);
             speed_copy+=action;
@@ -101,7 +108,7 @@ namespace AStar
         }
         void printMee(listNode nz){
             for(Node* item: nz){
-                cout<<"---"<<endl;
+                //cout<<"------\t------\t------\t------"<<endl;
                 print_pathz(item);
             }
 

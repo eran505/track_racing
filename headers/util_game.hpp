@@ -9,6 +9,7 @@
 #include <list>
 #include <iostream>
 #include <vector>
+#include <climits>
 #include <unordered_map>
 #include <random>
 #include <cmath>

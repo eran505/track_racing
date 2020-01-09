@@ -43,7 +43,7 @@ public:
     void del_list_func(list<Agent*> l,bool guard);
     static bool validate_player(Agent *player);
 
-    vector<int*>* startGame(int numIter);
+    vector<vector<int>>* startGame(int numIter);
 };
 
 
