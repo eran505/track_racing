@@ -15,6 +15,7 @@
 #include "serach/Astar.hpp"
 #include "headers/graph/graph_dummy.hpp"
 #include "Policy/PathPolicy.hpp"
+#include "learning/neuralNet.h"
 Grid * init_grid(Point &pSize);
 MdpPlaner* init_mdp(Grid *g, ulong numPaths,float p);
 void toCsv(string pathFile, vector<vector<int>>* infoArr,vector<string> &labels);
@@ -40,6 +41,11 @@ vector<vector<int>>* initGame(int sizeInt, ulong intSizePath, float p);
 typedef vector<tuple<Point*,double>> listPointWeighted;
 typedef unsigned long ulong;
 int main() {
+
+    auto nn = new neuralNet();
+    nn->start();
+
+    exit(0);
     // seeding the program
     int seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
@@ -48,13 +54,14 @@ int main() {
 
 
     vector<vector<int>> all_info;
-    for (int sizeG = 10; sizeG < 16; ++sizeG)
+    for (int sizeG = 9; sizeG < 10; ++sizeG)
     {
-        for (ulong i = 1000; i < 1001; i+=1) {
+        for (ulong i = 400; i <= 400; i+=50) {
 
-            for (float prob = 0; prob <=1.0 ; prob+=0.1) {
+            for (float prob =0 ; prob <=1.0 ; prob+=0.1) {
+
                 std::chrono::steady_clock::time_point begin2 = std::chrono::steady_clock::now();
-                auto info = initGame(sizeG,MaxInt,prob);
+                auto info = initGame(sizeG,MaxInt,1);
                 std::chrono::steady_clock::time_point end2 = std::chrono::steady_clock::now();
                 std::cout << " " << std::chrono::duration_cast<std::chrono::minutes> (end2 - begin2).count() << "[m]:" ;
                 std::cout << " " << std::chrono::duration_cast<std::chrono::milliseconds> (end2 - begin2).count() << "[ml]:" ;
@@ -80,7 +87,7 @@ int main() {
     //csv
     std::vector<string> v(8);
     v = { "Index","Wall","Coll","At_Gaol","p","MaxPath","sizeGrid","time (ml)"};
-    toCsv("/home/ise/car_model/exp/"+fileName,&all_info,v);
+    toCsv("/home/ERANHER/car_model/exp/"+fileName,&all_info,v);
     return 0;
 }
 
@@ -96,7 +103,7 @@ vector<vector<int>>* initGame(int sizeGrid, ulong numPaths,float p ){
     Game* my_game = new Game(pPlaner);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    auto info = my_game->startGame(100000);
+    auto info = my_game->startGame(1000000);
 
     delete(my_game);
     //delete (info);
@@ -109,8 +116,8 @@ Grid * init_grid(Point &pSize){
     game_params m{};
     auto m_ofList = new list<Point *>;
     //m_ofList->push_front(new Point(1,6,3));
-    m_ofList->push_front(new Point(maxSzieGrid-1,0,1));
-    m_ofList->push_front(new Point(maxSzieGrid-1,maxSzieGrid-1,3));
+    m_ofList->push_front(new Point(maxSzieGrid-1,maxSzieGrid-2,0));
+    m_ofList->push_front(new Point(maxSzieGrid-1,1,0));
     //m_ofList->push_front(new Point(3,4,0));
     m.size=pSize;
     m.list_goals=m_ofList;
@@ -121,11 +128,12 @@ MdpPlaner* init_mdp(Grid *g, ulong numPaths,float p){
     int maxSizeGrid = g->getPointSzie().array[0];
     int maxA=2+maxSizeGrid/10;
     int maxB=1+maxSizeGrid/10;
-    auto* a1 = new Agent(new Point(0,0,0)
+    auto startAdversary = new Point(0,maxSizeGrid/2,0);
+    auto* a1 = new Agent(startAdversary
             ,new Point(0,0,0)
             ,adversary,10);
 
-    auto* b2 = new Agent(new Point(maxSizeGrid-1,maxSizeGrid/2+1,1),
+    auto* b2 = new Agent(new Point(maxSizeGrid-2,maxSizeGrid/2,0),
             new Point(0,0,0)
             ,gurd,10);
 
@@ -144,7 +152,7 @@ MdpPlaner* init_mdp(Grid *g, ulong numPaths,float p){
         ctr++;
     }
     listPointWeighted startState;
-    startState.push_back({new Point(0,0,0),1});
+    startState.push_back({startAdversary,1});
     Policy *pGridPath =new  PathPolicy("SP",maxA, endState, startState, p_sizer,numPaths);
     auto *tmp_pointer = dynamic_cast <PathPolicy*>(pGridPath);
     printf("number of state:\t %d",tmp_pointer->getNumberOfState());

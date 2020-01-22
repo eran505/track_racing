@@ -29,7 +29,7 @@ string Agent::to_print() {
 
 
 string Agent::get_name() {
-    std::__cxx11::string name;
+    string name;
     name = this->my_team+this->my_id;
     return name;
 }

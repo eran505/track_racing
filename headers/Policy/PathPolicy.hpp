@@ -94,7 +94,7 @@ Point PathPolicy::get_action(State *s) {
 }
 
 const std::vector<float> *PathPolicy::TransitionAction(State *s) {
-
+    //cout<<s->to_string_state()<<endl;
     int EntryIdx = getAgentSateHash(s);
     auto pos = this->dictPolicy->find(EntryIdx);
     if (pos==this->dictPolicy->end())

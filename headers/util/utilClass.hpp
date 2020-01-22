@@ -3,25 +3,15 @@
 //
 #include <fstream>
 #include "util_game.hpp"
+#include <unistd.h>
 #ifndef TRACK_RACING_UTILCLASS_HPP
 #define TRACK_RACING_UTILCLASS_HPP
 
-
-class utilObject{
-
-
-public:
-    void foo(){
-        std::ofstream out("/home/ise/car_model/exp/DATA/file.txt");
-
-        std::for_each(std::begin(M), std::end(M),
-                      [&out](const std::pair<const std::string, int>& element) {
-                          out << element.first << " " << element.second << std::endl;
-                      }
-        );
-    }
-
-};
-
+string getExePath()
+{
+    char result[ PATH_MAX ];
+    ssize_t count = readlink( "/proc/self/exe", result, PATH_MAX );
+    return string( result, (count > 0) ? count : 0 );
+}
 
 #endif //TRACK_RACING_UTILCLASS_HPP

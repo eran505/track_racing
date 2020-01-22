@@ -34,19 +34,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /opt/clion-2019.2.5/bin/cmake/linux/bin/cmake
+CMAKE_COMMAND = /home/ERANHER/programs/clion-2019.3.2/bin/cmake/linux/bin/cmake
 
 # The command to remove a file.
-RM = /opt/clion-2019.2.5/bin/cmake/linux/bin/cmake -E remove -f
+RM = /home/ERANHER/programs/clion-2019.3.2/bin/cmake/linux/bin/cmake -E remove -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ise/eran/repo/track_racing
+CMAKE_SOURCE_DIR = /home/ERANHER/eran/repo/track_racing
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ise/eran/repo/track_racing/cmake-build-debug
+CMAKE_BINARY_DIR = /home/ERANHER/eran/repo/track_racing/cmake-build-debug
 
 # Include any dependencies generated for this target.
 include CMakeFiles/track_racing.dir/depend.make
@@ -59,133 +59,133 @@ include CMakeFiles/track_racing.dir/flags.make
 
 CMakeFiles/track_racing.dir/Agent.cpp.o: CMakeFiles/track_racing.dir/flags.make
 CMakeFiles/track_racing.dir/Agent.cpp.o: ../Agent.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/track_racing.dir/Agent.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/Agent.cpp.o -c /home/ise/eran/repo/track_racing/Agent.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ERANHER/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/track_racing.dir/Agent.cpp.o"
+	/usr/bin/x86_64-linux-gnu-g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/Agent.cpp.o -c /home/ERANHER/eran/repo/track_racing/Agent.cpp
 
 CMakeFiles/track_racing.dir/Agent.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/track_racing.dir/Agent.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ise/eran/repo/track_racing/Agent.cpp > CMakeFiles/track_racing.dir/Agent.cpp.i
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ERANHER/eran/repo/track_racing/Agent.cpp > CMakeFiles/track_racing.dir/Agent.cpp.i
 
 CMakeFiles/track_racing.dir/Agent.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/track_racing.dir/Agent.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ise/eran/repo/track_racing/Agent.cpp -o CMakeFiles/track_racing.dir/Agent.cpp.s
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ERANHER/eran/repo/track_racing/Agent.cpp -o CMakeFiles/track_racing.dir/Agent.cpp.s
 
 CMakeFiles/track_racing.dir/Game.cpp.o: CMakeFiles/track_racing.dir/flags.make
 CMakeFiles/track_racing.dir/Game.cpp.o: ../Game.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/track_racing.dir/Game.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/Game.cpp.o -c /home/ise/eran/repo/track_racing/Game.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ERANHER/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/track_racing.dir/Game.cpp.o"
+	/usr/bin/x86_64-linux-gnu-g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/Game.cpp.o -c /home/ERANHER/eran/repo/track_racing/Game.cpp
 
 CMakeFiles/track_racing.dir/Game.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/track_racing.dir/Game.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ise/eran/repo/track_racing/Game.cpp > CMakeFiles/track_racing.dir/Game.cpp.i
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ERANHER/eran/repo/track_racing/Game.cpp > CMakeFiles/track_racing.dir/Game.cpp.i
 
 CMakeFiles/track_racing.dir/Game.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/track_racing.dir/Game.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ise/eran/repo/track_racing/Game.cpp -o CMakeFiles/track_racing.dir/Game.cpp.s
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ERANHER/eran/repo/track_racing/Game.cpp -o CMakeFiles/track_racing.dir/Game.cpp.s
 
 CMakeFiles/track_racing.dir/Grid.cpp.o: CMakeFiles/track_racing.dir/flags.make
 CMakeFiles/track_racing.dir/Grid.cpp.o: ../Grid.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/track_racing.dir/Grid.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/Grid.cpp.o -c /home/ise/eran/repo/track_racing/Grid.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ERANHER/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/track_racing.dir/Grid.cpp.o"
+	/usr/bin/x86_64-linux-gnu-g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/Grid.cpp.o -c /home/ERANHER/eran/repo/track_racing/Grid.cpp
 
 CMakeFiles/track_racing.dir/Grid.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/track_racing.dir/Grid.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ise/eran/repo/track_racing/Grid.cpp > CMakeFiles/track_racing.dir/Grid.cpp.i
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ERANHER/eran/repo/track_racing/Grid.cpp > CMakeFiles/track_racing.dir/Grid.cpp.i
 
 CMakeFiles/track_racing.dir/Grid.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/track_racing.dir/Grid.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ise/eran/repo/track_racing/Grid.cpp -o CMakeFiles/track_racing.dir/Grid.cpp.s
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ERANHER/eran/repo/track_racing/Grid.cpp -o CMakeFiles/track_racing.dir/Grid.cpp.s
 
 CMakeFiles/track_racing.dir/main.cpp.o: CMakeFiles/track_racing.dir/flags.make
 CMakeFiles/track_racing.dir/main.cpp.o: ../main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/track_racing.dir/main.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/main.cpp.o -c /home/ise/eran/repo/track_racing/main.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ERANHER/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/track_racing.dir/main.cpp.o"
+	/usr/bin/x86_64-linux-gnu-g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/main.cpp.o -c /home/ERANHER/eran/repo/track_racing/main.cpp
 
 CMakeFiles/track_racing.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/track_racing.dir/main.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ise/eran/repo/track_racing/main.cpp > CMakeFiles/track_racing.dir/main.cpp.i
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ERANHER/eran/repo/track_racing/main.cpp > CMakeFiles/track_racing.dir/main.cpp.i
 
 CMakeFiles/track_racing.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/track_racing.dir/main.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ise/eran/repo/track_racing/main.cpp -o CMakeFiles/track_racing.dir/main.cpp.s
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ERANHER/eran/repo/track_racing/main.cpp -o CMakeFiles/track_racing.dir/main.cpp.s
 
 CMakeFiles/track_racing.dir/MdpPlaner.cpp.o: CMakeFiles/track_racing.dir/flags.make
 CMakeFiles/track_racing.dir/MdpPlaner.cpp.o: ../MdpPlaner.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/track_racing.dir/MdpPlaner.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/MdpPlaner.cpp.o -c /home/ise/eran/repo/track_racing/MdpPlaner.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ERANHER/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/track_racing.dir/MdpPlaner.cpp.o"
+	/usr/bin/x86_64-linux-gnu-g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/MdpPlaner.cpp.o -c /home/ERANHER/eran/repo/track_racing/MdpPlaner.cpp
 
 CMakeFiles/track_racing.dir/MdpPlaner.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/track_racing.dir/MdpPlaner.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ise/eran/repo/track_racing/MdpPlaner.cpp > CMakeFiles/track_racing.dir/MdpPlaner.cpp.i
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ERANHER/eran/repo/track_racing/MdpPlaner.cpp > CMakeFiles/track_racing.dir/MdpPlaner.cpp.i
 
 CMakeFiles/track_racing.dir/MdpPlaner.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/track_racing.dir/MdpPlaner.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ise/eran/repo/track_racing/MdpPlaner.cpp -o CMakeFiles/track_racing.dir/MdpPlaner.cpp.s
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ERANHER/eran/repo/track_racing/MdpPlaner.cpp -o CMakeFiles/track_racing.dir/MdpPlaner.cpp.s
 
 CMakeFiles/track_racing.dir/State.cpp.o: CMakeFiles/track_racing.dir/flags.make
 CMakeFiles/track_racing.dir/State.cpp.o: ../State.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/track_racing.dir/State.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/State.cpp.o -c /home/ise/eran/repo/track_racing/State.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ERANHER/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/track_racing.dir/State.cpp.o"
+	/usr/bin/x86_64-linux-gnu-g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/State.cpp.o -c /home/ERANHER/eran/repo/track_racing/State.cpp
 
 CMakeFiles/track_racing.dir/State.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/track_racing.dir/State.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ise/eran/repo/track_racing/State.cpp > CMakeFiles/track_racing.dir/State.cpp.i
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ERANHER/eran/repo/track_racing/State.cpp > CMakeFiles/track_racing.dir/State.cpp.i
 
 CMakeFiles/track_racing.dir/State.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/track_racing.dir/State.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ise/eran/repo/track_racing/State.cpp -o CMakeFiles/track_racing.dir/State.cpp.s
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ERANHER/eran/repo/track_racing/State.cpp -o CMakeFiles/track_racing.dir/State.cpp.s
 
 CMakeFiles/track_racing.dir/util_game.cpp.o: CMakeFiles/track_racing.dir/flags.make
 CMakeFiles/track_racing.dir/util_game.cpp.o: ../util_game.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/track_racing.dir/util_game.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/util_game.cpp.o -c /home/ise/eran/repo/track_racing/util_game.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ERANHER/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/track_racing.dir/util_game.cpp.o"
+	/usr/bin/x86_64-linux-gnu-g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/util_game.cpp.o -c /home/ERANHER/eran/repo/track_racing/util_game.cpp
 
 CMakeFiles/track_racing.dir/util_game.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/track_racing.dir/util_game.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ise/eran/repo/track_racing/util_game.cpp > CMakeFiles/track_racing.dir/util_game.cpp.i
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ERANHER/eran/repo/track_racing/util_game.cpp > CMakeFiles/track_racing.dir/util_game.cpp.i
 
 CMakeFiles/track_racing.dir/util_game.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/track_racing.dir/util_game.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ise/eran/repo/track_racing/util_game.cpp -o CMakeFiles/track_racing.dir/util_game.cpp.s
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ERANHER/eran/repo/track_racing/util_game.cpp -o CMakeFiles/track_racing.dir/util_game.cpp.s
 
 CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.o: CMakeFiles/track_racing.dir/flags.make
 CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.o: ../headers/Policy/RTDP_util.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.o -c /home/ise/eran/repo/track_racing/headers/Policy/RTDP_util.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ERANHER/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.o"
+	/usr/bin/x86_64-linux-gnu-g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.o -c /home/ERANHER/eran/repo/track_racing/headers/Policy/RTDP_util.cpp
 
 CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ise/eran/repo/track_racing/headers/Policy/RTDP_util.cpp > CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.i
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ERANHER/eran/repo/track_racing/headers/Policy/RTDP_util.cpp > CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.i
 
 CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ise/eran/repo/track_racing/headers/Policy/RTDP_util.cpp -o CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.s
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ERANHER/eran/repo/track_racing/headers/Policy/RTDP_util.cpp -o CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.s
 
 CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.o: CMakeFiles/track_racing.dir/flags.make
 CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.o: ../headers/Policy/RtdpAlgo.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.o -c /home/ise/eran/repo/track_racing/headers/Policy/RtdpAlgo.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ERANHER/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.o"
+	/usr/bin/x86_64-linux-gnu-g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.o -c /home/ERANHER/eran/repo/track_racing/headers/Policy/RtdpAlgo.cpp
 
 CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ise/eran/repo/track_racing/headers/Policy/RtdpAlgo.cpp > CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.i
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ERANHER/eran/repo/track_racing/headers/Policy/RtdpAlgo.cpp > CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.i
 
 CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ise/eran/repo/track_racing/headers/Policy/RtdpAlgo.cpp -o CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.s
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ERANHER/eran/repo/track_racing/headers/Policy/RtdpAlgo.cpp -o CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.s
 
 CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.o: CMakeFiles/track_racing.dir/flags.make
 CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.o: ../headers/serach/Astar.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.o"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.o -c /home/ise/eran/repo/track_racing/headers/serach/Astar.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ERANHER/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.o"
+	/usr/bin/x86_64-linux-gnu-g++-9  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.o -c /home/ERANHER/eran/repo/track_racing/headers/serach/Astar.cpp
 
 CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ise/eran/repo/track_racing/headers/serach/Astar.cpp > CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.i
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ERANHER/eran/repo/track_racing/headers/serach/Astar.cpp > CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.i
 
 CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ise/eran/repo/track_racing/headers/serach/Astar.cpp -o CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.s
+	/usr/bin/x86_64-linux-gnu-g++-9 $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ERANHER/eran/repo/track_racing/headers/serach/Astar.cpp -o CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.s
 
 # Object files for target track_racing
 track_racing_OBJECTS = \
@@ -214,8 +214,11 @@ track_racing: CMakeFiles/track_racing.dir/headers/Policy/RTDP_util.cpp.o
 track_racing: CMakeFiles/track_racing.dir/headers/Policy/RtdpAlgo.cpp.o
 track_racing: CMakeFiles/track_racing.dir/headers/serach/Astar.cpp.o
 track_racing: CMakeFiles/track_racing.dir/build.make
+track_racing: /home/ERANHER/programs/torch/libtorch/lib/libtorch.so
+track_racing: /home/ERANHER/programs/torch/libtorch/lib/libc10.so
+track_racing: /home/ERANHER/programs/torch/libtorch/lib/libc10.so
 track_racing: CMakeFiles/track_racing.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX executable track_racing"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ERANHER/eran/repo/track_racing/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX executable track_racing"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/track_racing.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -228,6 +231,6 @@ CMakeFiles/track_racing.dir/clean:
 .PHONY : CMakeFiles/track_racing.dir/clean
 
 CMakeFiles/track_racing.dir/depend:
-	cd /home/ise/eran/repo/track_racing/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ise/eran/repo/track_racing /home/ise/eran/repo/track_racing /home/ise/eran/repo/track_racing/cmake-build-debug /home/ise/eran/repo/track_racing/cmake-build-debug /home/ise/eran/repo/track_racing/cmake-build-debug/CMakeFiles/track_racing.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/ERANHER/eran/repo/track_racing/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ERANHER/eran/repo/track_racing /home/ERANHER/eran/repo/track_racing /home/ERANHER/eran/repo/track_racing/cmake-build-debug /home/ERANHER/eran/repo/track_racing/cmake-build-debug /home/ERANHER/eran/repo/track_racing/cmake-build-debug/CMakeFiles/track_racing.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/track_racing.dir/depend
 

@@ -340,12 +340,12 @@ void AStar::Generator::print_pathz(Node *l) {
     {
         vector<Node*> x;
         for (auto &item:listPrint){
-            //cout<<item->toStr()<<" <- ";
+            cout<<item->toStr()<<" <- ";
             x.push_back(item);
         }
         allPath.push_back(x);
         listPrint.remove(l);
-        //cout<<endl;
+        cout<<endl;
         return;
     }
     for (int i = 0; i < l->parent.size(); ++i) {

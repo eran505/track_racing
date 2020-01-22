@@ -96,6 +96,7 @@ vector<vector<int>>* Game::startGame(int numIter)
 //        tmp[3] = this->ctr_at_gal;
 //        info->emplace_back(tmp);
     }
+    cout<<"Collision:\t"<<ctr_coll<<endl;
     auto tmp = vector<int>(4);
     tmp={ctr_round,this->ctr_wall,this->ctr_coll,this->ctr_at_gal};
     info->emplace_back(tmp);
