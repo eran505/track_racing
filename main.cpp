@@ -61,7 +61,7 @@ int main() {
             for (float prob =0 ; prob <=1.0 ; prob+=0.1) {
 
                 std::chrono::steady_clock::time_point begin2 = std::chrono::steady_clock::now();
-                auto info = initGame(sizeG,MaxInt,1);
+                auto info = initGame(sizeG,i,1);
                 std::chrono::steady_clock::time_point end2 = std::chrono::steady_clock::now();
                 std::cout << " " << std::chrono::duration_cast<std::chrono::minutes> (end2 - begin2).count() << "[m]:" ;
                 std::cout << " " << std::chrono::duration_cast<std::chrono::milliseconds> (end2 - begin2).count() << "[ml]:" ;

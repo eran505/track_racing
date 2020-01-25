@@ -132,6 +132,10 @@ void PathPolicy::normalizeDict(){
             continue;
         }
 
+        if (sumProbability==0) {
+            continue;
+        }
+
 
         for(indx=1; indx<vecSize;indx=indx+2)
         {
