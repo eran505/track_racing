@@ -150,6 +150,8 @@ bool Game::validate_player(Agent *player){
 
     if (player->getPolicy()->out_budget)
         return true;
+
+    return false;
 }
 
 void Game::constraint_checking_end_game(){

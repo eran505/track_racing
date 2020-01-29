@@ -193,6 +193,7 @@ public:
 
 
 int getMaxDistance(const Point &a , const  Point &b );
+int getMaxDistancePos(const Point &a , const  Point &b );
 int range_random(int min, int max); //range : [min, max)
 
 

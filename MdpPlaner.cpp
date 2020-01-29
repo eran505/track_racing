@@ -17,6 +17,7 @@ bool MdpPlaner::add_player(Agent *ptr_agent) {
     }else{
         printf("the player %s is in the game!! ",(ptr_agent->get_name_id()).c_str());
     }
+    return true;
 }
 
 Agent *MdpPlaner::get_player(string str_id_name) {

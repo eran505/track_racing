@@ -1,4 +1,28 @@
-/opt/clion-2019.2.5/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_PREFIX_PATH=/home/ise/programs/torch/libtorch -G "CodeBlocks - Unix Makefiles" /home/ise/eran/repo/track_racing
+/home/ERANHER/programs/clion-2019.3.2/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=/usr/bin/x86_64-linux-gnu-gcc-9 -DCMAKE_CXX_COMPILER=/usr/bin/x86_64-linux-gnu-g++-9 -DCMAKE_PREFIX_PATH=/home/ERANHER/programs/torch/libtorch -G "CodeBlocks - Unix Makefiles" /home/ERANHER/eran/repo/track_racing
+-- The C compiler identification is GNU 9.2.1
+-- The CXX compiler identification is GNU 9.2.1
+-- Check for working C compiler: /usr/bin/x86_64-linux-gnu-gcc-9
+-- Check for working C compiler: /usr/bin/x86_64-linux-gnu-gcc-9 -- works
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Check for working CXX compiler: /usr/bin/x86_64-linux-gnu-g++-9
+-- Check for working CXX compiler: /usr/bin/x86_64-linux-gnu-g++-9 -- works
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Looking for pthread.h
+-- Looking for pthread.h - found
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Failed
+-- Looking for pthread_create in pthreads
+-- Looking for pthread_create in pthreads - not found
+-- Looking for pthread_create in pthread
+-- Looking for pthread_create in pthread - found
+-- Found Threads: TRUE  
+-- Found torch: /home/ERANHER/programs/torch/libtorch/lib/libtorch.so  
 -- Configuring done
 -- Generating done
--- Build files have been written to: /home/ise/eran/repo/track_racing/cmake-build-debug
+-- Build files have been written to: /home/ERANHER/eran/repo/track_racing/cmake-build-debug

@@ -138,6 +138,10 @@ void State::getAllPosOpponent(vector<Point> &results,char team) {
         if (pos.first[1]==team)
             continue;
         results.push_back(pos.second);
+        auto itemSpeed = this->speed_dict.find(pos.first);
+        if (itemSpeed == this->speed_dict.end())
+            throw;
+        results.push_back(itemSpeed->second);
     }
 }
 

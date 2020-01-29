@@ -57,12 +57,14 @@ void RTDP_util::heuristic(State *s,int entry_index)
         bool isWall = this->apply_action(oldState,my_policy->id_agent,*item_action.second,my_policy->max_speed);
         if (isWall)
             val = this->wallReward;
-        else
+        else{
             val = this->compute_h(oldState);
+            //val=10.1;
+        }
 
         oldState->assignment(*s,this->my_policy->id_agent);
         // insert to Q table
-        //val=11;
+
         this->set_value_matrix(entry_index,*item_action.second,val);
     }
     delete(oldState);
@@ -187,12 +189,21 @@ double RTDP_util::compute_h(State *s) {
     vector<Point> vec_pos;
     s->getAllPosOpponent(vec_pos,team);
     double min = s->g_grid->getSizeIntGrid();
-    for(const auto &item : vec_pos)
-    {
-        auto res = getMaxDistance(item,my_pos);
-        if (min>res) min=res;
+    double posA = -1;
+    for (int i = 0; i < vec_pos.size(); ++i) {
+        auto res = getMaxDistance(vec_pos[i],my_pos);
+        if (min>res)
+        {
+            min=res;
+        }
     }
-    min=min/double(this->my_policy->max_speed);
+    int max_speed=-1;
+    for (Policy* itemPolicy:*this->lTran) {
+        max_speed = itemPolicy->max_speed;
+    }
+    min=min-max_speed;
+    min = std::max(0.0,min);
+    //min=min/double(this->my_policy->max_speed);
     auto res = this->collReward*pow(discountFactor,min);
     //debug
     //cout<<"h(<"<<s->to_string_state()<<")="<<res<<endl;

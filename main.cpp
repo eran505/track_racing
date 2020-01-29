@@ -56,11 +56,11 @@ int main() {
 
 
     vector<vector<int>> all_info;
-    for (int sizeG = 12; sizeG < 13; ++sizeG)
+    for (int sizeG = 7; sizeG < 8; ++sizeG)
     {
-        for (ulong i =1; i <= 20; i+=50) {
+        for (ulong i =4; i <= 20; i+=50) {
 
-            for (float prob =0.02 ; prob <=1.0 ; prob+=2) {
+            for (float prob =0.1 ; prob <=1.0 ; prob+=2) {
 
                 std::chrono::steady_clock::time_point begin2 = std::chrono::steady_clock::now();
                 auto info = initGame(sizeG,i,prob);
@@ -105,7 +105,7 @@ vector<vector<int>>* initGame(int sizeGrid, ulong numPaths,float p ){
     Game* my_game = new Game(pPlaner);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    auto info = my_game->startGame(200000);
+    auto info = my_game->startGame(400000);
 
     toCsvString("/home/ise/car_model/exp/buffer/buffer.csv", my_game->buffer);
 
@@ -135,7 +135,7 @@ MdpPlaner* init_mdp(Grid *g, ulong numPaths,float p){
     int maxB=1+maxSizeGrid/10;
     auto startAdversary = new Point(0,0,0);
     auto* a1 = new Agent(startAdversary
-            ,new Point(0,0,3)
+            ,new Point(0,0,maxA)
             ,adversary,10);
 
     auto* b2 = new Agent(new Point(maxSizeGrid-2,maxSizeGrid-2,0),

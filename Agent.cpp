@@ -22,7 +22,7 @@ string Agent::to_str() {
     return str_res;
 }
 
-string Agent::to_print() {
+void Agent::to_print() {
     cout<<this->to_str()<<endl;
 }
 

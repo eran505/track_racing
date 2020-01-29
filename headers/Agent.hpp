@@ -64,7 +64,7 @@ public:
     Point get_speed_v1(){ return *my_speed;}
 
     string to_str();
-    string to_print();
+    void to_print();
 
 
 

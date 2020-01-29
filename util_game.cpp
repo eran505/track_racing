@@ -69,7 +69,7 @@ int range_random(int min, int max) //range : [min, max)
 
 int getMaxDistance(const  Point &a , const  Point &b )
 {
-    int max=0;
+    int max=-1;
     for (int i = 0; i < a.capacity; ++i)
     {
         auto dis = abs(a[i]-b[i]);
@@ -77,4 +77,19 @@ int getMaxDistance(const  Point &a , const  Point &b )
 
     }
     return max;
+}
+int getMaxDistancePos(const Point &a , const  Point &b )
+{
+    int max=-1;
+    int pos = -1;
+    for (int i = 0; i < a.capacity; ++i)
+    {
+        auto dis = abs(a[i]-b[i]);
+        if (dis>max){
+            max = dis;
+            pos=i;
+        }
+
+    }
+    return pos;
 }
