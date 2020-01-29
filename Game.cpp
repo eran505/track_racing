@@ -10,8 +10,9 @@ Game::Game(MdpPlaner *planer_m) {
     this->in_game_guards = new list<Agent*>();
     this->out_game = new list<Agent*>();
     this->planer = planer_m;
-    this->ctr_game=15;
+    this->ctr_game=100;
     this->uper_limt=300;
+    this->buffer = new vector<string>();
 }
 
 Game::~Game() {
@@ -88,7 +89,7 @@ vector<vector<int>>* Game::startGame(int numIter)
         this->loop_game();
         this->reset_game();
         ctr_round++;
-        //this->print_stats();
+        this->print_stats();
 //        int *tmp = new int[4];
 //        tmp[0]=ctr_round;
 //        tmp[1]=this->ctr_wall;
@@ -115,11 +116,16 @@ void Game::loop_game() {
         for (auto i : *(this->in_game_guards)){
             //cout<<i->get_name()<<endl;
             i->doAction(planer->get_cur_state());
+            this->buffer->emplace_back(i->get_id()+"@"+this->planer->get_cur_state()->get_position(i->get_id()).to_str());
+
         }
         //cout<<this->planer->get_cur_state()->to_string_state()<<endl;
         for (auto i : *(this->in_game_adversaries)){
             //cout<<i->get_name()<<endl;
             i->doAction(planer->get_cur_state());
+            auto pos = this->planer->get_cur_state()->get_position(i->get_id()).to_str();
+            this->buffer->emplace_back(i->get_id()+"@"+pos);
+
         }
 
         //cout<<this->planer->get_cur_state()->to_string_state()<<endl;
@@ -129,6 +135,7 @@ void Game::loop_game() {
         this->constraint_checking_end_game();
 
         if (this->is_end_game()){
+            this->buffer->emplace_back("END");
             this->del_all_player();
             break;
         }
@@ -163,6 +170,7 @@ void Game::constraint_checking_end_game(){
             //remove this player from the game
             //cout<<"Del\t"<<i->get_id()<<"\tAt Goal"<<endl;
             // push to list of del player
+            //cout<<this->planer->get_cur_state()->get_position(i->get_id()).to_str()<<endl;
             to_del_ad.push_front(i);
             this->ctr_at_gal++;
 

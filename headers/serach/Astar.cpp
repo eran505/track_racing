@@ -79,8 +79,9 @@ int  AStar::Generator::count_pathz(vector<Node*> *l ){
 }
 
 
+
 AStar::listNode AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_) {
-    double epsilon = 0.0000; // e>0 eliminate unnecessary movement in z-axis
+    double epsilon = 0.000; // e>0 eliminate unnecessary movement in z-axis
     int k = 0; // finding sp+k  TODO: fix it missing paths
     Node *current = nullptr;
     int optCost = this->gridSize.multi();

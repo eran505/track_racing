@@ -23,7 +23,8 @@ public:
         return dictPolicy->size();
     }
     PathPolicy(string namePolicy, int maxSpeedAgent,listPointWeighted endPoint_, listPointWeighted startPoint_,
-               Point &gridSzie, unsigned long maxPathz=ULONG_MAX) : Policy(std::move(namePolicy), maxSpeedAgent) {
+               Point &gridSzie, string agentID,unsigned long maxPathz=ULONG_MAX) : Policy(std::move(namePolicy),
+                       maxSpeedAgent,std::move(agentID)) {
         this->goalPoint=std::move(endPoint_);
         this->dictPolicy= nullptr;
         this->maxPathsNumber = maxPathz;
@@ -45,9 +46,10 @@ public:
                     auto endP = std::get<0>(goalPoint[k]);
                     weightEnd = std::get<1>(goalPoint[k]);
                     auto zeroSrc  = Point();
-                    auto zeroDest  = Point();
-                    auto src = AStar::StatePoint{Point(*startP),zeroSrc};
-                    auto dest = AStar::StatePoint{Point(*endP),zeroDest};
+                    auto startSpeed  = Point(0,0,max_speed);
+                    //auto zeroDest  = Point();
+                    auto src = AStar::StatePoint{Point(*startP),startSpeed};
+                    auto dest = AStar::StatePoint{Point(*endP),startSpeed};
                     xx->changeMaxSpeed(s);
                     auto res = xx->findPath(src,dest);
                 }

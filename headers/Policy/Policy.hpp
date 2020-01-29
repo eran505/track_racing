@@ -20,12 +20,13 @@ public:
     string id_agent;
     unordered_map<int,Point*>* hashActionMap;
     vector<Policy*> tran;
-    Policy(string name_policy,int max_speed_agent)
+    Policy(string name_policy,int max_speed_agent,string agentID)
     :max_speed(max_speed_agent){
         this->name=std::move(name_policy);
         this->is_wall=false;
         this->out_budget= false;
         this->hashActionMap = Point::getDictAction();
+        this->id_agent=move(agentID);
     }
     const string* get_id_name(){ return &id_agent;}
     const string& GetId(){ return id_agent;}

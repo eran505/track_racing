@@ -4,8 +4,8 @@
 
 #include "RtdpAlgo.hpp"
 #include <queue>
-RtdpAlgo::RtdpAlgo(string namePolicy, int maxSpeedAgent, int grid_size, const list<pair<int,int>> &max_speed_and_budget)
-        : Policy(namePolicy, maxSpeedAgent) {
+RtdpAlgo::RtdpAlgo(string namePolicy, int maxSpeedAgent, int grid_size, const list<pair<int,int>> &max_speed_and_budget,string agentID)
+        : Policy(namePolicy, maxSpeedAgent,std::move(agentID)) {
    this->RTDP_util_object = new RTDP_util(grid_size,max_speed_and_budget);
     this->RTDP_util_object->set_tran(&this->tran);
     this->RTDP_util_object->MyPolicy(this);
@@ -47,7 +47,7 @@ Point RtdpAlgo::get_action(State *s)
 //    deque<Point> stacAction;
 //    int index_pos = 0;
 //    stacAction.push_back(action);
-//    this->RTDP_util_object->apply_action(s,this->id_agent,action,this->max_speed);
+//    this->RTDP_util_object->applyAction(s,this->id_agent,action,this->max_speed);
 //
 //}
 //

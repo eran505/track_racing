@@ -32,7 +32,7 @@ public:
         cout<<"del RTDP"<<endl;
         delete(this->RTDP_util_object);
     }
-    RtdpAlgo(string namePolicy, int maxSpeedAgent, int grid_size, const list<pair<int,int>> &max_speed_and_budget);
+    RtdpAlgo(string namePolicy, int maxSpeedAgent, int grid_size, const list<pair<int,int>> &max_speed_and_budget,string agentID);
     Point get_action(State *s) override;
     const vector<float >* TransitionAction(State *s) override ;
     void reset_policy() override;

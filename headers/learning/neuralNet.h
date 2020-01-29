@@ -22,6 +22,10 @@ public:
     torch::Tensor forward(torch::Tensor x);
     ~neuralNet()= default;;
     void start();
+
+    double getQvalue(State *pState, Point *pPoint);
+
+    double getQvalueMAX(State *pState);
 };
 
 void neuralNet::start() {
@@ -59,6 +63,14 @@ torch::Tensor neuralNet::forward(torch::Tensor x) {
     x = torch::relu(fc2->forward(x));
     x = torch::log_softmax(fc3->forward(x), /*dim=*/1);
     return x;
+}
+
+double neuralNet::getQvalue(State *pState, Point *pPoint) {
+    return 0;
+}
+
+double neuralNet::getQvalueMAX(State *pState) {
+    return 0;
 }
 
 

@@ -18,6 +18,7 @@ class Game {
     int ctr_wall=0;
     int ctr_round=0;
 
+
 public:
     explicit Game(MdpPlaner *planer_m);
     void print_stats(){
@@ -42,7 +43,7 @@ public:
     void del_all_player();
     void del_list_func(list<Agent*> l,bool guard);
     static bool validate_player(Agent *player);
-
+    vector<string>* buffer;
     vector<vector<int>>* startGame(int numIter);
 };
 
