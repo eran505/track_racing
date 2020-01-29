@@ -22,7 +22,7 @@ public:
     torch::Tensor forward(torch::Tensor x);
     ~neuralNet()= default;;
     void start();
-
+    void updateNet()
     double getQvalue(State *pState, Point *pPoint);
 
     double getQvalueMAX(State *pState);

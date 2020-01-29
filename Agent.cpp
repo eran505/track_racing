@@ -28,7 +28,6 @@ void Agent::to_print() {
 }
 
 
-
 string Agent::get_name() {
     string name;
     name = this->my_team+this->my_id;
