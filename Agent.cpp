@@ -23,7 +23,8 @@ string Agent::to_str() {
 }
 
 void Agent::to_print() {
-    cout<<this->to_str()<<endl;
+    cout<<""+this->to_str()<<endl;
+
 }
 
 

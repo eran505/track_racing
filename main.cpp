@@ -107,7 +107,7 @@ vector<vector<int>>* initGame(int sizeGrid, ulong numPaths,float p ){
 
     auto info = my_game->startGame(400000);
 
-    toCsvString("/home/ise/car_model/exp/buffer/buffer.csv", my_game->buffer);
+    toCsvString("/home/ERANHER/car_model/exp/buffer/buffer.csv", my_game->buffer);
 
 
     delete(my_game);
