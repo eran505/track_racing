@@ -31,7 +31,7 @@ public:
     }
     void set_grid(Grid *g);
     Grid * get_Grid(){ return grid;};
-    list<Agent *> *get_all_players(list<Agent *> *traget_list);
+    void get_all_players(list<Agent *> *traget_list);
     void reset_state(){
         delete(this->cur_state);
         this->set_state();

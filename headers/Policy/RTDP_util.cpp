@@ -50,22 +50,28 @@ void RTDP_util::heuristic(State *s,int entry_index)
 {
     vector<State*> vec_q;
     auto oldState = new State(*s);
+    //cout<<s->to_string_state()<<endl;
     for (const auto &item_action : *this->hashActionMap)
     {
         // apply action state and let the envirmont to roll and check the reward/pos
+        Point *actionCur = item_action.second;
         double val;
-        bool isWall = this->apply_action(oldState,my_policy->id_agent,*item_action.second,my_policy->max_speed);
+        bool isWall = this->apply_action(oldState,my_policy->id_agent,*actionCur,my_policy->max_speed);
         if (isWall)
             val = this->wallReward;
         else{
             val = this->compute_h(oldState);
-            //val=10.3;
+//            if (s->takeOff == false)
+//            {
+//                val=10;
+//            }
+
         }
 
         oldState->assignment(*s,this->my_policy->id_agent);
         // insert to Q table
 
-        this->set_value_matrix(entry_index,*item_action.second,val);
+        this->set_value_matrix(entry_index,*actionCur,val);
     }
     delete(oldState);
 }

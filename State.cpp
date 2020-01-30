@@ -49,6 +49,7 @@ State::State(const State &other) {
         this->speed_dict.insert({name_id,speed_i});
         this->pos_dict.insert({name_id,pos_i});
         this->budget_dict.insert({name_id,budget_i});
+        takeOff= other.takeOff;
     }
     this->g_grid=other.g_grid;
 }

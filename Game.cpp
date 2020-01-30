@@ -89,7 +89,8 @@ vector<vector<int>>* Game::startGame(int numIter)
         this->loop_game();
         this->reset_game();
         ctr_round++;
-        this->print_stats();
+        if (ctr_round%1000==0)
+            this->print_stats();
 //        int *tmp = new int[4];
 //        tmp[0]=ctr_round;
 //        tmp[1]=this->ctr_wall;

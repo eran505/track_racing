@@ -56,11 +56,11 @@ int main() {
 
 
     vector<vector<int>> all_info;
-    for (int sizeG = 10; sizeG < 11; ++sizeG)
+    for (int sizeG = 12; sizeG < 13; ++sizeG)
     {
-        for (ulong i =3; i <= 20; i+=50) {
+        for (ulong i =1; i <= 20; i+=50) {
 
-            for (float prob =0.9 ; prob <=1.0 ; prob+=2) {
+            for (float prob =1 ; prob <=1.0 ; prob+=2) {
                 cout<<"size:"<<sizeG<<"*"<<sizeG<<"*"<<sizeG<<endl;
                 std::chrono::steady_clock::time_point begin2 = std::chrono::steady_clock::now();
                 auto info = initGame(sizeG,i,prob);
@@ -94,7 +94,8 @@ int main() {
 }
 
 vector<vector<int>>* initGame(int sizeGrid, ulong numPaths,float p ){
-    Point ppGridSize(sizeGrid,sizeGrid,sizeGrid);
+    int max_z = std::min(sizeGrid,12);
+    Point ppGridSize(sizeGrid,sizeGrid,max_z);
     auto g= init_grid(ppGridSize);
     //g->print_vaule();
 
@@ -122,8 +123,8 @@ Grid * init_grid(Point &pSize){
     game_params m{};
     auto m_ofList = new list<Point *>;
     //m_ofList->push_front(new Point(1,6,3));
-    auto goal1 =new Point(maxSzieGrid-1,maxSzieGrid-1,3);
-    auto goal2 = new Point(maxSzieGrid-1,maxSzieGrid-1,1);
+    auto goal1 =new Point(maxSzieGrid-1,maxSzieGrid-2,0);
+    auto goal2 = new Point(maxSzieGrid-2,maxSzieGrid-1,0);
     m_ofList->push_front(goal1);
     m_ofList->push_front(goal2);
     //m_ofList->push_front(new Point(3,4,0));
@@ -139,7 +140,7 @@ MdpPlaner* init_mdp(Grid *g, ulong numPaths,float p){
     int maxB=1+maxSizeGrid/10;
 
     auto startAdversary = new Point(0,0,0);
-    auto startGurd =  new Point(maxSizeGrid-2,maxSizeGrid-2,0);
+    auto startGurd =  new Point(maxSizeGrid-1,maxSizeGrid-1,0);
 
     cout<<"StartA:"<<startAdversary->to_str()<<endl;
     cout<<"startB:"<<startGurd->to_str()<<endl;
@@ -149,7 +150,7 @@ MdpPlaner* init_mdp(Grid *g, ulong numPaths,float p){
             ,adversary,10);
 
     auto* b2 = new Agent(startGurd,
-            new Point(0,0,maxB+1)
+            new Point(0,0,0)
             ,gurd,10);
 
 

@@ -57,6 +57,14 @@ public:
         }
         return res;
     }
+    int sumPoint()
+    {
+        int sum=0;
+        for (int i = 0; i < this->capacity; ++i) {
+            sum+=this->array[i];
+        }
+        return sum;
+    }
     int capacity=D_point::D;
     int array[D_point::D]{};
     Point(){ //printf("POINT_EMPTY_CON\n");

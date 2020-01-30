@@ -17,8 +17,8 @@ public:
     map<string const,Point> speed_dict;
     map<string const,int> budget_dict;
     Grid *g_grid;
-
-    State():g_grid(nullptr){};
+    bool takeOff;
+    State():g_grid(nullptr),takeOff(false){};
     ~State();
     State(const State &other);
 

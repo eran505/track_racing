@@ -29,16 +29,29 @@ Point RtdpAlgo::get_action(State *s)
 {
     //return the argmax action in the given state row
     auto action = this->RTDP_util_object->get_argmx_action(s);
+    //cout<<"action:="<<action.to_str()<<endl;
+
+
+
+
+
     int entry=this->RTDP_util_object->last_entry;
     //update state action
-
-
+    // set the max speed in the Z coordinate at the when taking off
     //inset to stack for backup update
     this->inset_to_stack(s,action,entry);
 
+    if (!s->takeOff)
+        if(action.hashMeAction(Point::actionMax)!=13 ){
+            action.array[2]=this->max_speed;
+            s->takeOff=true;
+        }
     //TODO: inset the state action tuple to the stack to update at the end of the episode
 
     this->update(s,action,entry);
+
+
+
     return action;
 }
 
