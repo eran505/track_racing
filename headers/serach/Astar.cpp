@@ -198,7 +198,7 @@ AStar::listNode AStar::Generator::findPath( StatePoint& source_,const StatePoint
     // remove path if need
     cout<<"allPath:\t"<<this->allPath.size()<<endl;
     //shuffle path
-    std::shuffle(allPath.begin(), allPath.end(),   std::default_random_engine(rand()));
+    //std::shuffle(allPath.begin(), allPath.end(),   std::default_random_engine(rand()));
 
     this->pathsToDict();
     //TODO: clean up memo

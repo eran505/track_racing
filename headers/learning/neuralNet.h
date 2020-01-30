@@ -20,9 +20,9 @@ public:
          fc3 = register_module("fc3", torch::nn::Linear(32, 1));
     }
     torch::Tensor forward(torch::Tensor x);
-    ~neuralNet()= default;;
+    ~neuralNet() override = default;;
     void start();
-    void updateNet()
+    void updateNet();
     double getQvalue(State *pState, Point *pPoint);
 
     double getQvalueMAX(State *pState);
@@ -72,6 +72,7 @@ double neuralNet::getQvalue(State *pState, Point *pPoint) {
 double neuralNet::getQvalueMAX(State *pState) {
     return 0;
 }
+
 
 
 #endif //TRACK_RACING_NEURALNET_H
