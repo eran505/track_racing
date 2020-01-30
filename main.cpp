@@ -56,12 +56,12 @@ int main() {
 
 
     vector<vector<int>> all_info;
-    for (int sizeG = 6; sizeG < 7; ++sizeG)
+    for (int sizeG = 10; sizeG < 11; ++sizeG)
     {
-        for (ulong i =2; i <= 20; i+=50) {
+        for (ulong i =3; i <= 20; i+=50) {
 
-            for (float prob =1 ; prob <=1.0 ; prob+=2) {
-                cout<<"size:"<<sizeG*2<<"*"<<sizeG*2<<"*"<<sizeG<<endl;
+            for (float prob =0.9 ; prob <=1.0 ; prob+=2) {
+                cout<<"size:"<<sizeG<<"*"<<sizeG<<"*"<<sizeG<<endl;
                 std::chrono::steady_clock::time_point begin2 = std::chrono::steady_clock::now();
                 auto info = initGame(sizeG,i,prob);
                 std::chrono::steady_clock::time_point end2 = std::chrono::steady_clock::now();
@@ -89,12 +89,12 @@ int main() {
     //csv
     std::vector<string> v(8);
     v = { "Index","Wall","Coll","At_Gaol","p","MaxPath","sizeGrid","time (ml)"};
-    toCsv("/home/ise/car_model/exp/"+fileName,&all_info,v);
+    toCsv("/home/ERANHER/car_model/exp/"+fileName,&all_info,v);
     return 0;
 }
 
 vector<vector<int>>* initGame(int sizeGrid, ulong numPaths,float p ){
-    Point ppGridSize(sizeGrid*2,sizeGrid*2,sizeGrid);
+    Point ppGridSize(sizeGrid,sizeGrid,sizeGrid);
     auto g= init_grid(ppGridSize);
     //g->print_vaule();
 
@@ -108,7 +108,7 @@ vector<vector<int>>* initGame(int sizeGrid, ulong numPaths,float p ){
 
     auto info = my_game->startGame(1000000);
 
-    toCsvString("/home/ise/car_model/exp/buffer/buffer.csv", my_game->buffer);
+    toCsvString("/home/ERANHER/car_model/exp/buffer/buffer.csv", my_game->buffer);
 
 
     delete(my_game);
@@ -145,11 +145,11 @@ MdpPlaner* init_mdp(Grid *g, ulong numPaths,float p){
     cout<<"startB:"<<startGurd->to_str()<<endl;
 
     auto* a1 = new Agent(startAdversary
-            ,new Point(0,0,maxA)
+            ,new Point(0,0,maxA+1)
             ,adversary,10);
 
     auto* b2 = new Agent(startGurd,
-            new Point(0,0,0)
+            new Point(0,0,maxB+1)
             ,gurd,10);
 
 
