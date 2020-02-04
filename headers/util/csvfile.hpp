@@ -9,7 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
-
+#include "util_game.hpp"
 class csvfile;
 
 inline static csvfile& endrow(csvfile& file);
@@ -116,4 +116,57 @@ inline static csvfile& flush(csvfile& file)
     file.flush();
     return file;
 }
+
+/*
+ * A class to read data from a csv file. ----- CSVReader ------
+ */
+
+class CSVReader
+{
+    std::string fileName;
+    char delimeter;
+
+public:
+    CSVReader(std::string filename, char delm = ',') :
+            fileName(filename), delimeter(delm)
+    { }
+
+    // Function to fetch data from a CSV File
+    std::vector<std::vector<std::string>> getDataCSV()
+    {
+        std::ifstream file(fileName);
+
+        std::vector<std::vector<std::string> > dataList;
+
+        std::string line = "";
+        // Iterate through each line and split the content using delimeter
+        while (getline(file, line))
+        {
+            auto vec = split(line, delimeter);
+            dataList.push_back(vec);
+        }
+        // Close the File
+        file.close();
+
+        return dataList;
+    }
+    std::vector<std::string> split(const std::string& s, char delimiter)
+    {
+        std::vector<std::string> tokens;
+        std::string token;
+        std::istringstream tokenStream(s);
+        while (std::getline(tokenStream, token, delimiter))
+        {
+            tokens.push_back(token);
+        }
+        return tokens;
+    }
+};
+
+/*
+* Parses through csv file line by line and returns the data
+* in vector of vector of strings.
+*/
+
+
 #endif //TRACK_RACING_CSVFILE_HPP

@@ -17,10 +17,14 @@
 #include "Policy/PathPolicy.hpp"
 #include "learning/neuralNet.h"
 #include "learning/DeepRTDP.h"
-Grid * init_grid(Point &pSize);
-MdpPlaner* init_mdp(Grid *g, ulong numPaths,float p);
-void toCsv(string pathFile, vector<vector<int>>* infoArr,vector<string> &labels);
-vector<vector<int>>* initGame(int sizeInt, ulong intSizePath, float p);
+#include "util/utilClass.hpp"
+#include <random>
+#include <headers/util/csvfile.hpp>
+Grid * init_grid(configGame &conf);
+MdpPlaner* init_mdp(Grid *g, configGame &conf);
+void toCsv(string &pathFile, vector<vector<int>>* infoArr,vector<string> &labels);
+vector<vector<int>>* initGame(configGame& conf);
+vector<vector<string>> readConfigFile(string &filePath);
 void toCsvString(string pathFile,vector<string>* infoArr);
 
 /*
@@ -38,12 +42,13 @@ void toCsvString(string pathFile,vector<string>* infoArr);
  * 5. crate trans only for one branch, its dep only on pos_speed bad agent
  *
  */
-#include <random>
-#include <headers/util/csvfile.hpp>
 typedef vector<tuple<Point*,double>> listPointWeighted;
 typedef unsigned long ulong;
 int main() {
-
+//    char temp[256];
+//    auto str_dir =  getcwd(temp, sizeof(temp)) ? std::string( temp ) : std::string("");
+//    cout<<str_dir<<endl;
+// ************************************
 //    auto nn = new neuralNet();
 //    nn->start();
 //
@@ -53,53 +58,36 @@ int main() {
     cout<<"seed:\t"<<seed<<endl;
     srand(seed);
     int MaxInt = INT_MAX;
-
-
-    vector<vector<int>> all_info;
-    for (int sizeG = 12; sizeG < 13; ++sizeG)
+    const string home="/home/ERANHER";
+    std::string pathCsv (home + "/car_model/config/con1.csv");
+    std::string toCsvPath (home+ "/car_model/config_exp_1/");
+    auto csvRows = readConfigFile(pathCsv);
+    int ctrID=1;
+    vector<string> labels={"ctr_round","ctr_wall","ctr_coll","ctr_at_goal"};
+    for (int i=1; i<csvRows.size();++i)
     {
-        for (ulong i =1; i <= 20; i+=50) {
-
-            for (float prob =1 ; prob <=1.0 ; prob+=2) {
-                cout<<"size:"<<sizeG<<"*"<<sizeG<<"*"<<sizeG<<endl;
-                std::chrono::steady_clock::time_point begin2 = std::chrono::steady_clock::now();
-                auto info = initGame(sizeG,i,prob);
-                std::chrono::steady_clock::time_point end2 = std::chrono::steady_clock::now();
-                std::cout << " " << std::chrono::duration_cast<std::chrono::minutes> (end2 - begin2).count() << "[m]:" ;
-                std::cout << " " << std::chrono::duration_cast<std::chrono::milliseconds> (end2 - begin2).count() << "[ml]:" ;
-                std::cout << " " << std::chrono::duration_cast<std::chrono::microseconds>(end2 - begin2).count() << "[µs]:" ;
-                std::cout << " " << std::chrono::duration_cast<std::chrono::nanoseconds> (end2 - begin2).count() << "[ns] "<< std::endl ;
-                string timeMin =  std::to_string(int(std::chrono::duration_cast<std::chrono::minutes> (end2 - begin2).count()));
-                string timeMl =  std::to_string(int(std::chrono::duration_cast<std::chrono::milliseconds> (end2 - begin2).count()));
-                for (auto &item: *info)
-                {
-                    item.push_back(prob*10);
-                    item.push_back(i);
-                    item.push_back(sizeG);
-                    item.push_back(int(std::chrono::duration_cast<std::chrono::milliseconds> (end2 - begin2).count()));
-                    all_info.push_back(item);
-                }
-
-            }
-
-        }
+        auto row = csvRows[i];
+        // size of Grid
+        configGame conf(row);
+        string strId=row[0];
+        auto resultsConfigI = initGame(conf);
+        auto curToCsv = toCsvPath+"ID_"+strId+".csv";
+        toCsv(curToCsv,resultsConfigI,labels);
+        ctrID++;
+        //Agent::ctr_object = 0;
+        delete (resultsConfigI);
+        //break;
     }
 
-    string fileName="all.csv";
-    //csv
-    std::vector<string> v(8);
-    v = { "Index","Wall","Coll","At_Gaol","p","MaxPath","sizeGrid","time (ml)"};
-    toCsv("/home/ERANHER/car_model/exp/"+fileName,&all_info,v);
+
     return 0;
 }
 
-vector<vector<int>>* initGame(int sizeGrid, ulong numPaths,float p ){
-    int max_z = std::min(sizeGrid,12);
-    Point ppGridSize(sizeGrid,sizeGrid,max_z);
-    auto g= init_grid(ppGridSize);
+vector<vector<int>>* initGame(configGame &conf ){
+    auto g= init_grid(conf);
     //g->print_vaule();
 
-    auto pPlaner = init_mdp(g,numPaths,p);
+    auto pPlaner = init_mdp(g,conf);
 
     pPlaner->set_grid(g);
 
@@ -107,7 +95,7 @@ vector<vector<int>>* initGame(int sizeGrid, ulong numPaths,float p ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    auto info = my_game->startGame(1000000);
+    auto info = my_game->startGame(3000000);
 
     toCsvString("/home/ERANHER/car_model/exp/buffer/buffer.csv", my_game->buffer);
 
@@ -118,38 +106,28 @@ vector<vector<int>>* initGame(int sizeGrid, ulong numPaths,float p ){
     return info;
 }
 
-Grid * init_grid(Point &pSize){
-    int maxSzieGrid = pSize.array[0];
+Grid * init_grid(configGame& conf){
     game_params m{};
-    auto m_ofList = new list<Point *>;
-    //m_ofList->push_front(new Point(1,6,3));
-    auto goal1 =new Point(maxSzieGrid-1,maxSzieGrid-2,0);
-    auto goal2 = new Point(maxSzieGrid-2,maxSzieGrid-1,0);
-    m_ofList->push_front(goal1);
-    m_ofList->push_front(goal2);
-    //m_ofList->push_front(new Point(3,4,0));
-    cout<<"Goals:"<<goal1->to_str()<<goal2->to_str()<<endl;
-    m.size=pSize;
-    m.list_goals=m_ofList;
+    m.size=conf.sizeGrid;
+    auto* listGoal = new list<Point*>();
+    for (auto &refGoal:conf.gGoals)
+        listGoal->push_back(new Point(refGoal));
+    m.list_goals=listGoal;
     Grid *g = new Grid(m);
     return g;
 }
-MdpPlaner* init_mdp(Grid *g, ulong numPaths,float p){
+MdpPlaner* init_mdp(Grid *g, configGame &conf){
     int maxSizeGrid = g->getPointSzie().array[0];
     int maxA=2+maxSizeGrid/10;
     int maxB=1+maxSizeGrid/10;
 
-    auto startAdversary = new Point(0,0,0);
-    auto startGurd =  new Point(maxSizeGrid-1,maxSizeGrid-1,0);
+    auto startAdversary = new Point(conf.posAttacker);
 
-    cout<<"StartA:"<<startAdversary->to_str()<<endl;
-    cout<<"startB:"<<startGurd->to_str()<<endl;
-
-    auto* a1 = new Agent(startAdversary
-            ,new Point(0,0,maxA+1)
+    auto* pA1 = new Agent(startAdversary
+            ,new Point(0,0,maxA)
             ,adversary,10);
 
-    auto* b2 = new Agent(startGurd,
+    auto* pD2 = new Agent(new Point(conf.posDefender),
             new Point(0,0,0)
             ,gurd,10);
 
@@ -158,18 +136,14 @@ MdpPlaner* init_mdp(Grid *g, ulong numPaths,float p){
     auto gloz_l = g->get_goals();
     Point p_sizer = g->getPointSzie();
     listPointWeighted endState;
-    gloz_l.size() == 2 ? p=p: p=1.0;
-    auto probabllitiesW = vector<float>();
-    probabllitiesW.push_back(p);
-    probabllitiesW.push_back(1.0-p);
     int ctr=0;
     for (Point *item:gloz_l) {
-        endState.push_back({new Point(*item),probabllitiesW[ctr]});
+        endState.push_back({item,conf.probGoals[ctr]});
         ctr++;
     }
     listPointWeighted startState;
     startState.push_back({startAdversary,1});
-    Policy *pGridPath =new  PathPolicy("SP",maxA, endState, startState, p_sizer,a1->get_id(),numPaths);
+    Policy *pGridPath =new  PathPolicy("SP",maxA, endState, startState, p_sizer,pA1->get_id(),conf.rRoutes);
     auto *tmp_pointer = dynamic_cast <PathPolicy*>(pGridPath);
     printf("number of state:\t %d",tmp_pointer->getNumberOfState());
     ////////PATH POLICY////////////
@@ -183,14 +157,14 @@ MdpPlaner* init_mdp(Grid *g, ulong numPaths,float p){
 
 
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),b2->get_id());
-    Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),l,b2->get_id());
+    Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),l,pD2->get_id());
     RTDP->add_tran(pGridPath);
-    a1->setPolicy(pGridPath);
-    b2->setPolicy(RTDP);
+    pA1->setPolicy(pGridPath);
+    pD2->setPolicy(RTDP);
 
     auto* s = new MdpPlaner();
-    s->add_player(a1);
-    s->add_player(b2);
+    s->add_player(pA1);
+    s->add_player(pD2);
     s->set_grid(g);
     s->set_state();
 
@@ -199,7 +173,7 @@ MdpPlaner* init_mdp(Grid *g, ulong numPaths,float p){
 }
 
 
-void toCsv(string pathFile, vector<vector<int>>* infoArr,vector<string> &labels){
+void toCsv(string &pathFile, vector<vector<int>>* infoArr,vector<string> &labels){
     try
     {
         csvfile csv(std::move(pathFile),","); // throws exceptions!
@@ -239,4 +213,19 @@ void toCsvString(string pathFile,vector<string>* infoArr){
     {
         std::cout << "Exception was thrown: " << ex.what() << std::endl;
     }
+}
+
+vector<vector<string>> readConfigFile(string &filePath){
+    CSVReader reader(std::move(filePath),',');
+    vector<vector<string>> rowsCsv = reader.getDataCSV();
+//    for (auto &row : rowsCsv )
+//    {
+//        for (auto item: row)
+//        {
+//            cout<<item<<',';
+//        }
+//        cout<<endl;
+//    }
+
+    return rowsCsv;
 }

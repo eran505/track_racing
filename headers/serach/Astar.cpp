@@ -230,7 +230,7 @@ void AStar::Generator::pathsToDict() {
     //auto dictTMP = new policyDict();
     uint ctr=0;
     for (auto &itemF : this->allPath) {
-        if (maxPath<ctr)
+        if (maxPath<=ctr)
             break;
         ctr++;
         for (unsigned long i = 0; i < itemF.size() - 1; ++i) {

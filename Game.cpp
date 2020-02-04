@@ -20,6 +20,7 @@ Game::~Game() {
     delete(this->in_game_guards);
     delete(this->in_game_adversaries);
     delete(this->planer);
+    delete (this->buffer);
 }
 
 
@@ -80,6 +81,7 @@ void Game::print_list_in_game() {
 
 vector<vector<int>>* Game::startGame(int numIter)
 {
+    //int size = numIter%10000 == 0 ? numIter/10000 :numIter/10000+1;
     auto info = new vector<vector<int>>();
     this->init_game();
     this->fill_agents();
@@ -89,19 +91,27 @@ vector<vector<int>>* Game::startGame(int numIter)
         this->loop_game();
         this->reset_game();
         ctr_round++;
-        if (ctr_round%1000==0)
+        if (ctr_round%10000==0){
             this->print_stats();
-//        int *tmp = new int[4];
-//        tmp[0]=ctr_round;
-//        tmp[1]=this->ctr_wall;
-//        tmp[2]=this->ctr_coll;
-//        tmp[3] = this->ctr_at_gal;
-//        info->emplace_back(tmp);
+            vector<int> tmp(4);
+            tmp[0]=ctr_round;
+            tmp[1]=this->ctr_wall;
+            tmp[2]=this->ctr_coll;
+            tmp[3] = this->ctr_at_gal;
+            info->push_back(tmp);
+        }
     }
     cout<<"Collision:\t"<<ctr_coll<<endl;
-    auto tmp = vector<int>(4);
-    tmp={ctr_round,this->ctr_wall,this->ctr_coll,this->ctr_at_gal};
-    info->emplace_back(tmp);
+    if (ctr_round%1000>0)
+    {
+        vector<int> tmp(4);
+        tmp[0]=ctr_round;
+        tmp[1]=this->ctr_wall;
+        tmp[2]=this->ctr_coll;
+        tmp[3] = this->ctr_at_gal;
+        info->push_back(tmp);
+
+    }
     return info;
 
 }

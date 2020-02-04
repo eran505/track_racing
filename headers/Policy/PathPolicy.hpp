@@ -46,7 +46,7 @@ public:
                     auto endP = std::get<0>(goalPoint[k]);
                     weightEnd = std::get<1>(goalPoint[k]);
                     auto zeroSrc  = Point();
-                    auto startSpeed  = Point(0,0,max_speed+1);
+                    auto startSpeed  = Point(0,0,max_speed);
                     //auto zeroDest  = Point();
                     auto src = AStar::StatePoint{Point(*startP),startSpeed};
                     auto dest = AStar::StatePoint{Point(*endP),startSpeed};

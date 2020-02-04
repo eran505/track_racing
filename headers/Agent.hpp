@@ -13,7 +13,6 @@
 class Agent{
 
 protected:
-    static int ctr_object;
     Point* my_pos;
     Policy* my_Policy;
     Point* my_speed;
@@ -67,7 +66,7 @@ public:
     void to_print();
 
 
-
+    static int ctr_object;
 };
 
 

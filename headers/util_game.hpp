@@ -16,11 +16,12 @@
 #include <map>
 #include <algorithm>
 #include <set>
+
 using namespace std;
 
 enum Section{
     adversary = (int)'A',
-    gurd   = (int)'B'
+    gurd   = (int)'D'
 };
 
 class Point{
