@@ -139,7 +139,7 @@ void Game::loop_game() {
 
         }
 
-        //cout<<this->planer->get_cur_state()->to_string_state()<<endl;
+        cout<<this->planer->get_cur_state()->to_string_state()<<endl;
 
 
         // check constrain end game (Wall/Budget/Coll/Goal)

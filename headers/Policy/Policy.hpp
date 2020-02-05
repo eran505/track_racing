@@ -32,9 +32,11 @@ public:
     const string& GetId(){ return id_agent;}
 
     virtual ~Policy(){
+        cout<<"~Policy"<<endl;
         for (auto &item : *this->hashActionMap)
             delete(item.second);
         delete(hashActionMap);
+        cout<<"Done Policy"<<endl;
     }
 
     void set_id(string id_m){this->id_agent=std::move(id_m);}

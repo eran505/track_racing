@@ -62,18 +62,25 @@ int main() {
     std::string pathCsv (home + "/car_model/config/con1.csv");
     std::string toCsvPath (home+ "/car_model/config_exp_1/");
     auto csvRows = readConfigFile(pathCsv);
-    int ctrID=1;
+    int ctrId=1;
     vector<string> labels={"ctr_round","ctr_wall","ctr_coll","ctr_at_goal"};
     for (int i=1; i<csvRows.size();++i)
     {
+        string curToCsv;
         auto row = csvRows[i];
         // size of Grid
         configGame conf(row);
         string strId=row[0];
+        cout<<"ID:\t"<<strId<<endl;
+        curToCsv.append(toCsvPath);curToCsv.append("ID_");
+        curToCsv.append(strId);curToCsv.append(".csv");
+
         auto resultsConfigI = initGame(conf);
-        auto curToCsv = toCsvPath+"ID_"+strId+".csv";
+
+
+
         toCsv(curToCsv,resultsConfigI,labels);
-        ctrID++;
+        ctrId++;
         //Agent::ctr_object = 0;
         delete (resultsConfigI);
         //break;
@@ -95,14 +102,14 @@ vector<vector<int>>* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    auto info = my_game->startGame(3000000);
+    auto info = my_game->startGame(1000000);
 
-    toCsvString("/home/ERANHER/car_model/exp/buffer/buffer.csv", my_game->buffer);
+    //toCsvString("/home/ERANHER/car_model/exp/buffer/buffer.csv", my_game->buffer);
 
 
     delete(my_game);
     //delete (info);
-    cout<<"------END MAIN!!------"<<endl;
+    cout<<"------END MAIN!!-----"<<endl;
     return info;
 }
 
@@ -151,13 +158,13 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 
     //// init the RTDP algo
     /* If max speed is zero, the explict number of state is in the second place */
-    list<pair<int,int>> l;
-    l.emplace_back(maxB,1);
-    l.emplace_back(0,tmp_pointer->getNumberOfState());
+    vector<pair<int,int>> list_Q_data;
+    list_Q_data.emplace_back(maxB,1);
+    list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
 
 
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),b2->get_id());
-    Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),l,pD2->get_id());
+    Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),list_Q_data,pD2->get_id());
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);
     pD2->setPolicy(RTDP);

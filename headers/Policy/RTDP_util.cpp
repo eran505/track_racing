@@ -5,7 +5,7 @@
 
 #include "RTDP_util.hpp"
 
-RTDP_util::RTDP_util(int grid_size,const list<pair<int,int>>& max_speed_and_budget) {
+RTDP_util::RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget) {
     this->hashActionMap=Point::getDictAction();
     this->set_up_Q(grid_size,max_speed_and_budget);
     this->mapState= new map<string,int>();
@@ -13,7 +13,7 @@ RTDP_util::RTDP_util(int grid_size,const list<pair<int,int>>& max_speed_and_budg
 }
 
 
-void RTDP_util::set_up_Q(int grid_size, const list<pair<int,int>>& max_speed_and_budget) {
+void RTDP_util::set_up_Q(int grid_size, vector<pair<int,int>>& max_speed_and_budget) {
     int size_action = this->hashActionMap->size();
     int size_player=max_speed_and_budget.size();
     double state_number_overall = 1;
@@ -28,10 +28,11 @@ void RTDP_util::set_up_Q(int grid_size, const list<pair<int,int>>& max_speed_and
     this->size_Q=int(state_number_overall*0.5);
     if (size_Q>21000000)
         size_Q=20500000;
-    cout<<"size_Q= "<<size_Q<<endl;
+    cout<<"\nsize_Q= "<<size_Q<<endl;
     this->qTable = new double*[int(size_Q)]; // dynamic array (size 10) of pointers to int
-    for (int i = 0; i < int(size_Q); ++i)
+    for (int i = 0; i < size_Q; ++i)
         this->qTable[i] = new double[size_action];
+    cout<<qTable<<endl;
     cout<<"end allocation"<<endl;
 }
 
@@ -113,18 +114,25 @@ int RTDP_util::add_entry_map_state(string &basicString,State *s) {
 RTDP_util::~RTDP_util() {
     cout<<"state genrated:\t"<<ctr_state<<endl;
     cout<<"size_Q:\t"<<size_Q<<endl;
+    cout<<qTable<<endl;
     //Free each sub-array
     for(int i = 0; i < this->size_Q ; ++i) {
-        delete[] this->qTable[i];
+        //cout<<"i="<<std::to_string(i)<<endl;
+        delete[] qTable[i];
     }
+    cout<<"Free the array of pointers"<<endl;
     //Free the array of pointers
-    delete[] this->qTable;
+    delete[] qTable;
+    cout<<"all Q is Free"<<endl;
     for(auto & it : *this->hashActionMap) {
-
+        cout<<"in"<<endl;
         delete(it.second);
     }
+    cout<<"here1"<<endl;
     delete(mapState);
+    cout<<"here2"<<endl;
     delete(hashActionMap);
+    cout<<"here3"<<endl;
 }
 
 vector<int> arg_max(const double arr[],int size ){
@@ -217,6 +225,7 @@ double RTDP_util::compute_h(State *s) {
 }
 
 void RTDP_util::policyData() {
+    return;
     string pathFile="/home/ERANHER/car_model/exp/DATA/";
 
     // csv map state-----------------------------
