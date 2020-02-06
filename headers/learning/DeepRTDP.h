@@ -6,7 +6,7 @@
 #define TRACK_RACING_DEEPRTDP_H
 
 #include <utility>
-
+#include "learning/ReplayBuffer/ReplayBuffer.hpp"
 #include "Policy/Policy.hpp"
 #include "neuralNet.h"
 #include "FeatureGen.h"
@@ -17,11 +17,13 @@ class DeepRTDP : public Policy{
     int ctrState=0;
     neuralNet* nNet;
     int ctrRandom;
+
     FeatureGen* featuerConv= nullptr;
     vector<vector<double>*> fNextState;
     vector<double>* fStateCurrFeaturesQ;
     Point* fAction;
-
+    vector<double>* vecProbabilities;
+    ReplayBuffer *myReplayBuffer;
 
 
     template<typename KeyType, typename ValueType>
@@ -31,7 +33,6 @@ class DeepRTDP : public Policy{
     void bellmanUpdate(State *s,Point& actionP);
     void rec_update(State *s,int index, double acc_probablity);
     bool applyAction(State *s, const string &id, Point &action, int max_speed);
-
     double rewardState(State *s);
 
 public:
@@ -52,6 +53,7 @@ DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,string agentID)
     nNet = nullptr;
     ctrRandom=seed;
     this->featuerConv=new FeatureGen(agentID);
+    this->myReplayBuffer=new ReplayBuffer(1000,10)
 }
 
 void DeepRTDP::policy_data() const {
@@ -83,10 +85,12 @@ Point DeepRTDP::get_action(State *s) {
     //choose randomly one
     Point actionI = *getRandomlyAction(argMaxList);
     //del
+    cout<<actionI.to_str()<<endl;
     delete argMaxList;
 
     //update
     bellmanUpdate(s,actionI);
+    cout<<actionI.to_str()<<endl;
 
     return actionI;
 }
@@ -140,8 +144,8 @@ Point *DeepRTDP::getRandomlyAction(vector<int> *intVect) {
 void DeepRTDP::bellmanUpdate(State *s, Point& actionP) {
 
     int indexTran = -1;
-    this->fStateCurrFeaturesQ=featuerConv->getFeaturesSA(s,actionP);
-
+    this->fStateCurrFeaturesQ=featuerConv->getFeaturesS(s);
+    this->fAction=new  Point(actionP);
     // copy state
     auto stateCur = new State(*s);
 
@@ -149,6 +153,7 @@ void DeepRTDP::bellmanUpdate(State *s, Point& actionP) {
 
 
     this->rec_update(stateCur,indexTran,1);
+
 }
 
 void DeepRTDP::rec_update(State *s,int index, double acc_probablity) {
@@ -157,8 +162,11 @@ void DeepRTDP::rec_update(State *s,int index, double acc_probablity) {
         auto f = this->featuerConv->getFeaturesS(s);
         //append reward state
         f->push_back(this->rewardState(s));
-        //add the probability of reaching this state according the transition function
-        f->push_back(acc_probablity);
+        // add probability
+        vecProbabilities->push_back(acc_probablity);
+        // add reward
+
+
         this->fNextState.push_back(f);
         return;
     }
