@@ -199,7 +199,7 @@ AStar::listNode AStar::Generator::findPath( StatePoint& source_,const StatePoint
     cout<<"allPath:\t"<<this->allPath.size()<<endl;
     //shuffle path
     //std::shuffle(allPath.begin(), allPath.end(),   std::default_random_engine(rand()));
-
+    filterPaths();
     this->pathsToDict();
     //TODO: clean up memo
     releaseMAP(openSetID);
@@ -207,6 +207,26 @@ AStar::listNode AStar::Generator::findPath( StatePoint& source_,const StatePoint
     return res;
 }
 
+void AStar::Generator::filterPaths() {
+    unordered_map<string,vector<int>> dict;
+    for (size_t k = 0 ; k<this->allPath.size();++k)
+    {
+        string idPath;
+        for (size_t i = 0; i <allPath[k].size()-1; ++i) {
+            idPath+=allPath[k][i]->coordinates->pos.to_str();
+        }
+        auto pos = dict.find(idPath);
+        if (pos == dict.end())
+        {
+            dict.insert({idPath,vector<int>()});
+        }
+        else
+            {cout<<"keyIn"<<endl;}
+        dict[idPath].push_back(k);
+    }
+    cout<<"size:\t"<<dict.size()<<endl;
+    cout<<"end"<<endl;
+}
 
 
 AStar::Node* AStar::Generator::findNodeOnList(const unordered_map<string,Node*>& nodes_, StatePoint &coordinates_)
@@ -224,7 +244,6 @@ void AStar::Generator::releaseNodes(NodeSet& nodes_)
         it = nodes_.erase(it);
     }
 }
-
 
 void AStar::Generator::pathsToDict() {
     //auto dictTMP = new policyDict();
@@ -256,6 +275,8 @@ void AStar::Generator::pathsToDict() {
 
     }
 }
+
+
 void AStar::Generator::pathsToDict_rec(Node &item) {
     if(!item.parent.empty())
     {
@@ -355,6 +376,7 @@ void AStar::Generator::print_pathz(Node *l) {
     listPrint.remove(l);
 
 }
+
 
 
 AStar::uint AStar::Heuristic::manhattan(const StatePoint &source_, const StatePoint &target_,int maxSpeed)

@@ -59,8 +59,8 @@ int main() {
     srand(seed);
     int MaxInt = INT_MAX;
     const string home="/home/ERANHER";
-    std::string pathCsv (home + "/car_model/config/con1.csv");
-    std::string toCsvPath (home+ "/car_model/config_exp_1/");
+    std::string pathCsv (home + "/car_model/config/con2.csv");
+    std::string toCsvPath (home+ "/car_model/config_exp_2/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
     vector<string> labels={"ctr_round","ctr_wall","ctr_coll","ctr_at_goal"};
@@ -103,8 +103,8 @@ vector<vector<int>>* initGame(configGame &conf ){
     cout<<"------LOOP GAME!!------"<<endl;
 
     auto info = my_game->startGame(1000000);
-
-    //toCsvString("/home/ERANHER/car_model/exp/buffer/buffer.csv", my_game->buffer);
+    string nameFile="buffer_"+conf.idNumber+".csv";
+    toCsvString("/home/ERANHER/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
 
     delete(my_game);
@@ -208,12 +208,19 @@ void toCsvString(string pathFile,vector<string>* infoArr){
     {
         csvfile csv(std::move(pathFile),","); // throws exceptions!
         // Hearer
-
+        size_t sizeVec = infoArr->size();
+        unsigned int ctr=0;
+        int lim = sizeVec-400000;
         // Data
         for (const auto& row:*infoArr)
         {
-            csv << row;
-            csv<< endrow;
+
+            if (ctr>lim)
+            {
+                csv << row;
+                csv<< endrow;
+            }
+            ctr++;
         }
     }
     catch (const std::exception &ex)

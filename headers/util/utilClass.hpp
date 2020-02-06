@@ -38,10 +38,12 @@ struct configGame{
     vector<Point> gGoals ;
     vector<float> probGoals;
     int rRoutes;
+    string idNumber;
 
     explicit configGame(vector<string> row)
     {
 
+        idNumber=row[0];
         sizeGrid = Point(stoi(row[1]),stoi(row[2]),stoi(row[3]));
         posAttacker = vecToPoint(std::move(splitStr(row[4],"|")));
         posDefender = vecToPoint(std::move(splitStr(row[5],"|")));

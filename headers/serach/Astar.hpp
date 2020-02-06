@@ -97,7 +97,7 @@ namespace AStar
         list<Node*> listPrint;
         vector<vector<Node*>> allPath;
 
-
+        void filterPaths();
         StatePoint* applyActionState(const StatePoint &cur,const Point &action){
             auto speed_copy = Point(cur.speed);
             speed_copy+=action;

@@ -12,25 +12,25 @@ class neuralNet : torch::nn::Module{
 
     torch::nn::Linear fc1{nullptr}, fc2{nullptr}, fc3{nullptr};
 
-public:
+    public:
 
-    neuralNet(){
-         fc1 = register_module("fc1", torch::nn::Linear(784, 64));
-         fc2 = register_module("fc2", torch::nn::Linear(64, 32));
-         fc3 = register_module("fc3", torch::nn::Linear(32, 1));
-    }
-    torch::Tensor forward(torch::Tensor x);
-    ~neuralNet() override = default;;
-    void start();
-    void updateNet();
-    double getQvalue(State *pState, Point *pPoint);
+        neuralNet(){
+             fc1 = register_module("fc1", torch::nn::Linear(784, 64));
+             fc2 = register_module("fc2", torch::nn::Linear(64, 32));
+             fc3 = register_module("fc3", torch::nn::Linear(32, 1));
+        }
+        torch::Tensor forward(torch::Tensor x);
+        ~neuralNet() override = default;;
+        void start();
+        void updateNet();
+        double getQvalue(State *pState, Point *pPoint);
 
-    double getQvalueMAX(State *pState);
-};
+        double getQvalueMAX(State *pState);
+    };
 
-void neuralNet::start() {
-    cout<<"start Function"<<endl;
-    // Create a multi-threaded data loader for the MNIST dataset.
+    void neuralNet::start() {
+        cout<<"start Function"<<endl;
+        // Create a multi-threaded data loader for the MNIST dataset.
     auto data_loader = torch::data::make_data_loader(
             torch::data::datasets::MNIST("./data").map(
                     torch::data::transforms::Stack<>()),
