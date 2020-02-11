@@ -132,6 +132,14 @@ public:
         return false;
     }
 
+    vector<double>* getFeature()
+    {
+        auto* vectorI = new vector<double>();
+        for (int i = 0; i < this->capacity; ++i)
+            vectorI->push_back(this->array[i]);
+
+        return vectorI;
+    }
     bool any_ngative(){
         for (int i = 0; i < this->capacity; ++i) {
             if (this->array[i]<0)

@@ -8,6 +8,11 @@
 #include "util_game.hpp"
 #include "State.hpp"
 
+
+/*
+ * [[si,sj]]
+ */
+
 class FeatureGen{
     string uAgentId;
     const string uOppId="0A";

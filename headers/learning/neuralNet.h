@@ -15,9 +15,9 @@ class neuralNet : torch::nn::Module{
     public:
 
         neuralNet(){
-             fc1 = register_module("fc1", torch::nn::Linear(784, 64));
+             fc1 = register_module("fc1", torch::nn::Linear(15, 64));
              fc2 = register_module("fc2", torch::nn::Linear(64, 32));
-             fc3 = register_module("fc3", torch::nn::Linear(32, 1));
+             fc3 = register_module("fc3", torch::nn::Linear(32, 23));
         }
         torch::Tensor forward(torch::Tensor x);
         ~neuralNet() override = default;;
@@ -27,6 +27,19 @@ class neuralNet : torch::nn::Module{
 
         double getQvalueMAX(State *pState);
     };
+
+
+    torch::Tensor getData()
+    {
+        float data[] = { 1, 2, 3,
+                         4, 5, 6 };
+        vector<float> myData = {4,2,3,4,5,6};
+        ArrayRef<float> x = myData;
+        auto f = torch::tensor(x);
+        //torch::Tensor f = torch::from_blob(x);
+        //torch::Tensor xx =  torch::from_blob(std::data(myData), {2, 3});
+        return f;
+    }
 
     void neuralNet::start() {
         cout<<"start Function"<<endl;
@@ -45,13 +58,33 @@ class neuralNet : torch::nn::Module{
             // Reset gradients.
             optimizer.zero_grad();
             // Execute the model on the input data.
-            torch::Tensor prediction = this->forward(batch.data);
+            // compute the next state value without no-grand
+            //        with torch.no_grad():
+            //            Q_targets = self.compute_q_targets(next_states, rewards, dones)
+            torch::Tensor Qtarget;
+            {
+                // This scope calc the expected value of the transition
+                torch::NoGradGuard noGrad;// This only takes effect within the scope
+                Qtarget = this->forward(batch.next_state); // Does not accumulate gradient
+            }
+            torch::Tensor qExoected = this->forward(batch.curstate);
             // Compute a loss value to judge the prediction of our model.
-            torch::Tensor loss = torch::nll_loss(prediction, batch.target);
+            torch::Tensor loss = torch::mse_loss(qExoected,Qtarget);
             // Compute gradients of the loss w.r.t. the parameters of our model.
             loss.backward();
+
+            //similar decreasing the learning rate only for big gradients to perform small updates all the time.
+            //cliped ref https://discuss.pytorch.org/t/clip-gradients-norm-in-libtorch/39524/2
+
             // Update the parameters based on the calculated gradients.
             optimizer.step();
+            if (++batch_index % 100 == 0) {
+                std::cout << "Epoch: " << epoch << " | Batch: " << batch_index
+                          << " | Loss: " << loss.item<float>() << std::endl;
+
+                // Serialize your model periodically as a checkpoint.
+                //torch::save(net, "net.pt")
+            }
         }
     }
 }
@@ -66,6 +99,9 @@ torch::Tensor neuralNet::forward(torch::Tensor x) {
 }
 
 double neuralNet::getQvalue(State *pState, Point *pPoint) {
+    torch::NoGradGuard noGrad;
+    this->eval(); // #puts network in evaluation mode
+
     return 0;
 }
 

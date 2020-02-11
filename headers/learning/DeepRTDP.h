@@ -19,11 +19,13 @@ class DeepRTDP : public Policy{
     int ctrRandom;
 
     FeatureGen* featuerConv= nullptr;
-    vector<vector<double>*> fNextState;
-    vector<double>* fStateCurrFeaturesQ;
-    Point* fAction;
+    vector<feature*> fNextState;
+    feature* fStateCurrFeaturesQ;
+    feature* fAction;
     vector<double>* vecProbabilities;
+    vector<double>* vecRewards;
     ReplayBuffer *myReplayBuffer;
+
 
 
     template<typename KeyType, typename ValueType>
@@ -34,7 +36,7 @@ class DeepRTDP : public Policy{
     void rec_update(State *s,int index, double acc_probablity);
     bool applyAction(State *s, const string &id, Point &action, int max_speed);
     double rewardState(State *s);
-
+    void initBuffers();
 public:
 
     DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,string idAgent);
@@ -53,7 +55,7 @@ DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,string agentID)
     nNet = nullptr;
     ctrRandom=seed;
     this->featuerConv=new FeatureGen(agentID);
-    this->myReplayBuffer=new ReplayBuffer(1000,10)
+    this->myReplayBuffer=new ReplayBuffer(30,10);
 }
 
 void DeepRTDP::policy_data() const {
@@ -141,11 +143,13 @@ Point *DeepRTDP::getRandomlyAction(vector<int> *intVect) {
     return pos->second;
 }
 
-void DeepRTDP::bellmanUpdate(State *s, Point& actionP) {
+void DeepRTDP::bellmanUpdate(State *s, Point& actionP){
+    // init the containers
+    this->initBuffers();
 
     int indexTran = -1;
     this->fStateCurrFeaturesQ=featuerConv->getFeaturesS(s);
-    this->fAction=new  Point(actionP);
+    this->fAction=actionP.getFeature();
     // copy state
     auto stateCur = new State(*s);
 
@@ -154,19 +158,24 @@ void DeepRTDP::bellmanUpdate(State *s, Point& actionP) {
 
     this->rec_update(stateCur,indexTran,1);
 
+    //insert to buffer
+    this->myReplayBuffer->addBuffer(vecProbabilities,vecRewards,this->fNextState,fAction,fStateCurrFeaturesQ);
 }
 
+void DeepRTDP::initBuffers() {
+    this->fNextState.clear();
+    this->vecProbabilities = new vector<double>();
+    this->vecRewards = new vector<double>();
+}
 void DeepRTDP::rec_update(State *s,int index, double acc_probablity) {
     if (index+1==this->tran.size()) {
         //get the state features
         auto f = this->featuerConv->getFeaturesS(s);
         //append reward state
-        f->push_back(this->rewardState(s));
+        vecRewards->push_back(this->rewardState(s));
         // add probability
         vecProbabilities->push_back(acc_probablity);
         // add reward
-
-
         this->fNextState.push_back(f);
         return;
     }

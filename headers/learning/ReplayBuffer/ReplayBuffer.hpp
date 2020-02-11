@@ -7,39 +7,36 @@
 
 #include "State.hpp"
 #include "util_game.hpp"
-typedef vector<double>* feature;
+typedef vector<double> feature;
 class ReplayBuffer{
-    vector<feature>* aAction;
-    vector<vector<feature>>* rRewardNextStates;
-    vector<vector<feature>>* pProbabilityNextStates;
-    vector<vector<feature>>* nNextStates;
-    vector<feature>* stateS;
+    vector<feature*> aAction;
+    vector<feature*> rRewardNextStates;
+    vector<feature*> pProbabilityNextStates;
+    vector<vector<feature*>> nNextStates;
+    vector<feature*> stateS;
     unsigned int memSize;
     unsigned int featureSize;
     unsigned int ctrInd;
-    int loopNumber;
+    unsigned int loopNumber;
 
 public:
-    ReplayBuffer(unsigned int _memSize, unsigned int _featureSize){
+    ReplayBuffer(unsigned int _memSize, unsigned int _featureSize): aAction(_memSize),rRewardNextStates(_memSize),
+    pProbabilityNextStates(_memSize),nNextStates(_memSize),stateS(_memSize){
+        ctrInd=0;
+        loopNumber=0;
         this->memSize=_memSize;
-        this->stateS=new vector<feature>(memSize);
         this->featureSize=_featureSize;
-        this->aAction = new vector<feature>(memSize);
-        this->rRewardNextStates=new vector<vector<feature>>(memSize);
-        this->pProbabilityNextStates=new vector<vector<feature>>(memSize);
-        this->nNextStates=new vector<vector<feature>>(memSize);
     }
-    void addBuffer(vector<feature>& refProbability,
-                   vector<feature>& refReward,vector<feature>& refNextSate,
-                   feature actionVec,feature stateVec){
+    void addBuffer(feature* refProbability,
+                   feature* refReward,vector<feature*>& refNextSate,
+                   feature* actionVec,feature* stateVec){
 
-
-        addItemOne(this->aAction,actionVec);
-        addItemOne(this->stateS,stateVec);
+        addItems(aAction,actionVec);
+        addItems(this->stateS,stateVec);
 
         addItems(this->rRewardNextStates,refReward);
         addItems(this->pProbabilityNextStates,refProbability);
-        addItems(this->rRewardNextStates,refNextSate);
+        addItems(this->nNextStates,refNextSate);
         ctrInd++;
         if (ctrInd>=this->memSize)
         {
@@ -47,15 +44,21 @@ public:
             loopNumber++;
         }
     }
-    void addItems(vector<vector<feature>>* vecMem, vector<feature>& newItem )
+    void addItems(vector<vector<feature*>>& vecMem, vector<feature*>& newItem )
     {
-        auto vecTPos = vecMem->begin()+ctrInd;
-        auto vecPtrOld = vecMem->operator[](ctrInd);
+        auto vecTPos = vecMem.begin()+ctrInd;
+        auto vecPtrOld = vecMem.operator[](ctrInd);
         for (auto item:vecPtrOld)
             delete item;
-        vecMem->insert(vecTPos,newItem);
+        vecMem.insert(vecTPos,newItem);
     }
-    void addItemOne(vector<feature>* vecMem, feature newItem )
+    void addItems(vector<feature*>& vecMem, feature* newItem ){
+        auto vecTPos = vecMem.begin()+ctrInd;
+        auto vecPtrOld = vecMem.operator[](ctrInd);
+        delete vecPtrOld;
+        vecMem.operator[](ctrInd)=newItem;
+    }
+    void addItemOne(vector<feature*>* vecMem, feature* newItem )
     {
         auto itPos = vecMem->begin() + ctrInd;
         auto ptrOld = vecMem->operator[](ctrInd);
@@ -63,7 +66,14 @@ public:
         vecMem->insert(itPos,newItem);
     }
 
-
+    bool isSufficientAmountExperience()
+    {
+        if (this->loopNumber>0)
+            return true;
+        if (this->ctrInd>100)
+            return true;
+        return false;
+    }
 
 };
 
