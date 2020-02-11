@@ -79,8 +79,36 @@ int  AStar::Generator::count_pathz(vector<Node*> *l ){
 }
 
 
+AStar::listNode AStar::Generator::findComplexPath(AStar::StatePoint &source_, Point &mid, const AStar::StatePoint &target_) {
+    // set the area that the agent must go in
+    const int interval = 2;
+    Point area;
+    for (int i = 0; i < Point::D; ++i) {
+        int min_val=mid[i]-interval;
+        int max_val = mid[i]+interval;
+        if (min_val<0)
+            min_val = 0;
+        if (max_val >= this->gridSize[i])
+            max_val=this->gridSize[i]-1;
 
-AStar::listNode AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_) {
+        area.array[i]=range_random(min_val,max_val);
+    }
+    StatePoint midArea(area,Point());
+    this->findPath(source_,midArea, false);
+    for (auto &pathI:this->deepListNode)
+    {
+        int sizeVec = pathI.size();
+        auto res = findPath(pathI.operator[](0),target_);
+        if (res>0){}//add the pathI to dictPolicy
+
+    }
+
+    return AStar::listNode();
+}
+
+
+
+int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bool toDict) {
     double epsilon = 0.000; // e>0 eliminate unnecessary movement in z-axis
     int k = 0; // finding sp+k  TODO: fix it missing paths
     Node *current = nullptr;
@@ -193,19 +221,25 @@ AStar::listNode AStar::Generator::findPath( StatePoint& source_,const StatePoint
     }
     this->allPath.clear();
     printMee(res);
+    int size_paths = allPath.size();
+    if (!toDict)
+        deepCopyPaths();
     auto ctr_path = this->count_pathz(&res);
     //this->getDictPolicy(res);
     // remove path if need
     cout<<"allPath:\t"<<this->allPath.size()<<endl;
     //shuffle path
     //std::shuffle(allPath.begin(), allPath.end(),   std::default_random_engine(rand()));
+
     filterPaths();
     this->pathsToDict();
     //TODO: clean up memo
     releaseMAP(openSetID);
     releaseMAP(closedSet);
-    return res;
+    return size_paths;
 }
+
+
 
 void AStar::Generator::filterPaths() {
     unordered_map<string,vector<int>> dict;
@@ -213,7 +247,7 @@ void AStar::Generator::filterPaths() {
     {
         string idPath;
         for (size_t i = 0; i <allPath[k].size()-1; ++i) {
-            idPath+=allPath[k][i]->coordinates->pos.to_str();
+            idPath+=allPath[k][i]->pos.to_str();
         }
         auto pos = dict.find(idPath);
         if (pos == dict.end())
@@ -253,10 +287,10 @@ void AStar::Generator::pathsToDict() {
             break;
         ctr++;
         for (unsigned long i = 0; i < itemF.size() - 1; ++i) {
-            Point difAction = itemF[i]->coordinates->speed.operator-(itemF[i + 1]->coordinates->speed);
+            Point difAction = itemF[i]->speed.operator-(itemF[i + 1]->speed);
 
-            int key = Point::hashNnN(itemF[i+1]->coordinates->pos.hashConst(),
-                                     itemF[i+1]->coordinates->speed.hashConst(Point::maxSpeed));
+            int key = Point::hashNnN(itemF[i+1]->pos.hashConst(),
+                                     itemF[i+1]->speed.hashConst(Point::maxSpeed));
 
 
             auto ation_h = difAction.hashMeAction(Point::D_point::actionMax);
@@ -360,10 +394,10 @@ void AStar::Generator::print_pathz(Node *l) {
     listPrint.push_back(l);
     if (l->parent.size()==0)
     {
-        vector<Node*> x;
+        vector<StatePoint*> x;
         for (auto &item:listPrint){
             cout<<item->toStr()<<" <- ";
-            x.push_back(item);
+            x.push_back(item->coordinates);
         }
         allPath.push_back(x);
         listPrint.remove(l);

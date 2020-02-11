@@ -78,7 +78,8 @@ namespace AStar
             delete(this->dictPoly);
         }
         void setHeuristic(HeuristicFunction heuristic_);
-        listNode findPath( StatePoint& source_, const StatePoint& target_);
+        int findPath( StatePoint& source_, const StatePoint& target,bool toDict = true);
+        listNode findComplexPath(StatePoint& source_,Point& mid, const StatePoint& target_);
         int count_pathz(vector<Node*> *l );
         void changeMaxSpeed(uint speedMaxNew){this->absMaxSpeed=speedMaxNew;}
         void setMaxPATH(unsigned long numberMax){maxPath=numberMax;}
@@ -95,9 +96,10 @@ namespace AStar
         CoordinateList direction, walls;
         vector<Point> operatorAction;
         list<Node*> listPrint;
-        vector<vector<Node*>> allPath;
-
+        vector<vector<StatePoint*>> allPath;
+        vector<vector<StatePoint>> deepListNode;
         void filterPaths();
+
         StatePoint* applyActionState(const StatePoint &cur,const Point &action){
             auto speed_copy = Point(cur.speed);
             speed_copy+=action;
@@ -111,7 +113,19 @@ namespace AStar
                 //cout<<"------\t------\t------\t------"<<endl;
                 print_pathz(item);
             }
-
+        }
+        void deepCopyPaths()
+        {
+            for (auto &item : allPath){
+                size_t sizePathI = item.size();
+                vector<StatePoint> listI(sizePathI);
+                for(auto &x : item)
+                {
+                    listI.push_back(*x);
+                }
+                this->deepListNode.push_back(listI);
+            }
+            this->allPath.clear();
         }
 
     };
