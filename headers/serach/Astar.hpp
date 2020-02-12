@@ -117,8 +117,8 @@ namespace AStar
         void deepCopyPaths()
         {
             for (auto &item : allPath){
-                size_t sizePathI = item.size();
-                vector<StatePoint> listI(sizePathI);
+                vector<StatePoint> listI;
+                listI.reserve(item.size());
                 for(auto &x : item)
                 {
                     listI.push_back(*x);

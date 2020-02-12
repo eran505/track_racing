@@ -5,6 +5,10 @@
 #include "headers/util_game.hpp"
 
 
+Point::Point(int x) {
+    for(int & i : array)
+        i=x;
+}
 Point::Point(int x, int y){
     //printf("POINT_CON\n");
     this->array[0]=x;
@@ -55,6 +59,7 @@ unordered_map<int,Point*>* Point::getDictAction() {
     }
     return mapAction;
 }
+
 
 int range_random(int min, int max) //range : [min, max)
 {

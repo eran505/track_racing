@@ -99,7 +99,12 @@ AStar::listNode AStar::Generator::findComplexPath(AStar::StatePoint &source_, Po
     {
         int sizeVec = pathI.size();
         auto res = findPath(pathI.operator[](0),target_);
-        if (res>0){}//add the pathI to dictPolicy
+        if (res>0){//add the pathI to dictPolicy
+            this->allPath.clear();
+            vector<StatePoint*> l;
+            for (auto &item: pathI) l.push_back(&item);
+            pathsToDict();
+        }
 
     }
 

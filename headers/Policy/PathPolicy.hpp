@@ -16,6 +16,7 @@ class PathPolicy:public Policy{
     unsigned long maxPathsNumber;
     listPointWeighted goalPoint;
     listPointWeighted startPoint;
+    vector<Point> midVec;
     unordered_map<int,vector<float>*> *dictPolicy;
     int getAgentSateHash(State *s);
 public:
@@ -23,8 +24,8 @@ public:
         return dictPolicy->size();
     }
     PathPolicy(string namePolicy, int maxSpeedAgent,listPointWeighted endPoint_, listPointWeighted startPoint_,
-               Point &gridSzie, string agentID,unsigned long maxPathz=ULONG_MAX) : Policy(std::move(namePolicy),
-                       maxSpeedAgent,std::move(agentID)) {
+               Point &gridSzie, string agentID,vector<Point> midVecPoints,unsigned long maxPathz=ULONG_MAX) : Policy(std::move(namePolicy),
+                       maxSpeedAgent,std::move(agentID)),midVec(move(midVecPoints)) {
         this->goalPoint=std::move(endPoint_);
         this->dictPolicy= nullptr;
         this->maxPathsNumber = maxPathz;
@@ -51,7 +52,9 @@ public:
                     auto src = AStar::StatePoint{Point(*startP),startSpeed};
                     auto dest = AStar::StatePoint{Point(*endP),startSpeed};
                     xx->changeMaxSpeed(s);
-                    auto res = xx->findPath(src,dest);
+                    if (midVec.size()>=k) xx->findComplexPath(src,midVec[k],dest);
+                    else auto res = xx->findPath(src,dest);
+                    
                 }
                 xx->getDict(dictPolicy,weightEnd);
                 xx->dictPolyClean();

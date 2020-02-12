@@ -31,6 +31,7 @@ public:
         D = 3, actionMax=3, maxSpeed=5
     };
     ~Point() = default;
+    Point(int x);
     Point(int x,int y);
     Point(int x,int y,int z);
     std::string to_str() const {
