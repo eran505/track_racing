@@ -27,7 +27,7 @@ void RTDP_util::set_up_Q(int grid_size, vector<pair<int,int>>& max_speed_and_bud
     cout<<"\nstate_number_overall:\t"<<state_number_overall<<endl;
     this->size_Q=int(state_number_overall*0.5);
     if (size_Q>21000000)
-        size_Q=20500000;
+        size_Q=22000000;
     cout<<"\nsize_Q= "<<size_Q<<endl;
     this->qTable = new double*[int(size_Q)]; // dynamic array (size 10) of pointers to int
     for (int i = 0; i < size_Q; ++i)

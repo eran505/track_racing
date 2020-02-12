@@ -81,7 +81,9 @@ int  AStar::Generator::count_pathz(vector<Node*> *l ){
 
 AStar::listNode AStar::Generator::findComplexPath(AStar::StatePoint &source_, Point &mid, const AStar::StatePoint &target_) {
     // set the area that the agent must go in
-    const int interval = 2;
+    const int interval = 1;
+    unsigned long oldMAXpath=this->maxPath;
+    bool isFound=false;
     Point area;
     for (int i = 0; i < Point::D; ++i) {
         int min_val=mid[i]-interval;
@@ -95,19 +97,31 @@ AStar::listNode AStar::Generator::findComplexPath(AStar::StatePoint &source_, Po
     }
     StatePoint midArea(area,Point());
     this->findPath(source_,midArea, false);
+    int ctr_path=0;
     for (auto &pathI:this->deepListNode)
     {
         int sizeVec = pathI.size();
+        if (ctr_path>oldMAXpath) break;
+        this->maxPath=1;
         auto res = findPath(pathI.operator[](0),target_);
+        cout<<"=="<<endl;
         if (res>0){//add the pathI to dictPolicy
+            isFound= true;
             this->allPath.clear();
             vector<StatePoint*> l;
             for (auto &item: pathI) l.push_back(&item);
+            this->allPath.push_back(l);
             pathsToDict();
+            ctr_path++;
+
+
         }
 
     }
 
+    if (!isFound)
+        findComplexPath(source_,mid,target_);
+    this->maxPath=oldMAXpath;
     return AStar::listNode();
 }
 
@@ -226,6 +240,8 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     }
     this->allPath.clear();
     printMee(res);
+    //shuffle path
+    std::shuffle(allPath.begin(), allPath.end(),   std::default_random_engine(rand()));
     int size_paths = allPath.size();
     if (!toDict)
         deepCopyPaths();
@@ -233,8 +249,6 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     //this->getDictPolicy(res);
     // remove path if need
     cout<<"allPath:\t"<<this->allPath.size()<<endl;
-    //shuffle path
-    //std::shuffle(allPath.begin(), allPath.end(),   std::default_random_engine(rand()));
 
     filterPaths();
     this->pathsToDict();
@@ -291,12 +305,16 @@ void AStar::Generator::pathsToDict() {
         if (maxPath<=ctr)
             break;
         ctr++;
-        for (unsigned long i = 0; i < itemF.size() - 1; ++i) {
+        for (unsigned long i = 0; i < itemF.size()-1; ++i) {
             Point difAction = itemF[i]->speed.operator-(itemF[i + 1]->speed);
 
             int key = Point::hashNnN(itemF[i+1]->pos.hashConst(),
                                      itemF[i+1]->speed.hashConst(Point::maxSpeed));
 
+            //cout<<"h( "<<itemF[i+1]->pos.to_str()<<" )="<<key<<endl;
+            if (i==0)
+                cout<<itemF[i]->pos.to_str()<<endl;
+            cout<<itemF[i+1]->pos.to_str()<<endl;
 
             auto ation_h = difAction.hashMeAction(Point::D_point::actionMax);
             auto pos = dictPoly->find(key);

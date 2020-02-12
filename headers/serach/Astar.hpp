@@ -27,7 +27,7 @@ namespace AStar
             this->speed=s;
         }
         StatePoint(const StatePoint &other){
-            cout<<"copy StatePoint"<<endl;
+            //cout<<"copy StatePoint"<<endl;
             pos=Point(other.pos);
             speed=Point(other.speed);
         }
@@ -116,6 +116,7 @@ namespace AStar
         }
         void deepCopyPaths()
         {
+            this->deepListNode.clear();
             for (auto &item : allPath){
                 vector<StatePoint> listI;
                 listI.reserve(item.size());

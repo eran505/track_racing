@@ -20,6 +20,8 @@
 #include "util/utilClass.hpp"
 #include <random>
 #include <headers/util/csvfile.hpp>
+#include <torch/script.h> // One-stop header.
+
 Grid * init_grid(configGame &conf);
 MdpPlaner* init_mdp(Grid *g, configGame &conf);
 void toCsv(string &pathFile, vector<vector<int>>* infoArr,vector<string> &labels);
@@ -54,11 +56,12 @@ int main() {
 //
 //    exit(0);
     // seeding the program
+    
     int seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
     srand(seed);
     int MaxInt = INT_MAX;
-    const string home="/home/ise";
+    const string home="/home/ERANHER";
     std::string pathCsv (home + "/car_model/config/con1.csv");
     std::string toCsvPath (home+ "/car_model/config_exp_1/");
     auto csvRows = readConfigFile(pathCsv);
@@ -102,7 +105,7 @@ vector<vector<int>>* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    auto info = my_game->startGame(1000000);
+    auto info = my_game->startGame(2000000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString("/home/ERANHER/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
@@ -150,7 +153,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     }
     listPointWeighted startState;
     startState.push_back({startAdversary,1});
-    Policy *pGridPath =new  PathPolicy("SP",maxA, endState, startState, p_sizer,pA1->get_id(),conf.rRoutes);
+    Policy *pGridPath =new  PathPolicy("SP",maxA, endState, startState, p_sizer,pA1->get_id()
+            ,conf.midPos,conf.rRoutes);
     auto *tmp_pointer = dynamic_cast <PathPolicy*>(pGridPath);
     printf("number of state:\t %d",tmp_pointer->getNumberOfState());
     ////////PATH POLICY////////////

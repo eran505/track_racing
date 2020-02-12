@@ -52,8 +52,10 @@ public:
                     auto src = AStar::StatePoint{Point(*startP),startSpeed};
                     auto dest = AStar::StatePoint{Point(*endP),startSpeed};
                     xx->changeMaxSpeed(s);
-                    if (midVec.size()>=k) xx->findComplexPath(src,midVec[k],dest);
-                    else auto res = xx->findPath(src,dest);
+                    if (midVec.size()>k)
+                        xx->findComplexPath(src,midVec[k],dest);
+                    else
+                        auto res = xx->findPath(src,dest);
                     
                 }
                 xx->getDict(dictPolicy,weightEnd);

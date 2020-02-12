@@ -55,7 +55,7 @@ struct configGame{
         auto midVec = splitStr(row[9],"-");
         addGoal(goalsVecPos,goalsVecWights);
         rRoutes = stoi(row[8]);
-        if (!midVec.empty()) midPos = vecToPoint(move(midVec));
+        if (!midVec.empty()) addMidPoint(midVec);
 
 
     };
@@ -77,7 +77,7 @@ struct configGame{
             this->probGoals.push_back(pProb);
         }
     }
-    void addMidPoint(vector<string> &vecMid){
+    void addMidPoint(const vector<string> &vecMid){
         for(auto &pointStr:vecMid)
         {
             auto arrString = splitStr(pointStr,"|");
