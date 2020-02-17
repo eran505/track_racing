@@ -43,6 +43,7 @@ struct configGame{
     string idNumber;
     vector<Point> midPos;
 
+
     explicit configGame(vector<string> row)
     {
 

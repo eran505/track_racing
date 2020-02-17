@@ -22,8 +22,8 @@ class DeepRTDP : public Policy{
     vector<feature*> fNextState;
     feature* fStateCurrFeaturesQ;
     feature* fAction;
-    vector<double>* vecProbabilities;
-    vector<double>* vecRewards;
+    vector<float>* vecProbabilities;
+    vector<float>* vecRewards;
     ReplayBuffer *myReplayBuffer;
 
 
@@ -153,8 +153,8 @@ void DeepRTDP::bellmanUpdate(State *s, Point& actionP){
 
 void DeepRTDP::initBuffers() {
     this->fNextState.clear();
-    this->vecProbabilities = new vector<double>();
-    this->vecRewards = new vector<double>();
+    this->vecProbabilities = new vector<float>();
+    this->vecRewards = new vector<float>();
 }
 void DeepRTDP::rec_update(State *s,int index, double acc_probablity) {
     if (index+1==this->tran.size()) {

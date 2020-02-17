@@ -49,7 +49,7 @@ class neuralNet : torch::nn::Module{
         //auto Sstate = torch::from_blob(state, {9}, at::kDouble);
         //vector<float> myData = {1,2,3,4,5,6,7,8,9,10};
         ArrayRef<float> xx = *state;
-        auto f = torch::tensor(xx);
+        auto Sstate = torch::tensor(xx);
         //auto Sstate  = torch::tensor(state);
         this->eval(); // puts network in evaluation mode
 
@@ -118,11 +118,10 @@ torch::Tensor neuralNet::forward(torch::Tensor x) {
     //x.reshape({x.size(0), 784})
 
     //auto input = x.reshape({x.size(0), 10});
-    x = torch::relu(fc1->forward(f));
+    x = torch::relu(fc1->forward(x));
     x = torch::dropout(x, /*p=*/0.5, /*train=*/is_training());
     x = torch::relu(fc2->forward(x));
     x = torch::softmax(fc3->forward(x) ,   0);
-    cout<<x<<endl;
     return x;
 }
 

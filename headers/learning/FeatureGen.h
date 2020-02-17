@@ -26,7 +26,7 @@ public:
 
 
 
-    vector<double>* getFeaturesSA( State* s,const Point& actionA){
+    vector<float>* getFeaturesSA( State* s,const Point& actionA){
         auto vec = this->getFeaturesS(s);
         for (int i = 0; i < Point::D_point::D; ++i) {
             vec->push_back(actionA[i]);
@@ -34,7 +34,7 @@ public:
         return vec;
     }
 
-    vector<double>* getFeaturesS( State* s){
+    vector<float>* getFeaturesS( State* s){
         int sizePoint  = Point::D_point::D;
         auto posAgent = s->get_position(this->uAgentId);
         auto posAdv = s->get_position(this->uOppId);
@@ -43,7 +43,7 @@ public:
         auto budgetAgent = s->get_budget(this->uAgentId);
         auto budgetAdv = s->get_budget(this->uOppId);
         auto dist = posAgent-posAdv;
-        auto* vec = new vector<double>(this->sizeVec);
+        auto* vec = new vector<float>(this->sizeVec);
         int index=0;
 
         for (int i = 0; i < sizePoint; ++i) {

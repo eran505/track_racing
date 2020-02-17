@@ -5,7 +5,7 @@
 #ifndef RACING_CAR_GRID_HPP
 #define RACING_CAR_GRID_HPP
 #include <list>
-#include <zconf.h>
+//#include <zconf.h>
 #include <iostream>
 #include <string>
 #include "util_game.hpp"

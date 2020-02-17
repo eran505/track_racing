@@ -60,8 +60,10 @@ int main() {
     int seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
     srand(seed);
+    auto arrPAth = splitStr(getExePath(),"/");
+    string home = "/"+arrPAth[0]+"/"+arrPAth[1];
     int MaxInt = INT_MAX;
-    const string home="/home/ise";
+    //const string home="/home/ise";
     std::string pathCsv (home + "/car_model/config/con1.csv");
     std::string toCsvPath (home+ "/car_model/config_exp_1/");
     auto csvRows = readConfigFile(pathCsv);

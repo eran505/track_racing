@@ -133,9 +133,9 @@ public:
         return false;
     }
 
-    vector<double>* getFeature()
+    vector<float>* getFeature()
     {
-        auto* vectorI = new vector<double>();
+        auto* vectorI = new vector<float>();
         for (int i = 0; i < this->capacity; ++i)
             vectorI->push_back(this->array[i]);
 
