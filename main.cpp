@@ -61,7 +61,7 @@ int main() {
     cout<<"seed:\t"<<seed<<endl;
     srand(seed);
     int MaxInt = INT_MAX;
-    const string home="/home/ERANHER";
+    const string home="/home/ise";
     std::string pathCsv (home + "/car_model/config/con1.csv");
     std::string toCsvPath (home+ "/car_model/config_exp_1/");
     auto csvRows = readConfigFile(pathCsv);
@@ -167,8 +167,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
 
 
-    //Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),pD2->get_id());
-    Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),list_Q_data,pD2->get_id());
+    Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),pD2->get_id());
+    //Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),list_Q_data,pD2->get_id());
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);
     pD2->setPolicy(RTDP);

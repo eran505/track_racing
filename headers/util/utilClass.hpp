@@ -18,7 +18,7 @@ vector<string> splitStr(const string& str, const string& delim)
 {
     vector<string> tokens;
     size_t prev = 0, pos = 0;
-    if (str.length()==0)
+    if (str.length()<2)
         return tokens;
     do
     {

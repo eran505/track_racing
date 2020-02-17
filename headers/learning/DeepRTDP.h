@@ -52,7 +52,7 @@ public:
 
 DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,string agentID):Policy(std::move(namePolicy),maxSpeedAgent,
         agentID){
-    nNet = nullptr;
+    nNet = new neuralNet();
     ctrRandom=seed;
     this->featuerConv=new FeatureGen(agentID);
     this->myReplayBuffer=new ReplayBuffer(30,10);
@@ -108,20 +108,9 @@ std::pair<KeyType,ValueType> DeepRTDP::get_max( const std::unordered_map<KeyType
 
 vector<int>* DeepRTDP::getMaxActionId(State *s) {
     unordered_map <int,double> QstateTable;
-    auto max_val = this->collReward*-2;
-
-    for (auto &itm : *this->hashActionMap) {
-        double expectedValue = this->nNet->getQvalue(s,itm.second);
-        QstateTable.insert({itm.first,expectedValue});
-    }
-    auto val_max = this->get_max(QstateTable);
-    auto* actionList=new vector<int>();
-
-    for (auto &itm : QstateTable) {
-        if (val_max.second==itm.second)
-            actionList->push_back(itm.first);
-    }
-    return actionList;
+    auto vecState = this->featuerConv->getFeaturesS(s);
+    this->nNet->predictValue(vecState);
+    return nullptr;
 }
 
 
