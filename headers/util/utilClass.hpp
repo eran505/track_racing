@@ -42,7 +42,8 @@ struct configGame{
     int rRoutes;
     string idNumber;
     vector<Point> midPos;
-
+public:
+    string home;
 
     explicit configGame(vector<string> row)
     {

@@ -9,6 +9,8 @@
 #include "util_game.hpp"
 typedef vector<float> feature;
 class ReplayBuffer{
+public:
+
     vector<feature*> aAction;
     vector<feature*> rRewardNextStates;
     vector<feature*> pProbabilityNextStates;
@@ -65,7 +67,19 @@ public:
         delete ptrOld;
         vecMem->insert(itPos,newItem);
     }
-
+    void sampleEntries(int size,unordered_set<int> &hashList)
+    {
+        //unordered_set<int> hashList;
+        if (size>=memSize)
+            throw;
+        int ctr=0;
+        int lim = int(memSize)*2;
+        while(hashList.size()<size && ctr++ < lim)
+        {
+            auto entry = range_random(0,int(memSize)-1);
+            hashList.insert(entry);
+        }
+    }
     bool isSufficientAmountExperience()
     {
         if (this->loopNumber>0)

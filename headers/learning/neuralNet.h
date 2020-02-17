@@ -10,27 +10,30 @@
 #include <iostream>
 #include <memory>
 #include <torch/script.h>
-
+#include "ReplayBuffer/ReplayBuffer.hpp"
 using namespace torch;
 class neuralNet : torch::nn::Module{
 
     torch::nn::Linear fc1{nullptr}, fc2{nullptr}, fc3{nullptr};
-
+    int batchSizeEntries;
     public:
 
         neuralNet(){
              fc1 = register_module("fc1", torch::nn::Linear(10, 64));
              fc2 = register_module("fc2", torch::nn::Linear(64, 32));
              fc3 = register_module("fc3", torch::nn::Linear(32, 23));
+            batchSizeEntries=30;
         }
         torch::Tensor forward(torch::Tensor x);
         ~neuralNet() override = default;;
         void start();
         void updateNet();
         double getQvalue(State *pState, Point *pPoint);
-        void predictValue(vector<float> *state);
+        Tensor predictValue(vector<float> *state);
         double getQvalueMAX(State *pState);
-    };
+
+    void updateNet(ReplayBuffer *buffer);
+};
 
 
 //    torch::Tensor getData()
@@ -44,7 +47,7 @@ class neuralNet : torch::nn::Module{
 //        //torch::Tensor xx =  torch::from_blob(std::data(myData), {2, 3});
 //        return f;
 //    }
-    void neuralNet::predictValue(vector<float> *state)
+    Tensor neuralNet::predictValue(vector<float> *state)
     {
         //auto Sstate = torch::from_blob(state, {9}, at::kDouble);
         //vector<float> myData = {1,2,3,4,5,6,7,8,9,10};
@@ -55,11 +58,29 @@ class neuralNet : torch::nn::Module{
 
         torch::NoGradGuard noGrad;
         auto action_values = this->forward(Sstate);
+        //auto vecRes = action_values.data<float>();
+        auto sizeVec0 = action_values.size(0);
 
         this->train(); //puts network back in training mode
 
-        cout<<action_values<<endl;
+        return action_values;
     }
+    void neuralNet::updateNet(ReplayBuffer *buffer)
+    {
+
+        if (!buffer->isSufficientAmountExperience())
+            return;
+        //random samples
+        unordered_set<int> entries;
+        buffer->sampleEntries(batchSizeEntries,entries);
+        for (int i = 0; i < batchSizeEntries; ++i)
+        {
+
+        }
+    }
+
+    void neuralNet::compute_loss(un)
+
     void neuralNet::start() {
         cout<<"start Function"<<endl;
         // Create a multi-threaded data loader for the MNIST dataset.

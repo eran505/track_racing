@@ -75,6 +75,7 @@ int main() {
         auto row = csvRows[i];
         // size of Grid
         configGame conf(row);
+        conf.home=home;
         string strId=row[0];
         cout<<"ID:\t"<<strId<<endl;
         curToCsv.append(toCsvPath);curToCsv.append("ID_");
@@ -109,7 +110,7 @@ vector<vector<int>>* initGame(configGame &conf ){
 
     auto info = my_game->startGame(2000000);
     string nameFile="buffer_"+conf.idNumber+".csv";
-    toCsvString("/home/ERANHER/car_model/exp/buffer/"+nameFile, my_game->buffer);
+    toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
 
     delete(my_game);
