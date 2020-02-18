@@ -21,7 +21,7 @@ protected:
     const char my_team;
     const string my_id;
     string name;
-
+    bool eval;
 
 public:
     bool get_is_wall(){ return is_wall;}
@@ -36,7 +36,8 @@ public:
     void doAction(State *s);
     void setPolicy(Policy* pPtr){pPtr->set_id(this->my_id); this->my_Policy=pPtr;}
     ~Agent();
-
+    void evalPolicy();
+    void trainPolicy();
     void set_speed(Point *cur_speed) {
         if (this->my_speed != nullptr)
             delete(this->my_speed);

@@ -78,9 +78,6 @@ class neuralNet : torch::nn::Module{
 
         }
     }
-
-    void neuralNet::compute_loss(un)
-
     void neuralNet::start() {
         cout<<"start Function"<<endl;
         // Create a multi-threaded data loader for the MNIST dataset.

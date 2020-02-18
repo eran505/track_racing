@@ -24,8 +24,10 @@ void RTDP_util::set_up_Q(int grid_size, vector<pair<int,int>>& max_speed_and_bud
         else
             state_number_overall *= pow(max_speed*2+1,int(Point::D))*(grid_size+1)*item.second;
     }
-    cout<<"\nstate_number_overall:\t"<<state_number_overall<<endl;
+
+    printf("\nstate_number_overall:\t%lf\n",state_number_overall);
     this->size_Q=int(state_number_overall*0.5);
+
     if (size_Q>21000000)
         size_Q=22000000;
     cout<<"\nsize_Q= "<<size_Q<<endl;
@@ -117,15 +119,15 @@ RTDP_util::~RTDP_util() {
     cout<<qTable<<endl;
     //Free each sub-array
     for(int i = 0; i < this->size_Q ; ++i) {
-        //cout<<"i="<<std::to_string(i)<<endl;
-        delete[] qTable[i];
+        cout<<"i="<<std::to_string(i)<<endl;
+        //delete[] qTable[i];
     }
     //Free the array of pointers
     delete[] qTable;
     for(auto & it : *this->hashActionMap) {
         delete(it.second);
     }
-    delete(mapState);
+    delete(mapState); // bug when try free also
     delete(hashActionMap);
 
 }

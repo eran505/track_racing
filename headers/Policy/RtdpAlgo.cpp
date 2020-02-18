@@ -32,7 +32,8 @@ Point RtdpAlgo::get_action(State *s)
     auto action = this->RTDP_util_object->get_argmx_action(s);
     //cout<<"action:="<<action.to_str()<<endl;
 
-
+    if (this->evalPolicy)
+        return action;
 
 
 

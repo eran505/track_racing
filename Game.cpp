@@ -13,6 +13,8 @@ Game::Game(MdpPlaner *planer_m) {
     this->ctr_game=100;
     this->uper_limt=300;
     this->buffer = new vector<string>();
+    this->guardEval= new vector<vector<int>>();
+    this->info=new vector<vector<int>>();
 }
 
 Game::~Game() {
@@ -21,6 +23,8 @@ Game::~Game() {
     delete(this->in_game_adversaries);
     delete(this->planer);
     delete (this->buffer);
+    delete(this->info);
+    delete(this->guardEval);
 }
 
 
@@ -79,19 +83,43 @@ void Game::print_list_in_game() {
         cout<<i->to_str()<<endl;
 }
 
-vector<vector<int>>* Game::startGame(int numIter)
+void Game::evalPolicy() {
+
+    this->planer->setPolicyModeAgent(true);
+    int old_ctr_wall = this->ctr_wall;
+    int old_ctr_coll=this->ctr_coll;
+    int old_ctr_at_gal = this->ctr_at_gal;
+    for (int i = 0; i <this->numEval; ++i) {
+        this->loop_game();
+        this->reset_game();
+    }
+    cout<<"Training Mode"<<endl;
+    int evl_wall = this->ctr_wall-old_ctr_wall;
+    int evl_coll = this->ctr_coll-old_ctr_coll;
+    int evl_goal = this->ctr_at_gal-old_ctr_at_gal;
+    ctr_coll=old_ctr_coll;
+    ctr_at_gal=old_ctr_at_gal;
+    ctr_wall=old_ctr_wall;
+    this->planer->setPolicyModeAgent(false);
+    this->guardEval->push_back({evl_wall,evl_coll,evl_goal,ctr_round});
+
+}
+
+void Game::startGame(int numIter)
 {
     //int size = numIter%10000 == 0 ? numIter/10000 :numIter/10000+1;
-    auto info = new vector<vector<int>>();
+    this->guardEval->reserve(numIter/modEval);
+    //auto info = new vector<vector<int>>();
     this->init_game();
     this->fill_agents();
     //this->reset_game();
-    for (int i = 0; i < numIter; ++i) {
+    for (int i = 1; i <= numIter; ++i) {
         //cout<<"game: "<<i<<endl;
         this->loop_game();
         this->reset_game();
         ctr_round++;
-        if (ctr_round%10000==0){
+        if (ctr_round%modEval==0){
+            evalPolicy();
             this->print_stats();
             vector<int> tmp(4);
             tmp[0]=ctr_round;
@@ -112,7 +140,7 @@ vector<vector<int>>* Game::startGame(int numIter)
         info->push_back(tmp);
 
     }
-    return info;
+
 
 }
 

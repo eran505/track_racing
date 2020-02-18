@@ -13,16 +13,25 @@ void State::add_player_state(const string& name_id, const Point *m_pos, const Po
 }
 
 string State::to_string_state() const {
-    char sep='_';
-    string str="";
+    string sep="_";
+    string str;
     for(const auto &item : this->pos_dict){
         string id_name = item.first;
         auto my_pos = &item.second;
         auto pos_speed = this->speed_dict.find(id_name);
+        if (pos_speed==this->speed_dict.end())
+            throw;
         auto my_speed = &pos_speed->second;
         int my_budget = this->budget_dict.at(id_name);
-        str+=id_name+sep+my_pos->to_str()+sep+my_speed->to_str()+sep+to_string(my_budget);
+        str.append(id_name);
+        str.append(sep);
+        str.append(my_pos->to_str());
+        str.append(sep);
+        str.append(my_speed->to_str());
+        str.append(sep);
+        str.append(to_string(my_budget));
         str+="|";
+        //str+=id_name+sep+my_pos->to_str()+sep+my_speed->to_str()+sep+to_string(my_budget);
     }
     return str;
 

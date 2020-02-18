@@ -17,6 +17,8 @@ class Game {
     int ctr_at_gal=0;
     int ctr_wall=0;
     int ctr_round=0;
+    int numEval=500;
+    int modEval = 10000;
 
 
 public:
@@ -31,6 +33,7 @@ public:
     unsigned int uper_limt;
     ~Game();
     void clean_in_player();
+    void evalPolicy();
     void clean_out_player();
     void init_game();
     void fill_agents();
@@ -44,7 +47,9 @@ public:
     void del_list_func(list<Agent*> l,bool guard);
     static bool validate_player(Agent *player);
     vector<string>* buffer;
-    vector<vector<int>>* startGame(int numIter);
+    vector<vector<int>>* guardEval;
+    vector<vector<int>>* info;
+    void startGame(int numIter);
 };
 
 

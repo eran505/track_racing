@@ -36,6 +36,7 @@ public:
         delete(this->cur_state);
         this->set_state();
     }
+    void setPolicyModeAgent(bool mode);
 protected:
     double goal_reward;
     double collusion_reward;

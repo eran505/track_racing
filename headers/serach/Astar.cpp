@@ -143,10 +143,13 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     vector<Node *> res;
     openSetID.insert({first->toStr(), first});
     openSetQ.insert({first->getScore(), first});
-
+    int ctr=0;
     while (!openSetQ.empty()) {
+
         //expand node
         current = openSetQ.begin()->second;
+
+
         //debug
         //cout<<"expand:\t"<<current->toStr()<<endl;
         if (current->coordinates->pos.operator==(target_.pos)) {
@@ -162,6 +165,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
         closedSet.insert({current->toStr(), current});
 
         // del elem from openList
+
         auto pos = openSetID.find(current->toStr());
         if (pos == openSetID.end())
             throw;
@@ -206,25 +210,29 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
                 successor->G = totalCost;
                 successor->H = heuristic(*successor->coordinates, target_, this->absMaxSpeed);
                 // insert to open list
+
                 openSetID.insert({successor->toStr(), successor});
                 openSetQ.insert({successor->getScore(), successor});
             } else {
+
                 delete (newCoordinates);
                 if (totalCost < successor->G) { //totalCost < successor->G
                     //debug
                     //cout<<"del open:\t"<<successor->toStr()<<endl;
 
-                    auto ret = openSetQ.equal_range(successor->G);
+                    auto ret = openSetQ.equal_range(successor->getScore());
                     for (auto it = ret.first; it != ret.second; ++it) {
                         if (it->second->coordinates == successor->coordinates) {
                             openSetQ.erase(it);
                             break;
                         }
                     }
+
                     successor->parent.clear();
                     successor->parent.push_back(current);
                     successor->G = totalCost;
-                    openSetQ.insert({totalCost, successor});
+
+                    openSetQ.insert({successor->getScore(), successor});
                 } else if (successor->G == totalCost) {
                     bool appendTo = true;
                     //debug

@@ -51,6 +51,19 @@ void MdpPlaner::set_grid(Grid *g) {
     this->grid=g;
 }
 
+void MdpPlaner::setPolicyModeAgent(bool mode)
+{
+
+    for (auto it = this->agents_map->begin(); it != this->agents_map->end(); ++it) {
+        for (auto item : *(it->second)) { //item == {key,value}
+            if (mode)
+                item.second->evalPolicy();
+            else
+                item.second->trainPolicy();
+        }
+    }
+}
+
 void MdpPlaner::get_all_players(list<Agent*> *traget_list) {
 
     for (auto it = this->agents_map->begin(); it != this->agents_map->end(); ++it) {

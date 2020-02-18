@@ -25,7 +25,7 @@
 Grid * init_grid(configGame &conf);
 MdpPlaner* init_mdp(Grid *g, configGame &conf);
 void toCsv(string &pathFile, vector<vector<int>>* infoArr,vector<string> &labels);
-vector<vector<int>>* initGame(configGame& conf);
+Game* initGame(configGame& conf);
 vector<vector<string>> readConfigFile(string &filePath);
 void toCsvString(string pathFile,vector<string>* infoArr);
 
@@ -64,14 +64,15 @@ int main() {
     string home = "/"+arrPAth[0]+"/"+arrPAth[1];
     int MaxInt = INT_MAX;
     //const string home="/home/ise";
-    std::string pathCsv (home + "/car_model/config/con1.csv");
-    std::string toCsvPath (home+ "/car_model/config_exp_1/");
+    std::string pathCsv (home + "/car_model/config/con2.csv");
+    std::string toCsvPath (home+ "/car_model/config_exp_2/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
     vector<string> labels={"ctr_round","ctr_wall","ctr_coll","ctr_at_goal"};
     for (int i=1; i<csvRows.size();++i)
     {
         string curToCsv;
+        string curToCsvPolciy;
         auto row = csvRows[i];
         // size of Grid
         configGame conf(row);
@@ -81,22 +82,26 @@ int main() {
         curToCsv.append(toCsvPath);curToCsv.append("ID_");
         curToCsv.append(strId);curToCsv.append(".csv");
 
+        curToCsvPolciy.append(toCsvPath);curToCsvPolciy.append("ID_");
+        curToCsvPolciy.append(strId);curToCsvPolciy.append("_P.csv");
+
         auto resultsConfigI = initGame(conf);
 
 
 
-        toCsv(curToCsv,resultsConfigI,labels);
+        toCsv(curToCsv,resultsConfigI->info,labels);
+        toCsv(curToCsvPolciy,resultsConfigI->guardEval,labels);
         ctrId++;
         //Agent::ctr_object = 0;
         delete (resultsConfigI);
-        //break;
+        break;
     }
 
 
     return 0;
 }
 
-vector<vector<int>>* initGame(configGame &conf ){
+Game* initGame(configGame &conf ){
     auto g= init_grid(conf);
     //g->print_vaule();
 
@@ -108,15 +113,15 @@ vector<vector<int>>* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    auto info = my_game->startGame(2000000);
+    my_game->startGame(10000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
 
-    delete(my_game);
+    //delete(my_game);
     //delete (info);
     cout<<"------END MAIN!!-----"<<endl;
-    return info;
+    return my_game;
 }
 
 Grid * init_grid(configGame& conf){
@@ -128,6 +133,7 @@ Grid * init_grid(configGame& conf){
     m.list_goals=listGoal;
     Grid *g = new Grid(m);
     return g;
+
 }
 MdpPlaner* init_mdp(Grid *g, configGame &conf){
     int maxSizeGrid = g->getPointSzie().array[0];
@@ -170,8 +176,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
 
 
-    Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),pD2->get_id());
-    //Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),list_Q_data,pD2->get_id());
+    //Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),pD2->get_id());
+    Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),list_Q_data,pD2->get_id());
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);
     pD2->setPolicy(RTDP);
