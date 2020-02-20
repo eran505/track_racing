@@ -36,7 +36,17 @@ Point RtdpAlgo::get_action(State *s)
 
 
     if (this->evalPolicy)
+    {
+        if (!s->takeOff)
+            if(action.hashMeAction(Point::actionMax)!=13 ){
+                s->set_speed(this->id_agent,Point(0,0,max_speed));
+                //this->inset_to_stack(s,action,entry);
+                //action.array[2]=this->max_speed;
+                s->takeOff=true;
+            }
         return action;
+    }
+
 
 
 
@@ -49,6 +59,7 @@ Point RtdpAlgo::get_action(State *s)
     if (!s->takeOff)
         if(action.hashMeAction(Point::actionMax)!=13 ){
             s->set_speed(this->id_agent,Point(0,0,max_speed));
+            //this->inset_to_stack(s,action,entry);
             //action.array[2]=this->max_speed;
             s->takeOff=true;
         }

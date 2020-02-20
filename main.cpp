@@ -72,6 +72,7 @@ int main() {
     vector<string> labels={"ctr_round","ctr_wall","ctr_coll","ctr_at_goal"};
     for (int i=1; i<csvRows.size();++i)
     {
+        cout<<"seed:\t"<<seed<<endl;
         string curToCsv;
         string curToCsvPolciy;
         auto row = csvRows[i];
@@ -114,7 +115,7 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(100000);
+    my_game->startGame(2000000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
