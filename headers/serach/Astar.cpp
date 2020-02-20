@@ -394,7 +394,8 @@ void AStar::Generator::getDict(unordered_map<int, vector<float>*>* mapStateActio
         int sumAll = accumulate( item.second->begin(), item.second->end(), 0,
                               []( int acc, std::pair<int, int> p ) { return ( acc + p.second ); } );
 
-
+        if (item.first == 168450861)
+            cout<<endl;
         auto pos_tmp = mapStateAction->find(item.first);
         if (pos_tmp==mapStateAction->end())
         {

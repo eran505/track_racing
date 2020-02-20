@@ -57,7 +57,8 @@ int main() {
 //    exit(0);
     // seeding the program
     
-    int seed = int( time(nullptr));
+    //int seed = int( time(nullptr));
+    int seed = 58852;
     cout<<"seed:\t"<<seed<<endl;
     srand(seed);
     auto arrPAth = splitStr(getExePath(),"/");
@@ -113,7 +114,7 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(2000000);
+    my_game->startGame(100000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 

@@ -68,8 +68,14 @@ public:
     }
     Point get_action(State *s) override;
     ~PathPolicy() override{
+        int ctr=0;
+        cout<<"del A star"<<endl;
         for(auto &item : *this->dictPolicy)
+        {
+            //cout<<item.first<<"\tctr:\t"<<ctr<<endl;
             delete(item.second);
+            ctr++;
+        }
         delete(dictPolicy);
     };
     void reset_policy() override{};
@@ -105,7 +111,8 @@ const std::vector<float> *PathPolicy::TransitionAction(State *s) {
     int EntryIdx = getAgentSateHash(s);
     auto pos = this->dictPolicy->find(EntryIdx);
     if (pos==this->dictPolicy->end())
-        throw std::runtime_error(std::string("Error: cant find the key "));;
+        throw std::runtime_error(std::string("Error: cant find the key "));
+
     return this->dictPolicy->at(EntryIdx);
 
 }

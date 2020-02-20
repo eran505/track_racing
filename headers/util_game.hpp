@@ -198,6 +198,15 @@ public:
         return h+append;
     }
 
+    bool isOK(){
+        bool ok = true;
+        for (int i = 0; i < this->capacity; ++i)
+            if (array[i]>1 or array[i]<-1)
+                return false;
+        return ok;
+    }
+
+
     unsigned int hashMeMAX(int max){
         unsigned int h=0;
         //int append=int(pow(int(actionMax),this->capacity))/2;

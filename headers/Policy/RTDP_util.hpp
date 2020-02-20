@@ -40,9 +40,13 @@ public:
     ~RTDP_util();
     RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget);
     int get_state_index_by_string(State *str_state);
-    int add_entry_map_state(string &basicString, State *s);
+    unsigned int add_entry_map_state(string &basicString, State *s);
 
     void set_value_matrix(int entryState, Point &action ,double val){
+//        if (entryState == 0)
+//            cout<<action.hashMeAction(Point::actionMax)<<endl;
+//        if (action.hashMeAction(Point::actionMax)>26)
+//            cout<<"bigger"<<endl;
         //cout<<"Q("<<entryState<<","<<action.hashMeAction(Point::actionMax)<<")="<<this->qTable[entryState][action.hashMeAction(Point::actionMax)]<<endl;
         this->qTable[entryState][action.hashMeAction(Point::actionMax)]=val;
         //cout<<"Q("<<entryState<<","<<action.hashMeAction(Point::actionMax)<<")="<<this->qTable[entryState][action.hashMeAction(Point::actionMax)]<<endl;

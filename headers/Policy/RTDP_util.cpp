@@ -26,10 +26,10 @@ void RTDP_util::set_up_Q(int grid_size, vector<pair<int,int>>& max_speed_and_bud
     }
 
     printf("\nstate_number_overall:\t%lf\n",state_number_overall);
-    this->size_Q=int(state_number_overall*0.5);
+    this->size_Q=int(state_number_overall*0.9);
 
-    if (size_Q>21000000)
-        size_Q=22000000;
+    if (size_Q>22000000)
+        size_Q=23000000;
     cout<<"\nsize_Q= "<<size_Q<<endl;
     this->qTable = new double*[int(size_Q)]; // dynamic array (size 10) of pointers to int
     for (int i = 0; i < size_Q; ++i)
@@ -103,13 +103,16 @@ double RTDP_util::rec_h(State *s,int index, double acc_probablity)
     return res_h;
 }
 
-int RTDP_util::add_entry_map_state(string &basicString,State *s) {
+unsigned int RTDP_util::add_entry_map_state(string &basicString,State *s) {
     // compute heuristic
     this->heuristic(s,ctr_state);
 
     // add to state_map
     this->mapState->insert({basicString,ctr_state});
-    return this->ctr_state++;
+    //this->ctr_state++;
+    if (ctr_state+1>=this->size_Q)
+        ctr_state=0;
+    return ctr_state++;
 
 }
 
@@ -118,9 +121,10 @@ RTDP_util::~RTDP_util() {
     cout<<"size_Q:\t"<<size_Q<<endl;
     cout<<qTable<<endl;
     //Free each sub-array
-    for(int i = 0; i < this->size_Q ; ++i) {
-        //cout<<"i="<<std::to_string(i)<<endl;
-        delete[] qTable[i];
+    for(int i = 0; i < this->size_Q; ++i) {
+       // cout<<"i="<<std::to_string(i)<<endl;
+        double* currentIntPtr = qTable[i];
+        delete(currentIntPtr);
     }
     //Free the array of pointers
     delete[] qTable;
@@ -133,7 +137,8 @@ RTDP_util::~RTDP_util() {
 }
 
 vector<int> arg_max(const double arr[],int size ){
-    double max = *std::max_element(arr, arr+size);
+    double max = -1;
+    max = *std::max_element(arr, arr+size);
     vector<int> l;
     for (int i = 0; i < size; ++i) {
         if (arr[i]==max)
@@ -176,15 +181,29 @@ vector<float>* RTDP_util::get_probabilty(State *s) {
 double RTDP_util::get_value_state_max(State *s_state) {
     int entry_state = this->get_state_index_by_string(s_state);
     auto arr = this->qTable[entry_state];
+   // double max = getMaxValueArrTmp(arr, size_mapAction);
     double max = *std::max_element(arr, arr + size_mapAction);;
     return max;
 }
+
+double getMaxValueArrTmp( const double *arr, size_t sizeArr)
+{
+    double max=*arr;
+    for (int i = 0; i < sizeArr; ++i) {
+        if (max < *(++arr))
+            max=*(arr);
+    }
+    return max;
+}
+
+
 
 Point RTDP_util::get_argmx_action(State *s) {
     int index_action = this->get_state_argmax(s);
     auto pos = this->hashActionMap->find(index_action);
     if (pos == this->hashActionMap->end())
         throw std::invalid_argument( "function::get_argmx_action Error" );
+    // assert
     return *pos->second;
 }
 

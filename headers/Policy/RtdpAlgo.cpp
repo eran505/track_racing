@@ -32,6 +32,9 @@ Point RtdpAlgo::get_action(State *s)
     auto action = this->RTDP_util_object->get_argmx_action(s);
     //cout<<"action:="<<action.to_str()<<endl;
 
+
+
+
     if (this->evalPolicy)
         return action;
 
@@ -45,7 +48,8 @@ Point RtdpAlgo::get_action(State *s)
 
     if (!s->takeOff)
         if(action.hashMeAction(Point::actionMax)!=13 ){
-            action.array[2]=this->max_speed;
+            s->set_speed(this->id_agent,Point(0,0,max_speed));
+            //action.array[2]=this->max_speed;
             s->takeOff=true;
         }
     //TODO: inset the state action tuple to the stack to update at the end of the episode
