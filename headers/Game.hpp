@@ -39,6 +39,7 @@ public:
     void fill_agents();
     void print_list_in_game();
     void loop_game();
+    bool isConverage();
     void constraint_checking_end_game();
     void del_palyer(Agent *agent,bool is_guard);
     bool is_end_game();

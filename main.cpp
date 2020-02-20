@@ -64,8 +64,8 @@ int main() {
     string home = "/"+arrPAth[0]+"/"+arrPAth[1];
     int MaxInt = INT_MAX;
     //const string home="/home/ise";
-    std::string pathCsv (home + "/car_model/config/con2.csv");
-    std::string toCsvPath (home+ "/car_model/config_exp_2/");
+    std::string pathCsv (home + "/car_model/config/con1.csv");
+    std::string toCsvPath (home+ "/car_model/config_exp_1/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
     vector<string> labels={"ctr_round","ctr_wall","ctr_coll","ctr_at_goal"};
@@ -94,7 +94,7 @@ int main() {
         ctrId++;
         //Agent::ctr_object = 0;
         delete (resultsConfigI);
-        break;
+
     }
 
 
@@ -113,7 +113,7 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(10000);
+    my_game->startGame(2000000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 

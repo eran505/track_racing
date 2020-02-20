@@ -119,8 +119,8 @@ RTDP_util::~RTDP_util() {
     cout<<qTable<<endl;
     //Free each sub-array
     for(int i = 0; i < this->size_Q ; ++i) {
-        cout<<"i="<<std::to_string(i)<<endl;
-        //delete[] qTable[i];
+        //cout<<"i="<<std::to_string(i)<<endl;
+        delete[] qTable[i];
     }
     //Free the array of pointers
     delete[] qTable;

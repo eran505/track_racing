@@ -101,7 +101,7 @@ void Game::evalPolicy() {
     ctr_at_gal=old_ctr_at_gal;
     ctr_wall=old_ctr_wall;
     this->planer->setPolicyModeAgent(false);
-    this->guardEval->push_back({evl_wall,evl_coll,evl_goal,ctr_round});
+    this->guardEval->push_back({ctr_round,evl_wall,evl_coll,evl_goal});
 
 }
 
@@ -128,6 +128,8 @@ void Game::startGame(int numIter)
             tmp[3] = this->ctr_at_gal;
             info->push_back(tmp);
         }
+        if (isConverage())
+            break;
     }
     cout<<"Collision:\t"<<ctr_coll<<endl;
     if (ctr_round%1000>0)
@@ -290,6 +292,19 @@ void Game::del_all_player() {
 void Game::del_list_func(list<Agent *> l,bool guard) {
     for (auto i : l)
         this->del_palyer(i, guard);
+}
+
+bool Game::isConverage() {
+    int lim=4;
+    long acc=0;
+    bool isEnd = false;
+    if (info->size() > lim)
+    {
+        if(info->operator[](info->size()-lim-1)[1]==info->operator[](info->size()-1)[1])
+            if(info->operator[](info->size()-lim-1)[3]==info->operator[](info->size()-1)[3])
+                isEnd=true;
+    }
+    return isEnd;
 }
 
 
