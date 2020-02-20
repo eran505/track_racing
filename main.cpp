@@ -57,8 +57,8 @@ int main() {
 //    exit(0);
     // seeding the program
     
-    //int seed = int( time(nullptr));
-    int seed = 58852;
+    int seed = int( time(nullptr));
+    //int seed = 58852;
     cout<<"seed:\t"<<seed<<endl;
     srand(seed);
     auto arrPAth = splitStr(getExePath(),"/");
