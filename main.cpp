@@ -57,8 +57,8 @@ int main() {
 //    exit(0);
     // seeding the program
     
-    int seed = int( time(nullptr));
-    //int seed = 58852;
+    //int seed = int( time(nullptr));
+    int seed = 1582245139;
     cout<<"seed:\t"<<seed<<endl;
     srand(seed);
     auto arrPAth = splitStr(getExePath(),"/");
@@ -81,6 +81,7 @@ int main() {
         conf.home=home;
         string strId=row[0];
         cout<<"ID:\t"<<strId<<endl;
+
         curToCsv.append(toCsvPath);curToCsv.append("ID_");
         curToCsv.append(strId);curToCsv.append(".csv");
 

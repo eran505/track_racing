@@ -17,6 +17,7 @@ class PathPolicy:public Policy{
     listPointWeighted goalPoint;
     listPointWeighted startPoint;
     vector<Point> midVec;
+    Point actionmy;
     unordered_map<int,vector<float>*> *dictPolicy;
     int getAgentSateHash(State *s);
 public:
@@ -28,6 +29,7 @@ public:
                        maxSpeedAgent,std::move(agentID)),midVec(move(midVecPoints)) {
         this->goalPoint=std::move(endPoint_);
         this->dictPolicy= nullptr;
+
         this->maxPathsNumber = maxPathz;
         this->startPoint=std::move(startPoint_);
         this->initPolicy(gridSzie);
@@ -86,13 +88,14 @@ public:
 
 Point PathPolicy::get_action(State *s) {
     auto EntryIndx = getAgentSateHash(s);
+    //trajectory.push_back(s->to_string_state()+"="+std::to_string(EntryIndx));
     std::unordered_map<int, std::vector<float>*>::iterator it;
     it = this->dictPolicy->find(EntryIndx);
     if (it==this->dictPolicy->end())
         throw;
     // get value between zero to one
     float r = static_cast <float> (random()) / static_cast <float> (RAND_MAX);
-    double acc=0;
+    float acc=0;
     unsigned long i;
     for (i=1; i <it->second->size() ; ++i) {
         acc+=it->second->operator[](i);
@@ -100,6 +103,13 @@ Point PathPolicy::get_action(State *s) {
             break;
         i+=1;
     }
+    // problem with precision number (floating point)
+    if (it->second->size()<i)
+    {
+        i=it->second->size()-1;
+
+    }
+
     int indexI =int(it->second->operator[](int(i-1)));
     Point choosenAction = *this->hashActionMap->at(indexI);
     return choosenAction;
