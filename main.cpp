@@ -58,7 +58,7 @@ int main() {
     // seeding the program
     
     //int seed = int( time(nullptr));
-    int seed = 1582245139;
+    int seed = 155139;
     cout<<"seed:\t"<<seed<<endl;
     srand(seed);
     auto arrPAth = splitStr(getExePath(),"/");
@@ -66,7 +66,7 @@ int main() {
     int MaxInt = INT_MAX;
     //const string home="/home/ise";
     std::string pathCsv (home + "/car_model/config/con1.csv");
-    std::string toCsvPath (home+ "/car_model/config_exp_1/");
+    std::string toCsvPath (home+ "/car_model/exp_out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
     vector<string> labels={"ctr_round","ctr_wall","ctr_coll","ctr_at_goal"};

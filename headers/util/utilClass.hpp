@@ -82,6 +82,8 @@ public:
     void addMidPoint(const vector<string> &vecMid){
         for(auto &pointStr:vecMid)
         {
+            if (pointStr.length()<2)
+                continue;
             auto arrString = splitStr(pointStr,"|");
             this->midPos.push_back(vecToPoint(move(arrString)));
         }

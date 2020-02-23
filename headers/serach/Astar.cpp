@@ -102,7 +102,7 @@ AStar::listNode AStar::Generator::findComplexPath(AStar::StatePoint &source_, Po
     {
         int sizeVec = pathI.size();
         if (ctr_path>oldMAXpath) break;
-        this->maxPath=1;
+        //this->maxPath=1;
         auto res = findPath(pathI.operator[](0),target_);
         cout<<"=="<<endl;
         if (res>0){//add the pathI to dictPolicy
