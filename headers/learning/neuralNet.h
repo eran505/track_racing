@@ -31,8 +31,9 @@ class neuralNet : torch::nn::Module{
         double getQvalue(State *pState, Point *pPoint);
         Tensor predictValue(vector<float> *state);
         double getQvalueMAX(State *pState);
+        void calcQtraget(const ReplayBuffer *buffer,int index);
 
-    void updateNet(ReplayBuffer *buffer);
+    void updateNet(const ReplayBuffer *buffer);
 };
 
 
@@ -49,11 +50,10 @@ class neuralNet : torch::nn::Module{
 //    }
     Tensor neuralNet::predictValue(vector<float> *state)
     {
-        //auto Sstate = torch::from_blob(state, {9}, at::kDouble);
-        //vector<float> myData = {1,2,3,4,5,6,7,8,9,10};
+
         ArrayRef<float> xx = *state;
         auto Sstate = torch::tensor(xx);
-        //auto Sstate  = torch::tensor(state);
+
         this->eval(); // puts network in evaluation mode
 
         torch::NoGradGuard noGrad;
@@ -65,17 +65,33 @@ class neuralNet : torch::nn::Module{
 
         return action_values;
     }
-    void neuralNet::updateNet(ReplayBuffer *buffer)
+    void neuralNet::updateNet(const ReplayBuffer *buffer)
     {
 
         if (!buffer->isSufficientAmountExperience())
             return;
         //random samples
         unordered_set<int> entries;
-        buffer->sampleEntries(batchSizeEntries,entries);
-        for (int i = 0; i < batchSizeEntries; ++i)
-        {
 
+        buffer->sampleEntries(batchSizeEntries,entries);
+        for (const auto entryIndx:entries)
+        {
+            buffer->nNextStates[entryIndx];
+        }
+    }
+    void neuralNet::calcQtraget(const ReplayBuffer *buffer,int index) {
+        vector<float> nNextStateExpectedReward;
+        
+        torch::Tensor Qtarget;
+        {
+            // This scope calc the expected value of the transition
+            for (const auto nNextItem :  buffer->nNextStates[index]){
+                ArrayRef<float> xx = *nNextItem;
+                auto Sstate = torch::tensor(xx);
+                torch::NoGradGuard noGrad;// This only takes effect within the scope
+                Qtarget = this->forward(Sstate); // Does not accumulate gradient
+                nNextStateExpectedReward.push_back(Qtarget.max(0))
+            }
         }
     }
     void neuralNet::start() {
@@ -157,6 +173,8 @@ double neuralNet::getQvalueMAX(State *pState) {
 void neuralNet::updateNet() {
     torch::jit::script::Module container = torch::jit::load("container.pt");
 }
+
+
 
 
 #endif //TRACK_RACING_NEURALNET_H

@@ -66,7 +66,7 @@ int main() {
     int MaxInt = INT_MAX;
     //const string home="/home/ise";
     std::string pathCsv (home + "/car_model/config/con1.csv");
-    std::string toCsvPath (home+ "/car_model/exp_out/");
+    std::string toCsvPath (home+ "/car_model/out_exp/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
     vector<string> labels={"ctr_round","ctr_wall","ctr_coll","ctr_at_goal"};
@@ -179,8 +179,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
 
 
-    //Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),pD2->get_id());
-    Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),list_Q_data,pD2->get_id());
+    Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),pD2->get_id());
+    //Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),list_Q_data,pD2->get_id());
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);
     pD2->setPolicy(RTDP);

@@ -67,7 +67,7 @@ public:
         delete ptrOld;
         vecMem->insert(itPos,newItem);
     }
-    void sampleEntries(int size,unordered_set<int> &hashList)
+    void sampleEntries(int size,unordered_set<int> &hashList) const
     {
         //unordered_set<int> hashList;
         if (size>=memSize)
@@ -80,7 +80,7 @@ public:
             hashList.insert(entry);
         }
     }
-    bool isSufficientAmountExperience()
+    bool isSufficientAmountExperience() const
     {
         if (this->loopNumber>0)
             return true;
