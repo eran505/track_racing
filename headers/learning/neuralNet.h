@@ -16,24 +16,36 @@ class neuralNet : torch::nn::Module{
 
     torch::nn::Linear fc1{nullptr}, fc2{nullptr}, fc3{nullptr};
     int batchSizeEntries;
+    int ctrEp;
+    torch::optim::SGD* optimizer= nullptr;
     public:
 
         neuralNet(){
+
              fc1 = register_module("fc1", torch::nn::Linear(10, 64));
              fc2 = register_module("fc2", torch::nn::Linear(64, 32));
              fc3 = register_module("fc3", torch::nn::Linear(32, 23));
-            batchSizeEntries=30;
+             ctrEp=0;
+             batchSizeEntries=1;
+            setOptimizer();
+            // Instantiate an SGD optimization algorithm to update our Net's parameters.
+
         }
         torch::Tensor forward(torch::Tensor x);
         ~neuralNet() override = default;;
         void start();
         void updateNet();
         double getQvalue(State *pState, Point *pPoint);
-        Tensor predictValue(vector<float> *state);
+        int predictValue(vector<float> *state);
         double getQvalueMAX(State *pState);
-        void calcQtraget(const ReplayBuffer *buffer,int index);
+        Tensor calcQtraget(const ReplayBuffer *buffer,int index);
+        Tensor getActionStateValue(vector<float> *state, int indxAction);
+        void learn(const Tensor& qCurState,const Tensor& qNextState);
+        void setOptimizer(){
+            optimizer = new torch::optim::SGD(this->parameters(), /*lr=*/0.01);
+        }
 
-    void updateNet(const ReplayBuffer *buffer);
+        void updateNet(const ReplayBuffer *buffer);
 };
 
 
@@ -48,9 +60,19 @@ class neuralNet : torch::nn::Module{
 //        //torch::Tensor xx =  torch::from_blob(std::data(myData), {2, 3});
 //        return f;
 //    }
-    Tensor neuralNet::predictValue(vector<float> *state)
+    Tensor neuralNet::getActionStateValue(vector<float> *state, int actionIndx)
     {
+        ArrayRef<float> xx = *state;
+        auto Sstate = torch::tensor(xx);
+        auto action_values = this->forward(Sstate);
+        auto res = action_values.operator[](actionIndx);
+        //TODO: can be the case when we have more than one arg_max -> choose randomly one !
+        return res;
 
+    }
+    int neuralNet::predictValue(vector<float> *state)
+    {
+        // return the arg_max of the action with the largest expected discounted reward
         ArrayRef<float> xx = *state;
         auto Sstate = torch::tensor(xx);
 
@@ -58,13 +80,14 @@ class neuralNet : torch::nn::Module{
 
         torch::NoGradGuard noGrad;
         auto action_values = this->forward(Sstate);
-        //auto vecRes = action_values.data<float>();
-        auto sizeVec0 = action_values.size(0);
-
+       // cout<<action_values<<endl;
+        auto res = action_values.argmax(0); // get the arg-max from the tensor
+        //cout<<res<<endl;
         this->train(); //puts network back in training mode
-
-        return action_values;
+        //TODO: can be the case when we have more than one arg_max -> choose randomly one !
+        return res.item().toInt();
     }
+
     void neuralNet::updateNet(const ReplayBuffer *buffer)
     {
 
@@ -76,72 +99,78 @@ class neuralNet : torch::nn::Module{
         buffer->sampleEntries(batchSizeEntries,entries);
         for (const auto entryIndx:entries)
         {
-            buffer->nNextStates[entryIndx];
-        }
-    }
-    void neuralNet::calcQtraget(const ReplayBuffer *buffer,int index) {
-        vector<float> nNextStateExpectedReward;
-        
-        torch::Tensor Qtarget;
-        {
-            // This scope calc the expected value of the transition
-            for (const auto nNextItem :  buffer->nNextStates[index]){
-                ArrayRef<float> xx = *nNextItem;
-                auto Sstate = torch::tensor(xx);
-                torch::NoGradGuard noGrad;// This only takes effect within the scope
-                Qtarget = this->forward(Sstate); // Does not accumulate gradient
-                nNextStateExpectedReward.push_back(Qtarget.max(0))
-            }
-        }
-    }
-    void neuralNet::start() {
-        cout<<"start Function"<<endl;
-        // Create a multi-threaded data loader for the MNIST dataset.
-    auto data_loader = torch::data::make_data_loader(
-            torch::data::datasets::MNIST("./data").map(
-                    torch::data::transforms::Stack<>()),
-            /*batch_size=*/64);
-
-    // Instantiate an SGD optimization algorithm to update our Net's parameters.
-    torch::optim::SGD optimizer(this->parameters(), /*lr=*/0.01);
-
-    for (size_t epoch = 1; epoch <= 10; ++epoch) {
-        size_t batch_index = 0;
-        // Iterate the data loader to yield batches from the dataset.
-        for (auto& batch : *data_loader) {
-            // Reset gradients.
-            optimizer.zero_grad();
-            // Execute the model on the input data.
-            // compute the next state value without no-grand
-            //        with torch.no_grad():
-            //            Q_targets = self.compute_q_targets(next_states, rewards, dones)
-            torch::Tensor Qtarget;
+            vector<float> expReward;
+            auto QMaxValues = this->calcQtraget(buffer,entryIndx);
+            auto probList = buffer->pProbabilityNextStates[entryIndx];
+            for (int i=0 ; i < buffer->rRewardNextStates[entryIndx]->size(); ++i)
             {
-                // This scope calc the expected value of the transition
-                torch::NoGradGuard noGrad;// This only takes effect within the scope
-                Qtarget = this->forward(reinterpret_cast<Tensor &&>(batch)); // Does not accumulate gradient
+                if (buffer->rRewardNextStates[entryIndx]->operator[](i) == 0){
+                    expReward.push_back(QMaxValues.operator[](i).item().toFloat()*
+                    buffer->pProbabilityNextStates[entryIndx]->operator[](i));
+                }
+                else expReward.push_back(buffer->rRewardNextStates[entryIndx]->operator[](i)*
+                buffer->pProbabilityNextStates[entryIndx]->operator[](i));
             }
-            torch::Tensor qExoected = this->forward(reinterpret_cast<Tensor &&>(batch));
-            // Compute a loss value to judge the prediction of our model.
-            torch::Tensor loss = torch::mse_loss(qExoected,Qtarget);
-            // Compute gradients of the loss w.r.t. the parameters of our model.
-            loss.backward();
+            // sum the vector
+            float sum_of_elems;
 
-            //similar decreasing the learning rate only for big gradients to perform small updates all the time.
-            //cliped ref https://discuss.pytorch.org/t/clip-gradients-norm-in-libtorch/39524/2
+//            cout<<""<<endl;
+            std::for_each(expReward.begin(), expReward.end(), [&] (float n) {
+                sum_of_elems += n;
+            });
+            auto valueCurState = this->getActionStateValue(buffer->stateS[entryIndx],buffer->aAction[entryIndx]);
+            //need to be tensor ->sum_of_elems
+            auto sum_of_elemsTensoer = torch::tensor(sum_of_elems);
+            this->learn(valueCurState,sum_of_elemsTensoer);
 
-            // Update the parameters based on the calculated gradients.
-            optimizer.step();
-            if (++batch_index % 100 == 0) {
-                std::cout << "Epoch: " << epoch << " | Batch: " << batch_index
-                          << " | Loss: " << loss.item<float>() << std::endl;
-
-                // Serialize your model periodically as a checkpoint.
-                //torch::save(net, "net.pt")
-            }
         }
     }
-}
+    Tensor neuralNet::calcQtraget(const ReplayBuffer *buffer,int index) {
+        vector<float> nNextStateExpectedReward;
+        auto x = torch::zeros({0,0});
+        torch::Tensor Qtarget;
+        bool isFirst=true;
+        // This scope calc the expected value of the transition
+        vector<at::Tensor> l ;
+        for (const auto nNextItem :  buffer->nNextStates[index]) {
+            ArrayRef<float> xx = *nNextItem;
+            auto curTensor = torch::tensor(xx);
+            l.push_back(curTensor);
+        }
+        Qtarget=torch::stack(l);
+//        cout<<Qtarget<<endl;
+//        cout<<Qtarget.sizes()<<endl;
+        torch::NoGradGuard noGrad;// This only takes effect within the scope
+        auto resultsTensor = this->forward(Qtarget); // Does not accumulate gradient
+        auto res = resultsTensor.max(1);
+        auto valuesQ = get<0>(res); // values (if you want the arg_max use <1> )
+        return valuesQ;
+    }
+    void neuralNet::learn(const Tensor& qCurState,const Tensor& qNextState) {
+
+
+        // Reset gradients.
+        optimizer->zero_grad();
+
+        // Compute a loss value to judge the prediction of our model.
+        torch::Tensor loss = torch::mse_loss(qCurState,qNextState);
+        // Compute gradients of the loss w.r.t. the parameters of our model.
+        loss.backward();
+
+        //similar decreasing the learning rate only for big gradients to perform small updates all the time.
+        //cliped ref https://discuss.pytorch.org/t/clip-gradients-norm-in-libtorch/39524/2
+
+        // Update the parameters based on the calculated gradients.
+        optimizer->step();
+
+        if (++ctrEp % 50 == 0) {
+            cout<< " | Loss: " << loss.item<float>() << std::endl;
+
+            // Serialize your model periodically as a checkpoint.
+            //torch::save(net, "net.pt")
+        }
+
+    }
 
 
 

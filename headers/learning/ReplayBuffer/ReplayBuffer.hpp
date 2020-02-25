@@ -11,7 +11,7 @@ typedef vector<float> feature;
 class ReplayBuffer{
 public:
 
-    vector<feature*> aAction;
+    vector<unsigned int> aAction;
     vector<feature*> rRewardNextStates;
     vector<feature*> pProbabilityNextStates;
     vector<vector<feature*>> nNextStates;
@@ -31,34 +31,38 @@ public:
     }
     void addBuffer(feature* refProbability,
                    feature* refReward,vector<feature*>& refNextSate,
-                   feature* actionVec,feature* stateVec){
+                   int actionVec,feature* stateVec){
 
-        addItems(aAction,actionVec);
+
+        addItems(actionVec);
         addItems(this->stateS,stateVec);
 
         addItems(this->rRewardNextStates,refReward);
         addItems(this->pProbabilityNextStates,refProbability);
         addItems(this->nNextStates,refNextSate);
         ctrInd++;
-        if (ctrInd>=this->memSize)
+
+        if (ctrInd==this->memSize)
         {
             ctrInd=0;
             loopNumber++;
         }
     }
+    void addItems(int actionIndex)
+    {
+        aAction[ctrInd]=actionIndex;
+    }
     void addItems(vector<vector<feature*>>& vecMem, vector<feature*>& newItem )
     {
-        auto vecTPos = vecMem.begin()+ctrInd;
-        auto vecPtrOld = vecMem.operator[](ctrInd);
+        auto vecPtrOld = vecMem[ctrInd];
         for (auto item:vecPtrOld)
             delete item;
-        vecMem.insert(vecTPos,newItem);
+        vecMem[ctrInd]=newItem;
     }
     void addItems(vector<feature*>& vecMem, feature* newItem ){
-        auto vecTPos = vecMem.begin()+ctrInd;
-        auto vecPtrOld = vecMem.operator[](ctrInd);
+        auto vecPtrOld = vecMem[ctrInd];
         delete vecPtrOld;
-        vecMem.operator[](ctrInd)=newItem;
+        vecMem[ctrInd]=newItem;
     }
     void addItemOne(vector<feature*>* vecMem, feature* newItem )
     {

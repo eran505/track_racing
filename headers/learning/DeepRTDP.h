@@ -21,7 +21,7 @@ class DeepRTDP : public Policy{
     FeatureGen* featuerConv= nullptr;
     vector<feature*> fNextState;
     feature* fStateCurrFeaturesQ;
-    feature* fAction;
+    unsigned int fAction;
     vector<float>* vecProbabilities;
     vector<float>* vecRewards;
     ReplayBuffer *myReplayBuffer;
@@ -30,8 +30,8 @@ class DeepRTDP : public Policy{
 
     template<typename KeyType, typename ValueType>
     std::pair<KeyType,ValueType> get_max( const std::unordered_map<KeyType,ValueType>& x );
-    Point* getRandomlyAction(vector<int>* intVect);
-    vector<int>* getMaxActionId(State* s);
+    Point* getRandomlyAction(vector<int> intVect);
+    int getMaxActionId(State* s);
     void bellmanUpdate(State *s,Point& actionP);
     void rec_update(State *s,int index, double acc_probablity);
     bool applyAction(State *s, const string &id, Point &action, int max_speed);
@@ -82,17 +82,17 @@ void DeepRTDP::reset_policy() {
 }
 
 Point DeepRTDP::get_action(State *s) {
-    auto argMaxList = this->getMaxActionId(s);
+    auto entryIdx = this->getMaxActionId(s);
 
     //choose randomly one
-    Point actionI = *getRandomlyAction(argMaxList);
+    Point actionI = *getRandomlyAction({entryIdx});
+
     //del
-    cout<<actionI.to_str()<<endl;
-    delete argMaxList;
+    cout<<"Action:\t"<<actionI.to_str()<<endl;
+    //delete argMaxList;
 
     //update
     bellmanUpdate(s,actionI);
-    cout<<actionI.to_str()<<endl;
 
     return actionI;
 }
@@ -106,26 +106,26 @@ std::pair<KeyType,ValueType> DeepRTDP::get_max( const std::unordered_map<KeyType
     });
 }
 
-vector<int>* DeepRTDP::getMaxActionId(State *s) {
+int DeepRTDP::getMaxActionId(State *s) {
     unordered_map <int,double> QstateTable;
     auto vecState = this->featuerConv->getFeaturesS(s);
-    this->nNet->predictValue(vecState);
-    return nullptr;
+    auto entry = this->nNet->predictValue(vecState);
+    return entry;
 }
 
 
 
 
-Point *DeepRTDP::getRandomlyAction(vector<int> *intVect) {
+Point *DeepRTDP::getRandomlyAction(vector<int> intVect) {
     int argMax;
-    int size = intVect->size();
+    int size = intVect.size();
     if (size>1)
     {
-        argMax = intVect->operator[](ctrRandom%size);
+        argMax = intVect.operator[](ctrRandom%size);
         ctrRandom = ++ctrRandom%this->hashActionMap->size();
 
     } else
-        argMax = intVect->operator[](0);
+        argMax = intVect.operator[](0);
     auto pos = this->hashActionMap->find(argMax);
     if (pos == this->hashActionMap->end())
         throw std::invalid_argument( "function::get_argmx_action Error" );
@@ -138,7 +138,7 @@ void DeepRTDP::bellmanUpdate(State *s, Point& actionP){
 
     int indexTran = -1;
     this->fStateCurrFeaturesQ=featuerConv->getFeaturesS(s);
-    this->fAction=actionP.getFeature();
+    this->fAction=actionP.hashMeAction(Point::actionMax);
     // copy state
     auto stateCur = new State(*s);
 
@@ -149,6 +149,7 @@ void DeepRTDP::bellmanUpdate(State *s, Point& actionP){
 
     //insert to buffer
     this->myReplayBuffer->addBuffer(vecProbabilities,vecRewards,this->fNextState,fAction,fStateCurrFeaturesQ);
+    this->nNet->updateNet(this->myReplayBuffer);
 }
 
 void DeepRTDP::initBuffers() {
