@@ -22,7 +22,7 @@ class neuralNet : torch::nn::Module{
 
         neuralNet(){
 
-             fc1 = register_module("fc1", torch::nn::Linear(10, 64));
+             fc1 = register_module("fc1", torch::nn::Linear(13, 64));
              fc2 = register_module("fc2", torch::nn::Linear(64, 32));
              fc3 = register_module("fc3", torch::nn::Linear(32, 23));
              ctrEp=0;
@@ -42,29 +42,21 @@ class neuralNet : torch::nn::Module{
         Tensor getActionStateValue(vector<float> *state, int indxAction);
         void learn(const Tensor& qCurState,const Tensor& qNextState);
         void setOptimizer(){
-            optimizer = new torch::optim::SGD(this->parameters(), /*lr=*/0.01);
+            optimizer = new torch::optim::SGD(this->parameters(), /*lr=*/0.001);
+            //adam (to make thing faster)
         }
 
         void updateNet(const ReplayBuffer *buffer);
 };
 
 
-//    torch::Tensor getData()
-//    {
-//        float data[] = { 1, 2, 3,
-//                         4, 5, 6 };
-//        vector<float> myData = {4,2,3,4,5,6};
-//        ArrayRef<float> x = myData;
-//        auto f = torch::tensor(x);
-//        //torch::Tensor f = torch::from_blob(x);
-//        //torch::Tensor xx =  torch::from_blob(std::data(myData), {2, 3});
-//        return f;
-//    }
     Tensor neuralNet::getActionStateValue(vector<float> *state, int actionIndx)
     {
         ArrayRef<float> xx = *state;
         auto Sstate = torch::tensor(xx);
+        Sstate.requires_grad_();
         auto action_values = this->forward(Sstate);
+        //TODO: requires_grad =true ?
         auto res = action_values.operator[](actionIndx);
         //TODO: can be the case when we have more than one arg_max -> choose randomly one !
         return res;
@@ -80,7 +72,7 @@ class neuralNet : torch::nn::Module{
 
         torch::NoGradGuard noGrad;
         auto action_values = this->forward(Sstate);
-       // cout<<action_values<<endl;
+        //cout<<action_values<<endl;
         auto res = action_values.argmax(0); // get the arg-max from the tensor
         //cout<<res<<endl;
         this->train(); //puts network back in training mode
@@ -121,6 +113,9 @@ class neuralNet : torch::nn::Module{
             auto valueCurState = this->getActionStateValue(buffer->stateS[entryIndx],buffer->aAction[entryIndx]);
             //need to be tensor ->sum_of_elems
             auto sum_of_elemsTensoer = torch::tensor(sum_of_elems);
+            //cout<<"sum_of_elemsTensoer = "<<sum_of_elemsTensoer<<endl;
+            //cout<<"valueCurState = "<<valueCurState<<endl;
+
             this->learn(valueCurState,sum_of_elemsTensoer);
 
         }
@@ -163,7 +158,7 @@ class neuralNet : torch::nn::Module{
         // Update the parameters based on the calculated gradients.
         optimizer->step();
 
-        if (++ctrEp % 50 == 0) {
+        if (++ctrEp % 100000 == 0) {
             cout<< " | Loss: " << loss.item<float>() << std::endl;
 
             // Serialize your model periodically as a checkpoint.
@@ -182,7 +177,7 @@ torch::Tensor neuralNet::forward(torch::Tensor x) {
 
     //auto input = x.reshape({x.size(0), 10});
     x = torch::relu(fc1->forward(x));
-    x = torch::dropout(x, /*p=*/0.5, /*train=*/is_training());
+   // x = torch::dropout(x, /*p=*/0.01, /*train=*/is_training());
     x = torch::relu(fc2->forward(x));
     x = torch::softmax(fc3->forward(x) ,   0);
     return x;

@@ -88,7 +88,7 @@ Point DeepRTDP::get_action(State *s) {
     Point actionI = *getRandomlyAction({entryIdx});
 
     //del
-    cout<<"Action:\t"<<actionI.to_str()<<endl;
+   // cout<<"Action:\t"<<actionI.to_str()<<endl;
     //delete argMaxList;
 
     //update

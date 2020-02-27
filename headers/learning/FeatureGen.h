@@ -16,7 +16,7 @@
 class FeatureGen{
     string uAgentId;
     const string uOppId="0A";
-    int sizeVec= int(Point::D_point::D)*3+1;
+    int sizeVec= int(Point::D_point::D)*4+1;
 
 public:
     FeatureGen(string myId ):uAgentId(std::move(myId)){
@@ -46,9 +46,14 @@ public:
         auto* vec = new vector<float>(this->sizeVec);
         int index=0;
 
-        for (int i = 0; i < sizePoint; ++i) {
-            vec->operator[](i+index)=dist[i];
-
+        for(int i = 0; i < sizePoint; ++i)
+        {
+            vec->operator[](i+index)=posAgent[i];
+        }
+        index+=sizePoint;
+        for(int i = 0; i < sizePoint; ++i)
+        {
+            vec->operator[](i+index)=posAdv[i];
         }
         index+=sizePoint;
         for (int i = 0; i < sizePoint; ++i) {

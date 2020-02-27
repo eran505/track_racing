@@ -176,6 +176,7 @@ void Game::loop_game() {
         this->constraint_checking_end_game();
 
         if (this->is_end_game()){
+           // cout << "end"<<endl;
             this->buffer->emplace_back("END");
             this->del_all_player();
             break;
@@ -246,7 +247,7 @@ void Game::constraint_checking_end_game(){
                 to_del_ad.push_front(player);
             }
             // remove guard
-            //cout<<"Del\t"<<i->get_id()<<" - Coll"<<endl;
+           // cout<<"Del\t"<<i->get_id()<<" - Coll"<<endl;
             to_del_gu.push_front(i);
             ctr_coll++;
         }
