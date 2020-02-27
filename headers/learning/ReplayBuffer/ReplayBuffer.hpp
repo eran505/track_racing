@@ -16,27 +16,28 @@ public:
     vector<feature*> pProbabilityNextStates;
     vector<vector<feature*>> nNextStates;
     vector<feature*> stateS;
+    vector<feature*> isEndStateNot;
     unsigned int memSize;
-    unsigned int featureSize;
+
     unsigned int ctrInd;
     unsigned int loopNumber;
 
 public:
-    ReplayBuffer(unsigned int _memSize, unsigned int _featureSize): aAction(_memSize),rRewardNextStates(_memSize),
+    explicit ReplayBuffer(unsigned int _memSize): aAction(_memSize),isEndStateNot(_memSize),rRewardNextStates(_memSize),
     pProbabilityNextStates(_memSize),nNextStates(_memSize),stateS(_memSize){
         ctrInd=0;
         loopNumber=0;
         this->memSize=_memSize;
-        this->featureSize=_featureSize;
     }
+
     void addBuffer(feature* refProbability,
-                   feature* refReward,vector<feature*>& refNextSate,
+            feature* refReward,vector<feature*>& refNextSate,
                    int actionVec,feature* stateVec){
 
 
+        isNOTEndAddItems(*refReward);
         addItems(actionVec);
         addItems(this->stateS,stateVec);
-
         addItems(this->rRewardNextStates,refReward);
         addItems(this->pProbabilityNextStates,refProbability);
         addItems(this->nNextStates,refNextSate);
@@ -59,6 +60,23 @@ public:
             delete item;
         vecMem[ctrInd]=newItem;
     }
+
+
+    void isNOTEndAddItems(const feature& refReward)
+    {
+        auto* newItemIndx= new feature();
+        for (auto const item: refReward)
+        {
+            if (item==0)
+                newItemIndx->push_back(1);
+            else
+                newItemIndx->push_back(0);
+        }
+        auto vecPtrOld = this->isEndStateNot[ctrInd];
+        delete vecPtrOld;
+        this->isEndStateNot[ctrInd]=newItemIndx;
+    }
+
     void addItems(vector<feature*>& vecMem, feature* newItem ){
         auto vecPtrOld = vecMem[ctrInd];
         delete vecPtrOld;
@@ -71,7 +89,7 @@ public:
         delete ptrOld;
         vecMem->insert(itPos,newItem);
     }
-    void sampleEntries(int size,unordered_set<int> &hashList) const
+    void sampleEntries(unsigned int size,unordered_set<int> &hashList) const
     {
         //unordered_set<int> hashList;
         if (size>=memSize)

@@ -16,16 +16,15 @@
 class FeatureGen{
     string uAgentId;
     const string uOppId="0A";
-    int sizeVec= int(Point::D_point::D)*4+1;
-
+    int sizeVec;
+    int indexer;
 public:
-    FeatureGen(string myId ):uAgentId(std::move(myId)){
-
+    FeatureGen(string myId, int _numOfGoals):sizeVec(0),uAgentId(std::move(myId)),indexer(0){
+        this->sizeVec+=int(Point::D_point::D)*5+1;
+        this->sizeVec+=_numOfGoals*int(Point::D_point::D);
     }
     ~FeatureGen()= default;
-
-
-
+    int getFeatureVecSize(){ return this->sizeVec;}
     vector<float>* getFeaturesSA( State* s,const Point& actionA){
         auto vec = this->getFeaturesS(s);
         for (int i = 0; i < Point::D_point::D; ++i) {
@@ -33,8 +32,17 @@ public:
         }
         return vec;
     }
-
+    void insetPoint(const Point &p,vector<float>* vec)
+    {
+        for(int i = 0; i < Point::D_point::D; ++i)
+        {
+            vec->operator[](i+indexer)=p[i];
+        }
+        indexer+=int(Point::D_point::D);
+    }
     vector<float>* getFeaturesS( State* s){
+        auto size_grid = s->g_grid->getPointSzie();
+        auto goalz = s->g_grid->get_goals();
         int sizePoint  = Point::D_point::D;
         auto posAgent = s->get_position(this->uAgentId);
         auto posAdv = s->get_position(this->uOppId);
@@ -42,29 +50,20 @@ public:
         auto speedAdv = s->get_speed(this->uOppId);
         auto budgetAgent = s->get_budget(this->uAgentId);
         auto budgetAdv = s->get_budget(this->uOppId);
-        auto dist = posAgent-posAdv;
         auto* vec = new vector<float>(this->sizeVec);
-        int index=0;
 
-        for(int i = 0; i < sizePoint; ++i)
+
+        indexer=0;
+        insetPoint(size_grid,vec);
+        insetPoint(posAgent,vec);
+        insetPoint(posAdv,vec);
+        insetPoint(speedAgent,vec);
+        insetPoint(speedAdv,vec);
+        vec->operator[](indexer)=budgetAgent;
+        for (auto const goalIdx : goalz)
         {
-            vec->operator[](i+index)=posAgent[i];
+            insetPoint(*goalIdx,vec);
         }
-        index+=sizePoint;
-        for(int i = 0; i < sizePoint; ++i)
-        {
-            vec->operator[](i+index)=posAdv[i];
-        }
-        index+=sizePoint;
-        for (int i = 0; i < sizePoint; ++i) {
-            vec->operator[](i+index)=speedAgent[i];
-        }
-        index+=sizePoint;
-        for (int i = 0; i < sizePoint; ++i) {
-            vec->operator[](i+index)=speedAdv[i];
-        }
-        index+=sizePoint;
-        vec->operator[](index)=budgetAgent;
 
         return vec ;
     }

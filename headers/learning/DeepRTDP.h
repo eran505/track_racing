@@ -5,6 +5,7 @@
 #ifndef TRACK_RACING_DEEPRTDP_H
 #define TRACK_RACING_DEEPRTDP_H
 
+#include "Learner.h"
 #include <utility>
 #include "learning/ReplayBuffer/ReplayBuffer.hpp"
 #include "Policy/Policy.hpp"
@@ -25,7 +26,7 @@ class DeepRTDP : public Policy{
     vector<float>* vecProbabilities;
     vector<float>* vecRewards;
     ReplayBuffer *myReplayBuffer;
-
+    Learner *dqn;
 
 
     template<typename KeyType, typename ValueType>
@@ -39,7 +40,7 @@ class DeepRTDP : public Policy{
     void initBuffers();
 public:
 
-    DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,string idAgent);
+    DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers);
     ~DeepRTDP() override { delete this->nNet; }
     void setNet(neuralNet* myNet){this->nNet=myNet;}
     void reset_policy() override;
@@ -50,12 +51,12 @@ public:
 
 };
 
-DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,string agentID):Policy(std::move(namePolicy),maxSpeedAgent,
-        agentID){
-    nNet = new neuralNet();
-    ctrRandom=seed;
-    this->featuerConv=new FeatureGen(agentID);
-    this->myReplayBuffer=new ReplayBuffer(30,10);
+DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers):Policy(std::move(namePolicy),maxSpeedAgent,
+        agentID),ctrRandom(seed),featuerConv(new FeatureGen(agentID,goal_numbers)),
+        myReplayBuffer(new ReplayBuffer(30)){
+    this->dqn=new Learner(false,this->featuerConv->getFeatureVecSize(),5);
+    //nNet = new neuralNet(this->featuerConv->getFeatureVecSize());
+
 }
 
 void DeepRTDP::policy_data() const {
@@ -109,7 +110,7 @@ std::pair<KeyType,ValueType> DeepRTDP::get_max( const std::unordered_map<KeyType
 int DeepRTDP::getMaxActionId(State *s) {
     unordered_map <int,double> QstateTable;
     auto vecState = this->featuerConv->getFeaturesS(s);
-    auto entry = this->nNet->predictValue(vecState);
+    auto entry = this->dqn->predictValue(vecState);
     return entry;
 }
 
@@ -146,10 +147,10 @@ void DeepRTDP::bellmanUpdate(State *s, Point& actionP){
 
 
     this->rec_update(stateCur,indexTran,1);
-
+    //cout<<stateCur->to_string_state()<<endl;
     //insert to buffer
     this->myReplayBuffer->addBuffer(vecProbabilities,vecRewards,this->fNextState,fAction,fStateCurrFeaturesQ);
-    this->nNet->updateNet(this->myReplayBuffer);
+    this->dqn->updateNet(this->myReplayBuffer);
 }
 
 void DeepRTDP::initBuffers() {
@@ -158,6 +159,7 @@ void DeepRTDP::initBuffers() {
     this->vecRewards = new vector<float>();
 }
 void DeepRTDP::rec_update(State *s,int index, double acc_probablity) {
+    //cout<<s->to_string_state()<<endl;
     if (index+1==this->tran.size()) {
         //get the state features
         auto f = this->featuerConv->getFeaturesS(s);

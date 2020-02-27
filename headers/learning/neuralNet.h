@@ -20,32 +20,31 @@ class neuralNet : torch::nn::Module{
     torch::optim::SGD* optimizer= nullptr;
     public:
 
-        neuralNet(){
+        explicit neuralNet(int featuresIn, int actionSize=23){
 
-             fc1 = register_module("fc1", torch::nn::Linear(13, 64));
+             fc1 = register_module("fc1", torch::nn::Linear(featuresIn, 64));
              fc2 = register_module("fc2", torch::nn::Linear(64, 32));
              fc3 = register_module("fc3", torch::nn::Linear(32, 23));
              ctrEp=0;
              batchSizeEntries=1;
-            setOptimizer();
-            // Instantiate an SGD optimization algorithm to update our Net's parameters.
+             setOptimizer();
+             // Instantiate an SGD optimization algorithm to update our Net's parameters.
 
         }
         torch::Tensor forward(torch::Tensor x);
         ~neuralNet() override = default;;
-        void start();
-        void updateNet();
+        //void updateN et();
         double getQvalue(State *pState, Point *pPoint);
-        int predictValue(vector<float> *state);
+        int evalArgMaxQ(Tensor &state);
         double getQvalueMAX(State *pState);
         Tensor calcQtraget(const ReplayBuffer *buffer,int index);
-        Tensor getActionStateValue(vector<float> *state, int indxAction);
+        Tensor getActionStateValue(vector<float> *state, int actionIndx);
         void learn(const Tensor& qCurState,const Tensor& qNextState);
         void setOptimizer(){
             optimizer = new torch::optim::SGD(this->parameters(), /*lr=*/0.001);
             //adam (to make thing faster)
         }
-
+        Tensor getEvalMaxValue(Tensor &Qtarget);
         void updateNet(const ReplayBuffer *buffer);
 };
 
@@ -62,16 +61,12 @@ class neuralNet : torch::nn::Module{
         return res;
 
     }
-    int neuralNet::predictValue(vector<float> *state)
+
+    int neuralNet::evalArgMaxQ(Tensor &state)
     {
-        // return the arg_max of the action with the largest expected discounted reward
-        ArrayRef<float> xx = *state;
-        auto Sstate = torch::tensor(xx);
-
         this->eval(); // puts network in evaluation mode
-
         torch::NoGradGuard noGrad;
-        auto action_values = this->forward(Sstate);
+        auto action_values = this->forward(state);
         //cout<<action_values<<endl;
         auto res = action_values.argmax(0); // get the arg-max from the tensor
         //cout<<res<<endl;
@@ -120,7 +115,17 @@ class neuralNet : torch::nn::Module{
 
         }
     }
-    Tensor neuralNet::calcQtraget(const ReplayBuffer *buffer,int index) {
+
+Tensor neuralNet::getEvalMaxValue(Tensor &Qtarget) {
+    torch::NoGradGuard noGrad;// This only takes effect within the scope
+    auto resultsTensor = this->forward(Qtarget); // Does not accumulate gradient
+    auto res = resultsTensor.max(1);
+    auto valuesQ = get<0>(res); // values (if you want the arg_max use <1> )
+    return valuesQ;
+}
+
+
+Tensor neuralNet::calcQtraget(const ReplayBuffer *buffer,int index) {
         vector<float> nNextStateExpectedReward;
         auto x = torch::zeros({0,0});
         torch::Tensor Qtarget;
@@ -194,9 +199,10 @@ double neuralNet::getQvalueMAX(State *pState) {
     return 0;
 }
 
-void neuralNet::updateNet() {
-    torch::jit::script::Module container = torch::jit::load("container.pt");
-}
+
+//void neuralNet::updateNet() {
+//    torch::jit::script::Module container = torch::jit::load("container.pt");
+//}
 
 
 
