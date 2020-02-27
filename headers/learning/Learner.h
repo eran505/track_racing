@@ -34,7 +34,6 @@ public:
 
 private:
     Tensor calcQtraget(const ReplayBuffer *buffer,int index);
-
 };
 
 Learner::Learner(bool isDoubleNetwork,int sizeFeatuersIn,int batchSize): batchSizeEntries(batchSize),
@@ -65,7 +64,10 @@ void Learner::updateNet(const ReplayBuffer *buffer) {
         auto probList = torch::tensor(*buffer->pProbabilityNextStates[entryIndx]);
         auto isNotEndState = torch::tensor(buffer->isEndStateNot[entryIndx]);
         auto rewardVec = torch::tensor(*buffer->rRewardNextStates[entryIndx]);
-
+        cout<<"QMaxValues.sizes() \n"<<QMaxValues<<endl;
+        cout<<"probList.sizes()\n"<<probList<<endl;
+        cout<<"isNotEndState.sizes()\n "<<isNotEndState<<endl;
+        cout<<"rewardVec.sizes()\n"<<rewardVec<<endl;
         // Q*=r+dis_factor*T(s,a,s)*V(s')
 
 
@@ -78,8 +80,7 @@ void Learner::updateNet(const ReplayBuffer *buffer) {
         //cout<<"sum_of_elemsTensoer = "<<sum_of_elemsTensoer<<endl;
         //cout<<"valueCurState = "<<valueCurState<<endl;
 
-
-        this->learn(valueCurState,sum_of_elemsTensoer);
+        this->evalNet->learn(valueCurState,sum_of_elemsTensoer);
 
     }
 }
