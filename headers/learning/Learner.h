@@ -28,14 +28,18 @@ class Learner{
     neuralNet* targetNet; // this Net does the T(s,a,s') calculation
     unsigned int batchSizeEntries;
     bool isDoubleNet;
+    bool configNet;
+    unsigned int ctrEval=0;
     unsigned int updateCtr;
 
 public:
+    void preTrainNet(vector<float>* state,vector<float> *targetY);
     Learner(bool isDoubleNetwork, int sizeFeatuersIn, int batchSize);
     ~Learner();
     int predictValue(vector<float> *state);
     void updateNet(const ReplayBuffer *buffer);
-    void loadStateDict();
+    void loadStateDict(const torch::nn::Module& moduleEval,
+            torch::nn::Module& moduleTarget, const std::string& ignore_name_regex);
     static bool isEmpty(at::Tensor x);
     static void LoadStateDict(torch::nn::Module& module,
                        const std::string& file_name,
@@ -45,22 +49,25 @@ public:
 
 private:
     Tensor calcQtraget(const ReplayBuffer *buffer,int index);
+
 };
 
 Learner::Learner(bool isDoubleNetwork,int sizeFeatuersIn,int batchSize): batchSizeEntries(batchSize),
 evalNet(new neuralNet(sizeFeatuersIn)),updateCtr(0),targetNet(evalNet),isDoubleNet(isDoubleNetwork)
 {
+    configNet= false;
     if (isDoubleNetwork)
         this->targetNet = new neuralNet(sizeFeatuersIn);
 }
 
 int Learner::predictValue(vector<float> *state) {
+    ctrEval++;
     ArrayRef<float> xx = *state;
     auto Sstate = torch::tensor(xx);
     return this->evalNet->evalArgMaxQ(Sstate);
 }
 void Learner::updateNet(const ReplayBuffer *buffer) {
-    if (!buffer->isSufficientAmountExperience())
+    if (!buffer->isSufficientAmountExperience() || configNet)
         return;
 
     //random samples
@@ -82,18 +89,21 @@ void Learner::updateNet(const ReplayBuffer *buffer) {
         // Q*=r+dis_factor*T(s,a,s)*V(s')
 
         auto qTensor = QMaxValues*probList*discountedFactor*isNotEndState+rewardVec;
-        cout<<"resTensor:\t"<<qTensor<<endl;
+        //cout<<"resTensor:\t"<<qTensor<<endl;
 
         auto valueCurState = this->evalNet->getActionStateValue(buffer->stateS[entryIndx],buffer->aAction[entryIndx]);
 
-        cout<<"valueCurState;\t"<<valueCurState<<endl;
+        //cout<<"valueCurState;\t"<<valueCurState<<endl;
 
         this->evalNet->learn(valueCurState,qTensor);
         updateCtr++;
-        if (updateCtr%1000==0)
+
+        if (updateCtr%100000000==0)
         {
-            auto* ptrNN = (torch::nn::Module*)this->evalNet;
-            SaveStateDict(*ptrNN,"/home/eranhe/car_model/nn/nn.tr");
+            auto* pModule = (torch::nn::Module*)this->evalNet;
+            SaveStateDict(*pModule, "/home/ERANHER/car_model/nn/nn.tr");
+            pModule = (torch::nn::Module*)this->targetNet;
+            LoadStateDict(*pModule, "/home/ERANHER/car_model/nn/nn.tr", "none");
         }
     }
 }
@@ -124,8 +134,9 @@ Tensor Learner::calcQtraget(const ReplayBuffer *buffer, int index) {
     return resultsTensor;
 }
 
-void Learner::loadStateDict() {
-
+void Learner::loadStateDict(const torch::nn::Module& moduleEval,torch::nn::Module& moduleTarget,
+                            const std::string& ignore_name_regex) {
+    //TODO: impl this function using the load and save function.
 }
 void Learner::SaveStateDict(const torch::nn::Module& module,
                    const std::string& file_name) {
@@ -142,6 +153,7 @@ void Learner::SaveStateDict(const torch::nn::Module& module,
             archive.write(val.key(), val.value(), /*is_buffer*/ true);
         }
     }
+
     archive.save_to(file_name);
 }
 
@@ -172,4 +184,16 @@ bool Learner::isEmpty(at::Tensor x) {
     else
         return true;
 }
+
+void Learner::preTrainNet(vector<float>* state,vector<float> *targetY) {
+    int sizeActionSet = int(pow(3.0,Point::D_point::D));
+    for (int i = 0; i < targetY->size(); ++i) {
+        auto predictY = this->evalNet->getActionStateValue(state,i);\
+        auto tragetTensor = torch::tensor(targetY->operator[](i));
+        //tragetTensor.requires_grad_();
+        this->evalNet->learn(predictY,tragetTensor);
+    }
+
+}
+
 #endif //TRACK_RACING_LEARNER_H

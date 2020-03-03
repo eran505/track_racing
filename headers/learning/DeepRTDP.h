@@ -18,7 +18,8 @@ class DeepRTDP : public Policy{
     int ctrState=0;
     neuralNet* nNet;
     int ctrRandom;
-
+    float heuristicID;
+    unsigned int preTrainNet;
     FeatureGen* featuerConv= nullptr;
     vector<feature*> fNextState;
     feature* fStateCurrFeaturesQ;
@@ -27,7 +28,9 @@ class DeepRTDP : public Policy{
     vector<float>* vecRewards;
     ReplayBuffer *myReplayBuffer;
     Learner *dqn;
-
+    bool heuristicFunc;
+    bool preTrainNetBool;
+    int ctrPreTrainNet=1000;
 
     template<typename KeyType, typename ValueType>
     std::pair<KeyType,ValueType> get_max( const std::unordered_map<KeyType,ValueType>& x );
@@ -38,24 +41,28 @@ class DeepRTDP : public Policy{
     bool applyAction(State *s, const string &id, Point &action, int max_speed);
     double rewardState(State *s);
     void initBuffers();
+    vector<float>* heuristicFuncImpl(vector<float> *state);
+
 public:
 
-    DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers);
+    DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers,float IDHuer);
     ~DeepRTDP() override { delete this->nNet; }
     void setNet(neuralNet* myNet){this->nNet=myNet;}
     void reset_policy() override;
     void policy_data() const override;
     const vector<float >* TransitionAction(State *s) override ;
     Point get_action(State *s) override;
-
+    void setPreTraining();
+    vector<float>* getYTrue();
 
 };
 
-DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers):Policy(std::move(namePolicy),maxSpeedAgent,
-        agentID),ctrRandom(seed),featuerConv(new FeatureGen(agentID,goal_numbers)),
+DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers,float IDHuer=0):Policy(std::move(namePolicy),maxSpeedAgent,
+        agentID),ctrRandom(seed),featuerConv(new FeatureGen(agentID,goal_numbers)),heuristicID(IDHuer),
         myReplayBuffer(new ReplayBuffer(30)){
     this->dqn=new Learner(false,this->featuerConv->getFeatureVecSize(),5);
     //nNet = new neuralNet(this->featuerConv->getFeatureVecSize());
+    this->setPreTraining();
 
 }
 
@@ -88,13 +95,20 @@ Point DeepRTDP::get_action(State *s) {
     //choose randomly one
     Point actionI = *getRandomlyAction({entryIdx});
 
-    //del
-   // cout<<"Action:\t"<<actionI.to_str()<<endl;
-    //delete argMaxList;
+    if (this->preTrainNet){
+        this->dqn->preTrainNet(this->fStateCurrFeaturesQ,this->getYTrue());
+        ctrPreTrainNet--;
+        cout<<"ctrPreTrainNet="<<ctrPreTrainNet<<endl;
+        if (ctrPreTrainNet==0)
+        {
+            this->preTrainNet=false;
+            cout<<" -- END - preTrainNet -- \n"<<endl;
+        }
 
-    //update
-    bellmanUpdate(s,actionI);
-
+    }
+    else {
+        bellmanUpdate(s,actionI);
+    }
     return actionI;
 }
 
@@ -109,8 +123,8 @@ std::pair<KeyType,ValueType> DeepRTDP::get_max( const std::unordered_map<KeyType
 
 int DeepRTDP::getMaxActionId(State *s) {
     unordered_map <int,double> QstateTable;
-    auto vecState = this->featuerConv->getFeaturesS(s);
-    auto entry = this->dqn->predictValue(vecState);
+    this->fStateCurrFeaturesQ=featuerConv->getFeaturesS(s);
+    auto entry = this->dqn->predictValue(this->fStateCurrFeaturesQ);
     return entry;
 }
 
@@ -138,7 +152,7 @@ void DeepRTDP::bellmanUpdate(State *s, Point& actionP){
     this->initBuffers();
 
     int indexTran = -1;
-    this->fStateCurrFeaturesQ=featuerConv->getFeaturesS(s);
+    //this->fStateCurrFeaturesQ=featuerConv->getFeaturesS(s);
     this->fAction=actionP.hashMeAction(Point::actionMax);
     // copy state
     auto stateCur = new State(*s);
@@ -189,4 +203,45 @@ bool DeepRTDP::applyAction(State *s, const string &id, Point &action, int max_sp
 {
     return s->applyAction(id, action, max_speed);
 }
+
+void DeepRTDP::setPreTraining() {
+    if (this->heuristicID==0)
+        preTrainNetBool=false;
+    else
+    {
+        preTrainNetBool= true;
+        if (this->heuristicID>0)
+            heuristicFunc=false;
+        else
+            heuristicFunc= true;
+    }
+
+}
+
+vector<float> *DeepRTDP::heuristicFuncImpl(vector<float> *state) {
+    int sizeVec = int(pow(3.0,Point::D_point::D));
+    auto* ptrVec = new vector<float>();
+    for (int i = 0; i < sizeVec; ++i) {
+        ptrVec->push_back(10.0);
+    }
+    return ptrVec;
+}
+
+vector<float> *DeepRTDP::getYTrue() {
+    auto vecState = this->fStateCurrFeaturesQ;
+    vector<float> *ptrVec;
+    if (this->heuristicFunc){
+        ptrVec = this->heuristicFuncImpl(vecState);
+    } else{
+        int sizeVec = int(pow(3.0,Point::D_point::D));
+        ptrVec = new vector<float>();
+        for (int i = 0; i < sizeVec; ++i) {
+            ptrVec->push_back(this->heuristicID);
+        }
+    }
+    return ptrVec;
+
+
+}
+
 #endif //TRACK_RACING_DEEPRTDP_H

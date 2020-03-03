@@ -109,6 +109,13 @@ public:
 //        return  ((53 +  array[0]) * 53 +  array[1]) * 53 + array[2];
 //    }
 
+    Point operator-(const Point* other) const{
+        Point newp(0);
+        for (int i = 0; i < this->capacity; ++i) {
+            newp.array[i]=this->array[i]-other->array[i];
+        }
+        return newp;
+    }
 
 
     Point& operator-=(const Point* other){

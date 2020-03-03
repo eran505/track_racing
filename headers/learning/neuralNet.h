@@ -20,11 +20,11 @@ class neuralNet : torch::nn::Module{
     torch::optim::SGD* optimizer= nullptr;
     public:
 
-        explicit neuralNet(int featuresIn, int actionSize=23){
+        explicit neuralNet(int featuresIn, int actionSize=27){
 
-             fc1 = register_module("fc1", torch::nn::Linear(featuresIn, 64));
-             fc2 = register_module("fc2", torch::nn::Linear(64, 32));
-             fc3 = register_module("fc3", torch::nn::Linear(32, 23));
+             fc1 = register_module("fc1", torch::nn::Linear(featuresIn, featuresIn));
+             fc2 = register_module("fc2", torch::nn::Linear(featuresIn, featuresIn));
+             fc3 = register_module("fc3", torch::nn::Linear(featuresIn, actionSize));
              ctrEp=0;
              batchSizeEntries=1;
              setOptimizer();
@@ -41,7 +41,7 @@ class neuralNet : torch::nn::Module{
         Tensor getActionStateValue(vector<float> *state, int actionIndx);
         void learn(const Tensor& qCurState,const Tensor& qNextState);
         void setOptimizer(){
-            optimizer = new torch::optim::SGD(this->parameters(), /*lr=*/0.001);
+            optimizer = new torch::optim::SGD(this->parameters(), /*lr=*/0.01);
             //adam (to make thing faster)
         }
         Tensor getEvalMaxValue(Tensor &Qtarget);
@@ -67,7 +67,7 @@ class neuralNet : torch::nn::Module{
         this->eval(); // puts network in evaluation mode
         torch::NoGradGuard noGrad;
         auto action_values = this->forward(state);
-        //cout<<action_values<<endl;
+        cout<<action_values<<endl;
         auto res = action_values.argmax(0); // get the arg-max from the tensor
         //cout<<res<<endl;
         this->train(); //puts network back in training mode
@@ -148,12 +148,20 @@ Tensor neuralNet::calcQtraget(const ReplayBuffer *buffer,int index) {
     }
     void neuralNet::learn(const Tensor& qCurState,const Tensor& qNextState) {
 
-
+        //auto old = this->fc1->weight.clone();
         // Reset gradients.
         optimizer->zero_grad();
 
         // Compute a loss value to judge the prediction of our model.
         torch::Tensor loss = torch::mse_loss(qCurState,qNextState);
+
+        //for debug
+        cout<<"qCurState:\t"<<qCurState<<endl;
+        cout<<"qNextState:\t"<<qNextState<<endl;
+        cout<<"loss:\t"<<loss<<endl;
+        cout<<"---------------------\n";
+        //end
+
         // Compute gradients of the loss w.r.t. the parameters of our model.
         loss.backward();
 
@@ -162,6 +170,9 @@ Tensor neuralNet::calcQtraget(const ReplayBuffer *buffer,int index) {
 
         // Update the parameters based on the calculated gradients.
         optimizer->step();
+
+        //auto res = torch::eq(old,this->fc1->weight.clone());
+        //cout<<res<<endl;
 
         if (++ctrEp % 100000 == 0) {
             cout<< " | Loss: " << loss.item<float>() << std::endl;
@@ -184,7 +195,8 @@ torch::Tensor neuralNet::forward(torch::Tensor x) {
     x = torch::relu(fc1->forward(x));
    // x = torch::dropout(x, /*p=*/0.01, /*train=*/is_training());
     x = torch::relu(fc2->forward(x));
-    x = torch::softmax(fc3->forward(x) ,   0);
+    x = torch::relu(fc3->forward(x));
+    //x = torch::softmax(fc3->forward(x) ,   0);
     return x;
 }
 

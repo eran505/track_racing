@@ -18,12 +18,17 @@ class FeatureGen{
     const string uOppId="0A";
     int sizeVec;
     int indexer;
+    unordered_map<int,Point*>* actionMap;
 public:
-    FeatureGen(string myId, int _numOfGoals):sizeVec(0),uAgentId(std::move(myId)),indexer(0){
-        this->sizeVec+=int(Point::D_point::D)*5+1;
+    FeatureGen(string myId, int _numOfGoals):sizeVec(0),uAgentId(std::move(myId)),indexer(0),actionMap(nullptr){
+        this->sizeVec+=int(Point::D_point::D)*7+1;
         this->sizeVec+=_numOfGoals*int(Point::D_point::D);
+        actionMap=Point::getDictAction();
     }
-    ~FeatureGen()= default;
+    ~FeatureGen(){
+        for (auto &item : *this->actionMap)
+            delete(item.second);
+    };
     int getFeatureVecSize(){ return this->sizeVec;}
     vector<float>* getFeaturesSA( State* s,const Point& actionA){
         auto vec = this->getFeaturesS(s);
@@ -40,7 +45,21 @@ public:
         }
         indexer+=int(Point::D_point::D);
     }
-    vector<float>* getFeaturesS( State* s){
+    void distWall(Point &size,Point &pos,vector<float> *vec){
+        Point dis = size-pos;
+        insetPoint(dis,vec);
+    }
+
+    void distOpAbs(const Point &attackPos,const Point &attackDef,vector<float> *vec){
+        Point dis = attackPos-attackDef;
+        for(int i = 0; i < Point::D_point::D; ++i){
+            dis.array[i] = abs(dis.array[i]);
+        }
+        insetPoint(dis,vec);
+    }
+
+
+    vector<float>* getFeaturesS(State* s){
         auto size_grid = s->g_grid->getPointSzie();
         auto goalz = s->g_grid->get_goals();
         int sizePoint  = Point::D_point::D;
@@ -59,11 +78,15 @@ public:
         insetPoint(posAdv,vec);
         insetPoint(speedAgent,vec);
         insetPoint(speedAdv,vec);
+        distWall(size_grid,posAgent,vec);
+        distOpAbs(posAdv,posAgent,vec);
         vec->operator[](indexer)=budgetAgent;
         for (auto const goalIdx : goalz)
         {
             insetPoint(*goalIdx,vec);
         }
+
+
 
         return vec ;
     }
