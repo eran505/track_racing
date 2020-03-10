@@ -96,6 +96,7 @@ class neuralNet : torch::nn::Module{
         //cout<<"ArgMax: "<<res.item().toInt()<<endl;
         this->train(); //puts network back in training mode
         //TODO: can be the case when we have more than one arg_max -> choose randomly one !
+
         return res.item().toInt();
     }
 

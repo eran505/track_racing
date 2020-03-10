@@ -14,8 +14,8 @@ class Dog: public Policy{
     vector<Point> golazz;
     int get_goal_point();
 public:
-    Dog(string namePolicy, int speed_MAX, int x,string agentID);
-    Dog(string namePolicy,int MAX_SPEED,string agentID);
+    Dog(string namePolicy, int speed_MAX, int x,string agentID,string &home);
+    Dog(string namePolicy,int MAX_SPEED,string agentID,string &home);
     void set_goal(Point p)
     {
         this->golazz.push_back(p);
@@ -70,7 +70,7 @@ void Dog::policy_data() const {
     printf("Dog::No Data is available");
 }
 
-Dog::Dog( string namePolicy,int MAX_SPEED,string agentID) : Policy( std::move(namePolicy),MAX_SPEED,std::move(agentID)) {
+Dog::Dog( string namePolicy,int MAX_SPEED,string agentID,string &home) : Policy( std::move(namePolicy),MAX_SPEED,std::move(agentID),home) {
     this->x=1;
 }
 
@@ -78,7 +78,7 @@ Dog::~Dog() {
     cout<<"del DOG"<<endl;
 }
 
-Dog::Dog(string namePolicy, int speed_MAX,int x,string agentID) : Policy(std::move(namePolicy),speed_MAX,agentID) {
+Dog::Dog(string namePolicy, int speed_MAX,int x,string agentID,string &home) : Policy(std::move(namePolicy),speed_MAX,agentID,home) {
     this->x=x;
 
 }

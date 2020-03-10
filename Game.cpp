@@ -93,7 +93,7 @@ void Game::evalPolicy() {
         this->loop_game();
         this->reset_game();
     }
-    cout<<"Training Mode"<<endl;
+    //cout<<"Training Mode"<<endl;
     int evl_wall = this->ctr_wall-old_ctr_wall;
     int evl_coll = this->ctr_coll-old_ctr_coll;
     int evl_goal = this->ctr_at_gal-old_ctr_at_gal;

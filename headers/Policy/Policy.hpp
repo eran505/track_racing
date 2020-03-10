@@ -18,11 +18,12 @@ public:
     bool is_wall;
     int D=2;
     bool evalPolicy;
+    string home;
     string id_agent;
     unordered_map<int,Point*>* hashActionMap;
     vector<Policy*> tran;
-    Policy(string name_policy,int max_speed_agent,string agentID)
-    :max_speed(max_speed_agent),evalPolicy(false){
+    Policy(string name_policy,int max_speed_agent,string agentID,string &_home)
+    :max_speed(max_speed_agent),evalPolicy(false),home(_home){
         this->name=std::move(name_policy);
         this->is_wall=false;
         this->out_budget= false;

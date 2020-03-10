@@ -5,8 +5,8 @@
 #include "RtdpAlgo.hpp"
 #include <queue>
 #include <utility>
-RtdpAlgo::RtdpAlgo(string namePolicy, int maxSpeedAgent, int grid_size, vector<pair<int,int>>& max_speed_and_budget,string agentID)
-        : Policy(std::move(namePolicy), maxSpeedAgent,std::move(agentID)) {
+RtdpAlgo::RtdpAlgo(string namePolicy, int maxSpeedAgent, int grid_size, vector<pair<int,int>>& max_speed_and_budget,string agentID,string &home)
+        : Policy(std::move(namePolicy), maxSpeedAgent,std::move(agentID),home) {
    this->RTDP_util_object = new RTDP_util(grid_size,max_speed_and_budget);
     this->RTDP_util_object->set_tran(&this->tran);
     this->RTDP_util_object->MyPolicy(this);

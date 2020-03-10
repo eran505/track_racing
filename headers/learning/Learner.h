@@ -30,13 +30,19 @@ class Learner{
     unsigned int batchSizeEntries;
     bool isDoubleNet;
     bool configNet;
+    unsigned int ctrUpdate=0;
+
     unsigned int ctrEval=0;
+    unsigned int updateEvery=100;
+    unsigned int siwchNetEvery;
     unsigned int updateCtr;
+    string home;
 
 public:
     void updateNetWork();
+    void uploadNet();
     void preTrainNet(vector<float>* state,vector<float> *targetY);
-    Learner(bool isDoubleNetwork, int sizeFeatuersIn, int batchSize,float discounterF);
+    Learner(bool isDoubleNetwork, int sizeFeatuersIn, int batchSize,float discounterF,string &home,bool uploadNet);
     ~Learner();
     int predictValue(vector<float> *state,bool isRandom);
     void updateNet(const ReplayBuffer *buffer);
@@ -54,13 +60,19 @@ private:
 
 };
 
-Learner::Learner(bool isDoubleNetwork,int sizeFeatuersIn,int batchSize,float discounterF): batchSizeEntries(batchSize),
-evalNet(new neuralNet(sizeFeatuersIn)),updateCtr(0),targetNet(evalNet),isDoubleNet(isDoubleNetwork),discountedFactor(discounterF)
+Learner::Learner(bool isDoubleNetwork,int sizeFeatuersIn,int batchSize,float discounterF,string &home,bool isUploadNet):
+batchSizeEntries(batchSize),evalNet(new neuralNet(sizeFeatuersIn)),updateCtr(0),
+targetNet(evalNet),home(home),isDoubleNet(isDoubleNetwork),discountedFactor(discounterF)
+,siwchNetEvery(50)
 {
-
     configNet= false;
     if (isDoubleNetwork)
         this->targetNet = new neuralNet(sizeFeatuersIn);
+    if (isUploadNet)
+    {
+        uploadNet();
+    }
+
 }
 
 int Learner::predictValue(vector<float> *state, bool isRandom=false) {
@@ -74,19 +86,26 @@ int Learner::predictValue(vector<float> *state, bool isRandom=false) {
 void Learner::updateNet(const ReplayBuffer *buffer) {
     if (!buffer->isSufficientAmountExperience() || configNet)
         return;
-
+    ctrUpdate++;
+    if (ctrUpdate%updateEvery!=0)
+        return;
     //random samples
     unordered_set<int> entries;
 
     buffer->sampleEntries(batchSizeEntries,entries);
     for (const auto entryIndx:entries)
     {
+        for (const auto val : *buffer->rRewardNextStates[entryIndx])
+        {
+            if (val>0)
+                cout<<endl;
+        }
         float sum_of_elems;
         vector<float> expReward;
         auto QMaxValues = this->calcQtraget(buffer,entryIndx);
         auto probList = torch::tensor(*buffer->pProbabilityNextStates[entryIndx]);
-        auto isNotEndState = torch::tensor(buffer->isEndStateNot[entryIndx]);
-        auto rewardVec = torch::tensor(*buffer->rRewardNextStates[entryIndx]);
+        auto isNotEndState = torch::tensor(*buffer->isEndStateNot[entryIndx]);
+        auto rewardVec  = torch::tensor(*buffer->rRewardNextStates[entryIndx]);
 //        cout<<"QMaxValues.sizes() \n"<<QMaxValues<<endl;
 //        cout<<"probList.sizes()\n"<<probList<<endl;
 //        cout<<"isNotEndState.sizes()\n "<<isNotEndState<<endl;
@@ -94,7 +113,7 @@ void Learner::updateNet(const ReplayBuffer *buffer) {
         // Q*=r+dis_factor*T(s,a,s)*V(s')
 
         auto qTensor = QMaxValues*probList*discountedFactor*isNotEndState+rewardVec;
-        //cout<<"bellman:\t"<<qTensor<<endl;
+//        cout<<"bellman:\t"<<qTensor<<endl;
 
         auto valueCurState = this->evalNet->getActionStateValue(buffer->stateS[entryIndx],-1);
         auto actionIndex = buffer->aAction[entryIndx];
@@ -103,23 +122,36 @@ void Learner::updateNet(const ReplayBuffer *buffer) {
 
         QTargetNext[int(actionIndex)]=qTensor.item().toFloat();
         this->evalNet->learn(valueCurState,QTargetNext);
-        updateCtr++;
-        if (updateCtr%60000==0 and isDoubleNet)
-        {
-            updateCtr=0;
-            this->updateNetWork();
 
-        }
     }
+    updateCtr++;
+    if (updateCtr%siwchNetEvery==0 and isDoubleNet)
+    {
+        this->updateNetWork();
+    }
+
 
 
 
 }
 
+void Learner::uploadNet()
+{
+    cout<<"**** UploadNet ****"<<endl;
+    auto model_save_path=this->home+"/car_model/nn/upload_nn.pt";
+    auto* pModule = (torch::nn::Module*)this->evalNet;
+    LoadStateDict(*pModule, model_save_path, "none");
+    if (!isDoubleNet)
+        return;
+    pModule = (torch::nn::Module*)this->targetNet;
+    LoadStateDict(*pModule, model_save_path, "none");
+
+}
 void Learner::updateNetWork()
 {
+    updateCtr=0;
     cout<<"updateNetWork"<<endl;
-    auto model_save_path="/home/eranhe/car_model/nn/nn.pt";
+    auto model_save_path=this->home+"/car_model/nn/nn.pt";
     auto* pModule = (torch::nn::Module*)this->evalNet;
     SaveStateDict(*pModule, model_save_path);
     pModule = (torch::nn::Module*)this->targetNet;

@@ -25,8 +25,8 @@ public:
         return dictPolicy->size();
     }
     PathPolicy(string namePolicy, int maxSpeedAgent,listPointWeighted endPoint_, listPointWeighted startPoint_,
-               Point &gridSzie, string agentID,vector<Point> midVecPoints,unsigned long maxPathz=ULONG_MAX) : Policy(std::move(namePolicy),
-                       maxSpeedAgent,std::move(agentID)),midVec(move(midVecPoints)) {
+               Point &gridSzie, string agentID,vector<Point> midVecPoints,string &home,unsigned long maxPathz=ULONG_MAX) : Policy(std::move(namePolicy),
+                       maxSpeedAgent,std::move(agentID),home),midVec(move(midVecPoints)) {
         this->goalPoint=std::move(endPoint_);
         this->dictPolicy= nullptr;
 

@@ -168,7 +168,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     listPointWeighted startState;
     startState.push_back({startAdversary,1});
     Policy *pGridPath =new  PathPolicy("SP",maxA, endState, startState, p_sizer,pA1->get_id()
-            ,conf.midPos,conf.rRoutes);
+            ,conf.midPos,conf.home,conf.rRoutes);
     auto *tmp_pointer = dynamic_cast <PathPolicy*>(pGridPath);
     printf("number of state:\t %d",tmp_pointer->getNumberOfState());
     ////////PATH POLICY////////////
@@ -182,7 +182,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 
 
     Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),pD2->get_id(),
-            gloz_l.size(),10.5);
+            gloz_l.size(),conf.home,10.5);
     //Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),list_Q_data,pD2->get_id());
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);

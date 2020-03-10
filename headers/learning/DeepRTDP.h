@@ -13,11 +13,13 @@
 #include "FeatureGen.h"
 
 class DeepRTDP : public Policy{
-    // Rewards
+
+
+// Rewards
     float collReward=10;float goalReward=-10;float wallReward=-11;
     int ctrState=0;
     neuralNet* nNet;
-    float discountFactor=0.95;
+    float discountFactor=0.987;
     int ctrRandom;
     float heuristicID;
     unsigned int preTrainNet;
@@ -31,7 +33,7 @@ class DeepRTDP : public Policy{
     Learner *dqn;
     bool heuristicFunc;
     bool preTrainNetBool;
-    int ctrPreTrainNet=100;
+    int ctrPreTrainNet=100000;
 
     //debug
     vector<State*> nextStateH;
@@ -52,7 +54,8 @@ class DeepRTDP : public Policy{
 
 public:
 
-    DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers,float IDHuer);
+    DeepRTDP(string namePolicy, int maxSpeedAgent, int seed, const string &agentID, int goal_numbers, string &home,
+             float IDHuer);
     ~DeepRTDP() override { delete this->nNet; }
     void setNet(neuralNet* myNet){this->nNet=myNet;}
     void reset_policy() override;
@@ -69,10 +72,11 @@ public:
 
 };
 
-DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers,float IDHuer=0):Policy(std::move(namePolicy),maxSpeedAgent,
-        agentID),ctrRandom(seed),featuerConv(new FeatureGen(agentID,goal_numbers,this->max_speed)),heuristicID(IDHuer),
+DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers,string &home,float IDHuer=0):Policy(std::move(namePolicy),maxSpeedAgent,
+        agentID,home),ctrRandom(seed),featuerConv(new FeatureGen(agentID,goal_numbers,this->max_speed)),heuristicID(IDHuer),
         myReplayBuffer(new ReplayBuffer(300)){
-    this->dqn=new Learner(true,this->featuerConv->getFeatureVecSize(),30,discountFactor);
+    this->dqn=new Learner(true,this->featuerConv->getFeatureVecSize(),100,
+            discountFactor,this->home, false);
     //nNet = new neuralNet(this->featuerConv->getFeatureVecSize());
     this->setPreTraining();
 
@@ -188,6 +192,7 @@ std::pair<KeyType,ValueType> DeepRTDP::get_max( const std::unordered_map<KeyType
 }
 
 int DeepRTDP::getMaxActionId(State *s) {
+   // cout<<"Cur State: "<<s->to_string_state()<<endl;
     unordered_map <int,double> QstateTable;
     this->fStateCurrFeaturesQ=featuerConv->getFeaturesS(s);
     auto entry = this->dqn->predictValue(this->fStateCurrFeaturesQ);
