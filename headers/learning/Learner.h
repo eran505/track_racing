@@ -22,8 +22,9 @@ using namespace torch;
  *   if(fix time update)
  *      targetNet <-- evalNet
  * */
+void print_tensor_size(const torch::Tensor& x);
 class Learner{
-    float discountedFactor = 0.985;
+    float discountedFactor;
     neuralNet* evalNet;   // this Net chooses the best action (Policy-net)
     neuralNet* targetNet; // this Net does the T(s,a,s') calculation
     unsigned int batchSizeEntries;
@@ -33,10 +34,11 @@ class Learner{
     unsigned int updateCtr;
 
 public:
+    void updateNetWork();
     void preTrainNet(vector<float>* state,vector<float> *targetY);
-    Learner(bool isDoubleNetwork, int sizeFeatuersIn, int batchSize);
+    Learner(bool isDoubleNetwork, int sizeFeatuersIn, int batchSize,float discounterF);
     ~Learner();
-    int predictValue(vector<float> *state);
+    int predictValue(vector<float> *state,bool isRandom);
     void updateNet(const ReplayBuffer *buffer);
     void loadStateDict(const torch::nn::Module& moduleEval,
             torch::nn::Module& moduleTarget, const std::string& ignore_name_regex);
@@ -52,16 +54,19 @@ private:
 
 };
 
-Learner::Learner(bool isDoubleNetwork,int sizeFeatuersIn,int batchSize): batchSizeEntries(batchSize),
-evalNet(new neuralNet(sizeFeatuersIn)),updateCtr(0),targetNet(evalNet),isDoubleNet(isDoubleNetwork)
+Learner::Learner(bool isDoubleNetwork,int sizeFeatuersIn,int batchSize,float discounterF): batchSizeEntries(batchSize),
+evalNet(new neuralNet(sizeFeatuersIn)),updateCtr(0),targetNet(evalNet),isDoubleNet(isDoubleNetwork),discountedFactor(discounterF)
 {
+
     configNet= false;
     if (isDoubleNetwork)
         this->targetNet = new neuralNet(sizeFeatuersIn);
 }
 
-int Learner::predictValue(vector<float> *state) {
+int Learner::predictValue(vector<float> *state, bool isRandom=false) {
     ctrEval++;
+    if (isRandom)
+        return range_random(0,26);
     ArrayRef<float> xx = *state;
     auto Sstate = torch::tensor(xx);
     return this->evalNet->evalArgMaxQ(Sstate);
@@ -89,23 +94,40 @@ void Learner::updateNet(const ReplayBuffer *buffer) {
         // Q*=r+dis_factor*T(s,a,s)*V(s')
 
         auto qTensor = QMaxValues*probList*discountedFactor*isNotEndState+rewardVec;
-        //cout<<"resTensor:\t"<<qTensor<<endl;
+        //cout<<"bellman:\t"<<qTensor<<endl;
 
-        auto valueCurState = this->evalNet->getActionStateValue(buffer->stateS[entryIndx],buffer->aAction[entryIndx]);
+        auto valueCurState = this->evalNet->getActionStateValue(buffer->stateS[entryIndx],-1);
+        auto actionIndex = buffer->aAction[entryIndx];
+        auto QTargetNext = valueCurState.clone().detach();
+        //cout <<"evalNet: "<< valueCurState[int(actionIndex)]<<endl;
 
-        //cout<<"valueCurState;\t"<<valueCurState<<endl;
-
-        this->evalNet->learn(valueCurState,qTensor);
+        QTargetNext[int(actionIndex)]=qTensor.item().toFloat();
+        this->evalNet->learn(valueCurState,QTargetNext);
         updateCtr++;
-
-        if (updateCtr%100000000==0)
+        if (updateCtr%60000==0 and isDoubleNet)
         {
-            auto* pModule = (torch::nn::Module*)this->evalNet;
-            SaveStateDict(*pModule, "/home/ERANHER/car_model/nn/nn.tr");
-            pModule = (torch::nn::Module*)this->targetNet;
-            LoadStateDict(*pModule, "/home/ERANHER/car_model/nn/nn.tr", "none");
+            updateCtr=0;
+            this->updateNetWork();
+
         }
     }
+
+
+
+}
+
+void Learner::updateNetWork()
+{
+    cout<<"updateNetWork"<<endl;
+    auto model_save_path="/home/eranhe/car_model/nn/nn.pt";
+    auto* pModule = (torch::nn::Module*)this->evalNet;
+    SaveStateDict(*pModule, model_save_path);
+    pModule = (torch::nn::Module*)this->targetNet;
+    LoadStateDict(*pModule, model_save_path, "none");
+    // Save the model
+    // torch::save(pModule, model_save_path);
+    // Load the model
+    // torch::load(model, model_save_path);
 }
 
 Learner::~Learner() {
@@ -154,6 +176,8 @@ void Learner::SaveStateDict(const torch::nn::Module& module,
         }
     }
 
+
+
     archive.save_to(file_name);
 }
 
@@ -186,14 +210,31 @@ bool Learner::isEmpty(at::Tensor x) {
 }
 
 void Learner::preTrainNet(vector<float>* state,vector<float> *targetY) {
-    int sizeActionSet = int(pow(3.0,Point::D_point::D));
-    for (int i = 0; i < targetY->size(); ++i) {
-        auto predictY = this->evalNet->getActionStateValue(state,i);\
-        auto tragetTensor = torch::tensor(targetY->operator[](i));
-        //tragetTensor.requires_grad_();
-        this->evalNet->learn(predictY,tragetTensor);
-    }
+
+    auto predictY = this->evalNet->getActionStateValue(state,-1);
+    ArrayRef<float> xx = *targetY;
+    auto hTarget = torch::tensor(xx);
+//    cout << "hTarget: "<<hTarget << endl;
+//    cout << "predictY: " <<predictY<<endl;
+    this->evalNet->learn(predictY, hTarget);
 
 }
+void print_tensor_size(const torch::Tensor& x) {
+    std::cout << "[";
+    for (size_t i = 0; i != x.dim() - 1; ++i) {
+        std::cout << x.size(i) << " ";
+    }
+    std::cout << x.size(-1) << "]";
+}
 
+void print_script_module(const torch::jit::script::Module& module, size_t spaces) {
+    for (const auto& sub_module : module.named_children()) {
+        if (!sub_module.name.empty()) {
+            std::cout << std::string(spaces, ' ') << sub_module.value.type()->name().value().name()
+                      << " " << sub_module.name << "\n";
+        }
+
+        print_script_module(sub_module.value, spaces + 2);
+    }
+}
 #endif //TRACK_RACING_LEARNER_H

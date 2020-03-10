@@ -58,7 +58,9 @@ int main() {
     // seeding the program
     
     //int seed = int( time(nullptr));
+
     int seed = 155139;
+    torch::manual_seed(seed);
     cout<<"seed:\t"<<seed<<endl;
     srand(seed);
     auto arrPAth = splitStr(getExePath(),"/");
@@ -140,7 +142,7 @@ Grid * init_grid(configGame& conf){
 }
 MdpPlaner* init_mdp(Grid *g, configGame &conf){
     int maxSizeGrid = g->getPointSzie().array[0];
-    int maxA=2+maxSizeGrid/10;
+    int maxA=1+maxSizeGrid/10;   //TODO:: change it to plus one !!!!!!!!!!!!!!!!!!!!!!!1
     int maxB=1+maxSizeGrid/10;
 
     auto startAdversary = new Point(conf.posAttacker);
@@ -179,7 +181,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
 
 
-    Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),pD2->get_id(),gloz_l.size(),10.1);
+    Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),pD2->get_id(),
+            gloz_l.size(),10.5);
     //Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),list_Q_data,pD2->get_id());
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);

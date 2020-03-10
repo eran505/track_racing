@@ -55,6 +55,7 @@ unordered_map<int,Point*>* Point::getDictAction() {
                 for (int k = -1; k < 2; ++k) {
                     auto *pAction = new Point(i, j, k);
                     mapAction->insert({pAction->hashMeAction(Point::actionMax), pAction});
+                    //cout<<pAction->hashMeAction(Point::actionMax)<<","<<"\""<<pAction->to_str()<<"\""<<endl;
                 }
     }
     return mapAction;

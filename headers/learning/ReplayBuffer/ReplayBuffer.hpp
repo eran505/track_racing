@@ -106,8 +106,8 @@ public:
     {
         if (this->loopNumber>0)
             return true;
-        if (this->ctrInd>100)
-            return true;
+//        if (this->ctrInd>100)
+//            return true;
         return false;
     }
 

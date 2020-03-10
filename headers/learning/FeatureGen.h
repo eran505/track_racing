@@ -18,12 +18,16 @@ class FeatureGen{
     const string uOppId="0A";
     int sizeVec;
     int indexer;
+    int maxSpeed;
     unordered_map<int,Point*>* actionMap;
+
 public:
-    FeatureGen(string myId, int _numOfGoals):sizeVec(0),uAgentId(std::move(myId)),indexer(0),actionMap(nullptr){
-        this->sizeVec+=int(Point::D_point::D)*7+1;
-        this->sizeVec+=_numOfGoals*int(Point::D_point::D);
+
+    FeatureGen(string myId, int _numOfGoals,int _maxSpeed):sizeVec(0),uAgentId(std::move(myId)),indexer(0),actionMap(nullptr){
+        this->sizeVec+=int(Point::D_point::D)*7;
+        this->sizeVec+=_numOfGoals*int(Point::D_point::D)*3;
         actionMap=Point::getDictAction();
+        this->maxSpeed=_maxSpeed;
     }
     ~FeatureGen(){
         for (auto &item : *this->actionMap)
@@ -58,9 +62,17 @@ public:
         insetPoint(dis,vec);
     }
 
+    void isGettingCloser(vector<float> *vec,State *s){
+        for (auto const actionI : *actionMap)
+        {
+
+        }
+    }
+
 
     vector<float>* getFeaturesS(State* s){
         auto size_grid = s->g_grid->getPointSzie();
+
         auto goalz = s->g_grid->get_goals();
         int sizePoint  = Point::D_point::D;
         auto posAgent = s->get_position(this->uAgentId);
@@ -73,16 +85,19 @@ public:
 
 
         indexer=0;
-        insetPoint(size_grid,vec);
-        insetPoint(posAgent,vec);
-        insetPoint(posAdv,vec);
-        insetPoint(speedAgent,vec);
-        insetPoint(speedAdv,vec);
-        distWall(size_grid,posAgent,vec);
-        distOpAbs(posAdv,posAgent,vec);
-        vec->operator[](indexer)=budgetAgent;
+        distWall(size_grid,posAgent,vec); // 1
+        insetPoint(size_grid,vec); // 2
+        insetPoint(posAgent,vec); // 3
+        insetPoint(posAdv,vec);// 4
+        insetPoint(speedAgent,vec);// 5
+        insetPoint(speedAdv,vec);// 6
+        distOpAbs(posAdv,posAgent,vec);// 7
+
+        //vec->operator[](indexer)=budgetAgent;
         for (auto const goalIdx : goalz)
         {
+            distOpAbs(*goalIdx,posAdv,vec);
+            distOpAbs(*goalIdx,posAgent,vec);
             insetPoint(*goalIdx,vec);
         }
 
