@@ -11,7 +11,7 @@
 #include "Policy/Policy.hpp"
 #include "neuralNet.h"
 #include "FeatureGen.h"
-
+#include "ReplayBuffer/prioritizedExperienceReplay.hpp"
 class DeepRTDP : public Policy{
 
 
@@ -29,7 +29,9 @@ class DeepRTDP : public Policy{
     unsigned int fAction;
     vector<float>* vecProbabilities;
     vector<float>* vecRewards;
+        vector<short> isNotEnd;
     ReplayBuffer *myReplayBuffer;
+    prioritizedExperienceReplay * prioritizedBuffer;
     Learner *dqn;
     bool heuristicFunc;
     bool preTrainNetBool;
@@ -47,7 +49,7 @@ class DeepRTDP : public Policy{
     void bellmanUpdate(State *s,Point& actionP);
     void rec_update(State *s,int index, double acc_probablity);
     bool applyAction(State *s, const string &id, Point &action, int max_speed);
-    double rewardState(State *s);
+    double rewardState(State *s,bool isEnd);
     void initBuffers();
     float recH(State *s,int index, float acc_probablity,int lookup);
     vector<float>* heuristicFuncImpl(State *state);
@@ -67,9 +69,6 @@ public:
     vector<float>* computeH(State *s,bool isLookUp);
     void getHeuristicValue(State *s, int index, float accProbablity);
     float compute_h(State *pState);
-
-
-
 };
 
 DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers,string &home,float IDHuer=0):Policy(std::move(namePolicy),maxSpeedAgent,
@@ -79,6 +78,7 @@ DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& a
             discountFactor,this->home, false);
     //nNet = new neuralNet(this->featuerConv->getFeatureVecSize());
     this->setPreTraining();
+    prioritizedBuffer = new prioritizedExperienceReplay(3000);
 
 }
 
@@ -136,16 +136,28 @@ vector<float>* DeepRTDP::computeH(State *s,bool isLookUp = false){
     return vecH;
 }
 
-double DeepRTDP::rewardState(State *s)
+double DeepRTDP::rewardState(State *s,bool isEnd=true)
 {
-    if (s->isGoal())
-        return this->goalReward;
-    if (this->is_wall)
-        return wallReward;
-    auto res = s->is_collusion(this->id_agent);
-    if (!res.empty())
-        return this->collReward;
-    return 0;
+    short iNotEnd=1;
+    double reward=0;
+    if (s->isGoal()){
+        iNotEnd=0;
+        reward+=this->goalReward;
+    }
+    else if (this->is_wall){
+        iNotEnd=0;
+        reward+=this-> wallReward;
+    }
+    else {
+        auto res = s->is_collusion(this->id_agent);
+        if (!res.empty()) {
+            iNotEnd = 0;
+            reward += this->collReward;
+        }
+    }
+    if (isEnd)
+        this->isNotEnd.push_back(isEnd);
+    return reward;
 }
 const vector<float> *DeepRTDP::TransitionAction(State *s) {
     return nullptr;
@@ -236,12 +248,15 @@ void DeepRTDP::bellmanUpdate(State *s, Point& actionP){
     this->rec_update(stateCur,indexTran,1);
     //cout<<stateCur->to_string_state()<<endl;
     //insert to buffer
+
     this->myReplayBuffer->addBuffer(vecProbabilities,vecRewards,this->fNextState,fAction,fStateCurrFeaturesQ);
+    //  this->prioritizedBuffer->add()
     this->dqn->updateNet(this->myReplayBuffer);
 }
 
 void DeepRTDP::initBuffers() {
     this->fNextState.clear();
+    this->isNotEnd.clear();
     this->vecProbabilities = new vector<float>();
     this->vecRewards = new vector<float>();
 }

@@ -22,6 +22,9 @@
 #include <headers/util/csvfile.hpp>
 #include <torch/script.h> // One-stop header.
 
+
+#include "learning/ReplayBuffer/prioritizedExperienceReplay.hpp"
+
 Grid * init_grid(configGame &conf);
 MdpPlaner* init_mdp(Grid *g, configGame &conf);
 void toCsv(string &pathFile, vector<vector<int>>* infoArr,vector<string> &labels);
