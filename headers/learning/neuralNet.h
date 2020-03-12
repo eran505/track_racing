@@ -15,7 +15,7 @@
 using namespace torch;
 class neuralNet : torch::nn::Module{
 
-    torch::nn::Linear fc1{nullptr}, fc2{nullptr}, fc3{nullptr};
+    torch::nn::Linear fc1{nullptr}, fc2{nullptr}, fc3{nullptr}, fc4{nullptr} ;
     int batchSizeEntries;
     int ctrEp;
     float GRADIENT_CLIP;
@@ -26,7 +26,8 @@ class neuralNet : torch::nn::Module{
         explicit neuralNet(int featuresIn, int actionSize=27):deviceI(nullptr){
              fc1 = register_module("fc1", torch::nn::Linear(featuresIn, featuresIn));
              fc2 = register_module("fc2", torch::nn::Linear(featuresIn, featuresIn));
-             fc3 = register_module("fc3", torch::nn::Linear(featuresIn, actionSize));
+             fc3 = register_module("fc3", torch::nn::Linear(featuresIn, featuresIn));
+             fc4 = register_module("fc4", torch::nn::Linear(featuresIn, actionSize));
              ctrEp=0;
              batchSizeEntries=1;
              setOptimizer();
@@ -240,7 +241,8 @@ torch::Tensor neuralNet::forward(torch::Tensor x) {
     x = torch::relu(fc1->forward(x));
     //x = torch::dropout(x, /*p=*/0.01, /*train=*/is_training());
     x = torch::relu(fc2->forward(x));
-    x = (fc3->forward(x));
+    x =  torch::relu(fc3->forward(x));
+    x = (fc4->forward(x));
     //x = torch::softmax(fc3->forward(x) ,   0);
     return x;
 }

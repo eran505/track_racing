@@ -29,6 +29,20 @@ public:
             ptrNextStateVec.push_back(i);
         }
     }
+    string toStrReward(){
+        string str;
+        for (int i = 0; i < ptrRewards->size(); ++i) {
+            str+=to_string(ptrRewards->operator[](i));
+        }
+        return str;
+    }
+    bool isPositive(){
+        for (int i = 0; i <this->ptrRewards->size() ; ++i) {
+            if (this->ptrRewards->operator[](i)>0)
+                return true;
+        }
+        return false;
+    }
     ~experienceTuple(){
         for(auto item : ptrNextStateVec)
             delete item;
@@ -55,9 +69,10 @@ enum operationTree{
 };
 typedef vector<experienceTuple*> experiences;
 class SumTree{
-
+public:
     unsigned int write;
     unsigned int capacity;
+    unsigned int treeSize;
     experiences dataTree;
     vector<float> tree;
     std::function<float(float,float)> foo;
@@ -90,7 +105,7 @@ class SumTree{
         else
             return this->retrieve(right,val - this->tree[left]);
     }
-public:
+
     explicit SumTree(unsigned int _capacity,operationTree kind):capacity(_capacity),write(0)
     {
         float initialValue=0;
@@ -109,7 +124,8 @@ public:
             throw std::invalid_argument( "the operation Tree is invalid" );
         // initial
         this->tree =vector<float>(2*capacity-1,initialValue);
-        this->dataTree.reserve(capacity);
+        this->dataTree = experiences(capacity);
+        this->treeSize=2*capacity-1;
     }
     ~SumTree(){
         for(auto item: dataTree)
@@ -130,7 +146,7 @@ public:
      **/
     void add(float p , experienceTuple *ptrExp)
     {
-        auto ptrOld = this->dataTree[write];
+        experienceTuple *ptrOld = this->dataTree[write];
         delete ptrOld;
         this->dataTree[write]=ptrExp;
         //auto idx= this->write + this->capacity - 1;
@@ -169,11 +185,12 @@ public:
         auto node_idx = idx + capacity - 1;
         if (node_idx<0)
             throw std::invalid_argument( "Error: node_idx out of lim ( 0 > node_idx ) ");
-        if (node_idx>= capacity)
+        if (node_idx >= treeSize)
             throw std::invalid_argument( "Error: node_idx out of lim ( 0 > capacity )");
         this->tree[node_idx]=p;
         this->propagate(node_idx);
     }
+
 };
 
 

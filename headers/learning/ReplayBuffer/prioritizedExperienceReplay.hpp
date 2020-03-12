@@ -16,8 +16,9 @@ typedef experienceTuple* dataTuple;
 class prioritizedExperienceReplay{
     unsigned int powerOf2Size;
 
-    const int MAX_MEMORY_CAPACITY = 200000;
-
+    const int CAPACITY_FOR_LEARNING = 300;
+    short ctr=0;
+    bool ready;
     SumTree* opSumTree;
     float alpha;
     float epsilon;
@@ -28,13 +29,33 @@ class prioritizedExperienceReplay{
 
 public:
 
+    void numPostiveReward(){
+        short postiveRewardCounter=0;
+        short ALLpostiveRewardCounter=0;
+
+        for(auto &ptrItem:this->opSumTree->dataTree)
+            if (!(ptrItem == nullptr))
+                for (auto k: *ptrItem->ptrRewards)
+                    if (k>0)
+                        ALLpostiveRewardCounter++;
+        for(auto &ptrItem: batchSampleData)
+            if (!(ptrItem == nullptr))
+                for (auto k: *ptrItem->ptrRewards)
+                    if (k>0)
+                        postiveRewardCounter++;
+        cout<<"all: "<<ALLpostiveRewardCounter<<" batch: "<<  postiveRewardCounter<<endl;
+    }
+
+    vector<experienceTuple*> batchSampleData;
+    vector<unsigned int> batchSampleIndex;
+
     explicit prioritizedExperienceReplay(unsigned int size,float _alpha=0.6, float _epslion=1e-6,
                                          float maximal_priority=1.0, bool _allowDuplicatesInBatchSampling=true): powerOf2Size(1),
                                                                                                                  alpha(_alpha), maximalPriority(maximal_priority)
             , epsilon(_epslion), allowDuplicatesInBatchSampling(_allowDuplicatesInBatchSampling){
         while(size > powerOf2Size) powerOf2Size *=2;
         this->opSumTree = new SumTree(powerOf2Size, operationTree::addTree);
-
+        ready=false;
     }
 
     void updatePriority(unsigned int leafIdx, float error){
@@ -47,12 +68,20 @@ public:
     }
 
     void add(float error, experienceTuple* sample){
+        this->ctr++;
         auto p =  powf((error + epsilon),this->alpha);
         this->opSumTree->add(p,sample);
     }
 
+    bool readyToLearn(){
+        if (ready)
+            return true;
+        if (ctr>CAPACITY_FOR_LEARNING)
+            this->ready= true;
+        return ready;
+    }
 
-    void updatePriorities(vector<unsigned int> leafIdxVec,vector<float> errorVec)
+    void updatePriorities(vector<unsigned int> &leafIdxVec,vector<float> &errorVec)
     {
         for (size_t i = 0; i < leafIdxVec.size(); ++i)
             this->updatePriority(leafIdxVec[i],errorVec[i]);
@@ -63,9 +92,10 @@ public:
      :param size: the size of the batch to sample
      :return: a batch (list) of selected transitions from the replay buffer
     **/
-    vector<dataTuple> sample(unsigned int batchSize)
+    void sample(unsigned int batchSize)
     {
-        vector<dataTuple> batch(batchSize);
+        this->batchSampleData.clear();
+        this->batchSampleIndex.clear();
 
         auto segment = this->opSumTree->total()/float(batchSize);
         for (int i = 0; i < batchSize; ++i) {
@@ -76,10 +106,9 @@ public:
             auto tupIndexes = this->opSumTree->getElementByPartialSum(s);
             auto idxTreeError = std::get<0>(tupIndexes);
             auto idxData = std::get<1>(tupIndexes);
-            batch.push_back(this->opSumTree->getData(idxData));
+            batchSampleIndex.push_back(idxData);
+            batchSampleData.push_back(this->opSumTree->getData(idxData));
         }
-        return batch;
-
     }
 
 };

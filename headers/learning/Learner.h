@@ -15,6 +15,7 @@
 #include <iostream>
 #include <regex>
 #include <stack>
+#include "ReplayBuffer/prioritizedExperienceReplay.hpp"
 using namespace torch;
 /*
  *   Q*(s,a) = reward + (is_done*(-1))*discount_factor*(T(s,a,s')V(s'))
@@ -30,7 +31,9 @@ class Learner{
     unsigned int batchSizeEntries;
     bool isDoubleNet;
     bool configNet;
+    float curError;
     unsigned int ctrUpdate=0;
+    prioritizedExperienceReplay* buffer;
 
     unsigned int ctrEval=0;
     unsigned int updateEvery=100;
@@ -45,7 +48,8 @@ public:
     Learner(bool isDoubleNetwork, int sizeFeatuersIn, int batchSize,float discounterF,string &home,bool uploadNet);
     ~Learner();
     int predictValue(vector<float> *state,bool isRandom);
-    void updateNet(const ReplayBuffer *buffer);
+    void updateNet();
+    void insertToBuffer(experienceTuple *Item , float errorItem);
     void loadStateDict(const torch::nn::Module& moduleEval,
             torch::nn::Module& moduleTarget, const std::string& ignore_name_regex);
     static bool isEmpty(at::Tensor x);
@@ -54,10 +58,10 @@ public:
                        const std::string& ignore_name_regex);
     static void SaveStateDict(const torch::nn::Module& module,
                                 const std::string& file_name);
+    float computerError(experienceTuple *exp,bool learn);
 
 private:
-    Tensor calcQtraget(const ReplayBuffer *buffer,int index);
-
+    Tensor calcQtraget(const experienceTuple *exp);
 };
 
 Learner::Learner(bool isDoubleNetwork,int sizeFeatuersIn,int batchSize,float discounterF,string &home,bool isUploadNet):
@@ -72,7 +76,7 @@ targetNet(evalNet),home(home),isDoubleNet(isDoubleNetwork),discountedFactor(disc
     {
         uploadNet();
     }
-
+    buffer = new prioritizedExperienceReplay(3000);
 }
 
 int Learner::predictValue(vector<float> *state, bool isRandom=false) {
@@ -83,56 +87,65 @@ int Learner::predictValue(vector<float> *state, bool isRandom=false) {
     auto Sstate = torch::tensor(xx);
     return this->evalNet->evalArgMaxQ(Sstate);
 }
-void Learner::updateNet(const ReplayBuffer *buffer) {
-    if (!buffer->isSufficientAmountExperience() || configNet)
-        return;
-    ctrUpdate++;
-    if (ctrUpdate%updateEvery!=0)
-        return;
-    //random samples
-    unordered_set<int> entries;
 
-    buffer->sampleEntries(batchSizeEntries,entries);
-    for (const auto entryIndx:entries)
-    {
-        for (const auto val : *buffer->rRewardNextStates[entryIndx])
-        {
-            if (val>0)
-                cout<<endl;
-        }
-        float sum_of_elems;
-        vector<float> expReward;
-        auto QMaxValues = this->calcQtraget(buffer,entryIndx);
-        auto probList = torch::tensor(*buffer->pProbabilityNextStates[entryIndx]);
-        auto isNotEndState = torch::tensor(*buffer->isEndStateNot[entryIndx]);
-        auto rewardVec  = torch::tensor(*buffer->rRewardNextStates[entryIndx]);
+float Learner::computerError(experienceTuple *exp,bool learnPhase=true)
+{
+    ArrayRef<float> x;
+    float sum_of_elems;
+    vector<float> expReward;
+    auto QMaxValues = this->calcQtraget(exp);
+    x = *exp->ptrProbabilities;
+    auto probList = torch::tensor(x);
+    ArrayRef<short> y = exp->isEndStateNot;
+    auto isNotEndState = torch::tensor(y);
+    x = *exp->ptrRewards;
+    auto rewardVec  = torch::tensor(x);
 //        cout<<"QMaxValues.sizes() \n"<<QMaxValues<<endl;
 //        cout<<"probList.sizes()\n"<<probList<<endl;
 //        cout<<"isNotEndState.sizes()\n "<<isNotEndState<<endl;
 //        cout<<"rewardVec.sizes()\n"<<rewardVec<<endl;
-        // Q*=r+dis_factor*T(s,a,s)*V(s')
+        /*  Q*=r+dis_factor*T(s,a,s)*V(s')  */
 
-        auto qTensor = QMaxValues*probList*discountedFactor*isNotEndState+rewardVec;
-//        cout<<"bellman:\t"<<qTensor<<endl;
+    auto qTensor = QMaxValues*probList*discountedFactor*isNotEndState+rewardVec;
+//    cout<<"bellman:\t"<<qTensor<<endl;
 
-        auto valueCurState = this->evalNet->getActionStateValue(buffer->stateS[entryIndx],-1);
-        auto actionIndex = buffer->aAction[entryIndx];
-        auto QTargetNext = valueCurState.clone().detach();
-        //cout <<"evalNet: "<< valueCurState[int(actionIndex)]<<endl;
+    auto valueCurState = this->evalNet->getActionStateValue(exp->ptrState,-1);
+    auto actionIndex = exp->aAction;
+    auto QTargetNext = valueCurState.clone().detach();
+    //cout <<"evalNet: "<< valueCurState[int(actionIndex)]<<endl;
 
-        QTargetNext[int(actionIndex)]=qTensor.item().toFloat();
+    QTargetNext[int(actionIndex)]=qTensor.item().toFloat();
+
+    auto errorFloat = abs(valueCurState[int(actionIndex)].item().toFloat()-QTargetNext[int(actionIndex)].item().toFloat());
+    if (learnPhase)
         this->evalNet->learn(valueCurState,QTargetNext);
+    return errorFloat;
+}
+void Learner::insertToBuffer(experienceTuple *item , float errorItem){
+    this->buffer->add(errorItem,item);
+}
+void Learner::updateNet() {
+    if (configNet || !this->buffer->readyToLearn())
+        return;
+    ctrUpdate++;
+    if (ctrUpdate%updateEvery!=0)
+        return;
+    //sample
 
+    this->buffer->sample(this->batchSizeEntries);
+    this->buffer->numPostiveReward();
+    vector<float> errVec;
+    for(auto & ptrItem : buffer->batchSampleData)
+    {
+        auto errorNew = this->computerError(ptrItem, true);
+        errVec.push_back(errorNew);
     }
+    buffer->updatePriorities(buffer->batchSampleIndex,errVec);
     updateCtr++;
     if (updateCtr%siwchNetEvery==0 and isDoubleNet)
     {
         this->updateNetWork();
     }
-
-
-
-
 }
 
 void Learner::uploadNet()
@@ -169,14 +182,14 @@ Learner::~Learner() {
 
 }
 
-Tensor Learner::calcQtraget(const ReplayBuffer *buffer, int index) {
+Tensor Learner::calcQtraget(const experienceTuple *exp) {
     vector<float> nNextStateExpectedReward;
     auto x = torch::zeros({0,0});
     torch::Tensor Qtarget;
     bool isFirst=true;
     // This scope calc the expected value of the transition
     vector<at::Tensor> l ;
-    for (const auto nNextItem :  buffer->nNextStates[index]) {
+    for (const auto nNextItem :  exp->ptrNextStateVec) {
         ArrayRef<float> xx = *nNextItem;
         auto curTensor = torch::tensor(xx);
         l.push_back(curTensor);

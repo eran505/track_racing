@@ -10,13 +10,14 @@
 #include "learning/ReplayBuffer/ReplayBuffer.hpp"
 #include "Policy/Policy.hpp"
 #include "neuralNet.h"
+#include "ReplayBuffer/SumTree.hpp"
 #include "FeatureGen.h"
 #include "ReplayBuffer/prioritizedExperienceReplay.hpp"
 class DeepRTDP : public Policy{
 
 
 // Rewards
-    float collReward=10;float goalReward=-10;float wallReward=-11;
+    float collReward=1;float goalReward=-1;float wallReward=-1;
     int ctrState=0;
     neuralNet* nNet;
     float discountFactor=0.987;
@@ -26,12 +27,11 @@ class DeepRTDP : public Policy{
     FeatureGen* featuerConv= nullptr;
     vector<feature*> fNextState;
     feature* fStateCurrFeaturesQ;
-    unsigned int fAction;
+    short fAction;
     vector<float>* vecProbabilities;
     vector<float>* vecRewards;
-        vector<short> isNotEnd;
-    ReplayBuffer *myReplayBuffer;
-    prioritizedExperienceReplay * prioritizedBuffer;
+    vector<short> isNotEnd;
+    //ReplayBuffer *myReplayBuffer;
     Learner *dqn;
     bool heuristicFunc;
     bool preTrainNetBool;
@@ -40,7 +40,6 @@ class DeepRTDP : public Policy{
     //debug
     vector<State*> nextStateH;
     vector<float> nextStateHProb;
-
 
     template<typename KeyType, typename ValueType>
     std::pair<KeyType,ValueType> get_max( const std::unordered_map<KeyType,ValueType>& x );
@@ -53,7 +52,7 @@ class DeepRTDP : public Policy{
     void initBuffers();
     float recH(State *s,int index, float acc_probablity,int lookup);
     vector<float>* heuristicFuncImpl(State *state);
-
+    experienceTuple* constructExperience();
 public:
 
     DeepRTDP(string namePolicy, int maxSpeedAgent, int seed, const string &agentID, int goal_numbers, string &home,
@@ -72,14 +71,11 @@ public:
 };
 
 DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers,string &home,float IDHuer=0):Policy(std::move(namePolicy),maxSpeedAgent,
-        agentID,home),ctrRandom(seed),featuerConv(new FeatureGen(agentID,goal_numbers,this->max_speed)),heuristicID(IDHuer),
-        myReplayBuffer(new ReplayBuffer(300)){
-    this->dqn=new Learner(true,this->featuerConv->getFeatureVecSize(),100,
+        agentID,home),ctrRandom(seed),featuerConv(new FeatureGen(agentID,goal_numbers,this->max_speed)),heuristicID(IDHuer){
+    this->dqn=new Learner(true,this->featuerConv->getFeatureVecSize(),30,
             discountFactor,this->home, false);
     //nNet = new neuralNet(this->featuerConv->getFeatureVecSize());
     this->setPreTraining();
-    prioritizedBuffer = new prioritizedExperienceReplay(3000);
-
 }
 
 void DeepRTDP::policy_data() const {
@@ -156,7 +152,7 @@ double DeepRTDP::rewardState(State *s,bool isEnd=true)
         }
     }
     if (isEnd)
-        this->isNotEnd.push_back(isEnd);
+        this->isNotEnd.push_back(iNotEnd);
     return reward;
 }
 const vector<float> *DeepRTDP::TransitionAction(State *s) {
@@ -184,7 +180,6 @@ Point DeepRTDP::get_action(State *s) {
             this->preTrainNetBool=false;
             this->dqn->updateNetWork();
             cout<<" -- END - preTrainNet -- \n"<<endl;
-            //exit(0);
         }
 
     }
@@ -249,9 +244,17 @@ void DeepRTDP::bellmanUpdate(State *s, Point& actionP){
     //cout<<stateCur->to_string_state()<<endl;
     //insert to buffer
 
-    this->myReplayBuffer->addBuffer(vecProbabilities,vecRewards,this->fNextState,fAction,fStateCurrFeaturesQ);
+    auto expItem = this->constructExperience();
+    // compute the error
+//    if (expItem->isPositive())
+//        cout<<'f';
+    auto errorItem = this->dqn->computerError(expItem,false);
+    // insert to buffer
+    this->dqn->insertToBuffer(expItem,errorItem);
+    //this->myReplayBuffer->addBuffer(vecProbabilities,vecRewards,this->fNextState,fAction,fStateCurrFeaturesQ);
     //  this->prioritizedBuffer->add()
-    this->dqn->updateNet(this->myReplayBuffer);
+    this->dqn->updateNet();
+
 }
 
 void DeepRTDP::initBuffers() {
@@ -384,5 +387,11 @@ float DeepRTDP::compute_h(State *pState) {
     //cout<<"h(<"<<s->to_string_state()<<")="<<res<<endl;
     return res;
 }
+experienceTuple* DeepRTDP::constructExperience()
+{
+    return new experienceTuple(fAction,fStateCurrFeaturesQ,isNotEnd,vecProbabilities,
+                               vecRewards,fNextState);
+}
+
 
 #endif //TRACK_RACING_DEEPRTDP_H
