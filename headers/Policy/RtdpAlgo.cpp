@@ -7,7 +7,7 @@
 #include <utility>
 RtdpAlgo::RtdpAlgo(string namePolicy, int maxSpeedAgent, int grid_size, vector<pair<int,int>>& max_speed_and_budget,string agentID,string &home)
         : Policy(std::move(namePolicy), maxSpeedAgent,std::move(agentID),home) {
-   this->RTDP_util_object = new RTDP_util(grid_size,max_speed_and_budget);
+   this->RTDP_util_object = new RTDP_util(grid_size,max_speed_and_budget,home);
     this->RTDP_util_object->set_tran(&this->tran);
     this->RTDP_util_object->MyPolicy(this);
 
@@ -31,9 +31,6 @@ Point RtdpAlgo::get_action(State *s)
     //return the argmax action in the given state row
     auto action = this->RTDP_util_object->get_argmx_action(s);
     //cout<<"action:="<<action.to_str()<<endl;
-
-
-
 
     if (this->evalPolicy)
     {

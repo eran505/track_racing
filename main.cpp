@@ -71,18 +71,19 @@ int main() {
 //    auto idxData = std::get<1>(xc);
 //    cout<<"idxData: "<<idxData<<"\tError: "<<idxTreeError<<endl;
 //    exit(0);
-    //int seed = int( time(nullptr));
 
     int seed = 155139;
+    seed = int( time(nullptr));
+
     torch::manual_seed(seed);
-    cout<<"seed:\t"<<seed<<endl;
     srand(seed);
+    cout<<"seed:\t"<<seed<<endl;
     auto arrPAth = splitStr(getExePath(),"/");
     string home = "/"+arrPAth[0]+"/"+arrPAth[1];
     int MaxInt = INT_MAX;
     //const string home="/home/ise";
     std::string pathCsv (home + "/car_model/config/con1.csv");
-    std::string toCsvPath (home+ "/car_model/out_exp/");
+    std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
     vector<string> labels={"ctr_round","ctr_wall","ctr_coll","ctr_at_goal"};
@@ -132,7 +133,7 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(8000000);
+    my_game->startGame(200000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
@@ -156,7 +157,7 @@ Grid * init_grid(configGame& conf){
 }
 MdpPlaner* init_mdp(Grid *g, configGame &conf){
     int maxSizeGrid = g->getPointSzie().array[0];
-    int maxA=1+maxSizeGrid/10;   //TODO:: change it to plus one !!!!!!!!!!!!!!!!!!!!!!!1
+    int maxA=2+maxSizeGrid/10;   //TODO:: change it to plus one !!!!!!!!!!!!!!!!!!!!!!!1
     int maxB=1+maxSizeGrid/10;
 
     auto startAdversary = new Point(conf.posAttacker);
@@ -166,7 +167,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
             ,adversary,10);
 
     auto* pD2 = new Agent(new Point(conf.posDefender),
-            new Point(0,0,0)
+            new Point(0,0,maxA)
             ,gurd,10);
 
 
@@ -195,9 +196,9 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
 
 
-    Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),pD2->get_id(),
-            gloz_l.size(),conf.home,0);
-    //Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),list_Q_data,pD2->get_id());
+    //Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),pD2->get_id(), gloz_l.size(),conf.home,0);
+    Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home);
+
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);
     pD2->setPolicy(RTDP);
@@ -243,7 +244,7 @@ void toCsvString(string pathFile,vector<string>* infoArr){
         // Hearer
         size_t sizeVec = infoArr->size();
         unsigned int ctr=0;
-        int lim = sizeVec-400000;
+        unsigned int lim = sizeVec-500000;
         // Data
         for (const auto& row:*infoArr)
         {

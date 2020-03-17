@@ -16,6 +16,7 @@ class RTDP_util{
     double **qTable;
     map<string,int> *mapState;
     vector<Policy*> *lTran= nullptr;
+    const string home;
     Policy* my_policy;
     unsigned int ctr_state=0;
     int ctr_random=0;
@@ -38,7 +39,7 @@ public:
     int get_state_argmax(State *s_state);
     double get_value_state_max(State *s_state);
     ~RTDP_util();
-    RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget);
+    RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget,string &mHome);
     int get_state_index_by_string(State *str_state);
     unsigned int add_entry_map_state(string &basicString, State *s);
 

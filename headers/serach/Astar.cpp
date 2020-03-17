@@ -101,7 +101,7 @@ AStar::listNode AStar::Generator::findComplexPath(AStar::StatePoint &source_, Po
     for (auto &pathI:this->deepListNode)
     {
         int sizeVec = pathI.size();
-        if (ctr_path>oldMAXpath) break;
+        if (ctr_path>=oldMAXpath) break;
         //this->maxPath=1;
         auto res = findPath(pathI.operator[](0),target_);
         cout<<"=="<<endl;
@@ -128,6 +128,7 @@ AStar::listNode AStar::Generator::findComplexPath(AStar::StatePoint &source_, Po
 
 
 int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bool toDict) {
+    cout<<"-------"<<endl;
     double epsilon = 0.000; // e>0 eliminate unnecessary movement in z-axis
     int k = 0; // finding sp+k  TODO: fix it missing paths
     Node *current = nullptr;
@@ -309,6 +310,7 @@ void AStar::Generator::releaseNodes(NodeSet& nodes_)
 void AStar::Generator::pathsToDict() {
     //auto dictTMP = new policyDict();
     uint ctr=0;
+
     for (auto &itemF : this->allPath) {
         if (maxPath<=ctr)
             break;
@@ -394,14 +396,11 @@ void AStar::Generator::getDict(unordered_map<int, vector<float>*>* mapStateActio
         int sumAll = accumulate( item.second->begin(), item.second->end(), 0,
                               []( int acc, std::pair<int, int> p ) { return ( acc + p.second ); } );
 
-        if (item.first == 168450861)
-            cout<<endl;
         auto pos_tmp = mapStateAction->find(item.first);
         if (pos_tmp==mapStateAction->end())
         {
             auto *vec = new vector<float>();
             for (auto mapItem: *item.second) {
-                //cout<<"in"<<endl;
                 int tmp = mapItem.first;
                 int tmp2 = mapItem.second;
                 vec->push_back(tmp);
@@ -428,12 +427,12 @@ void AStar::Generator::print_pathz(Node *l) {
     {
         vector<StatePoint*> x;
         for (auto &item:listPrint){
-            cout<<item->toStr()<<" <- ";
+            //cout<<item->toStr()<<" <- ";
             x.push_back(item->coordinates);
         }
         allPath.push_back(x);
         listPrint.remove(l);
-        cout<<endl;
+        //cout<<endl;
         return;
     }
     for (int i = 0; i < l->parent.size(); ++i) {

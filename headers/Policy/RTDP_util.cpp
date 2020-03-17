@@ -5,7 +5,7 @@
 
 #include "RTDP_util.hpp"
 
-RTDP_util::RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget) {
+RTDP_util::RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget,string &mHome):home(mHome) {
     this->hashActionMap=Point::getDictAction();
     this->set_up_Q(grid_size,max_speed_and_budget);
     this->mapState= new map<string,int>();
