@@ -31,7 +31,7 @@ class neuralNet : torch::nn::Module{
              ctrEp=0;
              batchSizeEntries=1;
              setOptimizer();
-             GRADIENT_CLIP=0.1;
+             GRADIENT_CLIP=1;
              // Instantiate an SGD optimization algorithm to update our Net's parameters.
             // Device
             auto cuda_available = torch::cuda::is_available();
@@ -41,7 +41,10 @@ class neuralNet : torch::nn::Module{
 
         }
         torch::Tensor forward(torch::Tensor x);
-        ~neuralNet() override = default;;
+        ~neuralNet() {
+            delete deviceI;
+            delete optimizer;
+        };
         //void updateN et();
         double getQvalue(State *pState, Point *pPoint);
         int evalArgMaxQ(Tensor &state);
@@ -69,32 +72,25 @@ class neuralNet : torch::nn::Module{
         Sstate.requires_grad_();
 
         auto res = this->forward(Sstate);
-       // cout<<res<<endl;
+        //cout<<res<<endl;
         //TODO: requires_grad =true ?
         if (actionIndx>=0)
             res = res.operator[](actionIndx);
         //TODO: can be the case when we have more than one arg_max -> choose randomly one !
         return res;
-
     }
+
 
     int neuralNet::evalArgMaxQ(Tensor &state)
     {
-        auto randx = range_random(0,17);
-        if (randx>=15){
-            auto res = range_random(0,26);
-            //cout<<"ArgMax: "<<res<<endl;
-            return res;
-        }
-
         //cout<<state<<endl;
         //cout<<"state:\t\t"<<state<<endl;
         this->eval(); // puts network in evaluation mode
         torch::NoGradGuard noGrad;
         auto action_values = this->forward(state);
-        //cout<<"action_values:\t\t"<<action_values<<endl;
+//        cout<<"action_values:\t\t"<<action_values<<endl;
         auto res = action_values.argmax(0); // get the arg-max from the tensor
-        //cout<<"ArgMax: "<<res.item().toInt()<<endl;
+      //  cout<<"ArgMax: "<<res.item().toInt()<<endl;
         this->train(); //puts network back in training mode
         //TODO: can be the case when we have more than one arg_max -> choose randomly one !
 

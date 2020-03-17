@@ -50,6 +50,21 @@ public:
         delete(ptrProbabilities);
         delete(ptrState);
     }
+    /**
+     *  TODO: I dont know but maybe the hash function deals only with unsigned number
+     * */
+    unsigned long hashValue(){
+        vector<int> vec;
+        vec.push_back(this->aAction);
+        for (int i = 0; i < this->ptrState->size(); ++i) {
+            vec.push_back(this->ptrState->operator[](i));
+        }
+        std::size_t seed = vec.size();
+        for(auto& i : vec) {
+            seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        }
+        return seed;
+    }
 };
 /** ------ Unsorted Sum Tree ----
  * a binary tree data structure where the parent’s value is the sum of its children.
@@ -68,25 +83,48 @@ enum operationTree{
     addTree = 3,
 };
 typedef vector<experienceTuple*> experiences;
+typedef unordered_map<unsigned long,unsigned int> IndexesDict;
+
 class SumTree{
 public:
     unsigned int write;
     unsigned int capacity;
     unsigned int treeSize;
+    bool dup;
     experiences dataTree;
+    IndexesDict mIndexesDict;
     vector<float> tree;
     std::function<float(float,float)> foo;
 
+    ~SumTree(){
+        for(auto item: dataTree)
+            delete(item);
+    }
 
-    /**
-     Propagate an update of a node's value to its parent node
-     param node_idx: the index of the node that was updated
-     */
-    void propagate(unsigned int idx){
-        auto parent = (idx -1) / 2 ;
-        this->tree[parent] = foo(tree[parent * 2 + 1],tree[parent * 2 + 2]);
-        if (parent != 0)
-            this->propagate(parent);
+    unsigned int retrieve2(unsigned int root_node_idx, float val){
+        unsigned int leafIdx;
+        unsigned int parentIndex=root_node_idx;
+        while(true)
+        {
+            auto left = 2 * parentIndex + 1;
+            auto right = left + 1;
+            //cout<<"retrieve2\n";
+            if (left>=this->tree.size())
+            {
+                leafIdx = parentIndex;
+                break;
+            }
+            else{
+                if(val <= this->tree[left])
+                    parentIndex = left;
+                else{
+                    val = val - this->tree[left];
+                    parentIndex = right;
+                }
+            }
+
+        }
+        return leafIdx;
     }
 
     /**
@@ -106,8 +144,9 @@ public:
             return this->retrieve(right,val - this->tree[left]);
     }
 
-    explicit SumTree(unsigned int _capacity,operationTree kind):capacity(_capacity),write(0)
+    explicit SumTree(unsigned int _capacity,operationTree kind, bool duplication = false):capacity(_capacity),write(0)
     {
+        dup=duplication;
         float initialValue=0;
         if (!((capacity & (capacity - 1)) == 0))
             throw std::invalid_argument( "A segment tree size must be a positive power of 2." );
@@ -124,13 +163,12 @@ public:
             throw std::invalid_argument( "the operation Tree is invalid" );
         // initial
         this->tree =vector<float>(2*capacity-1,initialValue);
-        this->dataTree = experiences(capacity);
         this->treeSize=2*capacity-1;
+        this->dataTree = experiences(capacity);
+        if (!duplication)
+            this->mIndexesDict.reserve(capacity);
     }
-    ~SumTree(){
-        for(auto item: dataTree)
-            delete(item);
-    }
+
     /**get the object **/
     experienceTuple* getData(unsigned int idx){
         return dataTree[idx];
@@ -139,6 +177,21 @@ public:
     float getTreeValue(unsigned int idx){
         return tree[idx];
     }
+    void delIndexesDict(experienceTuple *ptrOld){
+        auto hVal = ptrOld->hashValue();
+        auto pos = mIndexesDict.find(hVal);
+        if ( pos == mIndexesDict.end())
+            throw std::invalid_argument( "cant find the key in mIndexesDict");
+        int index = pos->second;
+        mIndexesDict.erase(hVal);
+        delete ptrOld;
+    }
+    bool isContain(unsigned long h){
+        auto pos = mIndexesDict.find(h);
+        if (pos == mIndexesDict.end())
+            return false;
+        return true;
+    }
     /**
      Add a new value to the tree with data assigned to it
      :param val: the new value to add to the tree
@@ -146,14 +199,34 @@ public:
      **/
     void add(float p , experienceTuple *ptrExp)
     {
-        experienceTuple *ptrOld = this->dataTree[write];
-        delete ptrOld;
-        this->dataTree[write]=ptrExp;
+        if(dup)
+        {
+            experienceTuple *ptrOld = this->dataTree[write];
+            delete ptrOld;
+            this->dataTree[write]=ptrExp;
+        }
+        else
+        {
+            auto hashValue = ptrExp->hashValue();
+            if (isContain(hashValue)) {
+                //cout<<"in"<<endl;
+                delete ptrExp;
+                return;
+            }
+
+            experienceTuple *ptrOld = this->dataTree[write];
+            if (! (ptrOld== nullptr) )
+                this->delIndexesDict(ptrOld);
+            this->mIndexesDict.insert({hashValue,write});
+            this->dataTree[write]=ptrExp;
+        }
+
         //auto idx= this->write + this->capacity - 1;
         this->update(write,p);
         this->write++;
         if (write >= capacity)
             write=0;
+        //cout<<"write: "<<write<<endl;
     }
     /**
     Given a value between 0 and the tree sum, return the object which this value is in it's range.
@@ -165,7 +238,7 @@ public:
      its probability and the object itself
     **/
     tuple<unsigned int,unsigned int>  getElementByPartialSum(float s){
-        auto idxTree= this->retrieve(0, s);
+        auto idxTree= this->retrieve2(0, s);
         auto idxData = idxTree - this->capacity + 1;
         return {idxTree,idxData};
     }
@@ -182,14 +255,36 @@ public:
  **/
     void update(unsigned int idx,float p)
     {
-        auto node_idx = idx + capacity - 1;
+        auto node_idx = idx + capacity - 1; //Look at what index we want to put the experience
         if (node_idx<0)
             throw std::invalid_argument( "Error: node_idx out of lim ( 0 > node_idx ) ");
         if (node_idx >= treeSize)
             throw std::invalid_argument( "Error: node_idx out of lim ( 0 > capacity )");
+        //auto change = p - tree[node_idx]
+
+        auto change = p - this->tree[node_idx];
         this->tree[node_idx]=p;
-        this->propagate(node_idx);
+
+        while (node_idx != 0)
+        {
+            //cout<<"update\n";
+            node_idx = (node_idx - 1)/ 2;
+            this->tree[node_idx] += change;
+            //this->tree[node_idx] = foo(change,tree[node_idx]) ;
+
+        }
     }
+
+    /**
+ Propagate an update of a node's value to its parent node
+ param node_idx: the index of the node that was updated
+ */
+//    void propagate(unsigned int idx){
+//        auto parent = (idx -1) / 2 ;
+//        this->tree[parent] = foo(tree[parent * 2 + 1],tree[parent * 2 + 2]);
+//        if (parent != 0)
+//            this->propagate(parent);
+//    }
 
 };
 

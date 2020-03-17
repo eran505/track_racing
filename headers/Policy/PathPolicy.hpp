@@ -107,7 +107,6 @@ Point PathPolicy::get_action(State *s) {
     if (it->second->size()<i)
     {
         i=it->second->size()-1;
-
     }
 
     int indexI =int(it->second->operator[](int(i-1)));
@@ -117,6 +116,8 @@ Point PathPolicy::get_action(State *s) {
 }
 
 const std::vector<float> *PathPolicy::TransitionAction(State *s) {
+    /* first  - action
+     * second - probabilitiy*/
     //cout<<s->to_string_state()<<endl;
     int EntryIdx = getAgentSateHash(s);
     auto pos = this->dictPolicy->find(EntryIdx);

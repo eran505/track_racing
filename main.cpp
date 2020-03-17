@@ -22,7 +22,7 @@
 #include <headers/util/csvfile.hpp>
 #include <torch/script.h> // One-stop header.
 
-
+#include "learning/ReplayBuffer/SumTree.hpp"
 #include "learning/ReplayBuffer/prioritizedExperienceReplay.hpp"
 
 Grid * init_grid(configGame &conf);
@@ -59,7 +59,18 @@ int main() {
 //
 //    exit(0);
     // seeding the program
-    
+
+//    auto tree = new SumTree(4,operationTree::addTree);
+//    tree->add(10, nullptr);
+//    tree->add(11, nullptr);
+//    tree->add(12, nullptr);
+//    tree->add(13, nullptr);
+//
+//    auto xc = tree->getElementByPartialSum(11);
+//    auto idxTreeError = std::get<0>(xc);
+//    auto idxData = std::get<1>(xc);
+//    cout<<"idxData: "<<idxData<<"\tError: "<<idxTreeError<<endl;
+//    exit(0);
     //int seed = int( time(nullptr));
 
     int seed = 155139;

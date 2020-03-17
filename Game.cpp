@@ -17,7 +17,8 @@ Game::Game(MdpPlaner *planer_m) {
     this->info=new vector<vector<int>>();
 }
 
-Game::~Game() {
+Game::~Game()
+{
     delete(this->out_game);
     delete(this->in_game_guards);
     delete(this->in_game_adversaries);
@@ -113,6 +114,7 @@ void Game::startGame(int numIter)
     this->init_game();
     this->fill_agents();
     //this->reset_game();
+
     for (int i = 1; i <= numIter; ++i) {
         //cout<<"game: "<<i<<endl;
         this->loop_game();
@@ -153,7 +155,8 @@ void Game::loop_game() {
     for (i = 0; i < this->ctr_game; ++i) {
         //cout<<"round: "<<i<<endl;
         //print the state of the game
-        //cout<<this->planer->get_copy_state().to_string_state();
+//        cout<<this->planer->get_copy_state().to_string_state()<<endl;
+//        cout<<this->planer->get_cur_state()->getHashValue()<<endl;
         for (auto i : *(this->in_game_guards)){
             //cout<<i->get_name()<<endl;
             i->doAction(planer->get_cur_state());
@@ -176,7 +179,7 @@ void Game::loop_game() {
         this->constraint_checking_end_game();
 
         if (this->is_end_game()){
-           // cout << "end"<<endl;
+            //cout << "end"<<endl;
             this->buffer->emplace_back("END");
             this->del_all_player();
             break;

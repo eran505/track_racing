@@ -127,7 +127,8 @@ bool State::applyAction(const string &id, Point &action, int max_speed) {
     pos->second.change_speed_max(max_speed);
     auto pos_on_grid = this->pos_dict.find(id);
     pos_on_grid->second+=pos->second;
-    return this->g_grid->is_wall(&(pos_on_grid->second));;
+    auto outBound = this->g_grid->is_wall(&(pos_on_grid->second));
+    return outBound;
 }
 
 void State::assignment(State &other)
@@ -154,5 +155,24 @@ void State::getAllPosOpponent(vector<Point> &results,char team) {
         results.push_back(itemSpeed->second);
     }
 }
+
+unsigned long State::getHashValue(){
+    vector<int> vec;
+    for(auto const &item:this->pos_dict)
+    {
+        for(int i = 0; i < Point::D_point::D; ++i)
+            vec.push_back(item.second.array[i]);
+        for(int i = 0; i < Point::D_point::D; ++i)
+            vec.push_back(speed_dict[item.first].array[i]);
+
+    }
+    std::size_t seed = vec.size();
+    for(auto& i : vec) {
+        seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+    return seed;
+}
+
+
 
 

@@ -36,12 +36,14 @@ class Learner{
     prioritizedExperienceReplay* buffer;
 
     unsigned int ctrEval=0;
-    unsigned int updateEvery=100;
+    unsigned int updateEvery=20;
     unsigned int siwchNetEvery;
     unsigned int updateCtr;
+
     string home;
 
 public:
+    bool epslionGreedy= false;
     void updateNetWork();
     void uploadNet();
     void preTrainNet(vector<float>* state,vector<float> *targetY);
@@ -67,7 +69,7 @@ private:
 Learner::Learner(bool isDoubleNetwork,int sizeFeatuersIn,int batchSize,float discounterF,string &home,bool isUploadNet):
 batchSizeEntries(batchSize),evalNet(new neuralNet(sizeFeatuersIn)),updateCtr(0),
 targetNet(evalNet),home(home),isDoubleNet(isDoubleNetwork),discountedFactor(discounterF)
-,siwchNetEvery(50)
+,siwchNetEvery(400)
 {
     configNet= false;
     if (isDoubleNetwork)
@@ -76,13 +78,18 @@ targetNet(evalNet),home(home),isDoubleNet(isDoubleNetwork),discountedFactor(disc
     {
         uploadNet();
     }
-    buffer = new prioritizedExperienceReplay(3000);
+    buffer = new prioritizedExperienceReplay(4000);
 }
 
 int Learner::predictValue(vector<float> *state, bool isRandom=false) {
     ctrEval++;
     if (isRandom)
         return range_random(0,26);
+
+    if (epslionGreedy)
+        if (range_random(0,17)>=15)
+            return range_random(0,26);
+
     ArrayRef<float> xx = *state;
     auto Sstate = torch::tensor(xx);
     return this->evalNet->evalArgMaxQ(Sstate);
@@ -133,7 +140,7 @@ void Learner::updateNet() {
     //sample
 
     this->buffer->sample(this->batchSizeEntries);
-    this->buffer->numPostiveReward();
+    //this->buffer->numPostiveReward();
     vector<float> errVec;
     for(auto & ptrItem : buffer->batchSampleData)
     {
@@ -151,7 +158,7 @@ void Learner::updateNet() {
 void Learner::uploadNet()
 {
     cout<<"**** UploadNet ****"<<endl;
-    auto model_save_path=this->home+"/car_model/nn/upload_nn.pt";
+    auto model_save_path=this->home+"/car_model/nn/nn_last.pt";
     auto* pModule = (torch::nn::Module*)this->evalNet;
     LoadStateDict(*pModule, model_save_path, "none");
     if (!isDoubleNet)
@@ -179,6 +186,7 @@ Learner::~Learner() {
     if (isDoubleNet)
         delete this->targetNet;
     delete this->evalNet;
+    delete this->buffer;
 
 }
 
@@ -262,6 +270,7 @@ void Learner::preTrainNet(vector<float>* state,vector<float> *targetY) {
 //    cout << "hTarget: "<<hTarget << endl;
 //    cout << "predictY: " <<predictY<<endl;
     this->evalNet->learn(predictY, hTarget);
+    delete (targetY);
 
 }
 void print_tensor_size(const torch::Tensor& x) {

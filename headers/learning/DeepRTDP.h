@@ -19,7 +19,7 @@ class DeepRTDP : public Policy{
 // Rewards
     float collReward=1;float goalReward=-1;float wallReward=-1;
     int ctrState=0;
-    neuralNet* nNet;
+    bool isEndBool=false;
     float discountFactor=0.987;
     int ctrRandom;
     float heuristicID;
@@ -35,7 +35,7 @@ class DeepRTDP : public Policy{
     Learner *dqn;
     bool heuristicFunc;
     bool preTrainNetBool;
-    int ctrPreTrainNet=100000;
+    int ctrPreTrainNet=1000;
 
     //debug
     vector<State*> nextStateH;
@@ -57,8 +57,11 @@ public:
 
     DeepRTDP(string namePolicy, int maxSpeedAgent, int seed, const string &agentID, int goal_numbers, string &home,
              float IDHuer);
-    ~DeepRTDP() override { delete this->nNet; }
-    void setNet(neuralNet* myNet){this->nNet=myNet;}
+    ~DeepRTDP() override
+    {
+        delete this->dqn;
+        delete this->featuerConv;
+    }
     void reset_policy() override;
     void policy_data() const override;
     const vector<float >* TransitionAction(State *s) override ;
@@ -68,14 +71,17 @@ public:
     vector<float>* computeH(State *s,bool isLookUp);
     void getHeuristicValue(State *s, int index, float accProbablity);
     float compute_h(State *pState);
+    float lookHead(State *s);
+    vector<float> *searchLook(State *s);
 };
 
 DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers,string &home,float IDHuer=0):Policy(std::move(namePolicy),maxSpeedAgent,
         agentID,home),ctrRandom(seed),featuerConv(new FeatureGen(agentID,goal_numbers,this->max_speed)),heuristicID(IDHuer){
     this->dqn=new Learner(true,this->featuerConv->getFeatureVecSize(),30,
-            discountFactor,this->home, false);
-    //nNet = new neuralNet(this->featuerConv->getFeatureVecSize());
+            discountFactor,this->home, true);
+    this->dqn->epslionGreedy= false;
     this->setPreTraining();
+
 }
 
 void DeepRTDP::policy_data() const {
@@ -134,19 +140,23 @@ vector<float>* DeepRTDP::computeH(State *s,bool isLookUp = false){
 
 double DeepRTDP::rewardState(State *s,bool isEnd=true)
 {
+    isEndBool=false;
     short iNotEnd=1;
     double reward=0;
     if (s->isGoal()){
+        isEndBool=true;
         iNotEnd=0;
         reward+=this->goalReward;
     }
     else if (this->is_wall){
+        isEndBool=true;
         iNotEnd=0;
         reward+=this-> wallReward;
     }
     else {
         auto res = s->is_collusion(this->id_agent);
         if (!res.empty()) {
+            isEndBool=true;
             iNotEnd = 0;
             reward += this->collReward;
         }
@@ -164,7 +174,6 @@ void DeepRTDP::reset_policy() {
 }
 
 Point DeepRTDP::get_action(State *s) {
-
     auto entryIdx = this->getMaxActionId(s);
 
     //choose randomly one
@@ -184,7 +193,7 @@ Point DeepRTDP::get_action(State *s) {
 
     }
     else {
-        bellmanUpdate(s,actionI);
+      // bellmanUpdate(s,actionI);
     }
     return actionI;
 }
@@ -207,9 +216,6 @@ int DeepRTDP::getMaxActionId(State *s) {
         entry = this->dqn->predictValue(this->fStateCurrFeaturesQ,true);
     return entry;
 }
-
-
-
 
 Point *DeepRTDP::getRandomlyAction(vector<int> intVect) {
     int argMax;
@@ -245,15 +251,14 @@ void DeepRTDP::bellmanUpdate(State *s, Point& actionP){
     //insert to buffer
 
     auto expItem = this->constructExperience();
-    // compute the error
-//    if (expItem->isPositive())
-//        cout<<'f';
+
     auto errorItem = this->dqn->computerError(expItem,false);
     // insert to buffer
     this->dqn->insertToBuffer(expItem,errorItem);
     //this->myReplayBuffer->addBuffer(vecProbabilities,vecRewards,this->fNextState,fAction,fStateCurrFeaturesQ);
     //  this->prioritizedBuffer->add()
     this->dqn->updateNet();
+    delete stateCur;
 
 }
 
@@ -280,7 +285,6 @@ void DeepRTDP::rec_update(State *s,int index, double acc_probablity) {
     auto old_state = State(*s);
     index++;
     auto res = tran[index]->TransitionAction(s);
-    // waring need to del the res (Pointer)
     for (int i = 0; i < res->size(); ++i)
     {
         auto pos = this->hashActionMap->find(res->operator[](i));
@@ -311,7 +315,8 @@ void DeepRTDP::setPreTraining() {
 }
 
 vector<float> *DeepRTDP::heuristicFuncImpl(State *state) {
-    auto vecResultsH = computeH(state, true);
+    //auto vecResultsH = computeH(state, true);
+    auto vecResultsH = searchLook(state);
     return vecResultsH;
 }
 
@@ -393,5 +398,105 @@ experienceTuple* DeepRTDP::constructExperience()
                                vecRewards,fNextState);
 }
 
+
+
+vector<float>* DeepRTDP::searchLook(State *s){
+    auto *res= new vector<float>(this->hashActionMap->size());
+    for (const auto &itemAction: *this->hashActionMap){
+        auto stateNew = new State(*s);
+        auto action = itemAction.second;
+        bool wall = this->applyAction(stateNew, this->id_agent, *action, this->max_speed);
+        if (wall)
+            res->operator[](itemAction.first)=this->wallReward;
+        else
+            res->operator[](itemAction.first)=lookHead(stateNew);
+        delete(stateNew);
+    }
+    return res;
+}
+
+float DeepRTDP::lookHead(State *s)
+{
+    float finalReward=0;
+    queue<State*> queStack;
+    queue<float> queStackProbability;
+    queStack.push(new State(*s)); //inserts element at the end
+    queStackProbability.push(1); //inserts element at the end
+    while(!queStack.empty()) {
+
+        auto sizeQ = queStack.size();
+        int k = 0;
+        while (k < sizeQ) {
+            State *ptrCurState = queStack.front(); //access the first element
+            auto stateProbability = queStackProbability.front();
+            queStack.pop(); //removes the first element
+            queStackProbability.pop();
+
+
+
+            auto r = rewardState(ptrCurState, false);
+            if (isEndBool) {
+                finalReward += (float(r) * stateProbability);
+                delete ptrCurState;
+            } else {
+                queStack.push(ptrCurState);
+                queStackProbability.push(stateProbability);
+            }
+            k++;
+
+        }
+
+        for (const auto &item : tran) {
+            auto size = queStack.size();
+            int j = 0;
+            while (j < size) {
+                State *ptrCurState = queStack.front(); //access the first element
+                auto stateProbability = queStackProbability.front();
+                queStack.pop(); //removes the first element
+                queStackProbability.pop();
+
+                auto res = item->TransitionAction(ptrCurState);
+                for (int i = 0; i < res->size(); ++i) {
+                    auto newState = new State(*ptrCurState);
+                    auto pos = this->hashActionMap->find(res->operator[](i));
+                    auto action = pos->second;
+                    float actionProb = res->operator[](++i);
+                    this->applyAction(newState, item->id_agent, *action, item->max_speed);
+                    queStack.push(newState);
+                    queStackProbability.push(actionProb * stateProbability);
+                }
+                delete (ptrCurState);
+                j++;
+            }
+        }
+        sizeQ = queStack.size();
+        k = 0;
+        while (k < sizeQ) {
+            State *sCur = queStack.front(); //access the first element
+            auto stateProbability = queStackProbability.front();
+            queStack.pop(); //removes the first element
+            queStackProbability.pop();
+            auto entryIdx = this->getMaxActionId(sCur);
+            Point actionI = *getRandomlyAction({entryIdx});
+            bool wall = this->applyAction(sCur, this->id_agent, actionI, this->max_speed);
+            if (wall)
+            {
+                finalReward+=(stateProbability*this->wallReward);
+                delete sCur;
+            }else{
+                queStack.push(sCur);
+                queStackProbability.push(stateProbability);
+            }
+            ++k;
+        }
+    }
+    return finalReward;
+}
+
+/**
+ *
+ * [] -> [] [] [] [] -->
+ *
+ * **/
 
 #endif //TRACK_RACING_DEEPRTDP_H

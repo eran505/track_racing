@@ -28,7 +28,9 @@ class prioritizedExperienceReplay{
 
 
 public:
-
+    ~prioritizedExperienceReplay(){
+        delete this->opSumTree;
+    }
     void numPostiveReward(){
         short postiveRewardCounter=0;
         short ALLpostiveRewardCounter=0;
@@ -97,11 +99,12 @@ public:
         this->batchSampleData.clear();
         this->batchSampleIndex.clear();
 
+
         auto segment = this->opSumTree->total()/float(batchSize);
         for (int i = 0; i < batchSize; ++i) {
             auto a = segment * float(i);
             auto b = segment * (float((i + 1)));
-            std::uniform_real_distribution<> dis(a, b);
+            std::uniform_real_distribution<> dis(0, this->opSumTree->total());
             auto  s =  dis(eng);
             auto tupIndexes = this->opSumTree->getElementByPartialSum(s);
             auto idxTreeError = std::get<0>(tupIndexes);
