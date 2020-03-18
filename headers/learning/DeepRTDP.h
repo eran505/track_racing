@@ -78,8 +78,8 @@ public:
 DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers,string &home,float IDHuer=0):Policy(std::move(namePolicy),maxSpeedAgent,
         agentID,home),ctrRandom(seed),featuerConv(new FeatureGen(agentID,goal_numbers,this->max_speed)),heuristicID(IDHuer){
     this->dqn=new Learner(true,this->featuerConv->getFeatureVecSize(),30,
-            discountFactor,this->home, true);
-    this->dqn->epslionGreedy= false;
+            discountFactor,this->home, false);
+    this->dqn->epslionGreedy= true;
     this->setPreTraining();
 
 }
@@ -193,7 +193,7 @@ Point DeepRTDP::get_action(State *s) {
 
     }
     else {
-      // bellmanUpdate(s,actionI);
+      bellmanUpdate(s,actionI);
     }
     return actionI;
 }

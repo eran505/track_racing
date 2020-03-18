@@ -114,6 +114,7 @@ float Learner::computerError(experienceTuple *exp,bool learnPhase=true)
         /*  Q*=r+dis_factor*T(s,a,s)*V(s')  */
 
     auto qTensor = QMaxValues*probList*discountedFactor*isNotEndState+rewardVec;
+    auto qTensorSum = torch::sum(qTensor);
 //    cout<<"bellman:\t"<<qTensor<<endl;
 
     auto valueCurState = this->evalNet->getActionStateValue(exp->ptrState,-1);
@@ -121,7 +122,7 @@ float Learner::computerError(experienceTuple *exp,bool learnPhase=true)
     auto QTargetNext = valueCurState.clone().detach();
     //cout <<"evalNet: "<< valueCurState[int(actionIndex)]<<endl;
 
-    QTargetNext[int(actionIndex)]=qTensor.item().toFloat();
+    QTargetNext[int(actionIndex)]=qTensorSum.item().toFloat();
 
     auto errorFloat = abs(valueCurState[int(actionIndex)].item().toFloat()-QTargetNext[int(actionIndex)].item().toFloat());
     if (learnPhase)
