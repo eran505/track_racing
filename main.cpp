@@ -133,7 +133,7 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(6000000);
+    my_game->startGame(3000000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
@@ -196,8 +196,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
 
 
-    Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),pD2->get_id(), gloz_l.size(),conf.home,0);
-    //Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home);
+    //Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),pD2->get_id(), gloz_l.size(),conf.home,0);
+    Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home);
 
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);
