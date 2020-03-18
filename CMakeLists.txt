@@ -13,7 +13,7 @@ include_directories(.)
 include_directories(headers)
 include_directories(headers/Policy)
 
-
+set(CMAKE_VERBOSE_MAKEFILE ON)
 add_executable(track_racing
         headers/Policy/Dog.hpp
         headers/Policy/Policy.hpp
@@ -33,5 +33,7 @@ add_executable(track_racing
         util_game.cpp headers/graph/graph_util.hpp headers/Policy/RTDP_util.hpp headers/Policy/RTDP_util.cpp headers/Policy/RtdpAlgo.hpp headers/Policy/RtdpAlgo.cpp headers/graph/graph_dummy.hpp headers/serach/Astar.hpp headers/serach/Astar.cpp headers/Policy/PathPolicy.hpp headers/util/csvfile.hpp headers/util/utilClass.hpp headers/learning/neuralNet.h headers/learning/FeatureGen.h headers/learning/DeepRTDP.h headers/learning/ReplayBuffer/ReplayBuffer.hpp headers/learning/DQN.hpp headers/Policy/valueIter.h headers/learning/Learner.h headers/learning/ReplayBuffer/SumTree.hpp headers/learning/ReplayBuffer/prioritizedExperienceReplay.hpp headers/learning/ReplayBuffer/ExperienceReplay.hpp headers/learning/ReplayBuffer/BufferReplay.hpp headers/util/Lookhead.h)
 
 target_link_libraries(track_racing "${TORCH_LIBRARIES}")
+
+#set(SOURCE_FILES main.cpp)
 
 #-DCMAKE_PREFIX_PATH=/home/ise/programs/torch/libtorch

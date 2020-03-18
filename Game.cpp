@@ -40,7 +40,6 @@ void Game::clean_in_player() {
         this->out_game->push_back(item);
         this->in_game_guards->pop_front();
     }
-
 }
 
 void Game::clean_out_player() {

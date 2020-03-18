@@ -81,7 +81,7 @@ int  AStar::Generator::count_pathz(vector<Node*> *l ){
 
 AStar::listNode AStar::Generator::findComplexPath(AStar::StatePoint &source_, Point &mid, const AStar::StatePoint &target_) {
     // set the area that the agent must go in
-    const int interval = 1;
+    const int interval = 0;
     unsigned long oldMAXpath=this->maxPath;
     bool isFound=false;
     Point area;

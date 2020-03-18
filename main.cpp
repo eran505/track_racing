@@ -75,7 +75,7 @@ int main() {
     int seed = 155139;
     seed = int( time(nullptr));
 
-    torch::manual_seed(seed);
+    torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
     cout<<"seed:\t"<<seed<<endl;
     auto arrPAth = splitStr(getExePath(),"/");
@@ -133,7 +133,7 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(200000);
+    my_game->startGame(3000000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
