@@ -36,4 +36,5 @@ target_link_libraries(track_racing "${TORCH_LIBRARIES}")
 
 #set(SOURCE_FILES main.cpp)
 
-#-DCMAKE_PREFIX_PATH=/home/ise/programs/torch/libtorch
+# cmake -DCMAKE_PREFIX_PATH=/home/ise/programs/torch/libtorch
+# cmake --build . --config Release
