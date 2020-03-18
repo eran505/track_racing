@@ -170,6 +170,7 @@ public:
     int operator[](int index)const;
 
     static vector<Point> getAllAction(vector<Point> &action_list){
+        action_list.clear();
         if (Point::D==2){
             for (int i = -1; i < 2; ++i)
                 for (int j = -1; j < 2; ++j)
@@ -181,6 +182,31 @@ public:
                         action_list.emplace_back(i,j,k);}
         return action_list;
     }
+
+    static vector<Point> getAllAction2(vector<Point> &action_list,int x=-1){
+        action_list.clear();
+        if (Point::D==2){
+            for (int i = -1; i < 2; ++i)
+                for (int j = -1; j < 2; ++j)
+                    action_list.emplace_back(i,j);
+        }else if(Point::D==3){
+            for (int i = -1; i < 2; ++i)
+                for (int j = -1; j < 2; ++j)
+                    for (int k = -1; k < 2; ++k)
+                    {
+                        if (x==0)
+                            action_list.emplace_back(0,j,k);
+                        if (x==1)
+                            action_list.emplace_back(i,0,k);
+                        if (x==2)
+                            action_list.emplace_back(i,j,0);
+                    }
+
+                        }
+        return action_list;
+    }
+
+
     int hashConst(int offset=0)const {
         double h=hashNnN(array[0]+offset,array[1]+offset);
         for (int i = 2; i < capacity; ++i) {

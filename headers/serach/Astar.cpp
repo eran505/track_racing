@@ -95,8 +95,10 @@ AStar::listNode AStar::Generator::findComplexPath(AStar::StatePoint &source_, Po
 
         area.array[i]=range_random(min_val,max_val);
     }
+    Point::getAllAction2(operatorAction,0);
     StatePoint midArea(area,Point());
     this->findPath(source_,midArea, false);
+    Point::getAllAction(operatorAction);
     int ctr_path=0;
     for (auto &pathI:this->deepListNode)
     {

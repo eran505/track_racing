@@ -154,7 +154,7 @@ void Game::loop_game() {
     for (i = 0; i < this->ctr_game; ++i) {
         //cout<<"round: "<<i<<endl;
         //print the state of the game
-//        cout<<this->planer->get_copy_state().to_string_state()<<endl;
+        //cout<<this->planer->get_copy_state().to_string_state()<<endl;
 //        cout<<this->planer->get_cur_state()->getHashValue()<<endl;
         for (auto i : *(this->in_game_guards)){
             //cout<<i->get_name()<<endl;

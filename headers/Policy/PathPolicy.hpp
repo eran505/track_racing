@@ -86,6 +86,8 @@ public:
     void normalizeDict();
 };
 
+
+
 Point PathPolicy::get_action(State *s) {
     auto EntryIndx = getAgentSateHash(s);
     //trajectory.push_back(s->to_string_state()+"="+std::to_string(EntryIndx));
