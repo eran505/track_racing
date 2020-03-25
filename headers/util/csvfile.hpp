@@ -10,6 +10,8 @@
 #include <fstream>
 #include <sstream>
 #include "util_game.hpp"
+#include <experimental/filesystem>
+
 class csvfile;
 
 inline static csvfile& endrow(csvfile& file);
@@ -23,7 +25,11 @@ class csvfile
     const std::string escape_seq_;
     const std::string special_chars_;
 public:
-    explicit csvfile(const std::string filename, const std::string separator = ";")
+    static bool isFile(string &pathFile)
+    {
+        return std::experimental::filesystem::exists(pathFile);
+    }
+    explicit csvfile(const std::string filename, const std::string separator = ";",bool isApp= false)
             : fs_()
             , is_first_(true)
             , separator_(separator)
@@ -31,7 +37,8 @@ public:
             , special_chars_("\"")
     {
         fs_.exceptions(std::ios::failbit | std::ios::badbit);
-        fs_.open(filename);
+        if (!isApp) fs_.open(filename,std::ios_base::app | ios_base::out);
+        else fs_.open(filename,std::ios_base::app | ios_base::out);
     }
 
     ~csvfile()

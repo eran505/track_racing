@@ -5,7 +5,6 @@
 #ifndef TRACK_RACING_LEARNER_H
 #define TRACK_RACING_LEARNER_H
 
-
 #include "util_game.hpp"
 #include <torch/torch.h>
 #include <iostream>
@@ -33,8 +32,9 @@ class Learner{
     bool configNet;
     float curError;
     unsigned int ctrUpdate=0;
-    prioritizedExperienceReplay* buffer;
 
+    prioritizedExperienceReplay* buffer;
+    unordered_map<unsigned long,vector<vector<float>>> netData;
     unsigned int ctrEval=0;
     unsigned int updateEvery=20;
     unsigned int siwchNetEvery;
@@ -61,9 +61,13 @@ public:
     static void SaveStateDict(const torch::nn::Module& module,
                                 const std::string& file_name);
     float computerError(experienceTuple *exp,bool learn);
+    static unsigned long hashValueMe(vector<float> &vec);
 
-private:
+        private:
     Tensor calcQtraget(const experienceTuple *exp);
+    void toCsvDict(string &pathFile, unordered_map<unsigned long,vector<vector<float>>> &netData);
+
+
 };
 
 Learner::Learner(bool isDoubleNetwork,int sizeFeatuersIn,int batchSize,float discounterF,string &home,bool isUploadNet):
@@ -78,7 +82,7 @@ targetNet(evalNet),home(home),isDoubleNet(isDoubleNetwork),discountedFactor(disc
     {
         uploadNet();
     }
-    buffer = new prioritizedExperienceReplay(4000);
+    buffer = new prioritizedExperienceReplay(1000,batchSize*2); //4000 == bug !!!
 }
 
 int Learner::predictValue(vector<float> *state, bool isRandom=false) {
@@ -92,7 +96,33 @@ int Learner::predictValue(vector<float> *state, bool isRandom=false) {
 
     ArrayRef<float> xx = *state;
     auto Sstate = torch::tensor(xx);
-    return this->evalNet->evalArgMaxQ(Sstate);
+    auto tensorVector = this->evalNet->evalArgMaxQ(Sstate);
+    vector<float > debugVec;
+/** ----------------- debug -----------------*/
+    if (ctrEval%500==0 or ctrEval%500==1 or ctrEval%500==2)
+    {
+        auto hashID = hashValueMe(*state);
+//        cout<<"state:\t";
+//        for (const auto item :*state) cout<<","<<item;
+//        cout<<"\nhashID:\t"<<hashID<<endl;
+        for (int i = 0; i < 27; ++i)
+            debugVec.push_back(tensorVector[i].item().toFloat());
+//        auto vecK = getTopK(3,debugVec);
+//        for(int k=0;k<vecK.size();k=k+2)
+//            cout<<"ID: "<<hashID<<"\t[ "<<vecK[k]<<" ] = "<<vecK[k+1]<<endl;
+//        cout<<"---------"<<endl;
+        netData[hashID].push_back(debugVec);
+    }
+    if (ctrEval%4000==0)
+    {
+        auto pathP = this->home+"/car_model/debug/";
+        toCsvDict(pathP,this->netData);
+    }
+/** ----------------- debug -----------------*/
+
+    auto res = tensorVector.argmax(0);
+
+    return res.item().toInt();
 }
 
 float Learner::computerError(experienceTuple *exp,bool learnPhase=true)
@@ -107,10 +137,10 @@ float Learner::computerError(experienceTuple *exp,bool learnPhase=true)
     auto isNotEndState = torch::tensor(y);
     x = *exp->ptrRewards;
     auto rewardVec  = torch::tensor(x);
-//        cout<<"QMaxValues.sizes() \n"<<QMaxValues<<endl;
-//        cout<<"probList.sizes()\n"<<probList<<endl;
-//        cout<<"isNotEndState.sizes()\n "<<isNotEndState<<endl;
-//        cout<<"rewardVec.sizes()\n"<<rewardVec<<endl;
+//    cout<<"QMaxValues.sizes() \n"<<QMaxValues<<endl;
+//    cout<<"probList.sizes()\n"<<probList<<endl;
+//    cout<<"isNotEndState.sizes()\n "<<isNotEndState<<endl;
+//    cout<<"rewardVec.sizes()\n"<<rewardVec<<endl;
         /*  Q*=r+dis_factor*T(s,a,s)*V(s')  */
 
     auto qTensor = QMaxValues*probList*discountedFactor*isNotEndState+rewardVec;
@@ -120,7 +150,7 @@ float Learner::computerError(experienceTuple *exp,bool learnPhase=true)
     auto valueCurState = this->evalNet->getActionStateValue(exp->ptrState,-1);
     auto actionIndex = exp->aAction;
     auto QTargetNext = valueCurState.clone().detach();
-    //cout <<"evalNet: "<< valueCurState[int(actionIndex)]<<endl;
+//    cout <<"evalNet: "<< valueCurState[int(actionIndex)]<<endl;
 
     QTargetNext[int(actionIndex)]=qTensorSum.item().toFloat();
 
@@ -274,6 +304,8 @@ void Learner::preTrainNet(vector<float>* state,vector<float> *targetY) {
     delete (targetY);
 
 }
+
+
 void print_tensor_size(const torch::Tensor& x) {
     std::cout << "[";
     for (size_t i = 0; i != x.dim() - 1; ++i) {
@@ -292,4 +324,35 @@ void print_script_module(const torch::jit::script::Module& module, size_t spaces
         print_script_module(sub_module.value, spaces + 2);
     }
 }
+
+
+unsigned long Learner::hashValueMe(vector<float> &vec){
+
+    unsigned long seed = vec.size();
+    for(auto& i : vec) {
+        seed ^= long(i) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    }
+    return seed;
+}
+
+void Learner::toCsvDict(string &pathFile, unordered_map<unsigned long, vector<vector<float>>> &netData) {
+    try {
+        for (const auto &item : netData) {
+            auto pathFileI = pathFile + std::to_string(item.first) + ".csv";
+            csvfile csv(move(pathFileI), ",");
+
+            for (const auto &vecI :item.second) {
+                for (auto row:vecI) {
+                    csv << row;
+                }
+                csv << endrow;
+            }
+        }
+        netData.clear();
+    }catch (const std::exception &ex) {std::cout << "Exception was thrown: " << ex.what() << std::endl;}
+
+}
+
+
+
 #endif //TRACK_RACING_LEARNER_H

@@ -16,7 +16,7 @@ typedef experienceTuple* dataTuple;
 class prioritizedExperienceReplay{
     unsigned int powerOf2Size;
 
-    const int CAPACITY_FOR_LEARNING = 300;
+    int CAPACITY_FOR_LEARNING;
     short ctr=0;
     bool ready;
     SumTree* opSumTree;
@@ -31,6 +31,7 @@ public:
     ~prioritizedExperienceReplay(){
         delete this->opSumTree;
     }
+
     void numPostiveReward(){
         short postiveRewardCounter=0;
         short ALLpostiveRewardCounter=0;
@@ -51,13 +52,14 @@ public:
     vector<experienceTuple*> batchSampleData;
     vector<unsigned int> batchSampleIndex;
 
-    explicit prioritizedExperienceReplay(unsigned int size,float _alpha=0.6, float _epslion=1e-6,
+    explicit prioritizedExperienceReplay(unsigned int size,int _CAPACITY_FOR_LEARNING,float _alpha=0.6, float _epslion=1e-6,
                                          float maximal_priority=1.0, bool _allowDuplicatesInBatchSampling=true): powerOf2Size(1),
                                                                                                                  alpha(_alpha), maximalPriority(maximal_priority)
             , epsilon(_epslion), allowDuplicatesInBatchSampling(_allowDuplicatesInBatchSampling){
         while(size > powerOf2Size) powerOf2Size *=2;
         this->opSumTree = new SumTree(powerOf2Size, operationTree::addTree);
         ready=false;
+        CAPACITY_FOR_LEARNING=_CAPACITY_FOR_LEARNING;
     }
 
     void updatePriority(unsigned int leafIdx, float error){
@@ -99,18 +101,24 @@ public:
         this->batchSampleData.clear();
         this->batchSampleIndex.clear();
 
-
         auto segment = this->opSumTree->total()/float(batchSize);
         for (int i = 0; i < batchSize; ++i) {
+//            auto a = i%2==0? 0.0:this->opSumTree->total()/2.0;
+//            auto b = i%2==0? this->opSumTree->total()/2.0:this->opSumTree->total();
+//            auto a = 0;
+//            auto b = this->opSumTree->total()-epsilon;
             auto a = segment * float(i);
             auto b = segment * (float((i + 1)));
-            std::uniform_real_distribution<> dis(0, this->opSumTree->total());
+            std::uniform_real_distribution<> dis(a,b);
             auto  s =  dis(eng);
             auto tupIndexes = this->opSumTree->getElementByPartialSum(s);
             auto idxTreeError = std::get<0>(tupIndexes);
             auto idxData = std::get<1>(tupIndexes);
             batchSampleIndex.push_back(idxData);
-            batchSampleData.push_back(this->opSumTree->getData(idxData));
+            auto expDAta = this->opSumTree->getData(idxData);
+            if (expDAta == nullptr)
+                cout<<"";
+            batchSampleData.push_back(expDAta);
         }
     }
 

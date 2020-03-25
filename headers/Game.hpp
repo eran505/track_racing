@@ -18,7 +18,7 @@ class Game {
     int ctr_wall=0;
     int ctr_round=0;
     int numEval=500;
-    int modEval = 10000;
+    int modEval = 1000;
 
 
 public:
@@ -28,6 +28,13 @@ public:
         cout<<"\tctr_coll= "<<ctr_coll;
         cout<<"\tctr_at_goal= "<<ctr_at_gal;
         cout<<"\tctr_wall= "<<ctr_wall<<endl;
+    }
+    void print_eval(int m_ctr_coll,int m_ctr_at_goal,int m_ctr_wall)
+    {
+        cout<<"ctr_round= "<<this->ctr_round;
+        cout<<"\tctr_coll= "<<m_ctr_coll;
+        cout<<"\tctr_at_goal= "<<m_ctr_at_goal;
+        cout<<"\tctr_wall= "<<m_ctr_wall<<endl;
     }
     unsigned int ctr_game;
     unsigned int uper_limt;

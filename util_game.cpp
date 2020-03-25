@@ -99,3 +99,24 @@ int getMaxDistancePos(const Point &a , const  Point &b )
     }
     return pos;
 }
+
+vector<float> getTopK(int k,vector<float> &vec){
+    vector<float> vectorSorted;
+    vector<float> vectorTopK;
+    copy(vec.begin(), vec.end(), back_inserter(vectorSorted));
+
+    sort( vectorSorted.begin(), vectorSorted.end());
+    int size = int(vectorSorted.size())-1;
+    for (int i = size ; size-k <= i; --i) {
+        auto it = std::find(vec.begin(), vec.end(),vectorSorted[i] );
+        if (it == vec.end())
+            throw ;
+        else
+        {
+            auto index = std::distance(vec.begin(), it);
+            vectorTopK.push_back(index);
+            vectorTopK.push_back(vectorSorted[i]);
+        }
+    }
+    return vectorTopK;
+}

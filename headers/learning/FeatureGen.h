@@ -20,11 +20,12 @@ class FeatureGen{
     int indexer;
     int maxSpeed;
     unordered_map<int,Point*>* actionMap;
+    unordered_map<unsigned long,string> mapStateHash;
 
 public:
 
     FeatureGen(string myId, int _numOfGoals,int _maxSpeed):sizeVec(0),uAgentId(std::move(myId)),indexer(0),actionMap(nullptr){
-        this->sizeVec+=int(Point::D_point::D)*7;
+        this->sizeVec+=int(Point::D_point::D)*5;
         this->sizeVec+=_numOfGoals*int(Point::D_point::D)*3;
         actionMap=Point::getDictAction();
         this->maxSpeed=_maxSpeed;
@@ -87,11 +88,9 @@ public:
         indexer=0;
         distWall(size_grid,posAgent,vec); // 1
         insetPoint(size_grid,vec); // 2
-        insetPoint(posAgent,vec); // 3
-        insetPoint(posAdv,vec);// 4
-        insetPoint(speedAgent,vec);// 5
-        insetPoint(speedAdv,vec);// 6
-        distOpAbs(posAdv,posAgent,vec);// 7
+        insetPoint(speedAgent,vec);// 3
+        insetPoint(speedAdv,vec);// 4
+        distOpAbs(posAdv,posAgent,vec);// 5
 
         //vec->operator[](indexer)=budgetAgent;
         for (auto const goalIdx : goalz)
@@ -100,11 +99,41 @@ public:
             distOpAbs(*goalIdx,posAgent,vec);
             insetPoint(*goalIdx,vec);
         }
+        //debug
+        auto hashID = hashValueMe(*vec);
+        if (mapStateHash.find(hashID)==mapStateHash.end())
+        {
+            auto str_state = s->to_string_state();
+            string strPath = "/home/ise/car_model/debug/d_states.csv";
+            toCsvMap(strPath,hashID,str_state);
+            mapStateHash.insert({hashID,str_state});
+        }
 
-
-
+        // end debug
         return vec ;
     }
+    static unsigned long hashValueMe(vector<float> &vec){
+
+        unsigned long seed = vec.size();
+        for(auto& i : vec) {
+            seed ^= long(i) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        }
+        return seed;
+    }
+
+    static void toCsvMap(string &pathFile, unsigned long idHash, string &strState) {
+        try {
+            auto pathFileI = pathFile;
+            csvfile csv(move(pathFileI), ",");
+            csv << idHash;
+            csv << strState;
+            csv << endrow;
+        }
+        catch (const std::exception &ex) {std::cout << "Exception was thrown: " << ex.what() << std::endl;}
+
+    }
+
+
 
 };
 

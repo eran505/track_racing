@@ -13,7 +13,7 @@ include_directories(.)
 include_directories(headers)
 include_directories(headers/Policy)
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
+#set(CMAKE_VERBOSE_MAKEFILE ON)
 add_executable(track_racing
         headers/Policy/Dog.hpp
         headers/Policy/Policy.hpp

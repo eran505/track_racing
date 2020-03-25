@@ -53,6 +53,8 @@ namespace AStar
         //unsigned int hash(int maxSize){ return coordinates->hash()}
     };
 
+
+
     using NodeSet = std::set<Node*>;
     typedef vector<uint> unitVector;
     typedef std::vector<Node*> listNode ;
@@ -71,12 +73,15 @@ namespace AStar
         void pathsToDict();
         void pathsToDict_rec(Node &item);
         void getDictPolicy(const listNode &l);
+        void setConsistentZ(bool bol){this->consistentZ=bol;}
         Generator(uint absMaxSpeed, Point& girdSize);
         ~Generator(){
             for (auto &itemI:*this->dictPoly)
                 delete(itemI.second);
             delete(this->dictPoly);
         }
+        void filterPaths();
+        void consistentZFilter();
         void setHeuristic(HeuristicFunction heuristic_);
         int findPath( StatePoint& source_, const StatePoint& target,bool toDict = true);
         listNode findComplexPath(StatePoint& source_,Point& mid, const StatePoint& target_);
@@ -94,11 +99,12 @@ namespace AStar
         Point gridSize;
         HeuristicFunction heuristic;
         CoordinateList direction, walls;
+        bool consistentZ = true;
         vector<Point> operatorAction;
         list<Node*> listPrint;
         vector<vector<StatePoint*>> allPath;
         vector<vector<StatePoint>> deepListNode;
-        void filterPaths();
+
 
         StatePoint* applyActionState(const StatePoint &cur,const Point &action){
             auto speed_copy = Point(cur.speed);
@@ -128,6 +134,7 @@ namespace AStar
             }
             this->allPath.clear();
         }
+
 
     };
 

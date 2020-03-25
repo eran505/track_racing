@@ -112,12 +112,26 @@ bool State::isGoal() {
     {
         if (item.first[1]==Section::adversary)
         {
-            if(this->g_grid->is_at_goal(&item.second))
+            if(this->g_grid->isGoalReward(&item.second))
                 return true;
         }
     }
     return false;
 }
+
+bool State::isEnd() {
+    for(const auto &item : this->pos_dict)
+    {
+        if (item.first[1]==Section::adversary)
+        {
+            auto x= this->g_grid->isEnd(&item.second);
+                if (x==0 or x==1)
+                    return true;
+        }
+    }
+    return false;
+}
+
 
 bool State::applyAction(const string &id, Point &action, int max_speed) {
     auto pos = this->speed_dict.find(id);

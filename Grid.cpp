@@ -48,7 +48,6 @@ Grid::Grid(const game_params &parm) {
 //    this->y_size=parm.Y;
     this->size_point=parm.size;
     this->all_golas=parm.list_goals;
-
 }
 
 void box::set_agent(string &str_agent) {

@@ -95,10 +95,10 @@ AStar::listNode AStar::Generator::findComplexPath(AStar::StatePoint &source_, Po
 
         area.array[i]=range_random(min_val,max_val);
     }
-    Point::getAllAction2(operatorAction,0);
+    //Point::getAllAction2(operatorAction,0);
     StatePoint midArea(area,Point());
     this->findPath(source_,midArea, false);
-    Point::getAllAction(operatorAction);
+    //Point::getAllAction(operatorAction);
     int ctr_path=0;
     for (auto &pathI:this->deepListNode)
     {
@@ -115,8 +115,6 @@ AStar::listNode AStar::Generator::findComplexPath(AStar::StatePoint &source_, Po
             this->allPath.push_back(l);
             pathsToDict();
             ctr_path++;
-
-
         }
 
     }
@@ -134,6 +132,9 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     double epsilon = 0.000; // e>0 eliminate unnecessary movement in z-axis
     int k = 0; // finding sp+k  TODO: fix it missing paths
     Node *current = nullptr;
+
+    this->operatorAction=Point::getAllAction2(operatorAction,2); // TODO: del it the attacker cant take off
+
     int optCost = this->gridSize.multi();
     CoordinateList path;
     multimap<double, Node *> openSetQ;
@@ -251,6 +252,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     }
     this->allPath.clear();
     printMee(res);
+    consistentZFilter();
     //shuffle path
     std::shuffle(allPath.begin(), allPath.end(),   std::default_random_engine(rand()));
     int size_paths = allPath.size();
@@ -269,7 +271,46 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     return size_paths;
 }
 
+void AStar::Generator::consistentZFilter(){
+    if (!this->consistentZ)
+        return;
+    cout<<"Before Size: "<<allPath.size()<<endl;
+    short ctr=0;
+    auto newList = vector<vector<StatePoint*>>();
+    auto indexI  = int(Point::D)-1;
+    // copy only positive numbers:
+    std::copy_if (allPath.begin(), allPath.end(), std::back_inserter(newList), [](vector<StatePoint*> &vec) {
+        int idPath;
 
+        auto indexI = int(Point::D) - 1;
+        unsigned int sizeVec = vec.size();
+        bool isConsistent = true;
+        bool isFound = false;
+        for (size_t i = sizeVec-1; i != 0 ; --i) {
+            idPath = vec[i]->speed.array[indexI];
+//            auto action = vec[i-1]->speed-vec[i]->speed;
+//            auto actionZ = action.array[indexI];
+//            cout<<action.to_str()<<endl;
+            if (!isFound) {
+                if (idPath < 0)
+                    isFound = true;
+            } else {
+                if (idPath > 0) {
+                    isConsistent = false;
+                    break;
+                }
+            }
+        }
+        if (!isConsistent)
+            cout<<"skip"<<endl;
+        return isConsistent;
+    }
+    );
+    this->allPath.clear();
+    this->allPath=move(newList);
+
+    cout<<"After Size: "<<allPath.size()<<endl;
+}
 
 void AStar::Generator::filterPaths() {
     unordered_map<string,vector<int>> dict;
@@ -429,12 +470,12 @@ void AStar::Generator::print_pathz(Node *l) {
     {
         vector<StatePoint*> x;
         for (auto &item:listPrint){
-            //cout<<item->toStr()<<" <- ";
+            cout<<item->toStr()<<" <- ";
             x.push_back(item->coordinates);
         }
         allPath.push_back(x);
         listPrint.remove(l);
-        //cout<<endl;
+        cout<<endl;
         return;
     }
     for (int i = 0; i < l->parent.size(); ++i) {

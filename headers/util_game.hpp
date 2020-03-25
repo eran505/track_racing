@@ -239,7 +239,13 @@ public:
         return ok;
     }
 
-
+    unsigned long expHash()const {
+        std::size_t seed = capacity;
+        for(auto& i : array) {
+            seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        }
+        return seed;
+    }
     unsigned int hashMeMAX(int max){
         unsigned int h=0;
         //int append=int(pow(int(actionMax),this->capacity))/2;
@@ -255,7 +261,7 @@ public:
 int getMaxDistance(const Point &a , const  Point &b );
 int getMaxDistancePos(const Point &a , const  Point &b );
 int range_random(int min, int max); //range : [min, max)
-
+vector<float> getTopK(int k,vector<float> &vec);
 
 
 template <typename T>

@@ -77,7 +77,7 @@ public:
 
 DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers,string &home,float IDHuer=0):Policy(std::move(namePolicy),maxSpeedAgent,
         agentID,home),ctrRandom(seed),featuerConv(new FeatureGen(agentID,goal_numbers,this->max_speed)),heuristicID(IDHuer){
-    this->dqn=new Learner(true,this->featuerConv->getFeatureVecSize(),30,
+    this->dqn=new Learner(true,this->featuerConv->getFeatureVecSize(),25,
             discountFactor,this->home, false);
     this->dqn->epslionGreedy= true;
     this->setPreTraining();
@@ -178,7 +178,8 @@ Point DeepRTDP::get_action(State *s) {
 
     //choose randomly one
     Point actionI = *getRandomlyAction({entryIdx});
-    //cout<<"ARGMAX="<<actionI.to_str()<<endl;
+//    if(this->evalPolicy)
+//        cout<<"ARGMAX="<<actionI.to_str()<<endl;
 
     if (this->preTrainNetBool){
         this->dqn->preTrainNet(this->fStateCurrFeaturesQ,this->getYTrue(s));
@@ -193,7 +194,8 @@ Point DeepRTDP::get_action(State *s) {
 
     }
     else {
-      bellmanUpdate(s,actionI);
+        if(!this->evalPolicy)
+            bellmanUpdate(s,actionI);
     }
     return actionI;
 }
@@ -211,6 +213,7 @@ int DeepRTDP::getMaxActionId(State *s) {
    // cout<<"Cur State: "<<s->to_string_state()<<endl;
     unordered_map <int,double> QstateTable;
     this->fStateCurrFeaturesQ=featuerConv->getFeaturesS(s);
+    this->dqn->epslionGreedy=!this->evalPolicy;
     auto entry = this->dqn->predictValue(this->fStateCurrFeaturesQ);
     if (preTrainNetBool and !this->heuristicFunc)
         entry = this->dqn->predictValue(this->fStateCurrFeaturesQ,true);

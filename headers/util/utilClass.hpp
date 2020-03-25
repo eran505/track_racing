@@ -18,7 +18,7 @@ vector<string> splitStr(const string& str, const string& delim)
 {
     vector<string> tokens;
     size_t prev = 0, pos = 0;
-    if (str.length()<2)
+    if (str.length()<1)
         return tokens;
     do
     {
@@ -39,13 +39,15 @@ struct configGame{
     Point posDefender;
     vector<Point> gGoals ;
     vector<float> probGoals;
+    vector<bool> goalTarget;
     int rRoutes;
     string idNumber;
     vector<Point> midPos;
+
 public:
     string home;
 
-    explicit configGame(vector<string> row)
+    explicit configGame(vector<string> &row)
     {
 
         idNumber=row[0];
@@ -55,6 +57,8 @@ public:
         auto goalsVecPos = splitStr(row[6],"-");
         auto goalsVecWights = splitStr(row[7],"-");
         auto midVec = splitStr(row[9],"-");
+        auto isGoal = splitStr(row[10],"-");
+        stringToBool(isGoal);
         addGoal(goalsVecPos,goalsVecWights);
         rRoutes = stoi(row[8]);
         if (!midVec.empty()) addMidPoint(midVec);
@@ -86,6 +90,18 @@ public:
                 continue;
             auto arrString = splitStr(pointStr,"|");
             this->midPos.push_back(vecToPoint(move(arrString)));
+        }
+    }
+    void stringToBool(const vector<string> &vec)
+    {
+        for(const auto &strI : vec)
+        {
+            if (strI == "0" )
+                goalTarget.push_back(false);
+            else if(strI == "1")
+                goalTarget.push_back(true);
+            else
+                throw;
         }
     }
 

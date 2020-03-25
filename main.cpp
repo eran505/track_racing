@@ -47,6 +47,7 @@ void toCsvString(string pathFile,vector<string>* infoArr);
  * 5. crate trans only for one branch, its dep only on pos_speed bad agent
  *
  */
+using namespace std::chrono;
 typedef vector<tuple<Point*,double>> listPointWeighted;
 typedef unsigned long ulong;
 int main() {
@@ -59,7 +60,6 @@ int main() {
 //
 //    exit(0);
     // seeding the program
-
 //    auto tree = new SumTree(4,operationTree::addTree);
 //    tree->add(10, nullptr);
 //    tree->add(11, nullptr);
@@ -73,7 +73,8 @@ int main() {
 //    exit(0);
 
     int seed = 155139;
-    seed = int( time(nullptr));
+    //seed = 1559;
+    //seed = int( time(nullptr));
 
     torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -82,7 +83,7 @@ int main() {
     string home = "/"+arrPAth[0]+"/"+arrPAth[1];
     int MaxInt = INT_MAX;
     //const string home="/home/ise";
-    std::string pathCsv (home + "/car_model/config/con2.csv");
+    std::string pathCsv (home + "/car_model/config/con21.csv");
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -133,7 +134,7 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(4000000);
+    my_game->startGame(7000000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
@@ -147,11 +148,12 @@ Game* initGame(configGame &conf ){
 Grid * init_grid(configGame& conf){
     game_params m{};
     m.size=conf.sizeGrid;
-    auto* listGoal = new list<Point*>();
+    auto* listGoal = new vector<Point*>();
     for (auto &refGoal:conf.gGoals)
         listGoal->push_back(new Point(refGoal));
     m.list_goals=listGoal;
     Grid *g = new Grid(m);
+    g->setTargetGoals(conf.goalTarget);
     return g;
 
 }
@@ -163,11 +165,11 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     auto startAdversary = new Point(conf.posAttacker);
 
     auto* pA1 = new Agent(startAdversary
-            ,new Point(0,0,maxA)
+            ,new Point(0,0,0)
             ,adversary,10);
 
     auto* pD2 = new Agent(new Point(conf.posDefender),
-            new Point(0,0,maxA)
+            new Point(0,0,0)
             ,gurd,10);
 
 
@@ -196,8 +198,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
 
 
-    //Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),pD2->get_id(), gloz_l.size(),conf.home,0);
-    Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home);
+    Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),pD2->get_id(), gloz_l.size(),conf.home,0);
+    //Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home);
 
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);

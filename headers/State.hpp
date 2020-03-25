@@ -25,7 +25,9 @@ public:
     void assignment( State &other);
     void assignment(State &other, const string &id);
     bool isGoal();
+    bool isEnd();
     //Setters and Getters
+
     void set_budget(const string& name_id,int budget_m){budget_dict[name_id]=budget_m;}
     int get_budget(const string& name_id){ return budget_dict[name_id];}
     void set_speed(const string& name_id,const Point& speed_m){speed_dict[name_id]=speed_m;}

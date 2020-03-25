@@ -18,7 +18,7 @@ typedef unsigned int uint;
 struct game_params {
 
     Point size;
-    list<Point *>* list_goals;
+    vector<Point *>* list_goals;
 
 
 };
@@ -31,7 +31,9 @@ private:
     //fields
     Point size_point;
     string **grid;
-    list<Point *>* all_golas;
+    vector<Point *>* all_golas;
+    vector<Point*> goalTarget;
+    unordered_map<unsigned long,short> dictIsTarget;
 
 
 
@@ -40,7 +42,7 @@ private:
         Grid(const game_params&);
         void print_vaule();
         ~Grid();
-        list<Point*> get_goals() {
+        vector<Point*> get_goals() {
             return *all_golas;
         }
         int getSizeIntGrid(){
@@ -49,6 +51,21 @@ private:
                 size*=this->size_point.array[i];
             }
             return size;
+        }
+        bool isGoalReward(const Point* locPoint)
+        {
+            for (auto itemGoal : this->goalTarget ){
+                if (itemGoal->is_equal(locPoint))
+                    return true;
+            }
+            return false;
+        }
+        short isEnd(const Point* loc_point ){
+            auto idH = loc_point->expHash();
+            auto pos = dictIsTarget.find(idH);
+            if (pos== dictIsTarget.end())
+                return -1;
+            return pos.operator*().second;
         }
         bool is_at_goal(const Point* loc_point ){
             for (auto item_goal : *(this->all_golas)){
@@ -60,7 +77,13 @@ private:
         bool is_wall(Point *ptr_point_loc){
             return ptr_point_loc->out_of_bound(this->size_point);
         }
-
+        void setTargetGoals(const vector<bool> &vecB){
+            for (int i = 0; i < vecB.size(); ++i) {
+                if (vecB[i])
+                    goalTarget.push_back(all_golas->operator[](i));
+                this->dictIsTarget.insert({all_golas->operator[](i)->expHash(),vecB[i]?1:0});
+            }
+        }
 };
 
 class box{

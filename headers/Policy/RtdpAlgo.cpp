@@ -147,11 +147,13 @@ double RtdpAlgo::UpdateCalc(const vector<pair<State *, float>>& state_tran_q) {
     double res=0;
     for (auto &item:state_tran_q)
     {
-
         double val = this->EvalState(item.first);
+        auto isEnd = item.first->isEnd();
         //cout<<item.first->to_string_state()<<"= "<<val<<endl;
         // check max value in the Q table
-        if (val == 0)
+        if(isEnd)
+            cout<<"";
+        if (!isEnd)
             val = this->RTDP_util_object->get_value_state_max(item.first);
         res+=val*item.second*this->RTDP_util_object->discountFactor;
         delete(item.first);

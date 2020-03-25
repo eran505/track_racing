@@ -97,6 +97,7 @@ void Game::evalPolicy() {
     int evl_wall = this->ctr_wall-old_ctr_wall;
     int evl_coll = this->ctr_coll-old_ctr_coll;
     int evl_goal = this->ctr_at_gal-old_ctr_at_gal;
+    this->print_eval(evl_coll,evl_goal,evl_wall);
     ctr_coll=old_ctr_coll;
     ctr_at_gal=old_ctr_at_gal;
     ctr_wall=old_ctr_wall;
@@ -121,7 +122,7 @@ void Game::startGame(int numIter)
         ctr_round++;
         if (ctr_round%modEval==0){
             evalPolicy();
-            this->print_stats();
+            //this->print_stats();
             vector<int> tmp(4);
             tmp[0]=ctr_round;
             tmp[1]=this->ctr_wall;
@@ -141,10 +142,7 @@ void Game::startGame(int numIter)
         tmp[2]=this->ctr_coll;
         tmp[3] = this->ctr_at_gal;
         info->push_back(tmp);
-
     }
-
-
 }
 
 void Game::loop_game() {
@@ -217,6 +215,8 @@ void Game::constraint_checking_end_game(){
             //cout<<"Del\t"<<i->get_id()<<"\tAt Goal"<<endl;
             // push to list of del player
             //cout<<this->planer->get_cur_state()->get_position(i->get_id()).to_str()<<endl;
+            auto theGoal = this->planer->get_cur_state()->get_position(i->get_id()).to_str();
+            //cout<<theGoal<<endl;
             to_del_ad.push_front(i);
             this->ctr_at_gal++;
 

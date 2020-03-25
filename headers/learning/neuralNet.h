@@ -47,7 +47,7 @@ class neuralNet : torch::nn::Module{
         };
         //void updateN et();
         double getQvalue(State *pState, Point *pPoint);
-        int evalArgMaxQ(Tensor &state);
+        Tensor evalArgMaxQ(Tensor &state);
         double getQvalueMAX(State *pState);
         Tensor calcQtraget(const ReplayBuffer *buffer,int index);
         Tensor getActionStateValue(vector<float> *state, int actionIndx);
@@ -81,20 +81,24 @@ class neuralNet : torch::nn::Module{
     }
 
 
-    int neuralNet::evalArgMaxQ(Tensor &state)
+    Tensor neuralNet::evalArgMaxQ(Tensor &state) // TODO: return int more efficent
     {
         //cout<<state<<endl;
         //cout<<"state:\t\t"<<state<<endl;
         this->eval(); // puts network in evaluation mode
         torch::NoGradGuard noGrad;
         auto action_values = this->forward(state);
-//        cout<<"action_values:\t\t"<<action_values<<endl;
-        auto res = action_values.argmax(0); // get the arg-max from the tensor
+
+        // for debug
+
+
+        //cout<<"action_values:\t\t"<<action_values<<endl;
+        //auto res = action_values.argmax(0); // get the arg-max from the tensor
       //  cout<<"ArgMax: "<<res.item().toInt()<<endl;
         this->train(); //puts network back in training mode
         //TODO: can be the case when we have more than one arg_max -> choose randomly one !
 
-        return res.item().toInt();
+        return action_values;
     }
 
     void neuralNet::updateNet(const ReplayBuffer *buffer)
