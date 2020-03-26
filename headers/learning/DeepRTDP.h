@@ -81,6 +81,7 @@ DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& a
             discountFactor,this->home, false);
     this->dqn->epslionGreedy= true;
     this->setPreTraining();
+    this->featuerConv->set_string_home(this->home);
 
 }
 

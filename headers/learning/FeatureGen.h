@@ -17,16 +17,17 @@ class FeatureGen{
     string uAgentId;
     const string uOppId="0A";
     int sizeVec;
+    string home;
     int indexer;
     int maxSpeed;
     unordered_map<int,Point*>* actionMap;
     unordered_map<unsigned long,string> mapStateHash;
 
 public:
-
+    void set_string_home(string &stringHome){this->home=stringHome;}
     FeatureGen(string myId, int _numOfGoals,int _maxSpeed):sizeVec(0),uAgentId(std::move(myId)),indexer(0),actionMap(nullptr){
         this->sizeVec+=int(Point::D_point::D)*5;
-        this->sizeVec+=_numOfGoals*int(Point::D_point::D)*3;
+        this->sizeVec+=_numOfGoals*int(Point::D_point::D)*2;
         actionMap=Point::getDictAction();
         this->maxSpeed=_maxSpeed;
     }
@@ -52,6 +53,14 @@ public:
     }
     void distWall(Point &size,Point &pos,vector<float> *vec){
         Point dis = size-pos;
+        insetPoint(dis,vec);  // from gird wall
+        insetPoint(pos,vec); //  from zero
+
+
+    }
+
+    void distFirstMinusSec(const Point &F,const Point &S,vector<float> *vec){
+        Point dis = F-S;
         insetPoint(dis,vec);
     }
 
@@ -86,30 +95,28 @@ public:
 
 
         indexer=0;
-        distWall(size_grid,posAgent,vec); // 1
-        insetPoint(size_grid,vec); // 2
-        insetPoint(speedAgent,vec);// 3
-        insetPoint(speedAdv,vec);// 4
-        distOpAbs(posAdv,posAgent,vec);// 5
+        distWall(size_grid,posAgent,vec); // 1 - distance for walls (2)
+        insetPoint(speedAgent,vec);// 3 - speed A
+        insetPoint(speedAdv,vec);// 4 - speed D
+        distFirstMinusSec(posAgent,posAdv,vec);
 
-        //vec->operator[](indexer)=budgetAgent;
         for (auto const goalIdx : goalz)
         {
-            distOpAbs(*goalIdx,posAdv,vec);
-            distOpAbs(*goalIdx,posAgent,vec);
-            insetPoint(*goalIdx,vec);
+            distFirstMinusSec(posAdv,*goalIdx,vec);
+            distFirstMinusSec(posAgent,*goalIdx,vec);
+            //insetPoint(*goalIdx,vec);
         }
-        //debug
+        //==============debug====================================
         auto hashID = hashValueMe(*vec);
         if (mapStateHash.find(hashID)==mapStateHash.end())
         {
             auto str_state = s->to_string_state();
-            string strPath = "/home/ise/car_model/debug/d_states.csv";
+            string strPath = this->home+"/car_model/debug/d_states.csv";
             toCsvMap(strPath,hashID,str_state);
             mapStateHash.insert({hashID,str_state});
         }
 
-        // end debug
+        // end================ debug===============================
         return vec ;
     }
     static unsigned long hashValueMe(vector<float> &vec){

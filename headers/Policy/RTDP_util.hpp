@@ -23,7 +23,7 @@ class RTDP_util{
     int size_Q;
     int size_mapAction;
     unordered_map<int,Point*>* hashActionMap;
-    double collReward=10;double goalReward=-10;double wallReward=-11;
+    double collReward=1;double goalReward=-1;double wallReward=-1;
     void set_up_Q(int grid_size,vector<pair<int,int>>& list_l);
     void heuristic(State *s,int entry_index);
     double compute_h(State *s);

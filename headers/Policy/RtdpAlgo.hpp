@@ -10,9 +10,9 @@
 #include <deque>
 
 class RtdpAlgo : public Policy{
-    double CollReward = 10;
-    double GoalReward = -10;
-    double WallReward = -11;
+    double CollReward = 1;
+    double GoalReward = -1;
+    double WallReward = -1;
     int ctr_stack=0;
     string tmp;
     RTDP_util *RTDP_util_object;
