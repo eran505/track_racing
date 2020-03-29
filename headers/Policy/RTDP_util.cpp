@@ -8,7 +8,7 @@
 RTDP_util::RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget,string &mHome):home(mHome) {
     this->hashActionMap=Point::getDictAction();
     this->set_up_Q(grid_size,max_speed_and_budget);
-    this->mapState= new map<string,int>();
+    this->mapState= new map<string,unsigned int>();
     size_mapAction = hashActionMap->size();
 }
 
@@ -54,6 +54,7 @@ void RTDP_util::heuristic(State *s,int entry_index)
     vector<State*> vec_q;
     auto oldState = new State(*s);
     //cout<<s->to_string_state()<<endl;
+
     for (const auto &item_action : *this->hashActionMap)
     {
         // apply action state and let the envirmont to roll and check the reward/pos
@@ -64,14 +65,14 @@ void RTDP_util::heuristic(State *s,int entry_index)
             val = this->wallReward;
         else{
             val = this->compute_h(oldState);
-            val=this->collReward+0.01;
+            val=this->collReward+0.1;
 //            if (s->takeOff == false)
 //            {
 //                val=10;
 //            }
 
         }
-
+        //cout<<"A:"<<actionCur->to_str()<<" val="<<val<<endl;
         oldState->assignment(*s,this->my_policy->id_agent);
         // insert to Q table
 
@@ -106,7 +107,7 @@ double RTDP_util::rec_h(State *s,int index, double acc_probablity)
 
 unsigned int RTDP_util::add_entry_map_state(string &basicString,State *s) {
     // compute heuristic
-    this->heuristic(s,ctr_state);
+    this->heuristic(s,this->ctr_state);
 
     // add to state_map
     this->mapState->insert({basicString,ctr_state});
@@ -118,6 +119,7 @@ unsigned int RTDP_util::add_entry_map_state(string &basicString,State *s) {
 }
 
 RTDP_util::~RTDP_util() {
+    this->policyData();
     cout<<"state genrated:\t"<<ctr_state<<endl;
     cout<<"size_Q:\t"<<size_Q<<endl;
     cout<<qTable<<endl;
@@ -242,8 +244,8 @@ double RTDP_util::compute_h(State *s) {
 }
 
 void RTDP_util::policyData() {
-    return;
-    string pathFile="/home/ERANHER/car_model/exp/DATA/";
+    //return;
+    string pathFile=this->home+"/car_model/debug/";
 
     // csv map state-----------------------------
     try{
@@ -276,9 +278,16 @@ void RTDP_util::policyData() {
         string nameFileCsv="Q.csv";
         int size_action = this->hashActionMap->size();
         csvfile csv(std::move(pathFile+nameFileCsv),";"); // throws exceptions!
+        csv<<"id";
+        for (int k = 0; k <size_action; ++k)
+            csv<<k;
+        csv<<endrow;
         for (int i = 0; i < this->ctr_state; ++i) {
-            for (int j = 0; j <size_action; ++j)
+            csv<<i;
+            for (int j = 0; j <size_action; ++j){
+//                cout<<"["<<i<<", "<<j<<"]="<<this->qTable[i][j]<<endl;
                 csv<<this->qTable[i][j];
+            }
             csv<<endrow;
         }
 

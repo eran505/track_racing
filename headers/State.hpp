@@ -25,7 +25,7 @@ public:
     void assignment( State &other);
     void assignment(State &other, const string &id);
     bool isGoal();
-    bool isEnd();
+    bool isEndState();
     //Setters and Getters
 
     void set_budget(const string& name_id,int budget_m){budget_dict[name_id]=budget_m;}

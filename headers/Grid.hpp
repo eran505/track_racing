@@ -48,6 +48,7 @@ private:
         int getSizeIntGrid(){
             int size = 1;
             for (int i = 0; i < this->size_point.capacity; ++i) {
+                if (this->size_point.array[i]==0) continue;
                 size*=this->size_point.array[i];
             }
             return size;

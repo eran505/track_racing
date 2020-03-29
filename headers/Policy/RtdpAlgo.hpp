@@ -38,7 +38,7 @@ public:
     const vector<float >* TransitionAction(State *s) override ;
     void reset_policy() override;
     void policy_data() const override;
-    double EvalState(State *s);
+    tuple<double,bool> EvalState(State *s);
 };
 
 

@@ -51,36 +51,16 @@ using namespace std::chrono;
 typedef vector<tuple<Point*,double>> listPointWeighted;
 typedef unsigned long ulong;
 int main() {
-//    char temp[256];
-//    auto str_dir =  getcwd(temp, sizeof(temp)) ? std::string( temp ) : std::string("");
-//    cout<<str_dir<<endl;
-// ************************************
-//    auto nn = new neuralNet();
-//    nn->start();
-//
-//    exit(0);
-    // seeding the program
-//    auto tree = new SumTree(4,operationTree::addTree);
-//    tree->add(10, nullptr);
-//    tree->add(11, nullptr);
-//    tree->add(12, nullptr);
-//    tree->add(13, nullptr);
-//
-//    auto xc = tree->getElementByPartialSum(11);
-//    auto idxTreeError = std::get<0>(xc);
-//    auto idxData = std::get<1>(xc);
-//    cout<<"idxData: "<<idxData<<"\tError: "<<idxTreeError<<endl;
-//    exit(0);
 
     int seed = 155139;
-    //seed = 1559;
+    //seed = 15959;
     //seed = int( time(nullptr));
-
     torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
     cout<<"seed:\t"<<seed<<endl;
     auto arrPAth = splitStr(getExePath(),"/");
     string home = "/"+arrPAth[0]+"/"+arrPAth[1];
+    string repo = "/"+arrPAth[0]+"/"+arrPAth[1]+"/"+arrPAth[2]+"/"+arrPAth[3]+"/"+arrPAth[4];
     int MaxInt = INT_MAX;
     //const string home="/home/ise";
     std::string pathCsv (home + "/car_model/config/con21.csv");
@@ -88,6 +68,10 @@ int main() {
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
     vector<string> labels={"ctr_round","ctr_wall","ctr_coll","ctr_at_goal"};
+
+    const std::string exeFilePath (repo+"/bash/clean.sh");
+    system(exeFilePath.c_str());
+
     for (int i=1; i<csvRows.size();++i)
     {
         cout<<"seed:\t"<<seed<<endl;
@@ -244,9 +228,11 @@ void toCsvString(string pathFile,vector<string>* infoArr){
     {
         csvfile csv(std::move(pathFile),","); // throws exceptions!
         // Hearer
+        const int upper = 500000;
         size_t sizeVec = infoArr->size();
         unsigned int ctr=0;
-        unsigned int lim = sizeVec-500000;
+        unsigned int lim=0;
+        if (sizeVec > upper) lim = sizeVec-400000;
         // Data
         for (const auto& row:*infoArr)
         {

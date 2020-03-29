@@ -36,7 +36,7 @@ Point RtdpAlgo::get_action(State *s)
     {
         if (!s->takeOff)
             if(action.hashMeAction(Point::actionMax)!=13 ){
-                s->set_speed(this->id_agent,Point(0,0,max_speed));
+                //s->set_speed(this->id_agent,Point(0,0,max_speed)); //#TODO: uncomment this !!!!
                 //this->inset_to_stack(s,action,entry);
                 //action.array[2]=this->max_speed;
                 s->takeOff=true;
@@ -55,7 +55,7 @@ Point RtdpAlgo::get_action(State *s)
 
     if (!s->takeOff)
         if(action.hashMeAction(Point::actionMax)!=13 ){
-            s->set_speed(this->id_agent,Point(0,0,max_speed));
+            //s->set_speed(this->id_agent,Point(0,0,max_speed));
             //this->inset_to_stack(s,action,entry);
             //action.array[2]=this->max_speed;
             s->takeOff=true;
@@ -130,30 +130,39 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
     return this->UpdateCalc(state_tran_q);
 }
 
-double RtdpAlgo::EvalState(State *s)
-{
-
-    if (s->isGoal())
-        return this->GoalReward;
-    if (this->is_wall)
-        return WallReward;
-    auto res = s->is_collusion(this->id_agent);
-    if (res.size()>0)
-        return this->CollReward;
-    return 0;
+tuple<double,bool> RtdpAlgo::EvalState(State *s) {
+    double r = 0;
+    bool isEndGame = false;
+    if (s->isGoal()) {
+        r = this->GoalReward;
+        isEndGame = true;
+    } else if (this->is_wall){
+        r = WallReward;
+        isEndGame = true;
+        return {r,isEndGame};
+    }
+    else{
+            auto res = s->is_collusion(this->id_agent);
+            if (res.size()>0)
+            {
+                r = this->CollReward;
+                isEndGame = true;
+                return {r,isEndGame};
+            }
+    }
+    isEndGame = s->isEndState();
+    return {r,isEndGame};
 }
 
 double RtdpAlgo::UpdateCalc(const vector<pair<State *, float>>& state_tran_q) {
     double res=0;
     for (auto &item:state_tran_q)
     {
-        double val = this->EvalState(item.first);
-        auto isEnd = item.first->isEnd();
+        auto tupleRewardBool = this->EvalState(item.first);
+        auto val = std::get<0>(tupleRewardBool);
+        auto isSndState = std::get<1>(tupleRewardBool);
         //cout<<item.first->to_string_state()<<"= "<<val<<endl;
-        // check max value in the Q table
-        if(isEnd)
-            cout<<"";
-        if (!isEnd)
+        if (!isSndState)
             val = this->RTDP_util_object->get_value_state_max(item.first);
         res+=val*item.second*this->RTDP_util_object->discountFactor;
         delete(item.first);
@@ -188,7 +197,7 @@ void RtdpAlgo::empty_stack_update() {
 }
 
 void RtdpAlgo::policy_data() const {
-    this->RTDP_util_object->policyData();
+    //this->RTDP_util_object->policyData();
 }
 
 //double RtdpAlgo::expected_reward_rec(State *s, int index_policy, deque<Point> &my_stack) {

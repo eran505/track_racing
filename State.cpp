@@ -119,7 +119,7 @@ bool State::isGoal() {
     return false;
 }
 
-bool State::isEnd() {
+bool State::isEndState() {
     for(const auto &item : this->pos_dict)
     {
         if (item.first[1]==Section::adversary)

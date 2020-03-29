@@ -14,7 +14,7 @@
 #include "Policy.hpp"
 class RTDP_util{
     double **qTable;
-    map<string,int> *mapState;
+    map<string,unsigned int> *mapState;
     vector<Policy*> *lTran= nullptr;
     const string home;
     Policy* my_policy;
@@ -33,7 +33,7 @@ public:
     bool apply_action(State *s,const string &id,Point &action,int max_speed);
     void set_tran(vector<Policy*>* l){this->lTran=l;}
     void MyPolicy(Policy *my){this->my_policy=my;}
-    double discountFactor=0.988;
+    double discountFactor=0.987;
     int last_entry;
     Point get_argmx_action(State *s);
     int get_state_argmax(State *s_state);
