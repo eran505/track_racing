@@ -11,14 +11,14 @@ if [ -z "$(ls -A ~/car_model/exp/buffer/)" ]; then
    echo "Empty buffer"
 else
    echo "Not Empty"
-   rm ~/car_model/exp/buffer/*
+   rm  ~/car_model/exp/buffer/*
 fi
 
 if [ -z "$(ls -A ~/car_model/exp/out/)" ]; then
    echo "Empty out"
 else
    echo "Not Empty"
-   rm ~/car_model/exp/out/*
+   rm  ~/car_model/exp/out/*
 fi
 
 

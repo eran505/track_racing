@@ -62,16 +62,17 @@ void RTDP_util::heuristic(State *s,int entry_index)
         double val;
         bool isWall = this->apply_action(oldState,my_policy->id_agent,*actionCur,my_policy->max_speed);
         if (isWall)
-            val = this->wallReward;
+            val = this->wallReward*discountFactor;
         else{
             val = this->compute_h(oldState);
-            val=this->collReward+0.1;
+            val=this->collReward;
 //            if (s->takeOff == false)
 //            {
 //                val=10;
 //            }
 
         }
+
         //cout<<"A:"<<actionCur->to_str()<<" val="<<val<<endl;
         oldState->assignment(*s,this->my_policy->id_agent);
         // insert to Q table

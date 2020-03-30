@@ -118,7 +118,7 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(5000000);
+    my_game->startGame(7000000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
@@ -143,17 +143,17 @@ Grid * init_grid(configGame& conf){
 }
 MdpPlaner* init_mdp(Grid *g, configGame &conf){
     int maxSizeGrid = g->getPointSzie().array[0];
-    int maxA=2+maxSizeGrid/10;   //TODO:: change it to plus one !!!!!!!!!!!!!!!!!!!!!!!1
-    int maxB=1+maxSizeGrid/10;
+    int maxA=2+maxSizeGrid/10;   //TODO:: change it to plus one !!!!!!!!!!!!!!!!!!!!!!!
+    int maxD=1+maxSizeGrid/10;
 
     auto startAdversary = new Point(conf.posAttacker);
 
     auto* pA1 = new Agent(startAdversary
-            ,new Point(0,0,0)
+            ,new Point(0,0,maxA)
             ,adversary,10);
 
     auto* pD2 = new Agent(new Point(conf.posDefender),
-            new Point(0,0,0)
+            new Point(0,0,maxD)
             ,gurd,10);
 
 
@@ -178,12 +178,12 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     //// init the RTDP algo
     /* If max speed is zero, the explict number of state is in the second place */
     vector<pair<int,int>> list_Q_data;
-    list_Q_data.emplace_back(maxB,1);
+    list_Q_data.emplace_back(maxD,1);
     list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
 
 
-    Policy *RTDP = new DeepRTDP("deepRTDP",maxB,rand(),pD2->get_id(), gloz_l.size(),conf.home,0);
-    //Policy *RTDP = new RtdpAlgo("RTDP",maxB,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home);
+    Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0);
+    //Policy *RTDP = new RtdpAlgo("RTDP",maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home);
 
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);
@@ -232,7 +232,7 @@ void toCsvString(string pathFile,vector<string>* infoArr){
         size_t sizeVec = infoArr->size();
         unsigned int ctr=0;
         unsigned int lim=0;
-        if (sizeVec > upper) lim = sizeVec-400000;
+        //if (sizeVec > upper) lim = sizeVec-400000;
         // Data
         for (const auto& row:*infoArr)
         {
