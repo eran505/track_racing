@@ -189,7 +189,7 @@ void Learner::updateNet() {
 void Learner::uploadNet()
 {
     cout<<"**** UploadNet ****"<<endl;
-    auto model_save_path=this->home+"/car_model/nn/nn.pt";
+    auto model_save_path=this->home+"/car_model/nn/nn1.pt";
     auto* pModule = (torch::nn::Module*)this->evalNet;
     LoadStateDict(*pModule, model_save_path, "none");
     if (!isDoubleNet)
