@@ -45,7 +45,6 @@ void Grid::print_vaule() {
 Grid::Grid(const game_params &parm) {
 //
 //    this->x_size=parm.X;
-//    this->y_size=parm.Y;
     this->size_point=parm.size;
     this->all_golas=parm.list_goals;
 }

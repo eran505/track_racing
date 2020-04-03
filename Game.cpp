@@ -12,7 +12,8 @@ Game::Game(MdpPlaner *planer_m) {
     this->planer = planer_m;
     this->ctr_game=100;
     this->uper_limt=300;
-    this->buffer = new vector<string>();
+    this->counterBuffer=0;
+    this->buffer = new vector<string>(this->MAX_BUFFER);
     this->guardEval= new vector<vector<int>>();
     this->info=new vector<vector<int>>();
 }
@@ -157,15 +158,15 @@ void Game::loop_game() {
         for (auto i : *(this->in_game_guards)){
             //cout<<i->get_name()<<endl;
             i->doAction(planer->get_cur_state());
-            this->buffer->emplace_back(i->get_id()+"@"+this->planer->get_cur_state()->get_position(i->get_id()).to_str());
-
+            addToBuffer(i->get_id()+"@"+this->planer->get_cur_state()->get_position(i->get_id()).to_str());
         }
         //cout<<this->planer->get_cur_state()->to_string_state()<<endl;
         for (auto i : *(this->in_game_adversaries)){
             //cout<<i->get_name()<<endl;
             i->doAction(planer->get_cur_state());
             auto pos = this->planer->get_cur_state()->get_position(i->get_id()).to_str();
-            this->buffer->emplace_back(i->get_id()+"@"+pos);
+            addToBuffer(i->get_id()+"@"+pos);
+
 
         }
 
@@ -177,7 +178,7 @@ void Game::loop_game() {
 
         if (this->is_end_game()){
             //cout << "end"<<endl;
-            this->buffer->emplace_back("END");
+            addToBuffer("END");
             this->del_all_player();
             break;
         }

@@ -91,7 +91,7 @@ int Learner::predictValue(vector<float> *state, bool isRandom=false) {
         return range_random(0,26);
 
     if (epslionGreedy)
-        if (range_random(0,17)>=15)
+            if (range_random(0,9)==0)
             return range_random(0,26);
 
     ArrayRef<float> xx = *state;

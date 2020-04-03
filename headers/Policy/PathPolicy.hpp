@@ -21,6 +21,7 @@ class PathPolicy:public Policy{
     unordered_map<int,vector<float>*> *dictPolicy;
     int getAgentSateHash(State *s);
 public:
+
     int getNumberOfState() {
         return dictPolicy->size();
     }
@@ -84,6 +85,10 @@ public:
     void policy_data() const override{};
     const std::vector<float>* TransitionAction(State*) override;
     void normalizeDict();
+
+    void treeTraversal(State *ptrState);
+    void policyData(vector<vector<string>> &res);
+    vector<float> minizTrans(const vector<float>* x);
 };
 
 
@@ -137,6 +142,70 @@ int PathPolicy::getAgentSateHash(State *s) {
     return EntryIndx;
 }
 
+void PathPolicy::treeTraversal(State *ptrState)
+{
+    vector<vector<string>> res;
+    deque<pair<State,float>> q;
+    q.emplace_back(*ptrState,1);
+    float probAcc=1;
+    vector <pair<State,float>> path;
+    while (!q.empty())
+    {
+        auto pairCur = q.front();
+        auto curState = get<0>(pairCur);
+        auto prob =get<1>(pairCur);
+
+        //cout<<curState.to_string_state()<<endl;
+        q.pop_front();
+        if(curState.isEndState())
+        {
+            vector<string> v;
+            path.emplace_back(curState,prob);
+            v.push_back(std::to_string(probAcc));
+            for( auto item : path)
+            {
+                auto posA = item.first.get_position(this->id_agent);
+                v.push_back(posA.to_str());
+                //cout<<posA.to_str()<<",";
+            }
+            //cout<<endl;
+            auto posPair = path[path.size()-1];
+            auto p = posPair.second;
+            probAcc = probAcc/p;
+            path.pop_back();
+            res.push_back(move(v));
+            continue;
+        }
+        if (!path.empty())
+        if (curState.to_string_state() == get<0>( path[path.size()-1]).to_string_state())
+        {
+            auto posPair = path[path.size()-1];
+            auto p = posPair.second;
+            probAcc = probAcc/p;
+            path.pop_back();
+            continue;
+        }
+        path.emplace_back(curState,prob);
+        auto next = minizTrans(this->TransitionAction(&curState));
+        q.push_front({curState,probAcc});
+        probAcc=probAcc*prob;
+        for (int i = 0 ; i<next.size() ; ++i)
+        {
+            auto pos = this->hashActionMap->find(next.operator[](i));
+            if ( pos == this->hashActionMap->end())
+                throw std::invalid_argument("Action index is invalid");
+            Point *actionI = pos->second;
+            State tmp(curState);
+            tmp.applyAction(this->id_agent,*actionI,this->max_speed);
+            //cout<<tmp.to_string_state()<<endl;
+            q.push_front({tmp,next[++i]});
+        }
+
+    }
+    policyData(res);
+}
+
+
 void PathPolicy::normalizeDict(){
     for(auto &item : *this->dictPolicy)
     {
@@ -172,12 +241,43 @@ void PathPolicy::normalizeDict(){
     }
 }
 
+vector<float> PathPolicy::minizTrans(const vector<float> *x) {
+    vector<float> newVector;
+    unordered_map<float,float> d;
+    for (int i = 0; i <x->size() ; ++i) {
+        auto keyH = x->operator[](i);
+        auto prob = x->operator[](++i);
+        auto pos = d.find(keyH);
+        if (pos==d.end())
+            d.insert({keyH,prob});
+        else
+            d[keyH]+=prob;
+    }
+    for (auto item : d) {
+        newVector.push_back(item.first);
+        newVector.push_back(item.second);
+    }
+    return newVector;
+}
 
-//            int sumAll = accumulate(itemFirst.second->begin(), itemFirst.second->end(), 0,
-//                    [](int v, map<int,int>::value_type& pair){
-//                return v + pair.second;
-//                // if we want to sum the first item, change it to
-//                // return v + pair.first;
-//            });
+
+void PathPolicy::policyData(vector<vector<string>> &res)
+{
+    string pathFile=this->home+"/car_model/debug/";
+    try{
+        string nameFileCsv="Attacker.csv";
+        csvfile csv(std::move(pathFile+nameFileCsv),","); // throws exceptions!
+        for(auto &item: res)
+        {
+            for (const auto& strString:item) {
+                csv<<strString;
+            }
+            csv<<endrow;
+        }
+    }
+    catch (const std::exception &ex){std::cout << "Exception was thrown: " << ex.what() << std::endl;}
+
+}
+
 
 #endif //TRACK_RACING_PATHPOLICY_HPP

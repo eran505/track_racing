@@ -51,7 +51,10 @@ using namespace std::chrono;
 typedef vector<tuple<Point*,double>> listPointWeighted;
 typedef unsigned long ulong;
 int main() {
+    for (int j = 0; j < 100; ++j) {
 
+        cout<<range_random(0,3)<<endl;
+    }
     int seed = 155139;
     //seed = 15959;
     //seed = int( time(nullptr));
@@ -118,7 +121,7 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(1000000);
+    my_game->startGame(6000000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
@@ -153,7 +156,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
             ,adversary,10);
 
     auto* pD2 = new Agent(new Point(conf.posDefender),
-            new Point(0,0,maxD)
+            new Point(0,0,0)
             ,gurd,10);
 
 
@@ -195,7 +198,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     s->set_grid(g);
     s->set_state();
 
-
+    auto* tmp = new State(*s->get_cur_state());
+    tmp_pointer->treeTraversal(tmp);
     return s;
 }
 

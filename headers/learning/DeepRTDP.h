@@ -78,7 +78,7 @@ public:
 DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers,string &home,float IDHuer=0):Policy(std::move(namePolicy),maxSpeedAgent,
         agentID,home),ctrRandom(seed),featuerConv(new FeatureGen(agentID,goal_numbers,this->max_speed)),heuristicID(IDHuer){
     this->dqn=new Learner(true,this->featuerConv->getFeatureVecSize(),25,
-            discountFactor,this->home, true);
+            discountFactor,this->home, false);
     this->dqn->epslionGreedy= true;
     this->setPreTraining();
     this->featuerConv->set_string_home(this->home);

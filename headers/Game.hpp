@@ -5,6 +5,8 @@
 #ifndef RACING_CAR_GAME_HPP
 #define RACING_CAR_GAME_HPP
 
+#include <utility>
+
 #include "MdpPlaner.hpp"
 
 class Game {
@@ -14,6 +16,8 @@ class Game {
     list<Agent*> *out_game;
     MdpPlaner *planer;
     int ctr_coll=0;
+    const int MAX_BUFFER=10000;
+    int counterBuffer=0;
     int ctr_at_gal=0;
     int ctr_wall=0;
     int ctr_round=0;
@@ -58,6 +62,13 @@ public:
     vector<vector<int>>* guardEval;
     vector<vector<int>>* info;
     void startGame(int numIter);
+    void addToBuffer(string strI)
+    {
+        if (this->counterBuffer==this->MAX_BUFFER-1)
+            this->counterBuffer=0;
+        this->buffer->operator[](this->counterBuffer)=std::move(strI);
+        this->counterBuffer++;
+    }
 };
 
 
