@@ -44,13 +44,13 @@ public:
         xx->setMaxPATH(this->maxPathsNumber);
         for (unsigned long i = 0; i < this->startPoint.size(); ++i) {
             for (unsigned long k = 0; k < this->goalPoint.size(); ++k) {
-                for (unsigned int s=max_speed ; s<=this->max_speed;++s)
+                for (int s=max_speed ; s<=this->max_speed;++s)
                 {
                     auto startP = std::get<0>(startPoint[i]);
                     auto endP = std::get<0>(goalPoint[k]);
                     weightEnd = std::get<1>(goalPoint[k]);
                     auto zeroSrc  = Point();
-                    auto startSpeed  = Point(0,0,0);
+                    auto startSpeed  = Point(0,0,s);
                     //auto zeroDest  = Point();
                     auto src = AStar::StatePoint{Point(*startP),startSpeed};
                     auto dest = AStar::StatePoint{Point(*endP),startSpeed};
