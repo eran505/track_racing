@@ -44,7 +44,7 @@ public:
         xx->setMaxPATH(this->maxPathsNumber);
         for (unsigned long i = 0; i < this->startPoint.size(); ++i) {
             for (unsigned long k = 0; k < this->goalPoint.size(); ++k) {
-                for (unsigned int s=max_speed ; s<=this->max_speed;++s)
+                for (int s=max_speed ; s<=this->max_speed;++s)
                 {
                     auto startP = std::get<0>(startPoint[i]);
                     auto endP = std::get<0>(goalPoint[k]);

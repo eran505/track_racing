@@ -133,7 +133,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     int k = 0; // finding sp+k  TODO: fix it missing paths
     Node *current = nullptr;
 
-    this->operatorAction=Point::getAllAction2(operatorAction,2); // TODO: del it the attacker cant take off
+   // this->operatorAction=Point::getAllAction2(operatorAction,2); // TODO: del it the attacker cant take off
 
     int optCost = this->gridSize.multi();
     CoordinateList path;
