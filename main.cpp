@@ -73,7 +73,7 @@ int main() {
     vector<string> labels={"ctr_round","ctr_wall","ctr_coll","ctr_at_goal"};
 
     const std::string exeFilePath (repo+"/bash/clean.sh");
-    system(exeFilePath.c_str());
+    //system(exeFilePath.c_str());
 
     for (int i=1; i<csvRows.size();++i)
     {
