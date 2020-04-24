@@ -64,8 +64,8 @@ void RTDP_util::heuristic(State *s,int entry_index)
         if (isWall)
             val = this->wallReward*discountFactor;
         else{
-            val = this->compute_h(oldState);
-            val=this->collReward;
+            //val = this->compute_h(oldState);
+            val=this->collReward*discountFactor;
 //            if (s->takeOff == false)
 //            {
 //                val=10;

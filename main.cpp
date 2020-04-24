@@ -66,7 +66,7 @@ int main() {
     string repo = "/"+arrPAth[0]+"/"+arrPAth[1]+"/"+arrPAth[2]+"/"+arrPAth[3]+"/"+arrPAth[4];
     int MaxInt = INT_MAX;
     //const string home="/home/ise";
-    std::string pathCsv (home + "/car_model/config/con44.csv");
+    std::string pathCsv (home + "/car_model/config/con33.csv");
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
