@@ -100,6 +100,7 @@ int main() {
         ctrId++;
         //Agent::ctr_object = 0;
         delete (resultsConfigI);
+        break;
 
     }
 
@@ -147,6 +148,11 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     int maxA=2+maxSizeGrid/10;   //TODO:: change it to plus one !!!!!!!!!!!!!!!!!!!!!!!
     int maxD=1+maxSizeGrid/10;
 
+    // make game info
+    auto gameInfo = new unordered_map<string,string>();
+    gameInfo->insert({"ID",conf.idNumber});
+
+
     auto startAdversary = new Point(conf.posAttacker);
 
     auto* pA1 = new Agent(startAdversary
@@ -183,8 +189,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
 
 
-    Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0);
-    //Policy *RTDP = new RtdpAlgo("RTDP",maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home);
+    Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo);
+    //Policy *RTDP = new RtdpAlgo("RTDP",maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo);
 
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);

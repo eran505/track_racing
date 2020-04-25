@@ -8,14 +8,15 @@
 #include <utility>
 
 #include "Policy.hpp"
+typedef unordered_map<string ,string> dictionary;
 
 class Dog: public Policy{
     int x;
     vector<Point> golazz;
     int get_goal_point();
 public:
-    Dog(string namePolicy, int speed_MAX, int x,string agentID,string &home);
-    Dog(string namePolicy,int MAX_SPEED,string agentID,string &home);
+    Dog(string namePolicy, int speed_MAX, int x,string agentID,string &home,dictionary *ptrDict);
+    Dog(string namePolicy,int MAX_SPEED,string agentID,string &home,dictionary *ptrDict);
     void set_goal(Point p)
     {
         this->golazz.push_back(p);
@@ -70,7 +71,7 @@ void Dog::policy_data() const {
     printf("Dog::No Data is available");
 }
 
-Dog::Dog( string namePolicy,int MAX_SPEED,string agentID,string &home) : Policy( std::move(namePolicy),MAX_SPEED,std::move(agentID),home) {
+Dog::Dog( string namePolicy,int MAX_SPEED,string agentID,string &home,dictionary *ptrDict) : Policy( std::move(namePolicy),MAX_SPEED,std::move(agentID),home,ptrDict) {
     this->x=1;
 }
 
@@ -78,7 +79,7 @@ Dog::~Dog() {
     cout<<"del DOG"<<endl;
 }
 
-Dog::Dog(string namePolicy, int speed_MAX,int x,string agentID,string &home) : Policy(std::move(namePolicy),speed_MAX,agentID,home) {
+Dog::Dog(string namePolicy, int speed_MAX,int x,string agentID,string &home,dictionary *ptrDict) : Policy(std::move(namePolicy),speed_MAX,agentID,home, ptrDict) {
     this->x=x;
 
 }

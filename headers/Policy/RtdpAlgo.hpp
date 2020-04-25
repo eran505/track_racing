@@ -8,7 +8,7 @@
 #include "RTDP_util.hpp"
 #include "Policy/Policy.hpp"
 #include <deque>
-
+typedef unordered_map<string ,string> dictionary;
 class RtdpAlgo : public Policy{
     double CollReward = 1;
     double GoalReward = -1;
@@ -33,7 +33,7 @@ public:
         cout<<"del RTDP"<<endl;
         delete(this->RTDP_util_object);
     }
-    RtdpAlgo(string namePolicy, int maxSpeedAgent, int grid_size, vector<pair<int,int>> &max_speed_and_budget,string agentID,string &home);
+    RtdpAlgo(string namePolicy, int maxSpeedAgent, int grid_size, vector<pair<int,int>> &max_speed_and_budget,string agentID,string &home,dictionary *ptrDict);
     Point get_action(State *s) override;
     const vector<float >* TransitionAction(State *s) override ;
     void reset_policy() override;

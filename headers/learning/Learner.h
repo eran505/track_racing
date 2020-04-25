@@ -41,8 +41,9 @@ class Learner{
     unsigned int updateCtr;
 
     string home;
-
+    dictionary *dictInfo= nullptr;
 public:
+    void setInfoDict(dictionary *ptrD) {dictInfo=ptrD;}
     bool epslionGreedy= false;
     void updateNetWork();
     void uploadNet();
@@ -63,7 +64,8 @@ public:
     float computerError(experienceTuple *exp,bool learn);
     static unsigned long hashValueMe(vector<float> &vec);
 
-        private:
+
+    private:
     Tensor calcQtraget(const experienceTuple *exp);
     void toCsvDict(string &pathFile, unordered_map<unsigned long,vector<vector<float>>> &netData);
 
@@ -189,7 +191,7 @@ void Learner::updateNet() {
 void Learner::uploadNet()
 {
     cout<<"**** UploadNet ****"<<endl;
-    auto model_save_path=this->home+"/car_model/nn/nn6.pt";
+    auto model_save_path=this->home+"/car_model/nn/nn.pt";
     auto* pModule = (torch::nn::Module*)this->evalNet;
     LoadStateDict(*pModule, model_save_path, "none");
     if (!isDoubleNet)
@@ -202,7 +204,8 @@ void Learner::updateNetWork()
 {
     updateCtr=0;
     cout<<"updateNetWork"<<endl;
-    auto model_save_path=this->home+"/car_model/nn/nn.pt";
+    auto name ="nn_"+dictInfo->operator[]("ID")+".pt";
+    auto model_save_path=this->home+"/car_model/nn/"+name;
     auto* pModule = (torch::nn::Module*)this->evalNet;
     SaveStateDict(*pModule, model_save_path);
     pModule = (torch::nn::Module*)this->targetNet;

@@ -10,6 +10,8 @@
 #include <assert.h>
 #include <utility>
 
+typedef unordered_map<string ,string> dictionary;
+
 typedef vector<tuple<Point*,double>> listPointWeighted;
 
 class PathPolicy:public Policy{
@@ -26,8 +28,8 @@ public:
         return dictPolicy->size();
     }
     PathPolicy(string namePolicy, int maxSpeedAgent,listPointWeighted endPoint_, listPointWeighted startPoint_,
-               Point &gridSzie, string agentID,vector<Point> midVecPoints,string &home,unsigned long maxPathz=ULONG_MAX) : Policy(std::move(namePolicy),
-                       maxSpeedAgent,std::move(agentID),home),midVec(move(midVecPoints)) {
+               Point &gridSzie, string agentID,vector<Point> midVecPoints,string &home,unsigned long maxPathz=ULONG_MAX,dictionary* ptrDict=nullptr) : Policy(std::move(namePolicy),
+                       maxSpeedAgent,std::move(agentID),home,ptrDict),midVec(move(midVecPoints)) {
         this->goalPoint=std::move(endPoint_);
         this->dictPolicy= nullptr;
 
