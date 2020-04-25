@@ -122,7 +122,7 @@ bool State::isGoal() {
 bool State::isEndState() {
     for(const auto &item : this->pos_dict)
     {
-        if (item.first[1]==Section::adversary)
+        if (item.first[item.first.length()-1]==Section::adversary)
         {
             auto x= this->g_grid->isEnd(&item.second);
                 if (x==0 or x==1)

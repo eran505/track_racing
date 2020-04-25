@@ -51,10 +51,7 @@ using namespace std::chrono;
 typedef vector<tuple<Point*,double>> listPointWeighted;
 typedef unsigned long ulong;
 int main() {
-    for (int j = 0; j < 100; ++j) {
 
-        cout<<range_random(0,3)<<endl;
-    }
     int seed = 155139;
     //seed = 15959;
     //seed = int( time(nullptr));
@@ -66,7 +63,7 @@ int main() {
     string repo = "/"+arrPAth[0]+"/"+arrPAth[1]+"/"+arrPAth[2]+"/"+arrPAth[3]+"/"+arrPAth[4];
     int MaxInt = INT_MAX;
     //const string home="/home/ise";
-    std::string pathCsv (home + "/car_model/config/con33.csv");
+    std::string pathCsv (home + "/car_model/config/con_size.csv");
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -77,6 +74,7 @@ int main() {
 
     for (int i=1; i<csvRows.size();++i)
     {
+        cout << "  rand(): " << rand() << '\n';
         cout<<"seed:\t"<<seed<<endl;
         string curToCsv;
         string curToCsvPolciy;
@@ -121,7 +119,7 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(7000000);
+    my_game->startGame(3000000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 

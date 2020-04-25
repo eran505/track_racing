@@ -136,12 +136,20 @@ const std::vector<float> *PathPolicy::TransitionAction(State *s) {
 }
 
 int PathPolicy::getAgentSateHash(State *s) {
+    //cout<<s->to_string_state()<<endl;
     int hSpeed = s->get_speed(this->id_agent).hashConst(Point::maxSpeed);
     int hPos = s->get_position(this->id_agent).hashConst();
     int EntryIndx = Point::hashNnN(hPos,hSpeed);
     return EntryIndx;
 }
-
+/**
+ * TreeTraversal output to csv file the path of the agents,
+ * with the probabilities for each path.
+ *
+ * @param pointer of the initial state object
+ * @return void (write to disk csv file)
+ *
+ * **/
 void PathPolicy::treeTraversal(State *ptrState)
 {
     vector<vector<string>> res;
