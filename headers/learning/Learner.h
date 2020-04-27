@@ -177,6 +177,8 @@ void Learner::updateNet() {
     vector<float> errVec;
     for(auto & ptrItem : buffer->batchSampleData)
     {
+//        if (ptrItem== nullptr)
+//            continue;
         auto errorNew = this->computerError(ptrItem, true);
         errVec.push_back(errorNew);
     }

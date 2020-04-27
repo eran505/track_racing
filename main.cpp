@@ -53,17 +53,17 @@ typedef unsigned long ulong;
 int main() {
 
     int seed = 155139;
-    //seed = 15959;
+    //seed = 1587982523;
     seed = int( time(nullptr));
+    cout<<"seed:\t"<<seed<<endl;
     torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
-    cout<<"seed:\t"<<seed<<endl;
     auto arrPAth = splitStr(getExePath(),"/");
     string home = "/"+arrPAth[0]+"/"+arrPAth[1];
     string repo = "/"+arrPAth[0]+"/"+arrPAth[1]+"/"+arrPAth[2]+"/"+arrPAth[3]+"/"+arrPAth[4];
     int MaxInt = INT_MAX;
     //const string home="/home/ise";
-    std::string pathCsv (home + "/car_model/config/con1.csv");
+    std::string pathCsv (home + "/car_model/config/con3.csv");
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -189,8 +189,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
 
 
-    //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo);
-    Policy *RTDP = new RtdpAlgo("RTDP",maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo);
+    Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo);
+    //Policy *RTDP = new RtdpAlgo("RTDP",maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo);
 
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);
