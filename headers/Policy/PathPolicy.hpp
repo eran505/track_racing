@@ -88,8 +88,8 @@ public:
     const std::vector<float>* TransitionAction(State*) override;
     void normalizeDict();
 
-    void treeTraversal(State *ptrState);
-    void policyData(vector<vector<string>> &res);
+    void treeTraversal(State *ptrState, string &strIDExp);
+    void policyData(vector<vector<string>> &res,string &strID);
     vector<float> minizTrans(const vector<float>* x);
 };
 
@@ -152,7 +152,7 @@ int PathPolicy::getAgentSateHash(State *s) {
  * @return void (write to disk csv file)
  *
  * **/
-void PathPolicy::treeTraversal(State *ptrState)
+void PathPolicy::treeTraversal(State *ptrState,string &strIdExp)
 {
     vector<vector<string>> res;
     deque<pair<State,float>> q;
@@ -212,7 +212,7 @@ void PathPolicy::treeTraversal(State *ptrState)
         }
 
     }
-    policyData(res);
+    policyData(res,strIdExp);
 }
 
 
@@ -271,11 +271,11 @@ vector<float> PathPolicy::minizTrans(const vector<float> *x) {
 }
 
 
-void PathPolicy::policyData(vector<vector<string>> &res)
+void PathPolicy::policyData(vector<vector<string>> &res, string &strID)
 {
-    string pathFile=this->home+"/car_model/debug/";
+    string pathFile=this->home+"/car_model/exp/";
     try{
-        string nameFileCsv="Attacker.csv";
+        string nameFileCsv=strID+"_Attacker.csv";
         csvfile csv(std::move(pathFile+nameFileCsv),","); // throws exceptions!
         for(auto &item: res)
         {

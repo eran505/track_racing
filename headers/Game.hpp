@@ -20,6 +20,7 @@ class Game {
     int counterBuffer=0;
     int ctr_at_gal=0;
     int ctr_wall=0;
+    int ctr_at_open=0;
     int ctr_round=0;
     int numEval=500;
     int modEval = 1000;

@@ -90,6 +90,7 @@ void Game::evalPolicy() {
     int old_ctr_wall = this->ctr_wall;
     int old_ctr_coll=this->ctr_coll;
     int old_ctr_at_gal = this->ctr_at_gal;
+    int open_ctr = this->ctr_at_open;
     for (int i = 0; i <this->numEval; ++i) {
         this->loop_game();
         this->reset_game();
@@ -98,12 +99,13 @@ void Game::evalPolicy() {
     int evl_wall = this->ctr_wall-old_ctr_wall;
     int evl_coll = this->ctr_coll-old_ctr_coll;
     int evl_goal = this->ctr_at_gal-old_ctr_at_gal;
+    int evl_open = this->ctr_at_open-open_ctr;
     this->print_eval(evl_coll,evl_goal,evl_wall);
     ctr_coll=old_ctr_coll;
     ctr_at_gal=old_ctr_at_gal;
     ctr_wall=old_ctr_wall;
     this->planer->setPolicyModeAgent(false);
-    this->guardEval->push_back({ctr_round,evl_wall,evl_coll,evl_goal});
+    this->guardEval->push_back({ctr_round,evl_wall,evl_coll,evl_goal,evl_open});
 
 }
 
@@ -129,6 +131,7 @@ void Game::startGame(int numIter)
             tmp[1]=this->ctr_wall;
             tmp[2]=this->ctr_coll;
             tmp[3] = this->ctr_at_gal;
+            tmp[4] = this->ctr_at_open;
             info->push_back(tmp);
         }
         if (isConverage())
@@ -142,6 +145,7 @@ void Game::startGame(int numIter)
         tmp[1]=this->ctr_wall;
         tmp[2]=this->ctr_coll;
         tmp[3] = this->ctr_at_gal;
+        tmp[4] = this->ctr_at_open;
         info->push_back(tmp);
     }
 }
@@ -217,10 +221,10 @@ void Game::constraint_checking_end_game(){
             // push to list of del player
             //cout<<this->planer->get_cur_state()->get_position(i->get_id()).to_str()<<endl;
             auto theGoal = this->planer->get_cur_state()->get_position(i->get_id()).to_str();
+            auto isTargetGoal = this->planer->get_Grid()->isGoalReward(pos);
+            (isTargetGoal) ? this->ctr_at_gal++:this->ctr_at_open++;
             //cout<<theGoal<<endl;
             to_del_ad.push_front(i);
-            this->ctr_at_gal++;
-
         }
     }
     // clean all adversaries agents

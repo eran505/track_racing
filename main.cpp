@@ -53,8 +53,8 @@ typedef unsigned long ulong;
 int main() {
 
     int seed = 155139;
-    //seed = 1587982523;
-    seed = int( time(nullptr));
+    seed = 1587982523;
+    //seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
     torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -63,11 +63,11 @@ int main() {
     string repo = "/"+arrPAth[0]+"/"+arrPAth[1]+"/"+arrPAth[2]+"/"+arrPAth[3]+"/"+arrPAth[4];
     int MaxInt = INT_MAX;
     //const string home="/home/ise";
-    std::string pathCsv (home + "/car_model/config/con3.csv");
+    std::string pathCsv (home + "/car_model/config/con2.csv");
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
-    vector<string> labels={"ctr_round","ctr_wall","ctr_coll","ctr_at_goal"};
+    vector<string> labels={"ctr_round","ctr_wall","ctr_coll","ctr_at_goal","ctr_open"};
 
     const std::string exeFilePath (repo+"/bash/clean.sh");
     //system(exeFilePath.c_str());
@@ -120,7 +120,7 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(3000000);
+    my_game->startGame(30000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
@@ -189,8 +189,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
 
 
-    Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo);
-    //Policy *RTDP = new RtdpAlgo("RTDP",maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo);
+    //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo);
+    Policy *RTDP = new RtdpAlgo("RTDP",maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo);
 
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);
@@ -203,7 +203,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     s->set_state();
 
     auto* tmp = new State(*s->get_cur_state());
-    tmp_pointer->treeTraversal(tmp);
+    tmp_pointer->treeTraversal(tmp,conf.idNumber);
     return s;
 }
 
