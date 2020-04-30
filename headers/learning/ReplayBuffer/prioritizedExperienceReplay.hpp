@@ -119,18 +119,7 @@ public:
             assert(expDAta != nullptr);
             batchSampleData.push_back(expDAta);
         }
-        //only for debug - del all comments below
-//        auto toSearch = this->opSumTree->total();
-//        this->opSumTree->toStringTree();
-//        auto tupIndexes = this->opSumTree->getElementByPartialSum(3.6);
-//        tupIndexes = this->opSumTree->getElementByPartialSum(toSearch);
-//        tupIndexes = this->opSumTree->getElementByPartialSum(0.0001);
-//        auto idxTreeError = std::get<0>(tupIndexes);
-//        auto idxData = std::get<1>(tupIndexes);
-//        auto expDAta = this->opSumTree->getData(idxData);
-//        if (expDAta == nullptr)
-//            cout<<"";
-//        assert(expDAta != nullptr);
+
     }
 
 };
