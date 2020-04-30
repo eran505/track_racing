@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(track_racing)
 
 set(CMAKE_CXX_STANDARD 14)
-
+set(CMAKE_VERBOSE_MAKEFILE ON)
 #add_definitions(-D_GLIBCXX_USE_CXX14_ABI=0)
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -gdwarf-3")
 #set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -gdwarf-3")
@@ -30,7 +30,7 @@ add_executable(track_racing
         main.cpp
         MdpPlaner.cpp
         State.cpp
-        util_game.cpp headers/graph/graph_util.hpp headers/Policy/RTDP_util.hpp headers/Policy/RTDP_util.cpp headers/Policy/RtdpAlgo.hpp headers/Policy/RtdpAlgo.cpp headers/graph/graph_dummy.hpp headers/serach/Astar.hpp headers/serach/Astar.cpp headers/Policy/PathPolicy.hpp headers/util/csvfile.hpp headers/util/utilClass.hpp headers/learning/neuralNet.h headers/learning/FeatureGen.h headers/learning/DeepRTDP.h headers/learning/ReplayBuffer/ReplayBuffer.hpp headers/learning/DQN.hpp headers/Policy/valueIter.h headers/learning/Learner.h headers/learning/ReplayBuffer/SumTree.hpp headers/learning/ReplayBuffer/prioritizedExperienceReplay.hpp headers/learning/ReplayBuffer/ExperienceReplay.hpp headers/learning/ReplayBuffer/BufferReplay.hpp headers/util/Lookhead.h)
+        util_game.cpp headers/graph/graph_util.hpp headers/Policy/RTDP_util.hpp headers/Policy/RTDP_util.cpp headers/Policy/RtdpAlgo.hpp headers/Policy/RtdpAlgo.cpp headers/graph/graph_dummy.hpp headers/serach/Astar.hpp headers/serach/Astar.cpp headers/Policy/PathPolicy.hpp headers/util/csvfile.hpp headers/util/utilClass.hpp headers/learning/neuralNet.h headers/learning/FeatureGen.h headers/learning/DeepRTDP.h headers/learning/ReplayBuffer/ReplayBuffer.hpp headers/learning/DQN.hpp headers/Policy/valueIter.h headers/learning/Learner.h headers/learning/ReplayBuffer/SumTree.hpp headers/learning/ReplayBuffer/prioritizedExperienceReplay.hpp headers/learning/ReplayBuffer/ExperienceReplay.hpp headers/learning/ReplayBuffer/BufferReplay.hpp headers/util/Lookhead.h headers/learning/MCTS/UCT.hpp)
 
 target_link_libraries(track_racing "${TORCH_LIBRARIES}")
 

@@ -52,8 +52,11 @@ typedef vector<tuple<Point*,double>> listPointWeighted;
 typedef unsigned long ulong;
 int main() {
 
-
-
+//    std::tuple<int, std::string> t(42, "foo");
+//    const auto& [i, s] = t;
+//    cout<<i<<endl;
+//    cout<<s<<endl;
+//    exit(0);
     int seed = 155139;
     seed = 1587982523; //1895975606
     //seed = int( time(nullptr));
