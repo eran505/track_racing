@@ -15,6 +15,7 @@ typedef vector<float> feature;
 class experienceTuple{
 public:
     short aAction;
+
     vector<feature*> ptrNextStateVec;
     feature* ptrState;
     vector<short> isEndStateNot;
@@ -86,29 +87,40 @@ typedef vector<experienceTuple*> experiences;
 typedef unordered_map<unsigned long,unsigned int> IndexesDict;
 
 class SumTree{
+    typedef double metric;
 public:
     unsigned int write;
     unsigned int capacity;
+    unsigned int ctrDebug=0;
     unsigned int treeSize;
     bool dup;
     experiences dataTree;
     IndexesDict mIndexesDict;
-    vector<float> tree;
-    std::function<float(float,float)> foo;
+    vector<metric> tree;
+    std::function<metric(metric,metric)> foo;
 
     ~SumTree(){
         for(auto item: dataTree)
             delete(item);
     }
-
-    unsigned int retrieve2(unsigned int root_node_idx, float val){
+    void toStringTree()
+    {
+        short ctr=0;
+        cout<<"dataTree-size(),"<<dataTree.size()<<endl;
+        for(const auto &val:tree)
+        {
+            cout<<ctr<<","<<val<<endl;
+            ctr++;
+        }
+    }
+    unsigned int retrieve2(unsigned int root_node_idx, metric val){
         unsigned int leafIdx;
         unsigned int parentIndex=root_node_idx;
         while(true)
         {
             auto left = 2 * parentIndex + 1;
             auto right = left + 1;
-            //cout<<"retrieve2\n";
+           // cout<<"left: "<<left<<"\tright: "<<right<<"\tval: "<<val<<endl;
             if (left>=this->tree.size())
             {
                 leafIdx = parentIndex;
@@ -118,7 +130,7 @@ public:
                 if(val <= this->tree[left])
                     parentIndex = left;
                 else{
-                    val = val - this->tree[left];
+                     val = val - this->tree[left];
                     parentIndex = right;
                 }
             }
@@ -133,7 +145,7 @@ public:
       :param val: the value to query for
       :return: the index of the resulting node
      * **/
-    unsigned int retrieve(unsigned int root_node_idx, float val){
+    unsigned int retrieve(unsigned int root_node_idx, metric val){
         auto left = 2 * root_node_idx + 1;
         auto right = left + 1;
         if (left>=this->tree.size())
@@ -162,7 +174,7 @@ public:
         }else
             throw std::invalid_argument( "the operation Tree is invalid" );
         // initial
-        this->tree =vector<float>(2*capacity-1,initialValue);
+        this->tree =vector<metric>(2*capacity-1,initialValue);
         this->treeSize=2*capacity-1;
         this->dataTree = experiences(capacity);
         if (!duplication)
@@ -174,7 +186,7 @@ public:
         return dataTree[idx];
     }
     /**get the probability **/
-    float getTreeValue(unsigned int idx){
+    metric getTreeValue(unsigned int idx){
         return tree[idx];
     }
     void delIndexesDict(experienceTuple *ptrOld){
@@ -197,8 +209,9 @@ public:
      :param val: the new value to add to the tree
      :param data: the data that should be assigned to this value
      **/
-    void add(float p , experienceTuple *ptrExp)
+    void add(metric p , experienceTuple *ptrExp)
     {
+        std::setprecision(10);
         if(dup)
         {
             experienceTuple *ptrOld = this->dataTree[write];
@@ -209,7 +222,6 @@ public:
         {
             auto hashValue = ptrExp->hashValue();
             if (isContain(hashValue)) {
-                //cout<<"in"<<endl;
                 delete ptrExp;
                 return;
             }
@@ -222,8 +234,10 @@ public:
         }
 
         //auto idx= this->write + this->capacity - 1;
+       // cout<<"P: "<<p<<endl;
         this->update(write,p);
         this->write++;
+        this->ctrDebug++;
         if (write >= capacity)
             write=0;
         //cout<<"write: "<<write<<endl;
@@ -237,7 +251,7 @@ public:
     :return: the index of the resulting leaf in the tree,
      its probability and the object itself
     **/
-    tuple<unsigned int,unsigned int>  getElementByPartialSum(float s){
+    tuple<unsigned int,unsigned int>  getElementByPartialSum(metric s){
         auto idxTree= this->retrieve2(0, s);
         auto idxData = idxTree - this->capacity + 1;
         return {idxTree,idxData};
@@ -253,7 +267,7 @@ public:
  :param leaf_idx: the index of the node to update
  :param new_val: the new value of the node
  **/
-    void update(unsigned int idx,float p)
+    void update(unsigned int idx,metric p)
     {
         auto node_idx = idx + capacity - 1; //Look at what index we want to put the experience
         if (node_idx<0)
