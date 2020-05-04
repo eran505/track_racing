@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
 project(track_racing)
 
-set(CMAKE_CXX_STANDARD 14)
-set(CMAKE_VERBOSE_MAKEFILE ON)
+set(CMAKE_CXX_STANDARD 17)
+#set(CMAKE_VERBOSE_MAKEFILE ON)
 #add_definitions(-D_GLIBCXX_USE_CXX14_ABI=0)
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -gdwarf-3")
 #set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -gdwarf-3")

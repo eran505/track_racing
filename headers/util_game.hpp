@@ -16,8 +16,21 @@
 #include <map>
 #include <algorithm>
 #include <set>
+#include <memory>
+#include <queue>
+using std::vector;
+using std::map;
+using std::unordered_map;
+using std::cout;
+using std::list;
+using std::ios_base;using std::multimap;
+using std::pair;using std::shared_ptr;
+using std::reverse_iterator;using std::tuple;
+using std::ostream;using std::set;
+using std::string;
+using std::endl;
+using std::queue;
 
-using namespace std;
 
 enum Section{
     adversary = (int)'A',

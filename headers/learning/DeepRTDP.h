@@ -15,7 +15,7 @@
 #include "ReplayBuffer/prioritizedExperienceReplay.hpp"
 class DeepRTDP : public Policy{
 
-    typedef unordered_map<string ,string> dictionary;
+    typedef shared_ptr<unordered_map<string ,string>> dictionary;
 // Rewards
     float collReward=1;float goalReward=-1;float wallReward=-1;
     int ctrState=0;
@@ -56,7 +56,7 @@ class DeepRTDP : public Policy{
 public:
 
     DeepRTDP(string namePolicy, int maxSpeedAgent, int seed, const string &agentID, int goal_numbers, string &home,
-             float IDHuer, dictionary* m_dico);
+             float IDHuer, dictionary m_dico);
     ~DeepRTDP() override
     {
         delete this->dqn;
@@ -75,7 +75,7 @@ public:
     vector<float> *searchLook(State *s);
 };
 
-DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers,string &home,float IDHuer=0,dictionary* m_dico=nullptr):Policy(std::move(namePolicy),maxSpeedAgent,
+DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& agentID,int goal_numbers,string &home,float IDHuer=0,dictionary m_dico=nullptr):Policy(std::move(namePolicy),maxSpeedAgent,
         agentID,home,m_dico),ctrRandom(seed),featuerConv(new FeatureGen(agentID,goal_numbers,this->max_speed)),heuristicID(IDHuer){
     this->dqn=new Learner(true,this->featuerConv->getFeatureVecSize(),25,
             discountFactor,this->home, false);

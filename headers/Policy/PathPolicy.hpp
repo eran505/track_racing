@@ -10,7 +10,7 @@
 #include <assert.h>
 #include <utility>
 
-typedef unordered_map<string ,string> dictionary;
+typedef shared_ptr<unordered_map<string ,string>> dictionary;
 
 typedef vector<tuple<Point*,double>> listPointWeighted;
 
@@ -28,7 +28,7 @@ public:
         return dictPolicy->size();
     }
     PathPolicy(string namePolicy, int maxSpeedAgent,listPointWeighted endPoint_, listPointWeighted startPoint_,
-               Point &gridSzie, string agentID,vector<Point> midVecPoints,string &home,unsigned long maxPathz=ULONG_MAX,dictionary* ptrDict=nullptr) : Policy(std::move(namePolicy),
+               Point &gridSzie, string agentID,vector<Point> midVecPoints,string &home,unsigned long maxPathz=ULONG_MAX,dictionary ptrDict=nullptr) : Policy(std::move(namePolicy),
                        maxSpeedAgent,std::move(agentID),home,ptrDict),midVec(move(midVecPoints)) {
         this->goalPoint=std::move(endPoint_);
         this->dictPolicy= nullptr;
@@ -162,8 +162,8 @@ void PathPolicy::treeTraversal(State *ptrState,string &strIdExp)
     while (!q.empty())
     {
         auto pairCur = q.front();
-        auto curState = get<0>(pairCur);
-        auto prob =get<1>(pairCur);
+        auto curState = std::get<0>(pairCur);
+        auto prob =std::get<1>(pairCur);
 
         //cout<<curState.to_string_state()<<endl;
         q.pop_front();
@@ -187,7 +187,7 @@ void PathPolicy::treeTraversal(State *ptrState,string &strIdExp)
             continue;
         }
         if (!path.empty())
-        if (curState.to_string_state() == get<0>( path[path.size()-1]).to_string_state())
+        if (curState.to_string_state() == std::get<0>( path[path.size()-1]).to_string_state())
         {
             auto posPair = path[path.size()-1];
             auto p = posPair.second;

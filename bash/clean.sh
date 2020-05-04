@@ -21,5 +21,13 @@ else
    rm  ~/car_model/exp/out/*
 fi
 
+if [ -z "$(ls -A ~/car_model/exp/out/)" ]; then
+   echo "Empty out"
+else
+   echo "Not Empty"
+   rm  ~/car_model/exp/out/*
+fi
+
+
 
 

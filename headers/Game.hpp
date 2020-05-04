@@ -8,6 +8,7 @@
 #include <utility>
 
 #include "MdpPlaner.hpp"
+#include "util_game.hpp"
 
 class Game {
 

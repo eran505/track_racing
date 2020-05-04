@@ -5,8 +5,14 @@
 #ifndef TRACK_RACING_GRAPH_DUMMY_HPP
 #define TRACK_RACING_GRAPH_DUMMY_HPP
 #include "util_game.hpp"
-using namespace std;
 
+using std::vector;
+using std::map;
+using std::unordered_map;
+using std::cout;
+using std::list;
+using std::deque;
+using std::endl;
 // data structure to store graph edges
 struct Edge {
     int src, dest;

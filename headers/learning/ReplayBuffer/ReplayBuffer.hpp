@@ -89,7 +89,7 @@ public:
         delete ptrOld;
         vecMem->insert(itPos,newItem);
     }
-    void sampleEntries(unsigned int size,unordered_set<int> &hashList) const
+    void sampleEntries(unsigned int size,std::unordered_set<int> &hashList) const
     {
         //unordered_set<int> hashList;
         if (size>=memSize)

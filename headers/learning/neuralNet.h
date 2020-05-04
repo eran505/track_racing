@@ -107,7 +107,7 @@ class neuralNet : torch::nn::Module{
         if (!buffer->isSufficientAmountExperience())
             return;
         //random samples
-        unordered_set<int> entries;
+        std::unordered_set<int> entries;
 
         buffer->sampleEntries(batchSizeEntries,entries);
         for (const auto entryIndx:entries)

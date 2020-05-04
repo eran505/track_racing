@@ -49,13 +49,5 @@ Grid::Grid(const game_params &parm) {
     this->all_golas=parm.list_goals;
 }
 
-void box::set_agent(string &str_agent) {
-    this->info = str_agent;
-}
-
-ostream &operator<<(ostream &os,  const box& my_box) {
-    return os << "|" << my_box.info<<" |" << endl;
-
-}
 
 

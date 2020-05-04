@@ -128,7 +128,7 @@ RTDP_util::~RTDP_util() {
     for(int i = 0; i < this->size_Q; ++i) {
        // cout<<"i="<<std::to_string(i)<<endl;
         double* currentIntPtr = qTable[i];
-        delete(currentIntPtr);
+        delete [] currentIntPtr;
     }
     //Free the array of pointers
     delete[] qTable;

@@ -29,7 +29,7 @@ string State::to_string_state() const {
         str.append(sep);
         str.append(my_speed->to_str());
         str.append(sep);
-        str.append(to_string(my_budget));
+        str.append(std::to_string(my_budget));
         str+="|";
         //str+=id_name+sep+my_pos->to_str()+sep+my_speed->to_str()+sep+to_string(my_budget);
     }

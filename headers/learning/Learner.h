@@ -41,9 +41,9 @@ class Learner{
     unsigned int updateCtr;
 
     string home;
-    dictionary *dictInfo= nullptr;
+    dictionary dictInfo= nullptr;
 public:
-    void setInfoDict(dictionary *ptrD) {dictInfo=ptrD;}
+    void setInfoDict(dictionary ptrD) {dictInfo=ptrD;}
     bool epslionGreedy= false;
     void updateNetWork();
     void uploadNet();

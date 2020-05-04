@@ -75,8 +75,8 @@ public:
  * Sampling an item - O(log N)
  * */
 
-float maxFunc(float a ,float b){ return max(a,b);}
-float minFunc(float a ,float b){ return min(a,b);}
+float maxFunc(float a ,float b){ return std::max(a,b);}
+float minFunc(float a ,float b){ return std::min(a,b);}
 float addFunc(float a ,float b){ return a+b;}
 enum operationTree{
     maxTree = 1,

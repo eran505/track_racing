@@ -10,7 +10,7 @@
 #include <string>
 #include "util_game.hpp"
 
-using namespace std;
+
 typedef unsigned int uint;
 /*--------------------------------------------------------------------------------
 								  Auxiliary Structures
@@ -87,18 +87,6 @@ private:
         }
 };
 
-class box{
-public:
-    ~box() = default;
-
-    box() {
-        this->info="";
-    }
-    string info;
-    friend ostream& operator<<(ostream& os,  const box& my_box);
-    void set_agent(string &str_agent);
-
-};
 
 
 #endif //RACING_CAR_GRID_HPP

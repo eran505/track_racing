@@ -7,6 +7,7 @@
 #include "headers/Game.hpp"
 #include "headers/Policy/Dog.hpp"
 #include "headers/graph/graph_util.hpp"
+#include <memory>
 #include <utility>
 #include <vector>
 #include<algorithm>
@@ -60,6 +61,7 @@ int main() {
     int seed = 155139;
     seed = 1587982523; //1895975606
     //seed = int( time(nullptr));
+
     cout<<"seed:\t"<<seed<<endl;
     torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -68,7 +70,7 @@ int main() {
     string repo = "/"+arrPAth[0]+"/"+arrPAth[1]+"/"+arrPAth[2]+"/"+arrPAth[3]+"/"+arrPAth[4];
     int MaxInt = INT_MAX;
     //const string home="/home/ise";
-    std::string pathCsv (home + "/car_model/config/con3.csv");
+    std::string pathCsv (home + "/car_model/config/con_test.csv");
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -125,7 +127,7 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(7000000);
+    my_game->startGame(3000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
@@ -154,8 +156,11 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     int maxD=1+maxSizeGrid/10;
 
     // make game info
-    auto gameInfo = new unordered_map<string,string>();
-    gameInfo->insert({"ID",conf.idNumber});
+    shared_ptr<unordered_map<string,string>> gameInfo_share = std::make_shared<unordered_map<string,string>>();
+    auto [it, result] = gameInfo_share->emplace("ID",conf.idNumber);
+    assert(result);
+    //auto gameInfo = new unordered_map<string,string>();
+    //gameInfo->insert({"ID",conf.idNumber});
 
 
     auto startAdversary = new Point(conf.posAttacker);
@@ -194,8 +199,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
 
 
-    Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo);
-    //Policy *RTDP = new RtdpAlgo("RTDP",maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo);
+    //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
+    Policy *RTDP = new RtdpAlgo("RTDP",maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share);
 
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);
@@ -209,6 +214,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 
     auto* tmp = new State(*s->get_cur_state());
     tmp_pointer->treeTraversal(tmp,conf.idNumber);
+    delete tmp;
     return s;
 }
 
@@ -223,9 +229,9 @@ void toCsv(string &pathFile, vector<vector<int>>* infoArr,vector<string> &labels
             csv << label;
         csv<<endrow;
         // Data
-        for (auto row:*infoArr)
+        for (const auto &row:*infoArr)
         {
-            for (size_t i = 0; i < sizeLabels ; ++i)
+            for (size_t i = 0; i < row.size() ; ++i)
                 csv << row[i];
             csv<< endrow;
         }

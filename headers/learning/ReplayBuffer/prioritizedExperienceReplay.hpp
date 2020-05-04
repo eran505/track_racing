@@ -24,7 +24,7 @@ class prioritizedExperienceReplay{
     float epsilon;
     float maximalPriority;
     bool allowDuplicatesInBatchSampling;
-    default_random_engine eng{static_cast<long unsigned int>(/*time(0)*/324134)}; //Will be used to obtain a seed for the random number engine
+    std::default_random_engine eng{static_cast<long unsigned int>(/*time(0)*/324134)}; //Will be used to obtain a seed for the random number engine
 
 
 public:
