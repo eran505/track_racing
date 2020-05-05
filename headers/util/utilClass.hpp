@@ -3,6 +3,7 @@
 //
 #include <fstream>
 #include "util_game.hpp"
+#include <string_view>
 #include <unistd.h>
 #ifndef TRACK_RACING_UTILCLASS_HPP
 #define TRACK_RACING_UTILCLASS_HPP
@@ -35,6 +36,7 @@ vector<string> splitStr(const string& str, const string& delim)
 struct configGame{
 
     Point sizeGrid ;
+    string config;
     Point posAttacker;
     Point posDefender;
     vector<Point> gGoals ;
@@ -62,9 +64,17 @@ public:
         addGoal(goalsVecPos,goalsVecWights);
         rRoutes = stoi(row[8]);
         if (!midVec.empty()) addMidPoint(midVec);
-
+        config = "";
 
     };
+
+    void getConfigNameFile(string& str)
+    {
+        config=str;
+    }
+
+protected:
+
     static Point vecToPoint(vector<string> arr)
     {
         if (Point::D == 3)

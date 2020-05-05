@@ -72,8 +72,9 @@ int main() {
     int ctrId=1;
     vector<string> labels={"ctr_round","ctr_wall","ctr_coll","ctr_at_goal","ctr_open"};
 
-    const std::string exeFilePath (repo+"/bash/clean.sh");
-    //system(exeFilePath.c_str());
+    const std::string exeFilePath (repo+"/bash/clean.sh "+pathCsv);
+
+    system(exeFilePath.c_str() );
 
     for (int i=1; i<csvRows.size();++i)
     {
@@ -123,9 +124,10 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(5500000);
+    my_game->startGame(5000000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
+
 
 
     //delete(my_game);
@@ -267,7 +269,7 @@ void toCsvString(string pathFile,vector<string>* infoArr){
 }
 
 vector<vector<string>> readConfigFile(string &filePath){
-    CSVReader reader(std::move(filePath),',');
+    CSVReader reader(filePath,',');
     vector<vector<string>> rowsCsv = reader.getDataCSV();
 //    for (auto &row : rowsCsv )
 //    {

@@ -273,7 +273,7 @@ vector<float> PathPolicy::minizTrans(const vector<float> *x) {
 
 void PathPolicy::policyData(vector<vector<string>> &res, string &strID)
 {
-    string pathFile=this->home+"/car_model/exp/";
+    string pathFile=this->home+"/car_model/exp/data/";
     try{
         string nameFileCsv=strID+"_Attacker.csv";
         csvfile csv(std::move(pathFile+nameFileCsv),","); // throws exceptions!
