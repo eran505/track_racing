@@ -9,6 +9,7 @@
 #include "headers/graph/graph_util.hpp"
 #include <memory>
 #include <utility>
+#include "Abstract/abstractionDiv.h"
 #include <vector>
 #include<algorithm>
 #include "Policy/RtdpAlgo.hpp"
@@ -51,8 +52,8 @@ void toCsvString(string pathFile,vector<string>* infoArr);
 using namespace std::chrono;
 typedef vector<tuple<Point*,double>> listPointWeighted;
 typedef unsigned long ulong;
-int main() {
 
+int main() {
 
     int seed = 155139;
     seed = 1587982523; //1895975606
@@ -66,7 +67,7 @@ int main() {
     string repo = "/"+arrPAth[0]+"/"+arrPAth[1]+"/"+arrPAth[2]+"/"+arrPAth[3]+"/"+arrPAth[4];
     int MaxInt = INT_MAX;
     //const string home="/home/ise";
-    std::string pathCsv (home + "/car_model/config/con3.csv");
+    std::string pathCsv (home + "/car_model/config/con21.csv");
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -150,8 +151,8 @@ Grid * init_grid(configGame& conf){
 }
 MdpPlaner* init_mdp(Grid *g, configGame &conf){
     int maxSizeGrid = g->getPointSzie().array[0];
-    int maxA=2+maxSizeGrid/10;   //TODO:: change it to plus one !!!!!!!!!!!!!!!!!!!!!!!
-    int maxD=1+maxSizeGrid/10;
+    int maxA=1+maxSizeGrid/10;   //TODO:: change it to plus one !!!!!!!!!!!!!!!!!!!!!!!
+    int maxD=0+maxSizeGrid/10;
 
     // make game info
     shared_ptr<unordered_map<string,string>> gameInfo_share = std::make_shared<unordered_map<string,string>>();
@@ -183,26 +184,6 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     }
     listPointWeighted startState;
     startState.push_back({startAdversary,1});
-    Policy *pGridPath =new  PathPolicy("SP",maxA, endState, startState, p_sizer,pA1->get_id()
-            ,conf.midPos,conf.home,conf.rRoutes);
-    auto *tmp_pointer = dynamic_cast <PathPolicy*>(pGridPath);
-    printf("number of state:\t %d",tmp_pointer->getNumberOfState());
-    ////////PATH POLICY////////////
-
-
-    //// init the RTDP algo
-    /* If max speed is zero, the explict number of state is in the second place */
-    vector<pair<int,int>> list_Q_data;
-    list_Q_data.emplace_back(maxD,1);
-    list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
-
-
-    //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
-    Policy *RTDP = new RtdpAlgo("RTDP",maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share);
-
-    RTDP->add_tran(pGridPath);
-    pA1->setPolicy(pGridPath);
-    pD2->setPolicy(RTDP);
 
     auto* s = new MdpPlaner();
     s->add_player(pA1);
@@ -210,9 +191,33 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     s->set_grid(g);
     s->set_state();
 
+    //////// PATH POLICY ////////////
+    Policy *pGridPath =new  PathPolicy("SP",maxA, endState, startState, p_sizer,pA1->get_id()
+            ,conf.midPos,conf.home,conf.rRoutes);
+    auto *tmp_pointer = dynamic_cast <PathPolicy*>(pGridPath);
+    printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
     auto* tmp = new State(*s->get_cur_state());
     tmp_pointer->treeTraversal(tmp,conf.idNumber);
     delete tmp;
+
+
+    //////// RTDP POLICY ////////
+    /* If max speed is zero, the explict number of state is in the second place */
+    vector<pair<int,int>> list_Q_data;
+    list_Q_data.emplace_back(maxD,1);
+    list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
+
+    //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
+    //Policy *RTDP = new RtdpAlgo("RTDP",maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share);
+    auto* ab = new abstractionDiv(g->getPointSzie(),Point(5),tmp_pointer);
+
+//    RTDP->add_tran(pGridPath);
+//    pA1->setPolicy(pGridPath);
+//    pD2->setPolicy(RTDP);
+
+
+
+
     return s;
 }
 

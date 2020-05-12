@@ -25,9 +25,9 @@ class RtdpAlgo : public Policy{
     //stackStateActionIdxdouble expected_reward(State *s, Point &action);
     //double expected_reward_rec(State *s,int index_policy,deque<Point> &my_stack);
 public:
-    double getRewardColl(){ return CollReward;}
-    double getGoalReward(){ return GoalReward;}
-    double getWallReward(){ return WallReward;}
+    double getRewardColl() const{ return CollReward;}
+    double getGoalReward() const{ return GoalReward;}
+    double getWallReward() const{ return WallReward;}
     ~RtdpAlgo() override
     {
         cout<<"del RTDP"<<endl;

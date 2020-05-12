@@ -8,7 +8,7 @@
 RTDP_util::RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget,string &mHome):home(mHome) {
     this->hashActionMap=Point::getDictAction();
     this->set_up_Q(grid_size,max_speed_and_budget);
-    this->mapState= new map<string,unsigned int>();
+    this->mapState= new unordered_map<keyItem,unsigned int>();
     size_mapAction = hashActionMap->size();
 }
 
@@ -40,7 +40,8 @@ void RTDP_util::set_up_Q(int grid_size, vector<pair<int,int>>& max_speed_and_bud
 
 
 int RTDP_util::get_state_index_by_string(State *s_state) {
-    string s = s_state->to_string_state();
+    //string s = s_state->to_string_state();
+    auto s = s_state->getHashValue();
     auto it = this->mapState->find(s);
     if (it != this->mapState->end()){
         return it->second;
@@ -106,7 +107,7 @@ double RTDP_util::rec_h(State *s,int index, double acc_probablity)
     return res_h;
 }
 
-unsigned int RTDP_util::add_entry_map_state(string &basicString,State *s) {
+unsigned int RTDP_util::add_entry_map_state(keyItem basicString,State *s) {
     // compute heuristic
     this->heuristic(s,this->ctr_state);
 

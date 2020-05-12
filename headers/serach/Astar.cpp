@@ -59,6 +59,7 @@ AStar::Generator::Generator(uint absMaxSpeed,Point& girdSize)
     //TODO: change it to rec function
     Point::getAllAction(operatorAction);
     this->dictPoly = new policyDict();
+    hashDictStates = new unordered_map<u_int64_t ,StatePoint>();
 }
 
 
@@ -301,8 +302,8 @@ void AStar::Generator::consistentZFilter(){
                 }
             }
         }
-        if (!isConsistent)
-            cout<<"skip"<<endl;
+//        if (!isConsistent)
+//            //cout<<"skip"<<endl;
         return isConsistent;
     }
     );
@@ -358,17 +359,18 @@ void AStar::Generator::pathsToDict() {
         if (maxPath<=ctr)
             break;
         ctr++;
+
         for (unsigned long i = 0; i < itemF.size()-1; ++i) {
             Point difAction = itemF[i]->speed.operator-(itemF[i + 1]->speed);
 
-            int key = Point::hashNnN(itemF[i+1]->pos.hashConst(),
+            u_int64_t key = Point::hashNnN(itemF[i+1]->pos.hashConst(),
                                      itemF[i+1]->speed.hashConst(Point::maxSpeed));
-
-            //cout<<"h( "<<itemF[i+1]->pos.to_str()<<" )="<<key<<endl;
+            if (key<u_int64_t(0))
+                cout<<endl;
             if (i==0)
                 cout<<itemF[i]->pos.to_str()<<endl;
             cout<<itemF[i+1]->pos.to_str()<<endl;
-
+            hashDictStates->emplace(key,*itemF[i+1]);
             auto ation_h = difAction.hashMeAction(Point::D_point::actionMax);
             auto pos = dictPoly->find(key);
             if (pos == dictPoly->end()) {
@@ -432,7 +434,7 @@ void AStar::Generator::releaseMAP(unordered_map<string, Node *> map_) {
     }
 }
 
-void AStar::Generator::getDict(unordered_map<int, vector<float>*>* mapStateAction,const double weight) {
+void AStar::Generator::getDict(unordered_map<u_int64_t, vector<float>*>* mapStateAction,const double weight) {
 
     for(const auto &item: *this->dictPoly)
     {
@@ -470,12 +472,12 @@ void AStar::Generator::print_pathz(Node *l) {
     {
         vector<StatePoint*> x;
         for (auto &item:listPrint){
-            cout<<item->toStr()<<" <- ";
+            //cout<<item->toStr()<<" <- ";
             x.push_back(item->coordinates);
         }
         allPath.push_back(x);
         listPrint.remove(l);
-        cout<<endl;
+        //cout<<endl;
         return;
     }
     for (int i = 0; i < l->parent.size(); ++i) {

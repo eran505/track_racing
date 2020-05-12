@@ -12,9 +12,11 @@
 #include <fstream>
 #include <algorithm>
 #include "Policy.hpp"
+
+typedef size_t keyItem;
 class RTDP_util{
     double **qTable;
-    map<string,unsigned int> *mapState;
+    unordered_map<keyItem,unsigned int> *mapState;
     vector<Policy*> *lTran= nullptr;
     const string home;
     Policy* my_policy;
@@ -41,7 +43,7 @@ public:
     ~RTDP_util();
     RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget,string &mHome);
     int get_state_index_by_string(State *str_state);
-    unsigned int add_entry_map_state(string &basicString, State *s);
+    unsigned int add_entry_map_state(keyItem basicString, State *s);
 
     void set_value_matrix(int entryState, Point &action ,double val){
 //        if (entryState == 0)

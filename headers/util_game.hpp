@@ -220,12 +220,13 @@ public:
     }
 
 
-    int hashConst(int offset=0)const {
-        double h=hashNnN(array[0]+offset,array[1]+offset);
+    u_int64_t hashConst(int offset=0)const {
+
+        auto h=hashNnN(array[0]+offset,array[1]+offset);
         for (int i = 2; i < capacity; ++i) {
-            h=hashNnN(int(h),this->array[i]+offset);
+            h=hashNnN(h,this->array[i]+offset);
         }
-        return int(h);
+        return h;
     }
     static unordered_map<int,Point*>* getDictAction();
     Point operator-(const Point &other) const
@@ -267,7 +268,11 @@ public:
         return h;
     }
 
-    static int hashNnN(int x,int y){ return int(((x+y)*(x+y+1))*0.5+y);}
+    static u_int64_t hashNnN(u_int64_t x,u_int64_t y)
+    {
+
+        return ( 0.5*( (x+y) * (x+y+1) ) + y ) ;
+    }
 };
 
 

@@ -170,7 +170,7 @@ void State::getAllPosOpponent(vector<Point> &results,char team) {
     }
 }
 
-unsigned long State::getHashValue(){
+u_int32_t State::getHashValue(){
     vector<int> vec;
     for(auto const &item:this->pos_dict)
     {
@@ -180,9 +180,9 @@ unsigned long State::getHashValue(){
             vec.push_back(speed_dict[item.first].array[i]);
 
     }
-    std::size_t seed = vec.size();
+    u_int32_t  seed = vec.size();
     for(auto& i : vec) {
-        seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^=  (i * 2654435761) + 2654435769 + (seed << 6) + (seed >> 2);
     }
     return seed;
 }

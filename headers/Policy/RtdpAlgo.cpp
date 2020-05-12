@@ -59,7 +59,7 @@ Point RtdpAlgo::get_action(State *s)
             //this->inset_to_stack(s,action,entry);
             //action.array[2]=this->max_speed;
             s->takeOff=true;
-            this->tmp=s->to_string_state();
+            //this->tmp=s->to_string_state();
         }
     //TODO: inset the state action tuple to the stack to update at the end of the episode
 

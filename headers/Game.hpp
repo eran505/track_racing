@@ -11,7 +11,11 @@
 #include "util_game.hpp"
 
 class Game {
-
+    enum event{
+        ECollusion=1,
+        EWall=2,
+        EGoal=3
+    };
     list<Agent*> *in_game_adversaries;
     list<Agent*> *in_game_guards;
     list<Agent*> *out_game;

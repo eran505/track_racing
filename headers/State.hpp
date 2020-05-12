@@ -42,7 +42,7 @@ public:
     std::ostream& operator<<(std::ostream &strm) {
         return strm <<this->to_string_state();
     }
-    unsigned long getHashValue();
+    u_int32_t  getHashValue();
 
     string to_string_state() const;
 

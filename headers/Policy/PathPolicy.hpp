@@ -7,8 +7,9 @@
 
 #include "../serach/Astar.hpp"
 #include "Policy.hpp"
-#include <assert.h>
+#include <cassert>
 #include <utility>
+#include "util/csvfile.hpp"
 
 typedef shared_ptr<unordered_map<string ,string>> dictionary;
 
@@ -16,14 +17,18 @@ typedef vector<tuple<Point*,double>> listPointWeighted;
 
 class PathPolicy:public Policy{
     unsigned long maxPathsNumber;
+
+
+    vector<Point> midVec;
+    vector<std::tuple<double,vector<Point>>> pathz;
+    Point actionmy;
+    unordered_map<u_int64_t,vector<float>*> *dictPolicy;
+    u_int64_t getAgentSateHash(State *s);
+public:
+    unordered_map<u_int64_t ,AStar::StatePoint>* statesIdDict;
+    unordered_map<u_int64_t,vector<float>*>* getDictPolicy(){return dictPolicy;}
     listPointWeighted goalPoint;
     listPointWeighted startPoint;
-    vector<Point> midVec;
-    Point actionmy;
-    unordered_map<int,vector<float>*> *dictPolicy;
-    int getAgentSateHash(State *s);
-public:
-
     int getNumberOfState() {
         return dictPolicy->size();
     }
@@ -32,14 +37,14 @@ public:
                        maxSpeedAgent,std::move(agentID),home,ptrDict),midVec(move(midVecPoints)) {
         this->goalPoint=std::move(endPoint_);
         this->dictPolicy= nullptr;
-
+        this->statesIdDict= nullptr;
         this->maxPathsNumber = maxPathz;
         this->startPoint=std::move(startPoint_);
         this->initPolicy(gridSzie);
         printf("\ndone!\n");
     }
     void initPolicy(Point &girdSize){
-        dictPolicy = new unordered_map<int, vector<float>*>();
+        dictPolicy = new unordered_map<u_int64_t, vector<float>*>();
         double weightEnd;
         cout<<"A star..."<<endl;
         auto *xx = new AStar::Generator(this->max_speed,girdSize);
@@ -69,7 +74,10 @@ public:
         }
 
         normalizeDict();
+        statesIdDict = xx->hashDictStates;
         delete(xx);
+
+
     }
     Point get_action(State *s) override;
     ~PathPolicy() override{
@@ -82,6 +90,7 @@ public:
             ctr++;
         }
         delete(dictPolicy);
+        delete (statesIdDict);
     };
     void reset_policy() override{};
     void policy_data() const override{};
@@ -89,7 +98,7 @@ public:
     void normalizeDict();
 
     void treeTraversal(State *ptrState, string &strIDExp);
-    void policyData(vector<vector<string>> &res,string &strID);
+    void policyData(string &strID);
     vector<float> minizTrans(const vector<float>* x);
 };
 
@@ -98,7 +107,7 @@ public:
 Point PathPolicy::get_action(State *s) {
     auto EntryIndx = getAgentSateHash(s);
     //trajectory.push_back(s->to_string_state()+"="+std::to_string(EntryIndx));
-    std::unordered_map<int, std::vector<float>*>::iterator it;
+    std::unordered_map<u_int64_t , std::vector<float>*>::iterator it;
     it = this->dictPolicy->find(EntryIndx);
     if (it==this->dictPolicy->end())
         throw;
@@ -128,7 +137,7 @@ const std::vector<float> *PathPolicy::TransitionAction(State *s) {
     /* first  - action
      * second - probabilitiy*/
     //cout<<s->to_string_state()<<endl;
-    int EntryIdx = getAgentSateHash(s);
+    auto EntryIdx = getAgentSateHash(s);
     auto pos = this->dictPolicy->find(EntryIdx);
     if (pos==this->dictPolicy->end())
         throw std::runtime_error(std::string("Error: cant find the key "));
@@ -137,13 +146,14 @@ const std::vector<float> *PathPolicy::TransitionAction(State *s) {
 
 }
 
-int PathPolicy::getAgentSateHash(State *s) {
+u_int64_t PathPolicy::getAgentSateHash(State *s) {
     //cout<<s->to_string_state()<<endl;
-    int hSpeed = s->get_speed(this->id_agent).hashConst(Point::maxSpeed);
-    int hPos = s->get_position(this->id_agent).hashConst();
-    int EntryIndx = Point::hashNnN(hPos,hSpeed);
+    auto hSpeed = s->get_speed(this->id_agent).hashConst(Point::maxSpeed);
+    auto hPos = s->get_position(this->id_agent).hashConst();
+    u_int64_t EntryIndx = Point::hashNnN(hPos,hSpeed);
     return EntryIndx;
 }
+
 /**
  * TreeTraversal output to csv file the path of the agents,
  * with the probabilities for each path.
@@ -154,8 +164,9 @@ int PathPolicy::getAgentSateHash(State *s) {
  * **/
 void PathPolicy::treeTraversal(State *ptrState,string &strIdExp)
 {
-    vector<vector<string>> res;
-    deque<pair<State,float>> q;
+
+    vector<std::tuple<double,vector<Point>>> res;
+    std::deque<pair<State,float>> q;
     q.emplace_back(*ptrState,1);
     float probAcc=1;
     vector <pair<State,float>> path;
@@ -169,13 +180,13 @@ void PathPolicy::treeTraversal(State *ptrState,string &strIdExp)
         q.pop_front();
         if(curState.isEndState())
         {
-            vector<string> v;
+            vector<Point> v;
             path.emplace_back(curState,prob);
-            v.push_back(std::to_string(probAcc));
+            //v.push_back(std::to_string(probAcc));
             for( auto item : path)
             {
                 auto posA = item.first.get_position(this->id_agent);
-                v.push_back(posA.to_str());
+                v.push_back(posA);
                 //cout<<posA.to_str()<<",";
             }
             //cout<<endl;
@@ -183,7 +194,7 @@ void PathPolicy::treeTraversal(State *ptrState,string &strIdExp)
             auto p = posPair.second;
             probAcc = probAcc/p;
             path.pop_back();
-            res.push_back(move(v));
+            res.emplace_back(probAcc,move(v));
             continue;
         }
         if (!path.empty())
@@ -212,7 +223,8 @@ void PathPolicy::treeTraversal(State *ptrState,string &strIdExp)
         }
 
     }
-    policyData(res,strIdExp);
+    pathz = res;
+    policyData(strIdExp);
 }
 
 
@@ -271,16 +283,18 @@ vector<float> PathPolicy::minizTrans(const vector<float> *x) {
 }
 
 
-void PathPolicy::policyData(vector<vector<string>> &res, string &strID)
+void PathPolicy::policyData( string &strID)
 {
     string pathFile=this->home+"/car_model/exp/data/";
     try{
         string nameFileCsv=strID+"_Attacker.csv";
         csvfile csv(std::move(pathFile+nameFileCsv),","); // throws exceptions!
-        for(auto &item: res)
+        for(auto &item: pathz)
         {
-            for (const auto& strString:item) {
-                csv<<strString;
+            const auto& [probability,pathI] = item;
+            csv<<probability;
+            for (const auto& pointStr:pathI) {
+                csv<<pointStr.to_str();
             }
             csv<<endrow;
         }

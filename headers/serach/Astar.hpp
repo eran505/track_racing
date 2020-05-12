@@ -20,6 +20,8 @@ namespace AStar
         Point pos;
         Point speed;
         bool operator == (const StatePoint& coordinates_);
+        inline Point & get_speed(){return speed;}
+        inline Point & get_position(){return pos;}
         //~StatePoint(){delete (pos);delete (speed);}
         string toStr() const { return pos.to_hash_str()+speed.to_hash_str();}
         StatePoint(const Point& p , const Point& s){
@@ -58,7 +60,7 @@ namespace AStar
     using NodeSet = std::set<Node*>;
     typedef vector<uint> unitVector;
     typedef std::vector<Node*> listNode ;
-    typedef unordered_map<int, map<int,int>*>  policyDict;
+    typedef unordered_map<u_int64_t, map<int,int>*>  policyDict;
     class Generator
     {
 
@@ -67,9 +69,10 @@ namespace AStar
         void releaseMAP(unordered_map <string,Node*> map_);
 
     public:
-        unordered_map<int, map<int,int>*> *dictPoly;
+        unordered_map<u_int64_t ,StatePoint>* hashDictStates;
+        unordered_map<u_int64_t, map<int,int>*> *dictPoly;
         void print_pathz(Node *l);
-        void getDict(unordered_map<int,vector<float>*>* dict,double weight=1.0);
+        void getDict(unordered_map<u_int64_t,vector<float>*>* dict,double weight=1.0);
         void pathsToDict();
         void pathsToDict_rec(Node &item);
         void getDictPolicy(const listNode &l);
@@ -88,11 +91,12 @@ namespace AStar
         int count_pathz(vector<Node*> *l );
         void changeMaxSpeed(uint speedMaxNew){this->absMaxSpeed=speedMaxNew;}
         void setMaxPATH(unsigned long numberMax){maxPath=numberMax;}
-        void dictPolyClean(){
+        void dictPolyClean() const{
             for (auto &itemI:*this->dictPoly)
                 delete(itemI.second);
             this->dictPoly->clear();
         }
+
     private:
         unsigned long maxPath;
         uint absMaxSpeed;
@@ -106,7 +110,7 @@ namespace AStar
         vector<vector<StatePoint>> deepListNode;
 
 
-        StatePoint* applyActionState(const StatePoint &cur,const Point &action){
+        StatePoint* applyActionState(const StatePoint &cur,const Point &action) const{
             auto speed_copy = Point(cur.speed);
             speed_copy+=action;
             speed_copy.change_speed_max(absMaxSpeed);
