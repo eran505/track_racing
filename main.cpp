@@ -50,10 +50,17 @@ void toCsvString(string pathFile,vector<string>* infoArr);
  *
  */
 using namespace std::chrono;
-typedef vector<tuple<Point*,double>> listPointWeighted;
+#include <cassert>
+#include <iostream>
+#include <string>
+
+#include <string_view>
 typedef unsigned long ulong;
 
 int main() {
+
+
+
 
     int seed = 155139;
     seed = 1587982523; //1895975606
@@ -87,6 +94,7 @@ int main() {
         // size of Grid
         configGame conf(row);
         conf.home=home;
+        conf.seed=seed;
         string strId=row[0];
         cout<<"ID:\t"<<strId<<endl;
 
@@ -140,9 +148,9 @@ Game* initGame(configGame &conf ){
 Grid * init_grid(configGame& conf){
     game_params m{};
     m.size=conf.sizeGrid;
-    auto* listGoal = new vector<Point*>();
+    auto listGoal =vector<Point>();
     for (auto &refGoal:conf.gGoals)
-        listGoal->push_back(new Point(refGoal));
+        listGoal.push_back(std::move(refGoal));
     m.list_goals=listGoal;
     Grid *g = new Grid(m);
     g->setTargetGoals(conf.goalTarget);
@@ -161,39 +169,43 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     //auto gameInfo = new unordered_map<string,string>();
     //gameInfo->insert({"ID",conf.idNumber});
 
+    auto lStartingPoint_A = new std::vector<std::pair<float,Point>>();
+    lStartingPoint_A->emplace_back(1.0,std::move(conf.posAttacker));
 
-    auto startAdversary = new Point(conf.posAttacker);
+    auto lStartingPoint_D = new std::vector<std::pair<float,Point>>();
+    lStartingPoint_D->emplace_back(1.0,std::move(conf.posDefender));
 
-    auto* pA1 = new Agent(startAdversary
+
+    auto* pA1 = new Agent(lStartingPoint_A
             ,new Point(0,0,maxA)
             ,adversary,10);
 
-    auto* pD2 = new Agent(new Point(conf.posDefender),
+    auto* pD2 = new Agent(lStartingPoint_D,
             new Point(0,0,0)
             ,gurd,10);
 
 
     ////////PATH POLICY///////////
+    auto* lStartingPointGoal = new std::vector<std::pair<float,Point>>();
     auto gloz_l = g->get_goals();
     Point p_sizer = g->getPointSzie();
-    listPointWeighted endState;
     int ctr=0;
-    for (Point *item:gloz_l) {
-        endState.push_back({item,conf.probGoals[ctr]});
+    for (const auto &item:gloz_l) {
+        lStartingPointGoal->push_back({conf.probGoals[ctr], item});
         ctr++;
     }
-    listPointWeighted startState;
-    startState.push_back({startAdversary,1});
 
-    auto* s = new MdpPlaner();
+
+    auto* s = new MdpPlaner(conf.seed);
     s->add_player(pA1);
     s->add_player(pD2);
     s->set_grid(g);
     s->set_state();
 
     //////// PATH POLICY ////////////
-    Policy *pGridPath =new  PathPolicy("SP",maxA, endState, startState, p_sizer,pA1->get_id()
-            ,conf.midPos,conf.home,conf.rRoutes);
+    Policy *pGridPath =new  PathPolicy("SP", maxA, lStartingPointGoal, lStartingPoint_A,
+                                       p_sizer, pA1->get_id()
+            , conf.midPos, conf.home, conf.rRoutes, nullptr);
     auto *tmp_pointer = dynamic_cast <PathPolicy*>(pGridPath);
     printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
     auto* tmp = new State(*s->get_cur_state());
@@ -208,12 +220,12 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
 
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
-    //Policy *RTDP = new RtdpAlgo("RTDP",maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share);
-    auto* ab = new abstractionDiv(g->getPointSzie(),Point(5),tmp_pointer);
+    Policy *RTDP = new RtdpAlgo("RTDP",maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share);
+    //auto* ab = new abstractionDiv(g->getPointSzie(),Point(5),tmp_pointer);
 
-//    RTDP->add_tran(pGridPath);
-//    pA1->setPolicy(pGridPath);
-//    pD2->setPolicy(RTDP);
+    RTDP->add_tran(pGridPath);
+    pA1->setPolicy(pGridPath);
+    pD2->setPolicy(RTDP);
 
 
 

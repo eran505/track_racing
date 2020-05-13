@@ -14,12 +14,7 @@
 //    }
 //}
 
-Grid::~Grid() {
-    for (auto i : *(this->all_golas)) {
-        delete(i);
-    }
-    delete(this->all_golas);
-}
+
 
 
 
@@ -29,24 +24,24 @@ void Grid::print_vaule() {
     cout<<this->size_point.to_str()<<endl;
     cout<<"Goals:\t";
     reverse_iterator<list<Point *>::iterator> revIt;
-    int size_list_goal=this->all_golas->size();
+    int size_list_goal=this->all_golas.size();
     int ctr=0;
-    for (auto const& i : *(this->all_golas)) {
+    for (auto const& i : this->all_golas) {
         if (ctr==size_list_goal-1)
-            std::cout << i->to_str()<<endl;
+            std::cout << i.to_str()<<endl;
         else
-            std::cout << i->to_str()<<", ";
+            std::cout << i.to_str()<<", ";
         ctr++;
     }
 
 
 }
 
-Grid::Grid(const game_params &parm) {
+Grid::Grid(game_params &parm) {
 //
 //    this->x_size=parm.X;
     this->size_point=parm.size;
-    this->all_golas=parm.list_goals;
+    this->all_golas=std::move(parm.list_goals);
 }
 
 

@@ -76,13 +76,7 @@ void Game::fill_agents() {
     }
 }
 
-void Game::print_list_in_game() {
-    for (auto i : *(this->in_game_guards))
-        cout<<i->to_str()<<endl;
 
-    for (auto i : *(this->in_game_adversaries))
-        cout<<i->to_str()<<endl;
-}
 
 void Game::evalPolicy() {
 

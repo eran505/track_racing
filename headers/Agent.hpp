@@ -7,13 +7,16 @@
 #include "util_game.hpp"
 #include "State.hpp"
 #include "Policy/Policy.hpp"
+#include <random>
+
 //#include ""
 //class State;
 
+typedef std::vector<std::pair<float,Point>> weightedPointVector;
 class Agent{
 
 protected:
-    Point* my_pos;
+    weightedPointVector *my_pos;
     Policy* my_Policy;
     Point* my_speed;
     int my_budget;
@@ -24,13 +27,13 @@ protected:
     bool eval;
 
 public:
-    bool get_is_wall(){ return is_wall;}
+    bool get_is_wall() const{ return is_wall;}
     void rest(){is_wall= false; this->my_Policy->reset_policy();}
     const string& get_name_id(){ return my_id;}
-    Agent(Point* pos,Point* speed,string m_id , char m_team,int b_budget);
-    Agent(Point* pos,Point* speed, char m_team,int b_budget);
-    string get_id(){ return my_id; }
-    char get_team() { return my_team; }
+    Agent(weightedPointVector* pos,Point* speed,string m_id , char m_team,int b_budget);
+    Agent(weightedPointVector* pos,Point* speed, char m_team,int b_budget);
+    const string& get_id(){ return my_id; }
+    char get_team() const { return my_team; }
     string get_name();
     const Policy* getPolicy(){ return my_Policy;};
     void doAction(State *s);
@@ -44,26 +47,27 @@ public:
         this->my_speed=cur_speed;
     }
 
-    void set_pos(Point *cur_pos) {
-        if (this->my_pos != nullptr)
-            delete(this->my_pos);
-        this->my_pos=cur_pos;
-    }
-    int get_budget(){ return this->my_budget;}
+    int get_budget() const{ return this->my_budget;}
 
     const Point* get_speed(){
+
         return this->my_speed;
     }
 
-    const Point* get_pos(){
-        return this->my_pos;
-    }
-    Point get_pos_v1(){
-        return *my_pos;
+    Point get_pos(float seed){
+        float acc = 0;
+        u_int16_t ctr=0;
+        for (auto const &item:*my_pos){
+            acc += std::get<0>(item);
+            if (acc >= seed)
+                return std::get<1>(item);
+            ctr++;
+        }
+        return std::get<1>(my_pos->operator[](ctr-1));
     }
     Point get_speed_v1(){ return *my_speed;}
 
-    string to_str();
+
     void to_print();
 
 

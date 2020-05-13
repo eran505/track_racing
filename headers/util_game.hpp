@@ -37,7 +37,9 @@ enum Section{
     gurd   = (int)'D'
 };
 
-class Point{
+class
+
+Point{
 
 public:
     enum D_point{
@@ -145,7 +147,7 @@ public:
         }
         return false;
     }
-    bool out_of_bound(const Point &bound){
+    [[nodiscard]] bool out_of_bound(const Point &bound) const{
         for (int i = 0; i < this->capacity; ++i) {
             if (this->array[i]>=bound.array[i] or this->array[i]<0)
                 return true;

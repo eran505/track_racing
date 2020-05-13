@@ -34,7 +34,7 @@ vector<string> splitStr(const string& str, const string& delim)
 }
 
 struct configGame{
-
+    int seed;
     Point sizeGrid ;
     string config;
     Point posAttacker;
@@ -49,7 +49,7 @@ struct configGame{
 public:
     string home;
 
-    explicit configGame(vector<string> &row)
+    explicit configGame(vector<string> &row):seed(0)
     {
 
         idNumber=row[0];

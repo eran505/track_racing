@@ -100,10 +100,10 @@ public:
         insetPoint(speedAdv,vec);// 4 - speed D
         distFirstMinusSec(posAgent,posAdv,vec);
 
-        for (auto const goalIdx : goalz)
+        for (auto const& goalIdx : goalz)
         {
-            distFirstMinusSec(posAdv,*goalIdx,vec);
-            distFirstMinusSec(posAgent,*goalIdx,vec);
+            distFirstMinusSec(posAdv,goalIdx,vec);
+            distFirstMinusSec(posAgent,goalIdx,vec);
             //insetPoint(*goalIdx,vec);
         }
         //==============debug====================================

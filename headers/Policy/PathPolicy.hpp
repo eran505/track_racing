@@ -13,7 +13,7 @@
 
 typedef shared_ptr<unordered_map<string ,string>> dictionary;
 
-typedef vector<tuple<Point*,double>> listPointWeighted;
+typedef std::vector<std::pair<float,Point>> listPointWeighted;
 
 class PathPolicy:public Policy{
     unsigned long maxPathsNumber;
@@ -27,19 +27,19 @@ class PathPolicy:public Policy{
 public:
     unordered_map<u_int64_t ,pair<short,AStar::StatePoint>>* statesIdDict;
     unordered_map<u_int64_t,vector<float>*>* getDictPolicy(){return dictPolicy;}
-    listPointWeighted goalPoint;
-    listPointWeighted startPoint;
+    std::vector<std::pair<float,Point>>* goalPoint;
+    std::vector<std::pair<float,Point>>* startPoint;
     int getNumberOfState() {
         return dictPolicy->size();
     }
-    PathPolicy(string namePolicy, int maxSpeedAgent,listPointWeighted endPoint_, listPointWeighted startPoint_,
+    PathPolicy(string namePolicy, int maxSpeedAgent,std::vector<std::pair<float,Point>>* endPoint_, std::vector<std::pair<float,Point>>* startPoint_,
                Point &gridSzie, string agentID,vector<Point> midVecPoints,string &home,unsigned long maxPathz=ULONG_MAX,dictionary ptrDict=nullptr) : Policy(std::move(namePolicy),
-                       maxSpeedAgent,std::move(agentID),home,ptrDict),midVec(move(midVecPoints)) {
-        this->goalPoint=std::move(endPoint_);
+                       maxSpeedAgent,std::move(agentID),home,std::move(ptrDict)),midVec(move(midVecPoints)) {
+        this->goalPoint=endPoint_;
         this->dictPolicy= nullptr;
         this->statesIdDict= nullptr;
         this->maxPathsNumber = maxPathz;
-        this->startPoint=std::move(startPoint_);
+        this->startPoint=startPoint_;
         this->initPolicy(gridSzie);
         printf("\ndone!\n");
     }
@@ -49,18 +49,17 @@ public:
         cout<<"A star..."<<endl;
         auto *xx = new AStar::Generator(this->max_speed,girdSize);
         xx->setMaxPATH(this->maxPathsNumber);
-        for (unsigned long i = 0; i < this->startPoint.size(); ++i) {
-            for (unsigned long k = 0; k < this->goalPoint.size(); ++k) {
+        for (unsigned long i = 0; i < this->startPoint->size(); ++i) {
+            for (unsigned long k = 0; k < this->goalPoint->size(); ++k) {
                 for (unsigned int s=max_speed ; s<=this->max_speed;++s)
                 {
-                    auto startP = std::get<0>(startPoint[i]);
-                    auto endP = std::get<0>(goalPoint[k]);
-                    weightEnd = std::get<1>(goalPoint[k]);
+                    auto& [weightStart,startP]= startPoint->operator[](i);
+                    auto& [weightEnd,endP] = goalPoint->operator[](k);
                     auto zeroSrc  = Point();
                     auto startSpeed  = Point(0,0,s);
                     //auto zeroDest  = Point();
-                    auto src = AStar::StatePoint{Point(*startP),startSpeed};
-                    auto dest = AStar::StatePoint{Point(*endP),startSpeed};
+                    auto src = AStar::StatePoint{Point(startP),startSpeed};
+                    auto dest = AStar::StatePoint{Point(endP),startSpeed};
                     xx->changeMaxSpeed(s);
                     if (midVec.size()>k)
                         xx->findComplexPath(src,midVec[k],dest);

@@ -4,8 +4,8 @@
 
 #include "headers/State.hpp"
 
-void State::add_player_state(const string& name_id, const Point *m_pos, const Point *m_speed, int budget_b) {
-    this->pos_dict.emplace(name_id,*m_pos);
+void State::add_player_state(const string& name_id, Point m_pos, const Point *m_speed, int budget_b) {
+    this->pos_dict.emplace(name_id,m_pos);
 
     this->speed_dict.emplace(name_id,*m_speed);
 

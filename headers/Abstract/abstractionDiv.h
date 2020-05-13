@@ -15,7 +15,7 @@
 typedef unordered_map<u_int64_t,vector<float>*> dictPolicyPath;
 typedef std::vector<std::vector<AStar::StatePoint>*> doubleVecPoint;
 typedef std::unordered_map<u_int64_t ,pair<short,AStar::StatePoint>> hashIdStates;
-typedef vector<tuple<Point*,double>> listPointWeighted;
+typedef vector<tuple<Point*,double>> listPointWeightedd;
 using AStar::StatePoint;
 class abstractionDiv{
 
@@ -26,7 +26,7 @@ class abstractionDiv{
     doubleVecPoint *endPoints_abstraction;
     Point girdSize;
     Point abstractSize;
-    unordered_map<int,Point*>* hashActionDict; //TODO: need to del it!!
+    unordered_map<int,Point*>* hashActionDict; //TODO: need to del it!! 12/5
 public:
     abstractionDiv(const Point& ptrGirdSize,const Point& mAbstractSize,PathPolicy *policyP){
         auto sizeMiniGrid = mAbstractSize.array[0]*mAbstractSize.array[1];
@@ -53,15 +53,15 @@ public:
 
 private:
     void setDictHashState(hashIdStates* mDictHash){ dictHash=mDictHash;}
-    void setEndStartPoint(listPointWeighted start, listPointWeighted end,int maxSpeed)
+    void setEndStartPoint(listPointWeighted* start, listPointWeighted* end,int maxSpeed)
     {
-        for(auto &[a,b] : start) {
-            Point s = *a;
+        for(auto &[b,a] : *start) {
+            auto s = Point(a);
             auto idx = emplaceInDictVec(s);
             startPoints_abstraction->operator[](idx)->emplace_back(std::move(s),Point(0,0,maxSpeed));
         }
-        for(auto &[a,b] : end) {
-            Point e = *a;
+        for(auto &[a,b] : *end) {
+            auto e = Point(a);
             auto idx = emplaceInDictVec(e);
             endPoints_abstraction->operator[](idx)->emplace_back(std::move(e),Point(0));
         }
@@ -86,7 +86,7 @@ private:
 
         return (abstractSize.array[0])*row+col;
     }
-    //TODO: case: what if point is a goal and also part of a path?
+    //TODO: case: what if point is a goal and also part of a path? 12/5
     void initAbstract(){
         // cycle over all starting point
         for (const auto &item: *dictHash)

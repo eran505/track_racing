@@ -18,7 +18,7 @@ typedef unsigned int uint;
 struct game_params {
 
     Point size;
-    vector<Point *>* list_goals;
+    vector<Point> list_goals;
 
 
 };
@@ -30,20 +30,19 @@ class Grid{
 private:
     //fields
     Point size_point;
-    string **grid;
-    vector<Point *>* all_golas;
-    vector<Point*> goalTarget;
+    vector<Point> all_golas;
+    vector<Point> goalTarget;
     unordered_map<unsigned long,short> dictIsTarget;
 
 
 
     public:
         Point getPointSzie(){ return size_point;}
-        Grid(const game_params&);
+        Grid(game_params&);
         void print_vaule();
-        ~Grid();
-        vector<Point*> get_goals() {
-            return *all_golas;
+
+        vector<Point> get_goals() {
+            return all_golas;
         }
         int getSizeIntGrid(){
             int size = 1;
@@ -55,8 +54,8 @@ private:
         }
         bool isGoalReward(const Point* locPoint)
         {
-            for (auto itemGoal : this->goalTarget ){
-                if (itemGoal->is_equal(locPoint))
+            for (const auto &itemGoal : this->goalTarget ){
+                if (itemGoal.is_equal(locPoint))
                     return true;
             }
             return false;
@@ -69,20 +68,27 @@ private:
             return pos.operator*().second;
         }
         bool is_at_goal(const Point* loc_point ){
-            for (auto item_goal : *(this->all_golas)){
-                if (item_goal->is_equal(loc_point))
+            for (const auto &item_goal : this->all_golas){
+                if (item_goal.is_equal(loc_point))
                     return true;
             }
             return false;
         }
+        bool is_at_goal(const Point &loc){
+            return (std::find(all_golas.begin(),all_golas.end(),loc) != all_golas.end());
+        }
         bool is_wall(Point *ptr_point_loc){
             return ptr_point_loc->out_of_bound(this->size_point);
+        }
+        bool is_wall(const Point &loc)
+        {
+            return loc.out_of_bound(this->size_point);
         }
         void setTargetGoals(const vector<bool> &vecB){
             for (int i = 0; i < vecB.size(); ++i) {
                 if (vecB[i])
-                    goalTarget.push_back(all_golas->operator[](i));
-                this->dictIsTarget.insert({all_golas->operator[](i)->expHash(),vecB[i]?1:0});
+                    goalTarget.push_back(all_golas.operator[](i));
+                this->dictIsTarget.insert({all_golas.operator[](i).expHash(),vecB[i]?1:0});
             }
         }
 };
