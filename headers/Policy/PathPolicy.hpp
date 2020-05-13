@@ -25,7 +25,7 @@ class PathPolicy:public Policy{
     unordered_map<u_int64_t,vector<float>*> *dictPolicy;
     u_int64_t getAgentSateHash(State *s);
 public:
-    unordered_map<u_int64_t ,AStar::StatePoint>* statesIdDict;
+    unordered_map<u_int64_t ,pair<short,AStar::StatePoint>>* statesIdDict;
     unordered_map<u_int64_t,vector<float>*>* getDictPolicy(){return dictPolicy;}
     listPointWeighted goalPoint;
     listPointWeighted startPoint;

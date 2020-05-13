@@ -69,7 +69,7 @@ namespace AStar
         void releaseMAP(unordered_map <string,Node*> map_);
 
     public:
-        unordered_map<u_int64_t ,StatePoint>* hashDictStates;
+        unordered_map<u_int64_t ,std::pair<short,StatePoint>> * hashDictStates;
         unordered_map<u_int64_t, map<int,int>*> *dictPoly;
         void print_pathz(Node *l);
         void getDict(unordered_map<u_int64_t,vector<float>*>* dict,double weight=1.0);
@@ -140,6 +140,7 @@ namespace AStar
         }
 
 
+        void addToStateDict(u_int64_t key, StatePoint *stateS);
     };
 
     class Heuristic

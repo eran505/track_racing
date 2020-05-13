@@ -14,7 +14,7 @@
 
 typedef unordered_map<u_int64_t,vector<float>*> dictPolicyPath;
 typedef std::vector<std::vector<AStar::StatePoint>*> doubleVecPoint;
-typedef std::unordered_map<u_int64_t ,AStar::StatePoint> hashIdStates;
+typedef std::unordered_map<u_int64_t ,pair<short,AStar::StatePoint>> hashIdStates;
 typedef vector<tuple<Point*,double>> listPointWeighted;
 using AStar::StatePoint;
 class abstractionDiv{
@@ -92,12 +92,12 @@ private:
         for (const auto &item: *dictHash)
         {
             //cout<<"in\n";
-            auto idx = emplaceInDictVec(item.second.pos);
+            auto idx = emplaceInDictVec(item.second.second.pos);
             auto pos = allDictPolicy->find(item.first);
             if (pos==allDictPolicy->end())
                 throw;
             vecPolicy[idx]->emplace(pos->first,pos->second);
-            auto statS = item.second;
+            auto statS = item.second.second;
             auto vecNext = pos->second;
             auto statSOld = StatePoint(statS);
             for (size_t k=0;k<vecNext->size()-1;k+=2)

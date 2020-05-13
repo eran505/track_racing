@@ -59,7 +59,7 @@ AStar::Generator::Generator(uint absMaxSpeed,Point& girdSize)
     //TODO: change it to rec function
     Point::getAllAction(operatorAction);
     this->dictPoly = new policyDict();
-    hashDictStates = new unordered_map<u_int64_t ,StatePoint>();
+    hashDictStates = new unordered_map<u_int64_t ,std::pair<short,StatePoint>>();
 }
 
 
@@ -370,7 +370,7 @@ void AStar::Generator::pathsToDict() {
             if (i==0)
                 cout<<itemF[i]->pos.to_str()<<endl;
             cout<<itemF[i+1]->pos.to_str()<<endl;
-            hashDictStates->emplace(key,*itemF[i+1]);
+            addToStateDict(key,itemF[i+1]);
             auto ation_h = difAction.hashMeAction(Point::D_point::actionMax);
             auto pos = dictPoly->find(key);
             if (pos == dictPoly->end()) {
@@ -388,6 +388,14 @@ void AStar::Generator::pathsToDict() {
     }
 }
 
+void AStar::Generator::addToStateDict(u_int64_t key,AStar::StatePoint *stateS)
+{
+    auto pos = hashDictStates->find(key);
+    if (pos==hashDictStates->end())
+        hashDictStates->insert({key,{1,*stateS}});
+    else
+        pos->second.first++;
+}
 
 void AStar::Generator::pathsToDict_rec(Node &item) {
     if(!item.parent.empty())
