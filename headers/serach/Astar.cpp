@@ -276,9 +276,9 @@ void AStar::Generator::consistentZFilter(){
     if (!this->consistentZ)
         return;
     cout<<"Before Size: "<<allPath.size()<<endl;
-    short ctr=0;
+
     auto newList = vector<vector<StatePoint*>>();
-    auto indexI  = int(Point::D)-1;
+
     // copy only positive numbers:
     std::copy_if (allPath.begin(), allPath.end(), std::back_inserter(newList), [](vector<StatePoint*> &vec) {
         int idPath;
@@ -488,8 +488,8 @@ void AStar::Generator::print_pathz(Node *l) {
         //cout<<endl;
         return;
     }
-    for (int i = 0; i < l->parent.size(); ++i) {
-        print_pathz(l->parent[i]);
+    for (auto & i : l->parent) {
+        print_pathz(i);
     }
     listPrint.remove(l);
 

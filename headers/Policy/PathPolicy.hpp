@@ -50,11 +50,11 @@ public:
         auto *xx = new AStar::Generator(this->max_speed,girdSize);
         xx->setMaxPATH(this->maxPathsNumber);
         for (unsigned long i = 0; i < this->startPoint->size(); ++i) {
+            auto& [weightStart,startP]= startPoint->operator[](i);
             for (unsigned long k = 0; k < this->goalPoint->size(); ++k) {
+                auto& [weightEnd,endP] = goalPoint->operator[](k);
                 for (unsigned int s=max_speed ; s<=this->max_speed;++s)
                 {
-                    auto& [weightStart,startP]= startPoint->operator[](i);
-                    auto& [weightEnd,endP] = goalPoint->operator[](k);
                     auto zeroSrc  = Point();
                     auto startSpeed  = Point(0,0,s);
                     //auto zeroDest  = Point();
@@ -177,7 +177,7 @@ void PathPolicy::treeTraversal(State *ptrState,string &strIdExp)
 
         //cout<<curState.to_string_state()<<endl;
         q.pop_front();
-        if(curState.isEndState())
+        if(curState.isEndState(this->id_agent))
         {
             vector<Point> v;
             path.emplace_back(curState,prob);

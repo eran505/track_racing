@@ -83,7 +83,8 @@ DeepRTDP::DeepRTDP(string namePolicy, int maxSpeedAgent,int seed,const string& a
     this->setPreTraining();
     this->featuerConv->set_string_home(this->home);
     this->dqn->setInfoDict(this->infoDict);
-
+    if (tran.size()==1)
+        cashID=tran[0]->id_agent;
 }
 
 void DeepRTDP::policy_data() const {
@@ -145,7 +146,7 @@ double DeepRTDP::rewardState(State *s,bool isEnd=true)
     isEndBool=false;
     short iNotEnd=1;
     double reward=0;
-    if (s->isGoal()){
+    if (s->isGoal(this->cashID)){
         isEndBool=true;
         iNotEnd=0;
         reward+=this->goalReward;

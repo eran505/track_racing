@@ -131,27 +131,22 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
 }
 
 tuple<double,bool> RtdpAlgo::EvalState(State *s) {
-    double r = 0;
-    bool isEndGame = false;
-    if (s->isGoal()) {
-        r = this->GoalReward;
-        isEndGame = true;
+    if (s->isGoal(this->cashID)) {
+        return {GoalReward,true};
     } else if (this->is_wall){
-        r = WallReward;
-        isEndGame = true;
-        return {r,isEndGame};
+        return {WallReward,true};
+    }else if(s->isEndState(this->cashID))
+    {
+        return {0,true};
     }
     else{
             auto res = s->is_collusion(this->id_agent);
-            if (res.size()>0)
+            if (!res.empty())
             {
-                r = this->CollReward;
-                isEndGame = true;
-                return {r,isEndGame};
+                return {CollReward,true};
             }
     }
-    isEndGame = s->isEndState();
-    return {r,isEndGame};
+    return {0,false};
 }
 
 double RtdpAlgo::UpdateCalc(const vector<pair<State *, float>>& state_tran_q) {

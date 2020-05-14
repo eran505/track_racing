@@ -54,7 +54,7 @@ public:
         return this->my_speed;
     }
 
-    Point get_pos(float seed){
+    const Point& get_pos(float seed){
         float acc = 0;
         u_int16_t ctr=0;
         for (auto const &item:*my_pos){
@@ -66,7 +66,7 @@ public:
         return std::get<1>(my_pos->operator[](ctr-1));
     }
     Point get_speed_v1(){ return *my_speed;}
-
+    const Point& get_speed_v2(){ return *my_speed;}
 
     void to_print();
 

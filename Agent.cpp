@@ -52,9 +52,10 @@ void Agent::trainPolicy(){
 
 
 void Agent::doAction(State *s) {
+
     //do something with the state
     Point action_a = this->my_Policy->get_action(s);
-    //cout<<"action_a"<<action_a.to_str()<<endl;
+//    cout<<"action_a"<<action_a.to_str()<<endl;
     this->my_Policy->applyActionToState(s, &action_a);
     is_wall=my_Policy->is_wall;
     // check for max speed

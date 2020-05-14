@@ -180,7 +180,7 @@ public:
                 this->array[i]=absoult_max*-1;
         }
     }
-    bool operator== (const Point &other);
+    bool operator== (const Point &other)const;
     bool is_equal(const Point *other)const;
     int operator[](int index)const;
 

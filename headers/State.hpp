@@ -24,8 +24,8 @@ public:
 
     void assignment( State &other);
     void assignment(State &other, const string &id);
-    bool isGoal();
-    bool isEndState();
+    bool isGoal(string &idStr);
+    bool isEndState(std::string &idStr);
     //Setters and Getters
 
     void set_budget(const string& name_id,int budget_m){budget_dict[name_id]=budget_m;}
@@ -47,6 +47,7 @@ public:
     string to_string_state() const;
 
     void add_player_state(const string& name_id, Point m_pos, const Point *m_speed, int budget_b);
+    void add_player_state(const string &name_id, const Point& m_pos, const Point& m_speed, int budget_b);
 };
 
 

@@ -31,8 +31,8 @@ private:
     //fields
     Point size_point;
     vector<Point> all_golas;
-    vector<Point> goalTarget;
-    unordered_map<unsigned long,short> dictIsTarget;
+    vector<pair<short,Point>> all_golas_data;
+
 
 
 
@@ -52,20 +52,35 @@ private:
             }
             return size;
         }
-        bool isGoalReward(const Point* locPoint)
+        bool isGoalReward(const Point& locPoint)
         {
-            for (const auto &itemGoal : this->goalTarget ){
-                if (itemGoal.is_equal(locPoint))
-                    return true;
+            for(const auto& item : all_golas_data)
+            {
+                if (item.second==locPoint)
+                    if(item.first>0)
+                        return true;
             }
             return false;
         }
-        short isEnd(const Point* loc_point ){
-            auto idH = loc_point->expHash();
-            auto pos = dictIsTarget.find(idH);
-            if (pos== dictIsTarget.end())
+        bool is_goal_reward(const Point& loc){
+
+            auto pos = find_if(all_golas_data.begin(), all_golas_data.end(), [&]( pair<short,Point>& s) {
+                return s.second==loc;
+            });
+            if (pos==all_golas_data.end())
+                return false;
+            if (pos->first>0)
+                return true;
+            return false;
+        }
+        short get_goal_reward(const Point& loc)
+        {
+            auto pos = std::find_if(all_golas_data.begin(),all_golas_data.end(),[&](pair<short,Point>& itm){
+                return loc==itm.second;
+            });
+            if (all_golas_data.end()==pos)
                 return -1;
-            return pos.operator*().second;
+            return pos->first;
         }
         bool is_at_goal(const Point* loc_point ){
             for (const auto &item_goal : this->all_golas){
@@ -86,9 +101,7 @@ private:
         }
         void setTargetGoals(const vector<bool> &vecB){
             for (int i = 0; i < vecB.size(); ++i) {
-                if (vecB[i])
-                    goalTarget.push_back(all_golas.operator[](i));
-                this->dictIsTarget.insert({all_golas.operator[](i).expHash(),vecB[i]?1:0});
+                    all_golas_data.emplace_back(vecB[i]?1:0,all_golas.operator[](i));
             }
         }
 };

@@ -153,6 +153,7 @@ vector<int> arg_max(const double arr[],int size ){
 }
 
 int RTDP_util::get_state_argmax(State *s) {
+
     int argMax;
     int entry_state = this->get_state_index_by_string(s);
     auto row = this->qTable[entry_state];
@@ -165,6 +166,12 @@ int RTDP_util::get_state_argmax(State *s) {
     } else
         argMax = argMax_list[0];
     this->last_entry = entry_state;
+    //debug
+//    for (int i = 0; i < 27; ++i) {
+//        cout<<"\ti:"<<i<<" "<<this->qTable[0][i];
+//    }
+//    cout<<endl;
+    //debug
     return argMax;
 }
 
@@ -204,7 +211,10 @@ double getMaxValueArrTmp( const double *arr, size_t sizeArr)
 
 
 Point RTDP_util::get_argmx_action(State *s) {
+
     int index_action = this->get_state_argmax(s);
+    if (index_action==22)
+        cout<<"";
     auto pos = this->hashActionMap->find(index_action);
     if (pos == this->hashActionMap->end())
         throw std::invalid_argument( "function::get_argmx_action Error" );

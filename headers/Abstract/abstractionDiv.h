@@ -17,6 +17,7 @@ typedef std::vector<std::vector<AStar::StatePoint>*> doubleVecPoint;
 typedef std::unordered_map<u_int64_t ,pair<short,AStar::StatePoint>> hashIdStates;
 typedef vector<tuple<Point*,double>> listPointWeightedd;
 using AStar::StatePoint;
+
 class abstractionDiv{
 
     vector<dictPolicyPath*> vecPolicy;
@@ -26,8 +27,21 @@ class abstractionDiv{
     doubleVecPoint *endPoints_abstraction;
     Point girdSize;
     Point abstractSize;
-    unordered_map<int,Point*>* hashActionDict; //TODO: need to del it!! 12/5
+    unordered_map<int,Point*>* hashActionDict;
 public:
+    ~abstractionDiv()
+    {
+        for(auto item : *hashActionDict)
+            delete item.second;
+        delete hashActionDict;
+        for (auto item : *startPoints_abstraction)
+            delete item;
+        for(auto item : *endPoints_abstraction)
+            delete item;
+        delete startPoints_abstraction;
+        delete endPoints_abstraction;
+        delete dictHash;
+    }
     abstractionDiv(const Point& ptrGirdSize,const Point& mAbstractSize,PathPolicy *policyP){
         auto sizeMiniGrid = mAbstractSize.array[0]*mAbstractSize.array[1];
         abstractSize=mAbstractSize;

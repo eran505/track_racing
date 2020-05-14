@@ -15,7 +15,7 @@ Point::Point(int x, int y){
     this->array[1]=y;
 }
 
-bool Point::operator==(const Point &other) {
+bool Point::operator==(const Point &other)const {
     for (int i = 0; i <this->capacity; ++i)
         if (this->array[i]!=other.array[i])
             return false;

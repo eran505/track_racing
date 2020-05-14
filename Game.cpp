@@ -215,7 +215,7 @@ void Game::constraint_checking_end_game(){
             // push to list of del player
             //cout<<this->planer->get_cur_state()->get_position(i->get_id()).to_str()<<endl;
             auto theGoal = this->planer->get_cur_state()->get_position(i->get_id()).to_str();
-            auto isTargetGoal = this->planer->get_Grid()->isGoalReward(pos);
+            auto isTargetGoal = this->planer->get_Grid()->isGoalReward(*pos);
             (isTargetGoal) ? this->ctr_at_gal++:this->ctr_at_open++;
             //cout<<theGoal<<endl;
             to_del_ad.push_front(i);

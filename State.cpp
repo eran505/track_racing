@@ -107,31 +107,15 @@ bool State::move_by_change_speed(const string& name_id, const Point& speed_m){
 
 }
 
-bool State::isGoal() {
-    for(const auto &item : this->pos_dict)
-    {
-        if (item.first[1]==Section::adversary)
-        {
-            if(this->g_grid->isGoalReward(&item.second))
-                return true;
-        }
-    }
-    return false;
+bool State::isGoal(string &idStr) {
+    const auto& pos = this->get_position(idStr);
+    return this->g_grid->is_goal_reward(pos);
 }
 
-bool State::isEndState() {
-    for(const auto &item : this->pos_dict)
-    {
-        if (item.first[item.first.length()-1]==Section::adversary)
-        {
-            auto x= this->g_grid->isEnd(&item.second);
-                if (x==0 or x==1)
-                    return true;
-        }
-    }
-    return false;
+bool State::isEndState(std::string &idStr) {
+    const auto& pos = this->get_position(idStr);
+    return this->g_grid->is_at_goal(pos);
 }
-
 
 bool State::applyAction(const string &id, Point &action, int max_speed) {
     auto pos = this->speed_dict.find(id);
@@ -185,6 +169,14 @@ u_int32_t State::getHashValue(){
         seed ^=  (i * 2654435761) + 2654435769 + (seed << 6) + (seed >> 2);
     }
     return seed;
+}
+
+void State::add_player_state(const string &name_id, const Point& m_pos, const Point& m_speed, int budget_b) {
+    this->pos_dict.emplace(name_id,m_pos);
+
+    this->speed_dict.emplace(name_id,m_speed);
+
+    this->budget_dict[name_id]=budget_b;
 }
 
 
