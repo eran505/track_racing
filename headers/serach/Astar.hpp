@@ -97,7 +97,9 @@ namespace AStar
             this->dictPoly->clear();
         }
 
+        vector<vector<Point>> agentPaths;
     private:
+        vector<vector<StatePoint*>> allPath;
         unsigned long maxPath;
         uint absMaxSpeed;
         Point gridSize;
@@ -106,10 +108,9 @@ namespace AStar
         bool consistentZ = true;
         vector<Point> operatorAction;
         list<Node*> listPrint;
-        vector<vector<StatePoint*>> allPath;
         vector<vector<StatePoint>> deepListNode;
 
-
+        void copyAgentPaths();
         StatePoint* applyActionState(const StatePoint &cur,const Point &action) const{
             auto speed_copy = Point(cur.speed);
             speed_copy+=action;

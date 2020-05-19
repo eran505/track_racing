@@ -48,12 +48,6 @@ public:
 
     void print()
     {
-        cout<<"ID"<<this->get_id()<<endl;
-        for(auto &item:initialPosition)
-        {
-            cout<<item.positionPoint.to_str()<<"\t";
-        }
-        cout<<endl;
     }
     pair<const Point&,const Point&> get_pos(float seed){
         float acc = 0;

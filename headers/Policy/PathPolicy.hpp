@@ -25,7 +25,7 @@ public:
     vector<weightedPosition> startPoint;
     unordered_map<u_int64_t ,pair<short,AStar::StatePoint>>* statesIdDict;
     std::vector<std::pair<float,Point>>* goalPoint;
-
+    vector<vector<Point>> myPaths;
     unordered_map<u_int64_t,vector<float>*>* getDictPolicy(){return dictPolicy;}
 
     int getNumberOfState() {
@@ -57,8 +57,8 @@ public:
         dictPolicy = new unordered_map<u_int64_t, vector<float>*>();
         double weightEnd;
         cout<<"A star..."<<endl;
-        auto *xx = new AStar::Generator(this->max_speed,girdSize);
-        xx->setMaxPATH(this->maxPathsNumber);
+        auto *AstarObject = new AStar::Generator(this->max_speed,girdSize);
+        AstarObject->setMaxPATH(this->maxPathsNumber);
         for (auto & startPointItem : startPoint) {
             for (unsigned long k = 0; k < this->goalPoint->size(); ++k) {
                 auto& [weightEnd,endP] = goalPoint->operator[](k);
@@ -68,23 +68,28 @@ public:
                     auto startSpeed  = startPointItem.speedPoint;
                     auto src = AStar::StatePoint{Point(startPointItem.positionPoint),startSpeed};
                     auto dest = AStar::StatePoint{Point(endP),startSpeed};
-                    xx->changeMaxSpeed(s);
+                    AstarObject->changeMaxSpeed(s);
                     if (midVec.size()>k)
-                        xx->findComplexPath(src,midVec[k],dest);
+                        AstarObject->findComplexPath(src,midVec[k],dest);
                     else
-                        auto res = xx->findPath(src,dest);
+                        auto res = AstarObject->findPath(src,dest);
                     
                 }
-                xx->getDict(dictPolicy,weightEnd);
-                xx->dictPolyClean();
+                AstarObject->getDict(dictPolicy,weightEnd);
+                AstarObject->dictPolyClean();
             }
         }
 
         normalizeDict();
-        statesIdDict = xx->hashDictStates;
-        delete(xx);
+        statesIdDict = AstarObject->hashDictStates;
+        copyPaths(AstarObject);
+        delete(AstarObject);
 
 
+    }
+    inline void copyPaths(AStar::Generator *astar)
+    {
+        myPaths = std::move(astar->agentPaths);
     }
     Point get_action(State *s) override;
     ~PathPolicy() override{

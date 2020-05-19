@@ -67,8 +67,8 @@ class neuralNet : torch::nn::Module{
     {
         //auto x_train = torch::randint(0, 10, {128});
         //cout<<x_train<<endl;
-        ArrayRef<float> xx = *state;
-        auto Sstate = torch::tensor(xx).to(*this->deviceI);
+        ArrayRef<float> tnesorX = *state;
+        auto Sstate = torch::tensor(tnesorX).to(*this->deviceI);
         Sstate.requires_grad_();
 
         auto res = this->forward(Sstate);
@@ -160,8 +160,8 @@ Tensor neuralNet::calcQtraget(const ReplayBuffer *buffer,int index) {
         // This scope calc the expected value of the transition
         vector<at::Tensor> l ;
         for (const auto nNextItem :  buffer->nNextStates[index]) {
-            ArrayRef<float> xx = *nNextItem;
-            auto curTensor = torch::tensor(xx);
+            ArrayRef<float> tensorX = *nNextItem;
+            auto curTensor = torch::tensor(tensorX);
             l.push_back(curTensor);
         }
         Qtarget=torch::stack(l);

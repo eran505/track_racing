@@ -5,6 +5,8 @@
 //#define DEBUG
 #ifndef TRACK_RACING_SIMULATION_HPP
 #define TRACK_RACING_SIMULATION_HPP
+
+#include <thread>
 #include "util_game.hpp"
 #include "Policy/Policy.hpp"
 #include "Agent.hpp"
@@ -58,13 +60,16 @@ public:
         distribution=other.distribution;
     }
 
-
+    std::thread member1Thread(const u_int32_t iter) {
+        return std::thread([=] { simulate(iter); });
+    }
     /**
      * Game simulator for two agents
      * :iterationMax = number of simulations
      * **/
     void simulate(u_int32_t iterationMax){
         for (u_int32_t i = 0; i < iterationMax; ++i) {
+            //if(i%1000==0) cout<<i<<endl;
             auto stop= false;
             #ifdef DEBUG
             cout<<sState->to_string_state()<<endl;

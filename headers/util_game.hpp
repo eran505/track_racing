@@ -177,6 +177,11 @@ public:
         }
         return false;
     }
+    void operator/=(const Point &x){
+        for (int i = 0; i < this->capacity; ++i) {
+            array[i]/=x[i];
+        }
+    }
     void change_speed_max(int absoult_max){
         for (int i = 0; i < this->capacity; ++i) {
             if (this->array[i]>absoult_max){

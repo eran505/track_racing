@@ -214,8 +214,7 @@ double getMaxValueArrTmp( const double *arr, size_t sizeArr)
 Point RTDP_util::get_argmx_action(State *s) {
 
     int index_action = this->get_state_argmax(s);
-    if (index_action==22)
-        cout<<"";
+
     auto pos = this->hashActionMap->find(index_action);
     if (pos == this->hashActionMap->end())
         throw std::invalid_argument( "function::get_argmx_action Error" );

@@ -157,10 +157,11 @@ Grid * init_grid(configGame& conf){
 }
 MdpPlaner* init_mdp(Grid *g, configGame &conf){
     int maxSizeGrid = g->getPointSzie().array[0];
-    int maxA=1+maxSizeGrid/10;   //TODO:: change it to plus one !!!!!!!!!!!!!!!!!!!!!!!
-    int maxD=std::max(0+maxSizeGrid/10,1);
+    int maxA=0+maxSizeGrid/10;   //TODO:: change it to plus one !!!!!!!!!!!!!!!!!!!!!!!
+    int maxD=std::max(0+maxSizeGrid/100,1);
     conf.maxD=maxD;
     conf.maxA=maxA;
+
     // make game info
     shared_ptr<unordered_map<string,string>> gameInfo_share = std::make_shared<unordered_map<string,string>>();
     auto [it, result] = gameInfo_share->emplace("ID",conf.idNumber);
