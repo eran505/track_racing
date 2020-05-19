@@ -11,14 +11,13 @@
 
 //#include ""
 //class State;
-
+typedef vector<weightedPosition> weightedPositionVector;
 typedef std::vector<std::pair<float,Point>> weightedPointVector;
 class Agent{
 
 protected:
-    weightedPointVector *my_pos;
     Policy* my_Policy;
-    Point* my_speed;
+    weightedPositionVector initialPosition;
     int my_budget;
     bool is_wall;
     const char my_team;
@@ -30,8 +29,8 @@ public:
     bool get_is_wall() const{ return is_wall;}
     void rest(){is_wall= false; this->my_Policy->reset_policy();}
     const string& get_name_id(){ return my_id;}
-    Agent(weightedPointVector* pos,Point* speed,string m_id , char m_team,int b_budget);
-    Agent(weightedPointVector* pos,Point* speed, char m_team,int b_budget);
+    Agent(weightedPositionVector Startpos,string m_id , char m_team,int b_budget);
+    Agent(weightedPositionVector Startpos, char m_team,int b_budget);
     const string& get_id(){ return my_id; }
     char get_team() const { return my_team; }
     string get_name();
@@ -41,34 +40,33 @@ public:
     ~Agent();
     void evalPolicy();
     void trainPolicy();
-    void set_speed(Point *cur_speed) {
-        if (this->my_speed != nullptr)
-            delete(this->my_speed);
-        this->my_speed=cur_speed;
-    }
+
+    Policy* getPolicyInt(){return my_Policy;}
 
     int get_budget() const{ return this->my_budget;}
 
-    const Point* get_speed(){
 
-        return this->my_speed;
+    void print()
+    {
+        cout<<"ID"<<this->get_id()<<endl;
+        for(auto &item:initialPosition)
+        {
+            cout<<item.positionPoint.to_str()<<"\t";
+        }
+        cout<<endl;
     }
-
-    const Point& get_pos(float seed){
+    pair<const Point&,const Point&> get_pos(float seed){
         float acc = 0;
         u_int16_t ctr=0;
-        for (auto const &item:*my_pos){
-            acc += std::get<0>(item);
+        for (auto const &item:initialPosition){
+            acc += item.weightedVal;
             if (acc >= seed)
-                return std::get<1>(item);
+                return {item.positionPoint,item.speedPoint};
             ctr++;
         }
-        return std::get<1>(my_pos->operator[](ctr-1));
+        // floating point problem
+        return {initialPosition[initialPosition.size()-1].positionPoint,initialPosition[initialPosition.size()-1].speedPoint};
     }
-    Point get_speed_v1(){ return *my_speed;}
-    const Point& get_speed_v2(){ return *my_speed;}
-
-    void to_print();
 
 
     static int ctr_object;

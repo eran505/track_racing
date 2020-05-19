@@ -19,7 +19,7 @@ public:
     Dog(string namePolicy,int MAX_SPEED,string agentID,string &home,dictionary ptrDict);
     void set_goal(Point p)
     {
-        this->golazz.push_back(p);
+        this->golazz.push_back(std::move(p));
     }
 
     Point get_action(State *s) override;

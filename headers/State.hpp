@@ -38,6 +38,7 @@ public:
     bool move_by_change_speed(const string& name_id,const Point& speed_m);
     bool applyAction(const string& id, Point &action, int max_speed);
     list<string> is_collusion(string &id_player);
+    bool is_collusion(string &id_player,string &op_player);
     void getAllPosOpponent(vector<Point> &results,char team);
     std::ostream& operator<<(std::ostream &strm) {
         return strm <<this->to_string_state();

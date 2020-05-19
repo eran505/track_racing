@@ -8,6 +8,7 @@
 //#include <zconf.h>
 #include <iostream>
 #include <string>
+#include <utility>
 #include "util_game.hpp"
 
 
@@ -29,16 +30,46 @@ struct game_params {
 class Grid{
 private:
     //fields
-    Point size_point;
+    Point upperBound;
     vector<Point> all_golas;
     vector<pair<short,Point>> all_golas_data;
-
+    Point lowerBound=Point(0);
 
 
 
     public:
-        Point getPointSzie(){ return size_point;}
-        Grid(game_params&);
+        Point getPointSzie(){ return upperBound;}
+        explicit Grid(game_params&);
+        ~Grid() {cout<<"grid del\n"; }
+        Grid(const Point& sizeP,vector<Point> allPoint,vector<short> rewardGoal)
+        {
+            upperBound=sizeP;
+            all_golas=std::move(allPoint);
+            for(size_t i=0;i<rewardGoal.size();++i)
+            {
+                all_golas_data.emplace_back(rewardGoal[i],all_golas[i]);
+            }
+        }
+        Grid(const Point& sizeP,vector<weightedPosition>& goalRewards)
+        {
+            upperBound=sizeP;
+
+            for(auto & goalReward : goalRewards)
+            {
+                all_golas_data.emplace_back(short(goalReward.weightedVal),goalReward.positionPoint);
+                all_golas.emplace_back(goalReward.positionPoint);
+            }
+        }
+        Grid(const Point& upperBound_,const Point& loweBound_,vector<weightedPosition>& goalRewards)
+        {
+            this->upperBound=upperBound_;
+            this->lowerBound=loweBound_;
+            for(auto & goalReward : goalRewards)
+            {
+                all_golas_data.emplace_back(short(goalReward.weightedVal),goalReward.positionPoint);
+                all_golas.emplace_back(goalReward.positionPoint);
+            }
+        }
         void print_vaule();
 
         vector<Point> get_goals() {
@@ -46,9 +77,9 @@ private:
         }
         int getSizeIntGrid(){
             int size = 1;
-            for (int i = 0; i < this->size_point.capacity; ++i) {
-                if (this->size_point.array[i]==0) continue;
-                size*=this->size_point.array[i];
+            for (int i = 0; i < this->upperBound.capacity; ++i) {
+                if (this->upperBound.array[i]==0) continue;
+                size*=this->upperBound.array[i];
             }
             return size;
         }
@@ -93,11 +124,11 @@ private:
             return (std::find(all_golas.begin(),all_golas.end(),loc) != all_golas.end());
         }
         bool is_wall(Point *ptr_point_loc){
-            return ptr_point_loc->out_of_bound(this->size_point);
+            return ptr_point_loc->out_of_bound(this->lowerBound,this->upperBound);
         }
         bool is_wall(const Point &loc)
         {
-            return loc.out_of_bound(this->size_point);
+            return loc.out_of_bound(this->lowerBound,this->upperBound);
         }
         void setTargetGoals(const vector<bool> &vecB){
             for (int i = 0; i < vecB.size(); ++i) {

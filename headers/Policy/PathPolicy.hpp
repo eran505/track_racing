@@ -17,48 +17,56 @@ typedef std::vector<std::pair<float,Point>> listPointWeighted;
 
 class PathPolicy:public Policy{
     unsigned long maxPathsNumber;
-
-
     vector<Point> midVec;
-    vector<std::tuple<double,vector<Point>>> pathz;
-    Point actionmy;
     unordered_map<u_int64_t,vector<float>*> *dictPolicy;
+
     u_int64_t getAgentSateHash(State *s);
 public:
+    vector<weightedPosition> startPoint;
     unordered_map<u_int64_t ,pair<short,AStar::StatePoint>>* statesIdDict;
-    unordered_map<u_int64_t,vector<float>*>* getDictPolicy(){return dictPolicy;}
     std::vector<std::pair<float,Point>>* goalPoint;
-    std::vector<std::pair<float,Point>>* startPoint;
+
+    unordered_map<u_int64_t,vector<float>*>* getDictPolicy(){return dictPolicy;}
+
     int getNumberOfState() {
         return dictPolicy->size();
     }
-    PathPolicy(string namePolicy, int maxSpeedAgent,std::vector<std::pair<float,Point>>* endPoint_, std::vector<std::pair<float,Point>>* startPoint_,
-               Point &gridSzie, string agentID,vector<Point> midVecPoints,string &home,unsigned long maxPathz=ULONG_MAX,dictionary ptrDict=nullptr) : Policy(std::move(namePolicy),
+    PathPolicy(string namePolicy, int maxSpeedAgent,std::vector<std::pair<float,Point>>* endPoint_, vector<weightedPosition>& startPoint_,
+               Point &gridSzie, const string &agentID,vector<Point> midVecPoints,string &home,unsigned long maxPathz=ULONG_MAX,dictionary ptrDict=nullptr) : Policy(std::move(namePolicy),
                        maxSpeedAgent,std::move(agentID),home,std::move(ptrDict)),midVec(move(midVecPoints)) {
         this->goalPoint=endPoint_;
         this->dictPolicy= nullptr;
+        this->startPoint=startPoint_;
         this->statesIdDict= nullptr;
         this->maxPathsNumber = maxPathz;
-        this->startPoint=startPoint_;
         this->initPolicy(gridSzie);
         printf("\ndone!\n");
     }
+
+    PathPolicy(string namePolicy, int maxSpeedAgent,const string &agentID,string &home,unordered_map<u_int64_t,vector<float>*>* d,dictionary ptrDict=nullptr)
+    :Policy(std::move(namePolicy),maxSpeedAgent,std::move(agentID),
+            home,std::move(ptrDict)),dictPolicy(d),goalPoint(nullptr),
+            statesIdDict(nullptr),maxPathsNumber(0),startPoint(0),midVec(0)
+    {}
+
+
+
+
+    void setPolicyDict(unordered_map<u_int64_t,vector<float>*>* d){this->dictPolicy=d;}
     void initPolicy(Point &girdSize){
         dictPolicy = new unordered_map<u_int64_t, vector<float>*>();
         double weightEnd;
         cout<<"A star..."<<endl;
         auto *xx = new AStar::Generator(this->max_speed,girdSize);
         xx->setMaxPATH(this->maxPathsNumber);
-        for (unsigned long i = 0; i < this->startPoint->size(); ++i) {
-            auto& [weightStart,startP]= startPoint->operator[](i);
+        for (auto & startPointItem : startPoint) {
             for (unsigned long k = 0; k < this->goalPoint->size(); ++k) {
                 auto& [weightEnd,endP] = goalPoint->operator[](k);
                 for (unsigned int s=max_speed ; s<=this->max_speed;++s)
                 {
                     auto zeroSrc  = Point();
-                    auto startSpeed  = Point(0,0,s);
-                    //auto zeroDest  = Point();
-                    auto src = AStar::StatePoint{Point(startP),startSpeed};
+                    auto startSpeed  = startPointItem.speedPoint;
+                    auto src = AStar::StatePoint{Point(startPointItem.positionPoint),startSpeed};
                     auto dest = AStar::StatePoint{Point(endP),startSpeed};
                     xx->changeMaxSpeed(s);
                     if (midVec.size()>k)
@@ -97,8 +105,10 @@ public:
     void normalizeDict();
 
     void treeTraversal(State *ptrState, string &strIDExp);
-    void policyData(string &strID);
+
     vector<float> minizTrans(const vector<float>* x);
+
+    void policyData(string &strID, vector<tuple<double, vector<Point>>> &pathz);
 };
 
 
@@ -222,8 +232,7 @@ void PathPolicy::treeTraversal(State *ptrState,string &strIdExp)
         }
 
     }
-    pathz = res;
-    policyData(strIdExp);
+    policyData(strIdExp,res);
 }
 
 
@@ -282,7 +291,7 @@ vector<float> PathPolicy::minizTrans(const vector<float> *x) {
 }
 
 
-void PathPolicy::policyData( string &strID)
+void PathPolicy::policyData( string &strID,vector<std::tuple<double,vector<Point>>> &pathz)
 {
     string pathFile=this->home+"/car_model/exp/data/";
     try{

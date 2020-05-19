@@ -144,12 +144,13 @@ RTDP_util::~RTDP_util() {
 vector<int> arg_max(const double arr[],int size ){
     double max = -1;
     max = *std::max_element(arr, arr+size);
-    vector<int> l;
+    vector<int> listIdxs;
+    listIdxs.reserve(1);
     for (int i = 0; i < size; ++i) {
         if (arr[i]==max)
-            l.push_back(i);
+            listIdxs.emplace_back(i);
     }
-    return l;
+    return listIdxs;
 }
 
 int RTDP_util::get_state_argmax(State *s) {

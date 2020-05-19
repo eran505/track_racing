@@ -10,16 +10,21 @@
 #include "serach/Astar.hpp"
 #include "Policy/PathPolicy.hpp"
 #include <deque>
+#include <memory>
+#include "Abstract/Simulation.hpp"
+#include "Policy/RtdpAlgo.hpp"
+#include "Grid.hpp"
+#include "util/utilClass.hpp"
 #define DEBUG
 
 typedef unordered_map<u_int64_t,vector<float>*> dictPolicyPath;
-typedef std::vector<std::vector<AStar::StatePoint>*> doubleVecPoint;
+typedef std::vector<std::vector<weightedPosition>> doubleVecPoint;
 typedef std::unordered_map<u_int64_t ,pair<short,AStar::StatePoint>> hashIdStates;
 typedef vector<tuple<Point*,double>> listPointWeightedd;
 using AStar::StatePoint;
 
 class abstractionDiv{
-
+    int seedSystem;
     vector<dictPolicyPath*> vecPolicy;
     dictPolicyPath* allDictPolicy;
     hashIdStates* dictHash;
@@ -28,25 +33,23 @@ class abstractionDiv{
     Point girdSize;
     Point abstractSize;
     unordered_map<int,Point*>* hashActionDict;
+    int sizeVectors;
 public:
     ~abstractionDiv()
     {
         for(auto item : *hashActionDict)
             delete item.second;
         delete hashActionDict;
-        for (auto item : *startPoints_abstraction)
-            delete item;
-        for(auto item : *endPoints_abstraction)
-            delete item;
         delete startPoints_abstraction;
         delete endPoints_abstraction;
         delete dictHash;
     }
-    abstractionDiv(const Point& ptrGirdSize,const Point& mAbstractSize,PathPolicy *policyP){
+    abstractionDiv(const Point& ptrGirdSize,const Point& mAbstractSize,PathPolicy *policyP,int seed){
         auto sizeMiniGrid = mAbstractSize.array[0]*mAbstractSize.array[1];
+        sizeVectors=sizeMiniGrid;
         abstractSize=mAbstractSize;
         girdSize = ptrGirdSize;
-
+        seedSystem = seed;
         allDictPolicy=policyP->getDictPolicy();
         //auto number2D = girdSize.array[0]*girdSize.array[1];
         vecPolicy = vector<dictPolicyPath*>(sizeMiniGrid);
@@ -55,8 +58,8 @@ public:
         for(size_t i=0;i<sizeMiniGrid;++i)
         {
             vecPolicy[i]=new dictPolicyPath();
-            startPoints_abstraction->operator[](i)= new std::vector<AStar::StatePoint>();
-            endPoints_abstraction->operator[](i)= new std::vector<AStar::StatePoint>();
+            startPoints_abstraction->operator[](i)=std::vector<weightedPosition>();
+            endPoints_abstraction->operator[](i)=std::vector<weightedPosition>();
         }
         dictHash= policyP->statesIdDict;
         hashActionDict= Point::getDictAction();
@@ -65,25 +68,100 @@ public:
         std::cout<<endl;
     }
 
+
+    std::vector<simulation> initializeSimulation(configGame &conf){
+        //vector<weightedPosition> l = {{Point(0),Point(0),1}};
+        std::vector<simulation> simulationList;
+        simulationList.reserve(this->sizeVectors);
+        for (size_t k = 0 ; k<this->vecPolicy.size();++k) {
+            if (this->vecPolicy[k]->empty())
+                continue;
+//            if (k==6)
+//                cout<<endl;
+            auto [up,low]=getBound(k,this->abstractSize);
+            auto listPosStart = startingPosDefender(up,low,conf.maxD);
+            auto* a = new Agent(startPoints_abstraction->operator[](k),Section::adversary,10);
+            auto* d = new Agent(std::move(listPosStart),Section::gurd,10);
+            initRTDP(conf,d,k);
+            setPathPolicy(conf,a,k);
+            a->getPolicyInt()->add_tran(d->getPolicyInt());
+            d->getPolicyInt()->add_tran(a->getPolicyInt());
+
+            auto G = new Grid(up,low,this->endPoints_abstraction->operator[](k));
+            simulationList.emplace_back(d,a,G,seedSystem);
+            break;
+        }
+
+        return simulationList;
+    }
 private:
-    void setDictHashState(hashIdStates* mDictHash){ dictHash=mDictHash;}
-    void setEndStartPoint(listPointWeighted* start, listPointWeighted* end,int maxSpeed)
+
+    vector<weightedPosition> startingPosDefender(const Point &up,const  Point &low,const int maxD)
     {
-        for(auto &[b,a] : *start) {
-            auto s = Point(a);
+        vector<weightedPosition> l3;
+        vector<Point> l;
+        for(int x=up[0]-1;x>=(up[0]-(maxD));--x)
+            for(int y=low[1];y<up[1];++y)
+                for(int z=0;z<up[2]/3;++z)
+                    l.emplace_back(x,y,z);
+        cout<<endl;
+        vector<Point> l2;
+        for(short x=0;x<=maxD;++x)
+        {
+            for(int y=0;y<=maxD;++y)
+                for(int z=0;z<=maxD;++z)
+                    l2.emplace_back(x,y,z);
+        }
+        float sizeL = l2.size()*l.size();
+        for(auto &speed:l2)
+            for(auto &ipos:l)
+                l3.emplace_back(speed,ipos,float(1)/sizeL);
+        return l3;
+    }
+    pair<Point,Point> getBound(int gridIndx,Point &abstract){
+        int upIndx=gridIndx/abstract[0];
+        int lowIndx = gridIndx%abstract[0];
+        Point up(abstract[0]+upIndx*abstract[0],abstract[1]+lowIndx*abstract[1],abstract[2]*abstract[2]);
+        Point low(0+upIndx*abstract[0],0+lowIndx*abstract[1],0);
+        return {up,low};
+    }
+    void initRTDP(configGame &conf,Agent* d,u_int32_t k)
+    {
+
+        auto listQtalbe = vector<pair<int,int>>();
+        listQtalbe.emplace_back(conf.maxD,1);
+        shared_ptr<unordered_map<string,string>> gameInfo_share = std::make_shared<unordered_map<string,string>>();
+        auto [it, result] = gameInfo_share->emplace("ID",conf.idNumber);
+        listQtalbe.emplace_back(0,vecPolicy[k]->size());
+        Policy* rtdp = new RtdpAlgo(conf.maxD,this->sizeVectors,listQtalbe,d->get_id(),conf.home,gameInfo_share);
+        d->setPolicy(rtdp);
+    }
+    void setPathPolicy(configGame &conf, Agent* a,u_int32_t k)
+    {
+        Policy* aP = new PathPolicy("Path", conf.maxA, a->get_id(), conf.home,this->vecPolicy[k]);
+        auto *tmp_pointer = dynamic_cast <PathPolicy*>(aP);
+        cout<<tmp_pointer->name<<endl;
+        a->setPolicy(aP);
+    }
+    void setDictHashState(hashIdStates* mDictHash){ dictHash=mDictHash;}
+    void setEndStartPoint(vector<weightedPosition>& start, listPointWeighted* end,int maxSpeed)
+    {
+        for(auto &itemI : start) {
+            auto s = Point(itemI.positionPoint);
             auto idx = emplaceInDictVec(s);
-            startPoints_abstraction->operator[](idx)->emplace_back(std::move(s),Point(0,0,maxSpeed));
+            startPoints_abstraction->operator[](idx).emplace_back(Point(0,0,maxSpeed),std::move(s),1);
         }
         for(auto &[a,b] : *end) {
-            auto e = Point(a);
+            auto e = Point(b);
             auto idx = emplaceInDictVec(e);
-            endPoints_abstraction->operator[](idx)->emplace_back(std::move(e),Point(0));
+            endPoints_abstraction->operator[](idx).emplace_back(Point(0),std::move(e),1);
         }
 
     }
-    static void insetToList(std::vector<AStar::StatePoint> *l , AStar::StatePoint &s){
-        if (std::find(l->begin(), l->end(), s) == l->end())
-            l->push_back(std::move(s));
+    static void insetToList(std::vector<weightedPosition> &l , AStar::StatePoint &s){
+        auto to_inset = weightedPosition(s.speed,s.pos,1);
+        if (std::find(l.begin(), l.end(),to_inset) == l.end())
+            l.push_back(std::move(to_inset));
 
     }
     static inline u_int64_t getIndexEntry(StatePoint &s){

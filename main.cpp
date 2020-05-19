@@ -12,6 +12,7 @@
 #include "Abstract/abstractionDiv.h"
 #include <vector>
 #include<algorithm>
+#include "Abstract/FactoryAgent.hpp"
 #include "Policy/RtdpAlgo.hpp"
 #include <chrono>
 #include "serach/Astar.hpp"
@@ -58,9 +59,6 @@ using namespace std::chrono;
 typedef unsigned long ulong;
 
 int main() {
-
-
-
 
     int seed = 155139;
     seed = 1587982523; //1895975606
@@ -161,7 +159,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     int maxSizeGrid = g->getPointSzie().array[0];
     int maxA=1+maxSizeGrid/10;   //TODO:: change it to plus one !!!!!!!!!!!!!!!!!!!!!!!
     int maxD=std::max(0+maxSizeGrid/10,1);
-
+    conf.maxD=maxD;
+    conf.maxA=maxA;
     // make game info
     shared_ptr<unordered_map<string,string>> gameInfo_share = std::make_shared<unordered_map<string,string>>();
     auto [it, result] = gameInfo_share->emplace("ID",conf.idNumber);
@@ -169,19 +168,17 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     //auto gameInfo = new unordered_map<string,string>();
     //gameInfo->insert({"ID",conf.idNumber});
 
-    auto lStartingPoint_A = new std::vector<std::pair<float,Point>>();
-    lStartingPoint_A->emplace_back(1.0,std::move(conf.posAttacker));
 
-    auto lStartingPoint_D = new std::vector<std::pair<float,Point>>();
-    lStartingPoint_D->emplace_back(1.0,std::move(conf.posDefender));
+    std::vector<weightedPosition> listPointAttacker;
+    std::vector<weightedPosition> listPointDefender;
+    listPointAttacker.emplace_back(Point(0,0,maxA),std::move(conf.posAttacker),1.0);
+    listPointDefender.emplace_back(Point(0,0,0),std::move(conf.posDefender),1.0);
 
 
-    auto* pA1 = new Agent(lStartingPoint_A
-            ,new Point(0,0,maxA)
+    auto* pA1 = new Agent(listPointAttacker
             ,adversary,10);
 
-    auto* pD2 = new Agent(lStartingPoint_D,
-            new Point(0,0,0)
+    auto* pD2 = new Agent(listPointDefender
             ,gurd,10);
 
 
@@ -203,32 +200,33 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     s->set_state();
 
     //////// PATH POLICY ////////////
-    Policy *pGridPath =new  PathPolicy("SP", maxA, lStartingPointGoal, lStartingPoint_A,
+    Policy *pGridPath =new  PathPolicy("SP", maxA, lStartingPointGoal, listPointAttacker,
                                        p_sizer, pA1->get_id()
             , conf.midPos, conf.home, conf.rRoutes, nullptr);
     auto *tmp_pointer = dynamic_cast <PathPolicy*>(pGridPath);
     printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
     auto* tmp = new State(*s->get_cur_state());
     tmp_pointer->treeTraversal(tmp,conf.idNumber);
-    delete tmp;
 
 
+    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,Point(5),conf.seed);
+    z->initializeSimulation(conf);
     //////// RTDP POLICY ////////
     /* If max speed is zero, the explict number of state is in the second place */
-    vector<pair<int,int>> list_Q_data;
-    list_Q_data.emplace_back(maxD,1);
-    list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
+//    vector<pair<int,int>> list_Q_data;
+//    list_Q_data.emplace_back(maxD,1);
+//    list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
+//
+//    //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
+//    Policy *RTDP = new RtdpAlgo("RTDP",maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share);
+//    //auto* ab = new abstractionDiv(g->getPointSzie(),Point(5),tmp_pointer);
+//
+//    RTDP->add_tran(pGridPath);
+//    pA1->setPolicy(pGridPath);
+//    pD2->setPolicy(RTDP);
 
-    //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
-    Policy *RTDP = new RtdpAlgo("RTDP",maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share);
-    //auto* ab = new abstractionDiv(g->getPointSzie(),Point(5),tmp_pointer);
 
-    RTDP->add_tran(pGridPath);
-    pA1->setPolicy(pGridPath);
-    pD2->setPolicy(RTDP);
-
-
-
+    exit(0);
 
     return s;
 }

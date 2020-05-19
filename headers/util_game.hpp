@@ -37,9 +37,8 @@ enum Section{
     gurd   = (int)'D'
 };
 
-class
 
-Point{
+class Point{
 
 public:
     enum D_point{
@@ -147,14 +146,22 @@ public:
         }
         return false;
     }
-    [[nodiscard]] bool out_of_bound(const Point &bound) const{
+    [[nodiscard]] bool out_of_bound(const Point &boundLower,const Point &boundUpper) const{
         for (int i = 0; i < this->capacity; ++i) {
-            if (this->array[i]>=bound.array[i] or this->array[i]<0)
+            if (this->array[i]>=boundUpper.array[i] or
+            this->array[i]<boundLower.array[i])
                 return true;
         }
         return false;
     }
-
+    [[nodiscard]] bool out_of_bound(const Point &bound) const{
+        for (int i = 0; i < this->capacity; ++i) {
+            if (this->array[i]>=bound.array[i] or
+                this->array[i]<0)
+                return true;
+        }
+        return false;
+    }
     vector<float>* getFeature()
     {
         auto* vectorI = new vector<float>();
@@ -222,7 +229,7 @@ public:
     }
 
 
-    u_int64_t hashConst(int offset=0)const {
+    [[nodiscard]] u_int64_t hashConst(int offset=0)const {
 
         auto h=hashNnN(array[0]+offset,array[1]+offset);
         for (int i = 2; i < capacity; ++i) {
@@ -273,7 +280,7 @@ public:
     static u_int64_t hashNnN(u_int64_t x,u_int64_t y)
     {
 
-        return ( 0.5*( (x+y) * (x+y+1) ) + y ) ;
+        return ( 0.5*double( (x+y) * (x+y+1) ) + y ) ;
     }
 };
 
@@ -293,6 +300,37 @@ bool Contains( std::vector<float>& Vec, const float Element )
 
     return false;
 }
+
+
+struct weightedPosition{
+    Point speedPoint;
+    Point positionPoint;
+    float weightedVal;
+    weightedPosition(const Point& speed_,const Point& pos_, float p)
+    :speedPoint(speed_),positionPoint(pos_),weightedVal(p){}
+    bool operator== (const weightedPosition &other)const
+    {
+        if(this->positionPoint==other.positionPoint)
+            if(this->speedPoint==other.speedPoint)
+                return true;
+        return false;
+    }
+    void operator= (const weightedPosition &other)
+    {
+        this->positionPoint=other.positionPoint;
+        this->speedPoint=other.speedPoint;
+        this->weightedVal=other.weightedVal;
+    }
+    weightedPosition(const weightedPosition &other)
+    :speedPoint(other.speedPoint),
+    positionPoint(other.positionPoint),
+    weightedVal(other.weightedVal){}
+    weightedPosition()
+    :positionPoint(0),speedPoint(0),weightedVal(-1)
+    {}
+
+};
+
 
 
 #endif //RACING_CAR_UTIL_GAME_HPP

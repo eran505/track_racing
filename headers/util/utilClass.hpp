@@ -38,6 +38,8 @@ struct configGame{
     Point sizeGrid ;
     string config;
     Point posAttacker;
+    int maxA;
+    int maxD;
     Point posDefender;
     vector<Point> gGoals ;
     vector<float> probGoals;

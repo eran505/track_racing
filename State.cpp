@@ -62,13 +62,19 @@ State::State(const State &other) {
     }
     this->g_grid=other.g_grid;
 }
-
+bool State::is_collusion(string &id_player,string &op_player)
+{
+    if(this->pos_dict[id_player]==this->pos_dict[op_player])
+        return true;
+    else
+        return false;
+}
 list<string> State::is_collusion(string &id_player) {
     //// return all the name of the opposite team that share the same location with the given player
     list<string> list_name;
-    char my_team = id_player[0];
+    char my_team = id_player[id_player.size()-1];
     for(auto item : this->pos_dict){
-        char team_id = item.first.operator[](0);
+        char team_id = item.first.operator[](id_player.size()-1);
         if (team_id == my_team)
             continue;
         if (this->pos_dict[id_player].is_equal(&item.second))
@@ -81,10 +87,10 @@ set<string> State::is_collusion() {
     //// return all player that collide
     set<string> values;
     for(auto item : this->pos_dict){
-        char team_id = item.first.operator[](0);
+        char team_id = item.first.operator[](item.first.size()-1);
         for (auto item2 : this->pos_dict)
         {
-            char team_id_other = item2.first.operator[](0);
+            char team_id_other = item2.first.operator[](item.first.size()-1);
             if (team_id_other == team_id)
                 continue;
             if (item.second.is_equal(&item2.second))

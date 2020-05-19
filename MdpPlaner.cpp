@@ -78,9 +78,10 @@ void MdpPlaner::set_state() {
     list<Agent*> all_agents;
     this->get_all_players(&all_agents);
     for (auto item : all_agents){
+        const auto &[pos,speed] = item->get_pos(this->distribution(this->generator));
         cur_state->add_player_state(item->get_name_id(),
-                item->get_pos(this->distribution(this->generator)),
-                item->get_speed(),item->get_budget());
+                pos,
+                speed,item->get_budget());
 
     }
     this->cur_state->g_grid=this->grid;

@@ -5,13 +5,11 @@
 #include "RtdpAlgo.hpp"
 
 #include <utility>
-RtdpAlgo::RtdpAlgo(string namePolicy, int maxSpeedAgent, int grid_size, vector<pair<int,int>>& max_speed_and_budget,string agentID,string &home,dictionary ptrDict)
-        : Policy(std::move(namePolicy), maxSpeedAgent,std::move(agentID),home,ptrDict) {
+RtdpAlgo::RtdpAlgo(int maxSpeedAgent, int grid_size, vector<pair<int,int>>& max_speed_and_budget,const string &agentID,string &home,dictionary &ptrDict)
+        : Policy(std::move("RTDP"), maxSpeedAgent,std::move(agentID),home,ptrDict) {
    this->RTDP_util_object = new RTDP_util(grid_size,max_speed_and_budget,home);
     this->RTDP_util_object->set_tran(&this->tran);
     this->RTDP_util_object->MyPolicy(this);
-
-
 }
 
 
@@ -129,8 +127,25 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
 
     return this->UpdateCalc(state_tran_q);
 }
+tuple<double,bool> RtdpAlgo::EvalState2(State *s)
+{
+    if (this->is_wall)
+    {
+        return {WallReward,true};
+    }
+    if (s->is_collusion(this->id_agent,this->cashID))
+    {
+        return {CollReward,true};
+    }
+    if (s->isGoal(this->cashID))
+        return {GoalReward,true};
+    if(s->isEndState(this->cashID))
+        return {0,true};
+    return {0,false};
+}
 
 tuple<double,bool> RtdpAlgo::EvalState(State *s) {
+
     if (s->isGoal(this->cashID)) {
         return {GoalReward,true};
     } else if (this->is_wall){
@@ -153,7 +168,7 @@ double RtdpAlgo::UpdateCalc(const vector<pair<State *, float>>& state_tran_q) {
     double res=0;
     for (auto &item:state_tran_q)
     {
-        auto tupleRewardBool = this->EvalState(item.first);
+        auto tupleRewardBool = this->EvalState2(item.first);
         auto val = std::get<0>(tupleRewardBool);
         auto isSndState = std::get<1>(tupleRewardBool);
         //cout<<item.first->to_string_state()<<"= "<<val<<endl;

@@ -9,6 +9,7 @@
 #include "util_game.hpp"
 #include "Policy.hpp"
 #include "Agent.hpp"
+#include "util/utilClass.hpp"
 /**
  *
  *  Grid (size) -> goals
@@ -27,15 +28,21 @@ class AbstractCreator{
     Point originalGridSize;
     Point abGridSize;
     std::vector<simulation> simulationVector;
-
-    AbstractCreator(PathPolicy* evaderPolicy_,const Point& ptrGirdSize,const Point& mAbstractSize):evaderPolicy(evaderPolicy_){
+    int seed;
+public:
+    AbstractCreator(PathPolicy* evaderPolicy_,const Point& ptrGirdSize,const Point& mAbstractSize,int seed_):evaderPolicy(evaderPolicy_),seed(seed_){
         originalGridSize=ptrGirdSize;
         abGridSize=mAbstractSize;
     }
 
-    void initializeSimulation()
+    void initializeSimulation(configGame &conf)
     {
-        
+        auto abstractionObject = abstractionDiv(originalGridSize,abGridSize,evaderPolicy,seed);
+        auto workerTasks = abstractionObject.initializeSimulation(conf);
+        for(auto &item:workerTasks)
+        {
+            item.simulate(5000000);
+        }
     }
 
 
