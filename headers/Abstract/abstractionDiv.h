@@ -73,7 +73,7 @@ public:
     }
 
 
-    simulation bigGridAbs()
+    void bigGridAbs()
     {
         vector<vector<weightedPosition>> setPaths;
         for(auto & myPath : myPaths)
@@ -114,14 +114,35 @@ public:
                 else{
                     auto isFind = std::find(pos->second->begin(),pos->second->end(),actionHkey);
                     if(isFind==pos->second->end())
-                        pos->second->insert(pos->second->end(),{actionHkey,1});
+                        pos->second->insert(pos->second->end(),{actionHkey,-1});
                     else
-                        (isFind+sizeof(float))--;
+                        {
+                            auto b = std::distance(pos->second->begin(),isFind)+1;
+                            pos->second->operator[](b)--;
+                        }
+
 
                 }
 
             }
         }
+        for(auto& item: *this->vecPolicy[index])
+        {
+            auto acc=0;
+            int indexCur=0;
+            std::for_each(item.second->begin(),item.second->end(),[&](float x){
+                if(indexCur%2!=0)
+                    acc+=x;
+                indexCur++;});
+            indexCur=0;
+            for(auto &num:*item.second)
+            {
+                if (indexCur%2!=0) num=num/acc;
+                indexCur++;
+            }
+        }
+
+        cout<<"end"<<endl;
     }
     std::vector<simulation> initializeSimulation(configGame &conf){
         //vector<weightedPosition> l = {{Point(0),Point(0),1}};
