@@ -132,6 +132,7 @@ public:
     }
 
 
+
     Point& operator-=(const Point* other){
 
         for (int i = 0; i < this->capacity; ++i) {
@@ -181,6 +182,20 @@ public:
         for (int i = 0; i < this->capacity; ++i) {
             array[i]/=x[i];
         }
+    }
+    Point operator/(const Point &x)const{
+        Point res(0);
+        for (int i = 0; i < this->capacity; ++i) {
+            res.array[i]=array[i]/x[i];
+        }
+        return res;
+    }
+    [[nodiscard]] int accMulti()const{
+        int acc=1;
+        for (int i = 0; i < this->capacity; ++i) {
+            acc*=this->array[i];
+        }
+        return acc;
     }
     void change_speed_max(int absoult_max){
         for (int i = 0; i < this->capacity; ++i) {

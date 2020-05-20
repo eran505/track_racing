@@ -210,8 +210,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     tmp_pointer->treeTraversal(tmp,conf.idNumber);
 
 
-    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,Point(5),conf.seed);
-    z->initializeSimulation(conf);
+    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,Point(5,5,11),conf.seed);
+    z->initializeSimulation(conf,listPointDefender);
     //////// RTDP POLICY ////////
     /* If max speed is zero, the explict number of state is in the second place */
 //    vector<pair<int,int>> list_Q_data;

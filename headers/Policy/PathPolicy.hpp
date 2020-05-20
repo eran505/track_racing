@@ -25,7 +25,7 @@ public:
     vector<weightedPosition> startPoint;
     unordered_map<u_int64_t ,pair<short,AStar::StatePoint>>* statesIdDict;
     std::vector<std::pair<float,Point>>* goalPoint;
-    vector<vector<Point>> myPaths;
+    vector<pair<float,vector<Point>>> myPaths;
     unordered_map<u_int64_t,vector<float>*>* getDictPolicy(){return dictPolicy;}
 
     int getNumberOfState() {
@@ -89,7 +89,7 @@ public:
     }
     inline void copyPaths(AStar::Generator *astar)
     {
-        myPaths = std::move(astar->agentPaths);
+
     }
     Point get_action(State *s) override;
     ~PathPolicy() override{
@@ -113,7 +113,7 @@ public:
 
     vector<float> minizTrans(const vector<float>* x);
 
-    void policyData(string &strID, vector<tuple<double, vector<Point>>> &pathz);
+    void policyData(string &strID);
 };
 
 
@@ -179,7 +179,6 @@ u_int64_t PathPolicy::getAgentSateHash(State *s) {
 void PathPolicy::treeTraversal(State *ptrState,string &strIdExp)
 {
 
-    vector<std::tuple<double,vector<Point>>> res;
     std::deque<pair<State,float>> q;
     q.emplace_back(*ptrState,1);
     float probAcc=1;
@@ -208,7 +207,7 @@ void PathPolicy::treeTraversal(State *ptrState,string &strIdExp)
             auto p = posPair.second;
             probAcc = probAcc/p;
             path.pop_back();
-            res.emplace_back(probAcc,move(v));
+            myPaths.emplace_back(probAcc,std::move(v));
             continue;
         }
         if (!path.empty())
@@ -237,7 +236,7 @@ void PathPolicy::treeTraversal(State *ptrState,string &strIdExp)
         }
 
     }
-    policyData(strIdExp,res);
+    policyData(strIdExp);
 }
 
 
@@ -296,13 +295,13 @@ vector<float> PathPolicy::minizTrans(const vector<float> *x) {
 }
 
 
-void PathPolicy::policyData( string &strID,vector<std::tuple<double,vector<Point>>> &pathz)
+void PathPolicy::policyData( string &strID)
 {
     string pathFile=this->home+"/car_model/exp/data/";
     try{
         string nameFileCsv=strID+"_Attacker.csv";
         csvfile csv(std::move(pathFile+nameFileCsv),","); // throws exceptions!
-        for(auto &item: pathz)
+        for(auto &item: myPaths)
         {
             const auto& [probability,pathI] = item;
             csv<<probability;

@@ -97,7 +97,6 @@ namespace AStar
             this->dictPoly->clear();
         }
 
-        vector<vector<Point>> agentPaths;
     private:
         vector<vector<StatePoint*>> allPath;
         unsigned long maxPath;

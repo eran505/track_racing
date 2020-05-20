@@ -36,10 +36,10 @@ public:
         abGridSize=mAbstractSize;
     }
 
-    void initializeSimulation(configGame &conf)
+    void initializeSimulation(configGame &conf,std::vector<weightedPosition> defenderStart)
     {
         auto abstractionObject = abstractionDiv(originalGridSize,abGridSize,evaderPolicy,seed);
-        auto workerTasks = abstractionObject.initializeSimulation(conf);
+        auto workerTasks = abstractionObject.initializeSimulation(conf,defenderStart);
         vector<int> l;
         std::vector<std::thread> workers;
         workers.reserve(workerTasks.size());

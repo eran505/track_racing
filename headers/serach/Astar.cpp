@@ -257,7 +257,6 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     //shuffle path
     std::shuffle(allPath.begin(), allPath.end(),   std::default_random_engine(rand()));
     int size_paths = allPath.size();
-    copyAgentPaths();
     if (!toDict)
         deepCopyPaths();
     auto ctr_path = this->count_pathz(&res);
@@ -272,19 +271,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     releaseMAP(closedSet);
     return size_paths;
 }
-void AStar::Generator::copyAgentPaths()
-{
-    for(size_t i=0;i<=maxPath;++i)
-    {
 
-        auto &vec = this->agentPaths.emplace_back(allPath[i].size());
-        for(int j=int(allPath[i].size()-1);j>=0;--j)
-        {
-            vec[j]=allPath[i][j]->pos;
-        }
-
-    }
-}
 
 void AStar::Generator::consistentZFilter(){
     if (!this->consistentZ)
