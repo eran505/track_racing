@@ -99,6 +99,7 @@ public:
     }
     void make_dict_policy(vector<vector<weightedPosition>>& momvemtns)
     {
+        vector<u_int64_t> speedPorbabilityVector;
         const auto index= vecPolicy.size()-1;
         for (auto& item : momvemtns){
             for(int i=0;i<item.size()-1;++i)
@@ -120,10 +121,12 @@ public:
                             auto b = std::distance(pos->second->begin(),isFind)+1;
                             pos->second->operator[](b)--;
                         }
-
-
                 }
-
+                if(std::find(speedPorbabilityVector.begin(),speedPorbabilityVector.end(),key)==speedPorbabilityVector.end())
+                {
+                    speedPorbabilityVector.push_back(key);
+                    speedPorbabilityVector.push_back(item[i].weightedVal);
+                }
             }
         }
         for(auto& item: *this->vecPolicy[index])
