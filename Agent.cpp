@@ -27,7 +27,6 @@ Agent::Agent( weightedPositionVector Startpos, char m_team, int b_budget)
 
 
 string Agent::get_name() {
-    string name;
     name = this->my_team+this->my_id;
     return name;
 }
@@ -52,12 +51,11 @@ void Agent::trainPolicy(){
 
 void Agent::doAction(State *s) {
 
-    //do something with the state
     Point action_a = this->my_Policy->get_action(s);
-//    cout<<"action_a"<<action_a.to_str()<<endl;
+
     this->my_Policy->applyActionToState(s, &action_a);
-    is_wall=my_Policy->is_wall;
-    // check for max speed
+
+    this->is_wall=my_Policy->is_wall;
 
     //cout<<s->to_string_state()<<endl;
 }

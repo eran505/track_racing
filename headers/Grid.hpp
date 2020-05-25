@@ -32,7 +32,7 @@ private:
     //fields
     Point upperBound;
     vector<Point> all_golas;
-    vector<pair<short,Point>> all_golas_data;
+    vector<pair<float,Point>> all_golas_data;
     Point lowerBound=Point(0);
 
 
@@ -66,7 +66,7 @@ private:
             this->lowerBound=loweBound_;
             for(auto & goalReward : goalRewards)
             {
-                all_golas_data.emplace_back(short(goalReward.weightedVal),goalReward.positionPoint);
+                all_golas_data.emplace_back(float(goalReward.weightedVal),goalReward.positionPoint);
                 all_golas.emplace_back(goalReward.positionPoint);
             }
         }
@@ -95,7 +95,7 @@ private:
         }
         bool is_goal_reward(const Point& loc){
 
-            auto pos = find_if(all_golas_data.begin(), all_golas_data.end(), [&]( pair<short,Point>& s) {
+            auto pos = find_if(all_golas_data.begin(), all_golas_data.end(), [&]( pair<float,Point>& s) {
                 return s.second==loc;
             });
             if (pos==all_golas_data.end())
@@ -104,10 +104,12 @@ private:
                 return true;
             return false;
         }
-        short get_goal_reward(const Point& loc)
+        float get_goal_reward(const Point& loc)
         {
-            auto pos = std::find_if(all_golas_data.begin(),all_golas_data.end(),[&](pair<short,Point>& itm){
-                return loc==itm.second;
+            auto pos = std::find_if(all_golas_data.begin(),all_golas_data.end(),[&](pair<float,Point>& itm){
+                 if(loc==itm.second)
+                     return true;
+                return false;
             });
             if (all_golas_data.end()==pos)
                 return -1;

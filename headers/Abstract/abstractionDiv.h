@@ -31,7 +31,8 @@ class abstractionDiv{
     dictPolicyPath* allDictPolicy;
     hashIdStates* dictHash;
     std::unique_ptr<doubleVecPoint> startPoints_abstraction;
-    std::unique_ptr<doubleVecPoint> endPoints_abstraction;
+    std::unique_ptr<doubleVecPoint> endPoints_abstraction; // probabily for the speed in each cell in the bigGrid
+    unordered_map<u_int64_t,float>* speedPorbabilityVector;
     Point girdSize;
     Point abstractSize;
     std::vector<std::pair<float,std::vector<Point>>> myPaths;
@@ -70,7 +71,7 @@ public:
         hashActionDict= Point::getDictAction();
         initAbstract();
         //setEndStartPoint(policyP->startPoint,policyP->goalPoint,policyP->max_speed);
-        entryPoint();
+        entryPoint(policyP->max_speed);
         std::cout<<endl;
 
     }
@@ -78,7 +79,7 @@ public:
     /**
      * TODO: need to fix this [initAbstract] by-pass
      * */
-    void entryPoint()
+    void entryPoint(int maxSpeed)
     {
         weightedVectorPosSpeed lp;
         for(auto & myPathPair : myPaths)
@@ -87,16 +88,18 @@ public:
             auto &[lpIp,lpIVector]=lpI;
             auto &[p,listPos]=myPathPair; // <p,vec>
             lpIp=p;
-            for(size_t i = 0;i<listPos.size()-1;++i)
+            lpIVector.emplace_back(listPos.front(),Point(0,0,maxSpeed));
+            for(size_t i = 1;i<listPos.size();++i)
             {
-                auto speedI = listPos[i+1]-listPos[i];
+                auto speedI = listPos[i]-listPos[i-1];
                 lpIVector.emplace_back(listPos[i],speedI);
             }
-            lpIVector.emplace_back(listPos.back(),Point());
         }
-        cout<<"/n";
         bigGridAbs(lp);
     }
+    /**
+     * lp = the paths an entrt looks like the following: -> <probability(float),vector(pos,speed)>
+     * **/
     void bigGridAbs(weightedVectorPosSpeed& lp)
     {
         vector<pair<float,vector<weightedPosition>>> setPaths;
@@ -117,7 +120,7 @@ public:
                     auto tmpI = lp[index].second[j];
                     if (!(myPath[j]==myPath[j-1]))
                     {
-                        l.emplace_back(myPath[j-1]-myPath[j],myPath[j],1);
+                        l.emplace_back(myPath[j]-myPath[j-1],myPath[j],1);
                         inset_boundry_point(lp[index].second[j],lp[index].first,myPath[j], true);
                         inset_boundry_point(lp[index].second[j-1],lp[index].first,myPath[j-1],false);
                     }
@@ -127,8 +130,10 @@ public:
                 else{
                     inset_boundry_point(lp[index].second[j],lp[index].first,myPath[j], true);
                     l.emplace_back(Point(),myPath[j],1);
+                    inset_boundry_point_bigGrid(lp[index].first,myPath[j], true);//insert to big grid
                 }
             }
+            inset_boundry_point_bigGrid(lp.back().first,myPath.back());//insert to big grid
             inset_boundry_point(lp.back().second.back(),lp.back().first,myPath.back());
         }
         normProbability(this->startPoints_abstraction.get());
@@ -136,39 +141,78 @@ public:
         make_dict_policy(setPaths);
         cout<<endl;
     }
+    void inset_boundry_point_bigGrid(float val,Point &gridPoint_,bool entry=false)
+    {
+        doubleVecPoint *vec_to_inset= nullptr;
+        if(entry)
+            vec_to_inset = startPoints_abstraction.get();
+        else
+            vec_to_inset = endPoints_abstraction.get();
+        auto pos = std::find_if(vec_to_inset->back().begin(),vec_to_inset->back().end(),[&](weightedPosition &p){
+            if(p.positionPoint==gridPoint_) return true;
+            return false;
+        });
+        if (pos==vec_to_inset->back().end())
+            vec_to_inset->back().emplace_back(Point(0),gridPoint_,val);
+        else
+            pos->weightedVal+=val;
+
+    }
     void inset_boundry_point(pair<Point,Point> &statePoint,float val,Point &gridPoint_,bool entry=false)
     {
-        doubleVecPoint* vec_to_inset;
+        doubleVecPoint* vec_to_inset= nullptr;
         if(entry)
             vec_to_inset = startPoints_abstraction.get();
         else
             vec_to_inset = endPoints_abstraction.get();
 
-        auto& vec = vec_to_inset->operator[](gridPoint_[0]*5+gridPoint_[1]);
+        auto& vec = vec_to_inset->operator[](gridPoint_[0]*this->abstractSize[0]+gridPoint_[1]);
         if (auto pos=std::find_if(vec.begin(),vec.end(),[&](weightedPosition &pState){
-            if(pState.speedPoint==statePoint.second && pState.positionPoint==statePoint.first)
-                return true;});pos==vec.end())
+            if(pState.speedPoint==statePoint.second && pState.positionPoint==statePoint.first)return true;
+            return false; });pos == vec.end())
         {
             vec.emplace_back(statePoint.second,statePoint.first,val);
         }else{
             pos->weightedVal+=val;
         }
     }
+    /**
+     * make the big policy attacker grid
+     * speedProbabilityVector = how much time the agent need to spent in the cell,
+     * the probability of moving to the next cell
+     * */
     void make_dict_policy(vector<pair<float,vector<weightedPosition>>>& momvemtns)
     {
-        vector<u_int64_t> speedPorbabilityVector;
+        vector<pair<u_int64_t,pair<vector<pair<short,float>>,float>>> moveSpeedAbstract;
         const auto index= vecPolicy.size()-1;
+        auto zero = Point(0);
+        auto zeroHashAction = float(zero.hashMeAction(Point::D_point::actionMax));
         for (auto& itemPair : momvemtns){
             auto& [p,item]=itemPair;
             for(int i=0;i<item.size()-1;++i)
             {
                 auto difAction =  item[i+1].speedPoint-item[i].speedPoint;
-                float actionHkey = difAction.hashMeAction(Point::D_point::actionMax);
-                u_int64_t key = Point::hashNnN(item[i+1].positionPoint.hashConst(),
-                                               item[i+1].speedPoint.hashConst(Point::maxSpeed));
+                auto diffPos = item[i+1].positionPoint-item[i].positionPoint;
+                auto diffPosHASH = float(diffPos.hashMeAction(Point::D_point::actionMax));
+                auto actionHkey = float(difAction.hashMeAction(Point::D_point::actionMax));
+                auto op_difAction = item[i].speedPoint*-1;
+                auto key_op_difAction = float(op_difAction.hashMeAction(Point::D_point::actionMax));
+
+                u_int64_t key = Point::hashNnN(item[i].positionPoint.hashConst(),
+                                               item[i].speedPoint.hashConst(Point::maxSpeed));
+
+                // for the case when the agent has zero speed in the state
+                u_int64_t keyZero = Point::hashNnN(item[i].positionPoint.hashConst(),
+                                                   zero.hashConst(Point::maxSpeed));
+
                 if (auto pos = this->vecPolicy[index]->find(key);pos==this->vecPolicy[index]->end())
                 {
-                    this->vecPolicy[index]->try_emplace(key, new std::vector<float>({actionHkey,-p}));
+                    this->vecPolicy[index]->try_emplace
+                    (key, new std::vector<float>({actionHkey,-p,key_op_difAction,0}));
+
+                    this->vecPolicy[index]->try_emplace
+                    (keyZero, new std::vector<float>({diffPosHASH,-p,zeroHashAction,0}));
+
                 }
                 else{
                     auto isFind = std::find(pos->second->begin(),pos->second->end(),actionHkey);
@@ -179,14 +223,32 @@ public:
                             auto b = std::distance(pos->second->begin(),isFind)+1;
                             pos->second->operator[](b)-=p;
                         }
-                }
-                if(auto pos = std::find(speedPorbabilityVector.begin(),speedPorbabilityVector.end(),key);pos==speedPorbabilityVector.end())
-                {
-                    speedPorbabilityVector.push_back(key);
-                    speedPorbabilityVector.push_back(item[i].weightedVal);
-                } else{
-                    auto indexI = std::distance(speedPorbabilityVector.begin(),pos)+1;
+                    auto posZero = this->vecPolicy[index]->find(keyZero);
+                    auto isFindZero = std::find(posZero->second->begin(),posZero->second->end(),diffPosHASH);
+                    if (isFindZero==posZero->second->end())
+                    {
+                        pos->second->insert(pos->second->end(),{diffPosHASH,-p});
+                    } else
+                        {
+                            auto b = std::distance(posZero->second->begin(),isFindZero)+1;
+                            posZero->second->operator[](b)-=p;
+                        }
 
+                }
+
+                if(auto pos = std::find_if(moveSpeedAbstract.begin(),moveSpeedAbstract.end(),[&](auto& entryI){
+                    if(entryI.first==key) return true;
+                    return false;
+                });pos==moveSpeedAbstract.end())
+                {
+                    auto& curEntry = moveSpeedAbstract.emplace_back();
+                    curEntry.first=key;
+                    curEntry.second.second=p;
+                    curEntry.second.first.emplace_back(item[i].weightedVal,p);
+
+                } else{
+                    pos->second.second+=p;
+                    pos->second.first.emplace_back(item[i].weightedVal,p);
                 }
             }
         }
@@ -196,22 +258,30 @@ public:
             int indexCur=0;
             std::for_each(item.second->begin(),item.second->end(),[&](float x){
                 if(indexCur%2!=0)
+                {
                     acc+=x;
+                }
                 indexCur++;});
             indexCur=0;
             for(auto &num:*item.second)
             {
-                if (indexCur%2!=0) num=num/acc;
+                if (indexCur%2!=0){
+
+                    if(num==0)
+                        num=1.0+acc;
+                    else{num*=-1;}
+                }
                 indexCur++;
             }
         }
+        getSpeedDictAbs(moveSpeedAbstract);
         cout<<"end"<<endl;
     }
-    std::vector<simulation> initializeSimulation(configGame &conf,std::vector<weightedPosition>& StartingDefender){
+    std::vector<simulation<State>> initializeSimulation(configGame &conf,std::vector<weightedPosition>& StartingDefender){
         //vector<weightedPosition> l = {{Point(0),Point(0),1}};
-        std::vector<simulation> simulationList;
+        std::vector<simulation<State>> simulationList;
         simulationList.reserve(this->sizeVectors);
-        for (size_t k = 0 ; k<this->vecPolicy.size()-1;++k) {
+        for (size_t k = 0 ; k<this->vecPolicy.size();++k) {
             if (this->vecPolicy[k]->empty())
                 continue;
             auto [up,low]=getBound(k,this->abstractSize);
@@ -227,12 +297,12 @@ public:
             simulationList.emplace_back(d,a,G,seedSystem);
             //break;
         }
-
-        return simulationList;
-    }
-private:
-    void initBigGrid(configGame &conf, std::vector<simulation> &vecSim,std::vector<weightedPosition>& StartingDefender)
-    {
+        std::for_each(StartingDefender.begin(),StartingDefender.end(),[&](weightedPosition &data){
+            data.positionPoint/=abstractSize;
+            data.speedPoint/=abstractSize;
+        });
+        conf.maxD=1;
+        conf.maxA=1;
         auto k=vecPolicy.size()-1;
         auto [up,low]=getBound(0,this->abstractSize);
         auto* a = new Agent(startPoints_abstraction->back(),Section::adversary,10);
@@ -242,7 +312,15 @@ private:
         a->getPolicyInt()->add_tran(d->getPolicyInt());
         d->getPolicyInt()->add_tran(a->getPolicyInt());
         auto G = new Grid(up,low,this->endPoints_abstraction->operator[](k));
-        vecSim.emplace_back(d,a,G,seedSystem);
+        simulationList.emplace_back(d,a,G,seedSystem);
+        simulationList.back().stoState(float(conf.maxD)/float(this->abstractSize[0]));
+
+        return simulationList;
+    }
+private:
+    inline void initBigGrid(configGame &conf, std::vector<simulation<State>> &vecSim,std::vector<weightedPosition>& StartingDefender)
+    {
+
     }
     inline static vector<weightedPosition> startingPosDefender(const Point &up,const  Point &low,const int maxD)
     {
@@ -269,8 +347,9 @@ private:
     pair<Point,Point> getBound(int gridIndx,Point &abstract){
         int upIndx=gridIndx/abstract[0];
         int lowIndx = gridIndx%abstract[0];
-        Point up(abstract[0]+upIndx*abstract[0],abstract[1]+lowIndx*abstract[1],abstract[2]*abstract[2]);
-        Point low(0+upIndx*abstract[0],0+lowIndx*abstract[1],0);
+        int z = gridIndx/abstract[2];
+        Point up(abstract[0]+upIndx*abstract[0],abstract[1]+lowIndx*abstract[1],abstract[2]);
+        Point low(0+upIndx*abstract[0],0+lowIndx*abstract[1],z);
         return {up,low};
     }
     void initRTDP(configGame &conf,Agent* d,u_int32_t k)
@@ -320,9 +399,10 @@ private:
     }
     int emplaceInDictVec(const Point &statePos)
     {
+
         auto row = statePos.array[0]/abstractSize.array[0];
         auto col = statePos.array[1]/abstractSize.array[1];
-        auto z = statePos.array[1]/abstractSize.array[2];
+        auto z = statePos.array[2]/abstractSize.array[2];
 
         return (abstractSize.array[0])*row+col+z*(abstractSize.array[2]);
     }
@@ -374,7 +454,7 @@ private:
         }
 
     }
-    inline void normProbability(doubleVecPoint* ptrVec)
+    static inline void normProbability(doubleVecPoint* ptrVec)
     {
         std::for_each(ptrVec->begin(),ptrVec->end(),[](vector<weightedPosition> &l){
             float acc=0;
@@ -386,7 +466,32 @@ private:
             });
         });
     }
+    inline void getSpeedDictAbs(vector<pair<u_int64_t,pair<vector<pair<short,float>>,float>>>& moveSpeedAbstract)
+    {
+        this->speedPorbabilityVector = new unordered_map<u_int64_t ,float>();
+        for(auto& item: moveSpeedAbstract){
+            auto key = item.first;
+            float val = 0;
+            std::for_each(item.second.first.begin(),item.second.first.end(),[&](pair<short,float>& x)
+            {
+                val+=(x.first*(x.second/item.second.second));
+            });
+            this->speedPorbabilityVector->emplace(key,val);
+        }
+    }
+    void combainPolicyandMoveDict(int k)
+    {
+        auto* posLast = this->vecPolicy.back();
+        for(auto itemPair : *posLast)
+        {
+            auto pos = speedPorbabilityVector->find(itemPair.first);
+            if (pos==speedPorbabilityVector->end())
+                throw;
+            auto p = pos->second;
+            auto posSpeed = this->dictHash->find(itemPair.first)->second.second;
 
+        }
+    }
 };
 
 

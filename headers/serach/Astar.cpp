@@ -2,7 +2,7 @@
 // Created by ise on 24.12.2019.
 //
 
-
+//#define DEBUG
 #include "Astar.hpp"
 
 #include <algorithm>
@@ -255,7 +255,9 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     printMee(res);
     consistentZFilter();
     //shuffle path
+#ifndef DEBUG
     std::shuffle(allPath.begin(), allPath.end(),   std::default_random_engine(rand()));
+#endif
     int size_paths = allPath.size();
     if (!toDict)
         deepCopyPaths();

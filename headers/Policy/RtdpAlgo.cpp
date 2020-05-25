@@ -21,6 +21,7 @@ void RtdpAlgo::reset_policy() {
 
 const vector<float >* RtdpAlgo::TransitionAction(State *s)
 {
+
     return this->RTDP_util_object->get_probabilty(s);
 }
 
@@ -137,10 +138,8 @@ tuple<double,bool> RtdpAlgo::EvalState2(State *s)
     {
         return {CollReward,true};
     }
-    if (s->isGoal(this->cashID))
-        return {GoalReward,true};
-    if(s->isEndState(this->cashID))
-        return {0,true};
+    if (auto x = s->isGoal(this->cashID);x>=0)
+        return {GoalReward*x,true};
     return {0,false};
 }
 

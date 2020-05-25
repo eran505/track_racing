@@ -15,6 +15,8 @@ class RtdpAlgo : public Policy{
     double WallReward = -1;
     int ctr_stack=0;
 
+
+
     RTDP_util *RTDP_util_object;
     vector<pair<State*,pair<int,int>>> stackStateActionIdx;
     double bellman_update(State *s,Point &action);

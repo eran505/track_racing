@@ -24,7 +24,7 @@ public:
 
     void assignment( State &other);
     void assignment(State &other, const string &id);
-    bool isGoal(string &idStr);
+    float isGoal(string &idStr);
     bool isEndState(std::string &idStr);
     //Setters and Getters
 
@@ -35,15 +35,14 @@ public:
     void set_position(const string& name_id,const Point& pos_m){pos_dict[name_id]=pos_m;}
     const Point&  get_position(const string &name_id){ return pos_dict[name_id];}
     set<string> is_collusion();
-    bool move_by_change_speed(const string& name_id,const Point& speed_m);
-    bool applyAction(const string& id, Point &action, int max_speed);
+    virtual bool applyAction(const string &id, const Point &action, int max_speed);
     list<string> is_collusion(string &id_player);
     bool is_collusion(string &id_player,string &op_player);
     void getAllPosOpponent(vector<Point> &results,char team);
     std::ostream& operator<<(std::ostream &strm) {
         return strm <<this->to_string_state();
     }
-    u_int32_t  getHashValue();
+    u_int64_t  getHashValue();
 
     string to_string_state() const;
 

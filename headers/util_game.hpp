@@ -273,7 +273,13 @@ public:
             h+=this->array[capacity-1-i]*int(pow(max,i));
         return h+append;
     }
-
+    Point operator*(int x) const{
+        Point tmp(*this);
+        for (int i = 0; i < capacity; ++i) {
+            tmp.array[i]*=x;
+        }
+        return tmp;
+    }
     bool isOK(){
         bool ok = true;
         for (int i = 0; i < this->capacity; ++i)
@@ -320,7 +326,6 @@ bool Contains( std::vector<float>& Vec, const float Element )
 
     return false;
 }
-
 
 struct weightedPosition{
     Point speedPoint;

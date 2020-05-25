@@ -2,10 +2,10 @@
 // Created by ERANHER on 13.5.2020.
 //
 
-//#define DEBUG
+#define DEBUG
 #ifndef TRACK_RACING_SIMULATION_HPP
 #define TRACK_RACING_SIMULATION_HPP
-
+#include "headers/Abstract/StateStoch.h"
 #include <thread>
 #include "util_game.hpp"
 #include "Policy/Policy.hpp"
@@ -18,7 +18,7 @@ namespace event{
         CollId=0,WallId=1,GoalId=2,OpenId=3,Size=4
     };
 }
-
+template <typename T>
 class simulation{
     vector<u_int32_t> trackingData;
     std::vector<Agent*> agents;
@@ -36,6 +36,12 @@ public:
         agents.push_back(evaderAgent);
         for(const auto &item:agents)
             item->print();
+        setState();
+    }
+    void stoState(float x)
+    {
+        delete this->sState;
+        this->sState=(State*)new stochasticState(x);
         setState();
     }
     ~simulation(){
@@ -74,6 +80,7 @@ public:
             #ifdef DEBUG
             cout<<sState->to_string_state()<<endl;
             #endif
+            stop = checkCondition();
             while(!stop)
             {
                 std::for_each(std::begin(agents),std::end(agents),
@@ -136,9 +143,9 @@ private:
      * **/
     bool checkCondition(){
         const Point& posPursuer = this->sState->get_position(this->agents[0]->get_id());
-        auto valGoal = g->get_goal_reward(posPursuer);
         const Point& posEvader = this->sState->get_position(this->agents[1]->get_id());
-        if (g->is_wall(posEvader)) // agent P hit wall
+        auto valGoal = g->get_goal_reward(posEvader);
+        if (g->is_wall(posPursuer)) // agent P hit wall
         {
             trackingData[event::WallId]++;
             return true;
@@ -148,7 +155,7 @@ private:
             trackingData[event::CollId]++;
             return true;
         }
-        if (valGoal>0) // E at a goal
+        if (valGoal>=0) // E at a goal
         {
             if (valGoal==0)
                 trackingData[event::OpenId]++;

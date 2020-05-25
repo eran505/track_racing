@@ -106,14 +106,9 @@ set<string> State::is_collusion() {
 
 
 
-bool State::move_by_change_speed(const string& name_id, const Point& speed_m){
-    //this->speed_dict[name_id]=speed_m;
-    this->pos_dict[name_id]+= speed_m;
-    return this->g_grid->is_wall(&(this->pos_dict[name_id]));
 
-}
 
-bool State::isGoal(string &idStr) {
+float State::isGoal(string &idStr) {
     const auto& pos = this->get_position(idStr);
     return this->g_grid->is_goal_reward(pos);
 }
@@ -123,7 +118,7 @@ bool State::isEndState(std::string &idStr) {
     return this->g_grid->is_at_goal(pos);
 }
 
-bool State::applyAction(const string &id, Point &action, int max_speed) {
+bool State::applyAction(const string &id, const Point &action, int max_speed) {
     auto pos = this->speed_dict.find(id);
     if (pos==this->speed_dict.end())
         throw;
@@ -160,7 +155,7 @@ void State::getAllPosOpponent(vector<Point> &results,char team) {
     }
 }
 
-u_int32_t State::getHashValue(){
+u_int64_t State::getHashValue(){
     vector<int> vec;
     for(auto const &item:this->pos_dict)
     {
@@ -170,7 +165,7 @@ u_int32_t State::getHashValue(){
             vec.push_back(speed_dict[item.first].array[i]);
 
     }
-    u_int32_t  seed = vec.size();
+    u_int64_t  seed = vec.size();
     for(auto& i : vec) {
         seed ^=  (i * 2654435761) + 2654435769 + (seed << 6) + (seed >> 2);
     }

@@ -8,6 +8,17 @@
 #ifndef TRACK_RACING_UTILCLASS_HPP
 #define TRACK_RACING_UTILCLASS_HPP
 
+
+template <typename S, typename V>
+auto calcMovingAvg(pair<vector<pair<S,V>>,V>& iItem)
+{
+    V res;
+    std::for_each(iItem.second.begin(),iItem.second.end(),[&](const pair<pair<S,V>,V>& x ){
+        res+=(x.first*x.second/iItem.second);
+    });
+    return res;
+}
+
 string getExePath()
 {
     char result[ PATH_MAX ];
