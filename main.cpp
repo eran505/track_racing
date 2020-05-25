@@ -27,6 +27,7 @@
 
 #include "learning/ReplayBuffer/SumTree.hpp"
 #include "learning/ReplayBuffer/prioritizedExperienceReplay.hpp"
+#define GOT_HERE std::cout << "At " __FILE__ ": " << __LINE__ << std::endl
 
 Grid * init_grid(configGame &conf);
 MdpPlaner* init_mdp(Grid *g, configGame &conf);
@@ -59,7 +60,7 @@ using namespace std::chrono;
 typedef unsigned long ulong;
 
 int main() {
-
+    GOT_HERE;
     int seed = 155139;
     seed = 1587982523; //1895975606
     //seed = int( time(nullptr));
