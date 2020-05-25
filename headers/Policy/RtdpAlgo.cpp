@@ -6,7 +6,7 @@
 
 #include <utility>
 RtdpAlgo::RtdpAlgo(int maxSpeedAgent, int grid_size, vector<pair<int,int>>& max_speed_and_budget,const string &agentID,string &home,dictionary &ptrDict)
-        : Policy(std::move("RTDP"), maxSpeedAgent,std::move(agentID),home,ptrDict) {
+        : Policy("RTDP", maxSpeedAgent,agentID,home,ptrDict) {
    this->RTDP_util_object = new RTDP_util(grid_size,max_speed_and_budget,home);
     this->RTDP_util_object->set_tran(&this->tran);
     this->RTDP_util_object->MyPolicy(this);
@@ -40,6 +40,8 @@ Point RtdpAlgo::get_action(State *s)
                 //action.array[2]=this->max_speed;
                 s->takeOff=true;
             }
+        if(stoMove())
+            return *ZeroAction;
         return action;
     }
 
@@ -53,7 +55,7 @@ Point RtdpAlgo::get_action(State *s)
     this->inset_to_stack(s,action,entry);
 
     if (!s->takeOff)
-        if(action.hashMeAction(Point::actionMax)!=13 ){
+        if(action.hashMeAction(Point::actionMax)!=zeroIndexAction ){
             //s->set_speed(this->id_agent,Point(0,0,max_speed));
             //this->inset_to_stack(s,action,entry);
             //action.array[2]=this->max_speed;
@@ -65,7 +67,8 @@ Point RtdpAlgo::get_action(State *s)
     this->update(s,action,entry);
 
 
-
+    if(stoMove())
+        return *ZeroAction;
     return action;
 }
 
@@ -81,21 +84,27 @@ Point RtdpAlgo::get_action(State *s)
 
 double RtdpAlgo::bellman_update(State *s, Point &action) {
     auto stateCur = new State(*s);
-
+    // generate all possible next state with the probabilities
+    vector <pair<State*,float>> state_tran_q;
 
 
     this->applyActionToState(stateCur, &action);
-
+    if(_stochasticMovement!=1)
+    {
+        auto zeroState = new State(*s);
+        this->applyActionToState(zeroState, this->ZeroAction.get());
+        state_tran_q.emplace_back(zeroState,_stochasticMovement);
+        state_tran_q.emplace_back(stateCur,1-_stochasticMovement);
+    }else{
+        state_tran_q.emplace_back(stateCur,1);
+    }
 
     // is wall
     if (this->is_wall == true)
     {
         //do something
     }
-    // generate all possible next state with the probabilities
-    vector <pair<State*,float>> state_tran_q;
 
-    state_tran_q.emplace_back(stateCur,1);
     for (Policy *item_policy: tran)
     {
         vector <pair<State*,float>> state_tran_q_tmp;
@@ -207,6 +216,15 @@ void RtdpAlgo::empty_stack_update() {
 
 void RtdpAlgo::policy_data() const {
     //this->RTDP_util_object->policyData();
+}
+
+bool RtdpAlgo::stoMove() {
+    if(this->_stochasticMovement==1)
+        return false;
+    auto rand = this->getRandom();
+    if (_stochasticMovement>=rand)
+        return false;
+    return true;
 }
 
 //double RtdpAlgo::expected_reward_rec(State *s, int index_policy, deque<Point> &my_stack) {

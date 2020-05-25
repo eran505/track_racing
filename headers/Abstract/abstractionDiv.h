@@ -307,13 +307,12 @@ public:
         auto [up,low]=getBound(0,this->abstractSize);
         auto* a = new Agent(startPoints_abstraction->back(),Section::adversary,10);
         auto* d = new Agent(StartingDefender,Section::gurd,10);
-        initRTDP(conf,d,k);
+        initRTDP(conf,d,k,float(conf.maxD)/float(this->abstractSize[0]));
         setPathPolicy(conf,a,k);
         a->getPolicyInt()->add_tran(d->getPolicyInt());
         d->getPolicyInt()->add_tran(a->getPolicyInt());
         auto G = new Grid(up,low,this->endPoints_abstraction->operator[](k));
         simulationList.emplace_back(d,a,G,seedSystem);
-        simulationList.back().stoState(float(conf.maxD)/float(this->abstractSize[0]));
 
         return simulationList;
     }
@@ -352,7 +351,7 @@ private:
         Point low(0+upIndx*abstract[0],0+lowIndx*abstract[1],z);
         return {up,low};
     }
-    void initRTDP(configGame &conf,Agent* d,u_int32_t k)
+    void initRTDP(configGame &conf,Agent* d,u_int32_t k,float stoProb=1)
     {
 
         auto listQtalbe = vector<pair<int,int>>();
@@ -361,6 +360,8 @@ private:
         auto [it, result] = gameInfo_share->emplace("ID",conf.idNumber);
         listQtalbe.emplace_back(0,vecPolicy[k]->size());
         Policy* rtdp = new RtdpAlgo(conf.maxD,this->sizeVectors,listQtalbe,d->get_id(),conf.home,gameInfo_share);
+        auto tmp = dynamic_cast<RtdpAlgo*>(rtdp);
+        tmp->setStochasticMovement(stoProb);
         d->setPolicy(rtdp);
     }
     void setPathPolicy(configGame &conf, Agent* a,u_int32_t k)

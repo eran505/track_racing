@@ -2,7 +2,7 @@
 // Created by ERANHER on 13.5.2020.
 //
 
-#define DEBUG
+//#define DEBUG
 #ifndef TRACK_RACING_SIMULATION_HPP
 #define TRACK_RACING_SIMULATION_HPP
 #include "headers/Abstract/StateStoch.h"

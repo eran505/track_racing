@@ -4,7 +4,7 @@
 
 #ifndef TRACK_RACING_FACTORYAGENT_HPP
 #define TRACK_RACING_FACTORYAGENT_HPP
-#define Sync
+//#define Sync
 
 #include "util_game.hpp"
 #include "Policy.hpp"
@@ -29,7 +29,7 @@ class AbstractCreator{
     Point abGridSize;
     std::vector<simulation<State>> simulationVector;
     int seed;
-    u_int32_t iter = 1000;//1000000;
+    u_int32_t iter = 1000000;
 public:
     AbstractCreator(PathPolicy* evaderPolicy_,const Point& ptrGirdSize,const Point& mAbstractSize,int seed_):evaderPolicy(evaderPolicy_),seed(seed_){
         originalGridSize=ptrGirdSize;

@@ -14,9 +14,9 @@ class RtdpAlgo : public Policy{
     double GoalReward = -1;
     double WallReward = -1;
     int ctr_stack=0;
-
-
-
+    u_int32_t zeroIndexAction = Point(0).hashMeAction(Point::actionMax);
+    float _stochasticMovement=1;
+    std::unique_ptr<Point>  ZeroAction = std::make_unique<Point>(0,0,0);
     RTDP_util *RTDP_util_object;
     vector<pair<State*,pair<int,int>>> stackStateActionIdx;
     double bellman_update(State *s,Point &action);
@@ -27,9 +27,11 @@ class RtdpAlgo : public Policy{
     //stackStateActionIdxdouble expected_reward(State *s, Point &action);
     //double expected_reward_rec(State *s,int index_policy,deque<Point> &my_stack);
 public:
-    double getRewardColl() const{ return CollReward;}
-    double getGoalReward() const{ return GoalReward;}
-    double getWallReward() const{ return WallReward;}
+    void setStochasticMovement(float m){_stochasticMovement=m;}
+    [[nodiscard]] float getStochasticMovement() const{ return _stochasticMovement;}
+    [[nodiscard]] double getRewardColl() const{ return CollReward;}
+    [[nodiscard]] double getGoalReward() const{ return GoalReward;}
+    [[nodiscard]] double getWallReward() const{ return WallReward;}
     ~RtdpAlgo() override
     {
         cout<<"del RTDP"<<endl;
@@ -42,6 +44,7 @@ public:
     void policy_data() const override;
     std::tuple<double,bool> EvalState2(State *s);
     std::tuple<double,bool> EvalState(State *s);
+    bool stoMove();
 };
 
 
