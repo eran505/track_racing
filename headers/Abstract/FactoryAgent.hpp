@@ -44,7 +44,8 @@ public:
         //workerTasks.pop_back();
         std::vector<std::thread> workers;
         workers.reserve(workerTasks.size());
-        workerTasks.back().simulate(iter);
+        //workerTasks.back().simulate(iter);
+        //exit(0);
         #ifdef Sync
         std::for_each(workerTasks.begin(),workerTasks.end(),[&](simulation<State> &t)
         {

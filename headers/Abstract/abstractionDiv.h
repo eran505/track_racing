@@ -32,7 +32,7 @@ class abstractionDiv{
     hashIdStates* dictHash;
     std::unique_ptr<doubleVecPoint> startPoints_abstraction;
     std::unique_ptr<doubleVecPoint> endPoints_abstraction; // probabily for the speed in each cell in the bigGrid
-    unordered_map<u_int64_t,float>* speedPorbabilityVector;
+    unordered_map<u_int64_t,float>* speedPorbabilityVector{};
     Point girdSize;
     Point abstractSize;
     std::vector<std::pair<float,std::vector<Point>>> myPaths;
@@ -73,9 +73,7 @@ public:
         //setEndStartPoint(policyP->startPoint,policyP->goalPoint,policyP->max_speed);
         entryPoint(policyP->max_speed);
         std::cout<<endl;
-
     }
-
     /**
      * TODO: need to fix this [initAbstract] by-pass
      * */
@@ -223,35 +221,30 @@ public:
                             auto b = std::distance(pos->second->begin(),isFind)+1;
                             pos->second->operator[](b)-=p;
                         }
-                    auto posZero = this->vecPolicy[index]->find(keyZero);
-                    auto isFindZero = std::find(posZero->second->begin(),posZero->second->end(),diffPosHASH);
-                    if (isFindZero==posZero->second->end())
+                    if(key!=keyZero)
                     {
-                        pos->second->insert(pos->second->end(),{diffPosHASH,-p});
-                    } else
+                        auto posZero = this->vecPolicy[index]->find(keyZero);
+                        auto isFindZero = std::find(posZero->second->begin(),posZero->second->end(),diffPosHASH);
+                        if (isFindZero==posZero->second->end())
+                        {
+                            pos->second->insert(pos->second->end(),{diffPosHASH,-p});
+                        } else
                         {
                             auto b = std::distance(posZero->second->begin(),isFindZero)+1;
                             posZero->second->operator[](b)-=p;
                         }
 
-                }
+                    }
 
-                if(auto pos = std::find_if(moveSpeedAbstract.begin(),moveSpeedAbstract.end(),[&](auto& entryI){
-                    if(entryI.first==key) return true;
-                    return false;
-                });pos==moveSpeedAbstract.end())
-                {
-                    auto& curEntry = moveSpeedAbstract.emplace_back();
-                    curEntry.first=key;
-                    curEntry.second.second=p;
-                    curEntry.second.first.emplace_back(item[i].weightedVal,p);
-
-                } else{
-                    pos->second.second+=p;
-                    pos->second.first.emplace_back(item[i].weightedVal,p);
                 }
+                insetToMoveDict(p,item[i].weightedVal,key,moveSpeedAbstract);
+                if (keyZero!=key)
+                    insetToMoveDict(p,item[i].weightedVal,keyZero,moveSpeedAbstract);
+
+
             }
         }
+        getSpeedDictAbs(moveSpeedAbstract);
         for(auto& item: *this->vecPolicy[index])
         {
             float acc=0;
@@ -263,18 +256,20 @@ public:
                 }
                 indexCur++;});
             indexCur=0;
+            auto iterMapSpeed = this->speedPorbabilityVector->find(item.first);
+            float ProbToMove = 1/iterMapSpeed->second;
             for(auto &num:*item.second)
             {
                 if (indexCur%2!=0){
 
                     if(num==0)
-                        num=1.0+acc;
-                    else{num*=-1;}
+                        num=1.0-ProbToMove;
+                    else
+                        {num=num/acc*ProbToMove;}
                 }
                 indexCur++;
             }
         }
-        getSpeedDictAbs(moveSpeedAbstract);
         cout<<"end"<<endl;
     }
     std::vector<simulation<State>> initializeSimulation(configGame &conf,std::vector<weightedPosition>& StartingDefender){
@@ -317,6 +312,23 @@ public:
         return simulationList;
     }
 private:
+    static inline void insetToMoveDict(float p,float inplace,u_int64_t key, vector<pair<u_int64_t,pair<vector<pair<short,float>>,float>>>& moveSpeedAbstract)
+    {
+        if(auto pos = std::find_if(moveSpeedAbstract.begin(),moveSpeedAbstract.end(),[&](auto& entryI){
+                if(entryI.first==key) return true;
+                return false;
+            });pos==moveSpeedAbstract.end())
+        {
+            auto& curEntry = moveSpeedAbstract.emplace_back();
+            curEntry.first=key;
+            curEntry.second.second=p;
+            curEntry.second.first.emplace_back(inplace,p);
+
+        } else{
+            pos->second.second+=p;
+            pos->second.first.emplace_back(inplace,p);
+        }
+    }
     inline void initBigGrid(configGame &conf, std::vector<simulation<State>> &vecSim,std::vector<weightedPosition>& StartingDefender)
     {
 
