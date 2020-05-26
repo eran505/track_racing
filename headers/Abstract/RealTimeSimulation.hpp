@@ -95,7 +95,7 @@ public:
         {
             bool stop = false;
             cout<<this->state->to_string_state()<<endl;
-            while(!con_Game())
+            while(!Stop_Game())
             {
                 checkMeeting();
                 if (curAgentNumber==lDefenderAgent.size()-1)
@@ -115,9 +115,10 @@ public:
             reset_state();
         }
     }
-    bool con_Game(){
-        const Point& posPursuer = this->state->get_position(this->_attacker->get_id());
-        const Point& posEvader = this->state->get_position(this->lDefenderAgent[curAgentNumber]->get_id());
+    bool Stop_Game(){
+        const Point& posEvader= this->state->get_position(this->_attacker->get_id());
+        const Point& posPursuer = this->state->get_position(this->lDefenderAgent[curAgentNumber]->get_id());
+        
         auto valGoal = state->g_grid->get_goal_reward(posEvader);
         if (state->g_grid->is_wall(posPursuer)) // agent P hit wall
         {
