@@ -26,6 +26,7 @@ Agent::Agent( weightedPositionVector Startpos, char m_team, int b_budget)
 
 
 
+
 string Agent::get_name() {
     name = this->my_team+this->my_id;
     return name;
@@ -35,8 +36,6 @@ Agent::~Agent() {
     delete (this->my_Policy);
 
 }
-
-
 
 void Agent::evalPolicy(){
     this->eval= true;
@@ -51,12 +50,11 @@ void Agent::trainPolicy(){
 
 void Agent::doAction(State *s) {
 
-    Point action_a = this->my_Policy->get_action(s);
+    this->lastAction = this->my_Policy->get_action(s);
 
-    this->my_Policy->applyActionToState(s, &action_a);
+    this->my_Policy->applyActionToState(s, &lastAction);
 
     this->is_wall=my_Policy->is_wall;
-
     //cout<<s->to_string_state()<<endl;
 }
 

@@ -4,6 +4,7 @@
 #include <list>
 #include "headers/util_game.hpp"
 #include "headers/MdpPlaner.hpp"
+#include "Abstract/RealTimeSimulation.hpp"
 #include "headers/Game.hpp"
 #include "headers/Policy/Dog.hpp"
 #include "headers/graph/graph_util.hpp"
@@ -64,7 +65,6 @@ int main() {
     int seed = 155139;
     seed = 1587982523; //1895975606
     //seed = int( time(nullptr));
-
     cout<<"seed:\t"<<seed<<endl;
     torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -209,10 +209,12 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
     auto* tmp = new State(*s->get_cur_state());
     tmp_pointer->treeTraversal(tmp,conf.idNumber);
-
-
-    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,Point(5,5,11),conf.seed);
+    pA1->setPolicy(pGridPath);
+    Point abPoint(5,5,11);
+    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,abPoint,conf.seed);
     z->initializeSimulation(conf,listPointDefender);
+    auto *rl = new rtSimulation(abPoint,conf.sizeGrid,z->getLAgents(),pA1,s->get_cur_state(),pD2);
+    rl->simulation();
     //////// RTDP POLICY ////////
     /* If max speed is zero, the explict number of state is in the second place */
 //    vector<pair<int,int>> list_Q_data;

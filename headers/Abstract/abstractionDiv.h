@@ -23,9 +23,11 @@ typedef std::vector<std::vector<weightedPosition>> doubleVecPoint;
 typedef std::unordered_map<u_int64_t ,pair<short,AStar::StatePoint>> hashIdStates;
 typedef vector<tuple<Point*,double>> listPointWeightedd;
 typedef std::vector<pair<float,vector<pair<Point,Point>>>> weightedVectorPosSpeed ;
+typedef std::unordered_map<u_int64_t,weightedPosition> weightedPositionDict ;
 using AStar::StatePoint;
 
 class abstractionDiv{
+    std::unique_ptr<weightedPositionDict> realStateAbstractState;
     int seedSystem;
     vector<dictPolicyPath*> vecPolicy;
     dictPolicyPath* allDictPolicy;
@@ -54,6 +56,7 @@ public:
         sizeVectors=sizeMiniGrid;
         abstractSize=mAbstractSize;
         girdSize = ptrGirdSize;
+        realStateAbstractState = std::make_unique<weightedPositionDict>();
         seedSystem = seed;
         allDictPolicy=policyP->getDictPolicy();
         //auto number2D = girdSize.array[0]*girdSize.array[1];
@@ -112,6 +115,7 @@ public:
             pairItem.first=p;
             for(u_int32_t j=0;j<myPath.size();++j)
             {
+
                 myPath[j]/=this->abstractSize;
                 if (j>0)
                 {
@@ -130,6 +134,9 @@ public:
                     l.emplace_back(Point(),myPath[j],1);
                     inset_boundry_point_bigGrid(lp[index].first,myPath[j], true);//insert to big grid
                 }
+                //inset to dict {pos,speed}->abstract_State
+                u_int64_t keyRealPosAttacker = lp[index].second[j].first.expHash(lp[index].second[j].second);
+                realStateAbstractState->insert({keyRealPosAttacker,l.back()});
             }
             inset_boundry_point_bigGrid(lp.back().first,myPath.back());//insert to big grid
             inset_boundry_point(lp.back().second.back(),lp.back().first,myPath.back());
@@ -302,7 +309,7 @@ public:
         auto [up,low]=getBound(0,this->abstractSize);
         auto* a = new Agent(startPoints_abstraction->back(),Section::adversary,10);
         auto* d = new Agent(StartingDefender,Section::gurd,10);
-        initRTDP(conf,d,k,float(conf.maxD)/float(this->abstractSize[0]));
+        initRTDP(conf,d,k,(float(conf.maxD))/float(this->abstractSize[0]));
         setPathPolicy(conf,a,k);
         a->getPolicyInt()->add_tran(d->getPolicyInt());
         d->getPolicyInt()->add_tran(a->getPolicyInt());
@@ -374,6 +381,7 @@ private:
         Policy* rtdp = new RtdpAlgo(conf.maxD,this->sizeVectors,listQtalbe,d->get_id(),conf.home,gameInfo_share);
         auto tmp = dynamic_cast<RtdpAlgo*>(rtdp);
         tmp->setStochasticMovement(stoProb);
+        tmp->getUtilRTDP()->setHashFuction([](const State* ptrS){return ptrS->getHashValuePosOnly();});
         d->setPolicy(rtdp);
     }
     void setPathPolicy(configGame &conf, Agent* a,u_int32_t k)

@@ -11,14 +11,17 @@
 #include "../util_game.hpp"
 #include <fstream>
 #include <algorithm>
+#include <utility>
 #include "Policy.hpp"
 
 typedef size_t keyItem;
 class RTDP_util{
     double **qTable;
+
     unordered_map<keyItem,unsigned int> *mapState;
     vector<Policy*> *lTran= nullptr;
     const string home;
+    std::function<u_int64_t (const State*)> HashFuction;
     Policy* my_policy;
     unsigned int ctr_state=0;
     int ctr_random=0;
@@ -31,6 +34,9 @@ class RTDP_util{
     double compute_h(State *s);
 
 public:
+    void setHashFuction(std::function<u_int64_t (const State*)> fun){
+        HashFuction=std::move(fun);
+    }
     void policyData();
     bool apply_action(State *s,const string &id,Point &action,int max_speed);
     void set_tran(vector<Policy*>* l){this->lTran=l;}

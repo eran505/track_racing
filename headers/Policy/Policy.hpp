@@ -52,7 +52,7 @@ public:
         delete(hashActionMap);
     }
 
-    void set_id(string id_m){this->id_agent=std::move(id_m);}
+    void set_id(string id_m){this->id_agent=id_m;}
     virtual Point get_action(State *s)=0;
     virtual void reset_policy() {};
     virtual void policy_data()const=0;

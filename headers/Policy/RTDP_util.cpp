@@ -10,6 +10,7 @@ RTDP_util::RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget,s
     this->set_up_Q(grid_size,max_speed_and_budget);
     this->mapState= new unordered_map<keyItem,unsigned int>();
     size_mapAction = hashActionMap->size();
+    HashFuction=[](const State *s){return s->getHashValue();};
 }
 
 
@@ -41,7 +42,9 @@ void RTDP_util::set_up_Q(int grid_size, vector<pair<int,int>>& max_speed_and_bud
 
 int RTDP_util::get_state_index_by_string(State *s_state) {
     //string s = s_state->to_string_state();
-    auto s = s_state->getHashValue();
+    // lamda
+    auto s = HashFuction(s_state);
+    //auto s = s_state->getHashValue();
     auto it = this->mapState->find(s);
     if (it != this->mapState->end()){
         return it->second;

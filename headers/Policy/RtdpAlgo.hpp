@@ -37,6 +37,7 @@ public:
         cout<<"del RTDP"<<endl;
         delete(this->RTDP_util_object);
     }
+    RTDP_util* getUtilRTDP(){return RTDP_util_object;}
     RtdpAlgo(int maxSpeedAgent, int grid_size, vector<pair<int,int>> &max_speed_and_budget,const string &agentID,string &home,dictionary &ptrDict);
     Point get_action(State *s) override;
     const vector<float >* TransitionAction(State *s) override ;

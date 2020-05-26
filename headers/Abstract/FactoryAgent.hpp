@@ -22,32 +22,38 @@
 #include "Abstract/abstractionDiv.h"
 #include "Abstract/Simulation.hpp"
 #include <thread>
+#include "Abstract/RealTimeSimulation.hpp"
 class AbstractCreator{
 
+    vector<simulation<State>> lsim;
     PathPolicy* evaderPolicy;
     Point originalGridSize;
     Point abGridSize;
     std::vector<simulation<State>> simulationVector;
     int seed;
-    u_int32_t iter = 1000000;
+    u_int32_t iter = 500000;
+    std::unique_ptr<rtSimulation> rtSim= nullptr;
+    vector<shared_ptr<Agent>> lAgent;
 public:
+    vector<shared_ptr<Agent>> getLAgents(){return lAgent;}
     AbstractCreator(PathPolicy* evaderPolicy_,const Point& ptrGirdSize,const Point& mAbstractSize,int seed_):evaderPolicy(evaderPolicy_),seed(seed_){
         originalGridSize=ptrGirdSize;
         abGridSize=mAbstractSize;
     }
 
-    void initializeSimulation(configGame &conf,std::vector<weightedPosition> defenderStart)
+    auto initializeSimulation(configGame &conf,std::vector<weightedPosition> defenderStart)
     {
         auto abstractionObject = abstractionDiv(originalGridSize,abGridSize,evaderPolicy,seed);
         auto workerTasks = abstractionObject.initializeSimulation(conf,defenderStart);
+        lsim = std::move(workerTasks);
         vector<int> l;
         //workerTasks.pop_back();
         std::vector<std::thread> workers;
-        workers.reserve(workerTasks.size());
+        workers.reserve(lsim.size());
         //workerTasks.back().simulate(iter);
         //exit(0);
         #ifdef Sync
-        std::for_each(workerTasks.begin(),workerTasks.end(),[&](simulation<State> &t)
+        std::for_each(lsim.begin(),lsim.end(),[&](simulation<State> &t)
         {
             t.simulate(iter);
         });
@@ -65,9 +71,9 @@ public:
         });
         #endif
         cout<<"done!"<<endl;
+        lAgent.reserve(lsim.size());
+        for (auto &item : lsim)
+        {lAgent.emplace_back(item.getDefAgent());}
     }
-
-
-
 };
 #endif //TRACK_RACING_FACTORYAGENT_HPP

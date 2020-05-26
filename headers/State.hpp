@@ -19,7 +19,7 @@ public:
     Grid *g_grid;
     bool takeOff;
     State():g_grid(nullptr),takeOff(false){};
-    ~State();
+    virtual ~State();
     State(const State &other);
 
     void assignment( State &other);
@@ -28,6 +28,8 @@ public:
     bool isEndState(std::string &idStr);
     //Setters and Getters
 
+    State * getAbstractionState(Point &abstractPoint);
+    [[nodiscard]] vector<Point> getAllPos(const Point &abstractPoint)const;
     void set_budget(const string& name_id,int budget_m){budget_dict[name_id]=budget_m;}
     int get_budget(const string& name_id){ return budget_dict[name_id];}
     void set_speed(const string& name_id,const Point& speed_m){speed_dict[name_id]=speed_m;}
@@ -42,12 +44,15 @@ public:
     std::ostream& operator<<(std::ostream &strm) {
         return strm <<this->to_string_state();
     }
-    u_int64_t  getHashValue();
+    [[nodiscard]] u_int64_t  getHashValue()const;
+    [[nodiscard]] u_int64_t  getHashValuePosOnly()const;
 
-    string to_string_state() const;
+    [[nodiscard]] string to_string_state() const;
 
     void add_player_state(const string& name_id, Point m_pos, const Point *m_speed, int budget_b);
     void add_player_state(const string &name_id, const Point& m_pos, const Point& m_speed, int budget_b);
+
+    vector<string> getIDs();
 };
 
 

@@ -154,15 +154,27 @@ void State::getAllPosOpponent(vector<Point> &results,char team) {
         results.push_back(itemSpeed->second);
     }
 }
-
-u_int64_t State::getHashValue(){
+u_int64_t  State::getHashValuePosOnly() const{
+    vector<int> vec;
+    for(auto const &item:this->pos_dict)
+    {
+        for(int i : item.second.array)
+            vec.push_back(i);
+    }
+    u_int64_t  seed = vec.size();
+    for(auto& i : vec) {
+        seed ^=  (i * 2654435761) + 2654435769 + (seed << 6) + (seed >> 2);
+    }
+    return seed;
+}
+u_int64_t State::getHashValue()const {
     vector<int> vec;
     for(auto const &item:this->pos_dict)
     {
         for(int i = 0; i < Point::D_point::D; ++i)
             vec.push_back(item.second.array[i]);
         for(int i = 0; i < Point::D_point::D; ++i)
-            vec.push_back(speed_dict[item.first].array[i]);
+            vec.push_back(speed_dict.find(item.first)->second[i]);
 
     }
     u_int64_t  seed = vec.size();
@@ -179,6 +191,40 @@ void State::add_player_state(const string &name_id, const Point& m_pos, const Po
 
     this->budget_dict[name_id]=budget_b;
 }
+
+State* State::getAbstractionState(Point &abstractPoint) {
+    auto* res = new State(*this);
+    for(auto &pair:res->speed_dict)
+    {
+        pair.second/=abstractPoint;
+    }
+    for(auto &pair:res->pos_dict)
+    {
+        pair.second/=abstractPoint;
+    }
+    return res;
+}
+vector<Point> State::getAllPos(const Point &abstractPoint)const{
+    vector<Point> l;
+    for(auto &pair:pos_dict)
+    {
+        l.emplace_back(pair.second/abstractPoint);
+    }
+    return l;
+}
+vector<string> State::getIDs()
+{
+    vector<string> l;
+    for (auto &item :pos_dict)
+    {
+        l.emplace_back(item.first);
+    }
+    return l;
+}
+
+
+
+
 
 
 

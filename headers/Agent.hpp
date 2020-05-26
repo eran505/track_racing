@@ -20,12 +20,20 @@ protected:
     weightedPositionVector initialPosition;
     int my_budget;
     bool is_wall;
-    const char my_team;
-    const string my_id;
+    char my_team;
+    string my_id;
     string name;
     bool eval;
 
 public:
+    Point lastAction;
+
+    void setID(string &_id)
+    {
+        this->my_id=_id;
+        this->my_Policy->set_id(_id);
+        this->my_team=_id[_id.size()-1];
+    }
     bool get_is_wall() const{ return is_wall;}
     void rest(){is_wall= false; this->my_Policy->reset_policy();}
     const string& get_name_id(){ return my_id;}
@@ -45,7 +53,10 @@ public:
 
     int get_budget() const{ return this->my_budget;}
 
-
+    bool isAttacker() const
+    {
+        return this->get_team()==Section::adversary ? true : false;
+    }
     void print()
     {
     }

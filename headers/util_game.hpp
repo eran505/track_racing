@@ -288,10 +288,27 @@ public:
         return ok;
     }
 
-    unsigned long expHash()const {
+    [[nodiscard]] u_int64_t expHash()const {
         std::size_t seed = capacity;
         for(auto& i : array) {
-            seed ^= i + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^=  (i * 2654435761) + 2654435769 + (seed << 6) + (seed >> 2);
+        }
+        return seed;
+    }
+
+    [[nodiscard]] u_int64_t expHash(u_int64_t seed)const {
+        for(auto& i : array) {
+            seed ^=  (i * 2654435761) + 2654435769 + (seed << 6) + (seed >> 2);
+        }
+        return seed;
+    }
+    [[nodiscard]] u_int64_t expHash(const Point& other)const {
+        u_int64_t seed=capacity;
+        for(auto& i : array) {
+            seed ^=  (i * 2654435761) + 2654435769 + (seed << 6) + (seed >> 2);
+        }
+        for(auto& j : other.array) {
+            seed ^=  (j * 2654435761) + 2654435769 + (seed << 6) + (seed >> 2);
         }
         return seed;
     }
@@ -340,6 +357,11 @@ struct weightedPosition{
                 return true;
         return false;
     }
+
+    u_int64_t getHash() const{
+        return this->speedPoint.expHash(this->positionPoint.expHash());
+    }
+
     void operator= (const weightedPosition &other)
     {
         this->positionPoint=other.positionPoint;
