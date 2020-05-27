@@ -29,7 +29,7 @@ class rtSimulation{
     std::vector<shared_ptr<Agent>> lDefenderAgent;
     Agent* _attacker;
     Agent* _defender;
-    u_int32_t iterMax=20;
+    u_int32_t iterMax=1000;
     State* state;
     //std::unique_ptr<Agent> _defender;
 
@@ -68,11 +68,11 @@ class rtSimulation{
 public:
     rtSimulation(const Point& _abstraction,const Point& GridSize,std::vector<shared_ptr<Agent>> lD, Agent* attacker,State* stateArg,Agent* defnder)
     :abstraction(_abstraction),GridSize(GridSize),lDefenderAgent(std::move(lD)),
-    _attacker(std::move(attacker)),state(std::move(stateArg)),_defender(std::move(defnder))
+    _attacker(std::move(attacker)),state(std::move(stateArg)),_defender(std::move(defnder)),trackingData(event::Size,0)
     {
         curAgentNumber=lDefenderAgent.size()-1;
         changeIDs();
-        this->trackingData.reserve(event::Size);
+
     }
 
     void changeIDs()
@@ -114,6 +114,8 @@ public:
             }
             reset_state();
         }
+        cout<<"----"<<endl;
+        printStat();
     }
     bool Stop_Game(){
         const Point& posEvader= this->state->get_position(this->_attacker->get_id());
@@ -154,6 +156,16 @@ public:
         this->state->set_position(_defender->get_id(),
                                   DpPos);
         this->state->set_speed(_defender->get_id(),DsSpeed);
+
+    }
+    void printStat()
+    {
+        //        CollId=0,WallId=1,GoalId=2,OpenId=3,Size=4
+        cout<<"Coll: "<<this->trackingData[event::CollId]<<"\t";
+        cout<<"Wall: "<<this->trackingData[event::WallId]<<"\t";
+        cout<<"Goal: "<<this->trackingData[event::GoalId]<<"\t";
+        cout<<"Open: "<<this->trackingData[event::OpenId]<<"\t";
+        cout<<endl;
 
     }
 };

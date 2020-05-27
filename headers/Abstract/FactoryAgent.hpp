@@ -31,7 +31,7 @@ class AbstractCreator{
     Point abGridSize;
     std::vector<simulation<State>> simulationVector;
     int seed;
-    u_int32_t iter = 500000;
+    u_int32_t iter = 1000000;
     std::unique_ptr<rtSimulation> rtSim= nullptr;
     vector<shared_ptr<Agent>> lAgent;
 public:

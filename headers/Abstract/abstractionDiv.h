@@ -344,7 +344,7 @@ private:
     {
         vector<weightedPosition> l3;
         vector<Point> l;
-        for(int x=up[0]-1;x>=(up[0]-(maxD));--x)
+        for(int x=up[0]-1;x>=(low[0]+(maxD));--x)
             for(int y=low[1];y<up[1];++y)
                 for(int z=0;z<up[2]/3;++z)
                     l.emplace_back(x,y,z);

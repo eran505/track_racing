@@ -5,6 +5,7 @@
 #ifndef TRACK_RACING_RTDP_UTIL_HPP
 #define TRACK_RACING_RTDP_UTIL_HPP
 #include <cmath>
+#include <functional>
 #include "../util/csvfile.hpp"
 #include <stack>
 #include "../State.hpp"
