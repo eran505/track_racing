@@ -307,6 +307,7 @@ public:
         conf.maxA=1;
         auto k=vecPolicy.size()-1;
         auto [up,low]=getBound(0,this->abstractSize);
+        up.array[2]=1;
         auto* a = new Agent(startPoints_abstraction->back(),Section::adversary,10);
         auto* d = new Agent(StartingDefender,Section::gurd,10);
         initRTDP(conf,d,k,(float(conf.maxD))/float(this->abstractSize[0]));
@@ -344,9 +345,9 @@ private:
     {
         vector<weightedPosition> l3;
         vector<Point> l;
-        for(int x=up[0]-1;x>=(low[0]+(maxD));--x)
+        for(int x=up[0]-1;x>=(low[0]);--x)
             for(int y=low[1];y<up[1];++y)
-                for(int z=0;z<up[2]/3;++z)
+                for(int z=0;z<9;++z)
                     l.emplace_back(x,y,z);
 
         vector<Point> l2;
@@ -362,7 +363,7 @@ private:
                 l3.emplace_back(speed,ipos,float(1)/sizeL);
         return l3;
     }
-    pair<Point,Point> getBound(int gridIndx,Point &abstract){
+    static pair<Point,Point> getBound(int gridIndx,Point &abstract){
         int upIndx=gridIndx/abstract[0];
         int lowIndx = gridIndx%abstract[0];
         int z = gridIndx/abstract[2];
@@ -381,7 +382,8 @@ private:
         Policy* rtdp = new RtdpAlgo(conf.maxD,this->sizeVectors,listQtalbe,d->get_id(),conf.home,gameInfo_share);
         auto tmp = dynamic_cast<RtdpAlgo*>(rtdp);
         tmp->setStochasticMovement(stoProb);
-        tmp->getUtilRTDP()->setHashFuction([](const State* ptrS){return ptrS->getHashValuePosOnly();});
+        if(stoProb!=1)
+            tmp->getUtilRTDP()->setHashFuction([](const State* ptrS){return ptrS->getHashValuePosOnly();});
         d->setPolicy(rtdp);
     }
     void setPathPolicy(configGame &conf, Agent* a,u_int32_t k)

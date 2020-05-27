@@ -50,15 +50,16 @@ public:
         //workerTasks.pop_back();
         std::vector<std::thread> workers;
         workers.reserve(lsim.size());
-        //workerTasks.back().simulate(iter);
-        //exit(0);
+        lsim.back().simulate(iter);
+        lsim.back().getDefAgent()->getPolicyInt()->policy_data();
+        exit(0);
         #ifdef Sync
         std::for_each(lsim.begin(),lsim.end(),[&](simulation<State> &t)
         {
             t.simulate(iter);
         });
         #else
-        for(auto &item:workerTasks)
+        for(auto &item:lsim)
         {
             std::function<void()> func = [&]() {
                 item.simulate(iter);

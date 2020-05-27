@@ -33,7 +33,7 @@ public:
     void set_budget(const string& name_id,int budget_m){budget_dict[name_id]=budget_m;}
     int get_budget(const string& name_id){ return budget_dict[name_id];}
     void set_speed(const string& name_id,const Point& speed_m){speed_dict[name_id]=speed_m;}
-    Point& get_speed(const string& name_id){return speed_dict[name_id];}
+    Point get_speed(const string& name_id){return speed_dict[name_id];}
     void set_position(const string& name_id,const Point& pos_m){pos_dict[name_id]=pos_m;}
     const Point&  get_position(const string &name_id){ return pos_dict[name_id];}
     set<string> is_collusion();

@@ -49,7 +49,9 @@ int RTDP_util::get_state_index_by_string(State *s_state) {
     if (it != this->mapState->end()){
         return it->second;
     }else{
+        //debugDict.insert({s,s_state->to_string_state()});
         return this->add_entry_map_state(s,s_state);
+
     }
     return 0;
 }
@@ -161,6 +163,13 @@ int RTDP_util::get_state_argmax(State *s) {
     int argMax;
     int entry_state = this->get_state_index_by_string(s);
     auto row = this->qTable[entry_state];
+
+    //DEBUG
+//    for(size_t k=0;k<27;++k)
+//        cout<<" "<<k<<":"<<row[k];
+//    cout<<'\n';
+    //DEBUG
+
     vector<int> argMax_list = arg_max(row,this->hashActionMap->size());
     int size = argMax_list.size();
     if (size>1)
@@ -288,6 +297,7 @@ void RTDP_util::policyData() {
     catch (const std::exception &ex){std::cout << "Exception was thrown: " << ex.what() << std::endl;}
 
 
+
     //print Q table--------------------------------
     try{
         string nameFileCsv="Q.csv";
@@ -303,6 +313,19 @@ void RTDP_util::policyData() {
 //                cout<<"["<<i<<", "<<j<<"]="<<this->qTable[i][j]<<endl;
                 csv<<this->qTable[i][j];
             }
+            csv<<endrow;
+        }
+
+    }
+
+    catch (const std::exception &ex){std::cout << "Exception was thrown: " << ex.what() << std::endl;}
+    try{
+        string nameFileCsv="Sting.csv";
+        csvfile csv(std::move(pathFile+nameFileCsv),";"); // throws exceptions!
+        for(auto &item:debugDict)
+        {
+            csv<<item.first;
+            csv<<item.second;
             csv<<endrow;
         }
 

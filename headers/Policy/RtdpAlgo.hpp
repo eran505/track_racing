@@ -12,7 +12,7 @@ typedef shared_ptr<unordered_map<string,string>> dictionary;
 class RtdpAlgo : public Policy{
     double CollReward = 1;
     double GoalReward = -1;
-    double WallReward = -1;
+    double WallReward = -10;
     int ctr_stack=0;
     u_int32_t zeroIndexAction = Point(0).hashMeAction(Point::actionMax);
     float _stochasticMovement=1;

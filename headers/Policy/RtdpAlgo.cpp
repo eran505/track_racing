@@ -40,8 +40,6 @@ Point RtdpAlgo::get_action(State *s)
                 //action.array[2]=this->max_speed;
                 s->takeOff=true;
             }
-        if(stoMove())
-            return *ZeroAction;
         return action;
     }
 
@@ -68,7 +66,9 @@ Point RtdpAlgo::get_action(State *s)
 
 
     if(stoMove())
-        return *ZeroAction;
+    {
+        return s->get_speed(this->id_agent)*-1;
+    }
     return action;
 }
 
@@ -215,7 +215,7 @@ void RtdpAlgo::empty_stack_update() {
 }
 
 void RtdpAlgo::policy_data() const {
-    //this->RTDP_util_object->policyData();
+    this->RTDP_util_object->policyData();
 }
 
 bool RtdpAlgo::stoMove() {

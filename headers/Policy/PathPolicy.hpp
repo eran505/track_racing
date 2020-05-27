@@ -44,14 +44,11 @@ public:
     }
 
     PathPolicy(string namePolicy, int maxSpeedAgent,const string &agentID,string &home,unordered_map<u_int64_t,vector<float>*>* d,dictionary ptrDict=nullptr)
-    :Policy(std::move(namePolicy),maxSpeedAgent,std::move(agentID),
+    :Policy(std::move(namePolicy),maxSpeedAgent,agentID,
             home,std::move(ptrDict)),dictPolicy(d),goalPoint(nullptr),
             statesIdDict(nullptr),maxPathsNumber(0),startPoint(0),midVec(0)
     {}
-
-
-
-
+    
     void setPolicyDict(unordered_map<u_int64_t,vector<float>*>* d){this->dictPolicy=d;}
     void initPolicy(Point &girdSize){
         dictPolicy = new unordered_map<u_int64_t, vector<float>*>();

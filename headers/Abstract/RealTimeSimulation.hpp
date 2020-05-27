@@ -29,7 +29,7 @@ class rtSimulation{
     std::vector<shared_ptr<Agent>> lDefenderAgent;
     Agent* _attacker;
     Agent* _defender;
-    u_int32_t iterMax=1000;
+    u_int32_t iterMax=20000;
     State* state;
     //std::unique_ptr<Agent> _defender;
 
@@ -107,7 +107,10 @@ public:
                                              lDefenderAgent[curAgentNumber]->lastAction,
                                              lDefenderAgent[curAgentNumber]->getPolicyInt()->max_speed);
                 } else
-                    lDefenderAgent[curAgentNumber]->doAction(this->state);
+                    {
+                        lDefenderAgent[curAgentNumber]->doAction(this->state);
+                        cout<<"--in--"<<endl;
+                    }
                 _attacker->doAction(this->state);
 
                 cout<<this->state->to_string_state()<<endl;
