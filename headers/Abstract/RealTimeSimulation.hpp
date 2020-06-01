@@ -2,7 +2,8 @@
 // Created by ERANHER on 25.5.2020.
 //
 #define GOT_HERE std::cout << "At " __FILE__ ":" << __LINE__ << std::endl
-
+#define DEBUGER
+//#define DEBUGER2
 #ifndef TRACK_RACING_REALTIMESIMULATION_HPP
 #define TRACK_RACING_REALTIMESIMULATION_HPP
 #include "headers/Abstract/Simulation.hpp"
@@ -20,16 +21,21 @@ class rtSimulation{
      * output the paths of the two agents
      *
      * */
-    vector<u_int32_t> trackingData;
+    vector<float> trackingData;
     Point abstraction;
     Point GridSize;
+    bool inMini=false;
+    set<string> collPoints;
+    set<string> wallPoints;
     string _nameA;
+    u_int32_t sizeM;
     string _nameD;
     u_int32_t curAgentNumber=-1;
-    std::vector<shared_ptr<Agent>> lDefenderAgent;
+    unordered_map<u_int32_t ,Agent*> lDefenderAgent;
     Agent* _attacker;
     Agent* _defender;
-    u_int32_t iterMax=20000;
+    u_int32_t iterMax=100000;
+    unordered_map<int,float > collusionMiniGrid;
     State* state;
     //std::unique_ptr<Agent> _defender;
 
@@ -38,15 +44,15 @@ class rtSimulation{
     }
     u_int32_t getIndexMiniGrid(const Point &statePos){
 
-        auto row = statePos.array[0]/abstraction.array[0];
-        auto col = statePos.array[1]/abstraction.array[1];
-        auto z = statePos.array[2]/abstraction.array[2];
-        return (abstraction.array[0])*row+col+z*(abstraction.array[2]);
+        auto row = statePos.array[0]*abstraction.array[0];
+        auto col = statePos.array[1]%abstraction.array[1];
+        return col+row;
+
     }
 
     void checkMeeting()
     {
-        u_int32_t ans = lDefenderAgent.size()-1;
+        u_int32_t ans = sizeM;
         auto l = state->getAllPos(this->abstraction);
         for (int i=0;i<l.size();++i)
         {
@@ -61,22 +67,29 @@ class rtSimulation{
         if (ans != curAgentNumber)
         {
             curAgentNumber=ans;
+            #ifdef DEBUGER
+            if(curAgentNumber<sizeM)
+                insetCollDict();
+            #endif
             changeIDs();
         }
     }
 
 public:
-    rtSimulation(const Point& _abstraction,const Point& GridSize,std::vector<shared_ptr<Agent>> lD, Agent* attacker,State* stateArg,Agent* defnder)
+    rtSimulation(const Point& _abstraction,const Point& GridSize,unordered_map<u_int32_t ,Agent*> lD, Agent* attacker,State* stateArg,Agent* defnder)
     :abstraction(_abstraction),GridSize(GridSize),lDefenderAgent(std::move(lD)),
     _attacker(std::move(attacker)),state(std::move(stateArg)),_defender(std::move(defnder)),trackingData(event::Size,0)
     {
-        curAgentNumber=lDefenderAgent.size()-1;
+        sizeM = (this->GridSize/this->abstraction).accMulti();
+        curAgentNumber=sizeM;
         changeIDs();
 
     }
 
     void changeIDs()
     {
+        this->getAgent(curAgentNumber)->evalPolicy();
+        return;
         auto l = this->state->getIDs();
         for (auto &item:l)
         {
@@ -84,40 +97,50 @@ public:
             {
                 this->_attacker->setID(item);
             }
-            else this->lDefenderAgent[curAgentNumber]->setID(item);
+            else this->getAgent(curAgentNumber)->setID(item);
         }
-        this->lDefenderAgent[curAgentNumber]->evalPolicy();
+
     }
 
     void simulation()
     {
         for(size_t k=0;k<iterMax;++k)
         {
-            bool stop = false;
+            #ifdef DEBUGER2
             cout<<this->state->to_string_state()<<endl;
+            #endif
+            inMini=false;
             while(!Stop_Game())
             {
                 checkMeeting();
-                if (curAgentNumber==lDefenderAgent.size()-1)
+                if (curAgentNumber==sizeM)
                 {
                     auto tmpState = GetActionAbstract(this->state);
-                    lDefenderAgent[curAgentNumber]->doAction(tmpState);
+                    auto ptrAgent = getAgent(curAgentNumber);
+                    ptrAgent->doAction(tmpState);
                     delete tmpState;
-                    this->state->applyAction(lDefenderAgent[curAgentNumber]->get_id(),
-                                             lDefenderAgent[curAgentNumber]->lastAction,
-                                             lDefenderAgent[curAgentNumber]->getPolicyInt()->max_speed);
+                    this->state->applyAction(ptrAgent->get_id(),
+                                             ptrAgent->lastAction,
+                                             ptrAgent->getPolicyInt()->max_speed);
                 } else
                     {
-                        lDefenderAgent[curAgentNumber]->doAction(this->state);
-                        cout<<"--in--"<<endl;
+                        getAgent(curAgentNumber)->doAction(this->state);
+                        inMini=true;
+                        #ifdef DEBUGER2
+                        cout<<curAgentNumber<<" ->  ";
+                        #endif
                     }
                 _attacker->doAction(this->state);
-
+                #ifdef DEBUGER2
                 cout<<this->state->to_string_state()<<endl;
+                #endif
             }
             reset_state();
         }
         cout<<"----"<<endl;
+        #ifdef DEBUGER
+        printCollDict();
+        #endif
         printStat();
     }
     bool Stop_Game(){
@@ -127,7 +150,13 @@ public:
         auto valGoal = state->g_grid->get_goal_reward(posEvader);
         if (state->g_grid->is_wall(posPursuer)) // agent P hit wall
         {
-            trackingData[event::WallId]++;
+            wallPoints.insert(posPursuer.to_str());
+            if(inMini)
+                trackingData[event::OpenId]++;
+            else
+                {
+                    trackingData[event::WallId]++;
+                }
             return true;
         }
         if (valGoal>=0) // E at a goal
@@ -141,6 +170,7 @@ public:
         if(posEvader==posPursuer) // P and E coll
         {
             trackingData[event::CollId]++;
+            collPoints.insert(posPursuer.to_str());
             return true;
         }
         return false;
@@ -169,7 +199,33 @@ public:
         cout<<"Goal: "<<this->trackingData[event::GoalId]<<"\t";
         cout<<"Open: "<<this->trackingData[event::OpenId]<<"\t";
         cout<<endl;
+        cout<<"---Coll Points--\n"<<endl;
+        std::for_each(collPoints.begin(),collPoints.end(),[](auto &strX){cout<<strX<<"\t";});
 
+        cout<<"\n---Wall Points--\n"<<endl;
+        std::for_each(wallPoints.begin(),wallPoints.end(),[](auto &strX){cout<<strX<<"\t";});
+
+    }
+    void insetCollDict()
+    {
+        if(auto pos = collusionMiniGrid.find(curAgentNumber);pos==collusionMiniGrid.end())
+        {
+            collusionMiniGrid.insert({curAgentNumber,1});
+        }
+        else{ pos->second++;}
+    }
+    void printCollDict(){
+        for(auto &item: collusionMiniGrid){
+            cout<<item.first<<" : "<<item.second<<endl;
+        }
+    }
+    Agent * getAgent(unsigned int key)
+    {
+
+        auto pos = this->lDefenderAgent.find(key);
+        if (pos==lDefenderAgent.end())
+            throw ;
+        return pos->second;
     }
 };
 

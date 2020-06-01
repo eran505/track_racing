@@ -18,7 +18,7 @@
 typedef size_t keyItem;
 class RTDP_util{
     double **qTable;
-
+    float _stochasticMovement=1;
     unordered_map<keyItem,unsigned int> *mapState;
     vector<Policy*> *lTran= nullptr;
     unordered_map<keyItem,string> debugDict;
@@ -36,6 +36,7 @@ class RTDP_util{
     double compute_h(State *s);
 
 public:
+    void setStochasticMovement(float m){this->_stochasticMovement=m;}
     void setHashFuction(std::function<u_int64_t (const State*)> fun){
         HashFuction=std::move(fun);
     }

@@ -110,7 +110,7 @@ set<string> State::is_collusion() {
 
 float State::isGoal(string &idStr) {
     const auto& pos = this->get_position(idStr);
-    return this->g_grid->is_goal_reward(pos);
+    return this->g_grid->get_goal_reward(pos);
 }
 
 bool State::isEndState(std::string &idStr) {
@@ -160,7 +160,15 @@ u_int64_t  State::getHashValuePosOnly() const{
     {
         for(int i : item.second.array)
             vec.push_back(i);
+//        if(item.first[1]==Section::gurd)
+//        {
+//            Point speedDefender = speed_dict.find(item.first)->second;
+//            for(int j = 0; j < Point::D_point::D; ++j)
+//                vec.push_back(speedDefender[j]);
+//        }
+
     }
+
     u_int64_t  seed = vec.size();
     for(auto& i : vec) {
         seed ^=  (i * 2654435761) + 2654435769 + (seed << 6) + (seed >> 2);

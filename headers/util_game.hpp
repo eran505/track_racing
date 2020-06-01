@@ -197,6 +197,15 @@ public:
         }
         return acc;
     }
+    bool isBiggerAbsOne()
+    {
+        for (int i = 0; i < this->capacity; ++i)
+        {
+            if(abs(array[i])>1)
+                return true;
+        }
+        return false;
+    }
     void change_speed_max(int absoult_max){
         for (int i = 0; i < this->capacity; ++i) {
             if (this->array[i]>absoult_max){

@@ -106,11 +106,14 @@ public:
     const std::vector<float>* TransitionAction(State*) override;
     void normalizeDict();
 
-    void treeTraversal(State *ptrState, string &strIDExp);
 
     vector<float> minizTrans(const vector<float>* x);
 
-    void policyData(string &strID);
+    void policyData(string &strId);
+
+    void policyDataAbstract(const string &strId, const Point& ab);
+
+    void treeTraversal(State *ptrState, string &strIdExp, const Point *ab= nullptr);
 };
 
 
@@ -173,7 +176,7 @@ u_int64_t PathPolicy::getAgentSateHash(State *s) {
  * @return void (write to disk csv file)
  *
  * **/
-void PathPolicy::treeTraversal(State *ptrState,string &strIdExp)
+void PathPolicy::treeTraversal(State *ptrState,string &strIdExp,const Point *ab)
 {
 
     std::deque<pair<State,float>> q;
@@ -234,6 +237,8 @@ void PathPolicy::treeTraversal(State *ptrState,string &strIdExp)
 
     }
     policyData(strIdExp);
+    if(ab)
+    policyDataAbstract(strIdExp,*ab);
 }
 
 
@@ -292,11 +297,11 @@ vector<float> PathPolicy::minizTrans(const vector<float> *x) {
 }
 
 
-void PathPolicy::policyData( string &strID)
+void PathPolicy::policyData( string &strId)
 {
     string pathFile=this->home+"/car_model/exp/data/";
     try{
-        string nameFileCsv=strID+"_Attacker.csv";
+        string nameFileCsv= strId + "_Attacker.csv";
         csvfile csv(std::move(pathFile+nameFileCsv),","); // throws exceptions!
         for(auto &item: myPaths)
         {
@@ -311,6 +316,25 @@ void PathPolicy::policyData( string &strID)
     catch (const std::exception &ex){std::cout << "Exception was thrown: " << ex.what() << std::endl;}
 
 }
+void PathPolicy::policyDataAbstract( const string &strId, const Point& ab)
+{
+    string pathFile=this->home+"/car_model/exp/data/";
+    try{
+        string nameFileCsv= strId + "_Attacker_Abstract.csv";
+        csvfile csv(std::move(pathFile+nameFileCsv),","); // throws exceptions!
+        for(auto &item: myPaths)
+        {
+            const auto& [probability,pathI] = item;
+            csv<<probability;
+            for (const auto& pointStr:pathI) {
+                csv<<(pointStr/ab).to_str();
 
+            }
+            csv<<endrow;
+        }
+    }
+    catch (const std::exception &ex){std::cout << "Exception was thrown: " << ex.what() << std::endl;}
+
+}
 
 #endif //TRACK_RACING_PATHPOLICY_HPP

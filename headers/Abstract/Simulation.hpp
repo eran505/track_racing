@@ -2,7 +2,8 @@
 // Created by ERANHER on 13.5.2020.
 //
 
-//#define DEBUG
+//#define DEBUG3
+//#define DEBUG2
 #ifndef TRACK_RACING_SIMULATION_HPP
 #define TRACK_RACING_SIMULATION_HPP
 #include <thread>
@@ -19,28 +20,40 @@ namespace event{
 }
 template <typename T>
 class simulation{
+
     vector<u_int32_t> trackingData;
-    std::vector<shared_ptr<Agent>> agents;
+
     Grid *g;
     bool noSpeed=false;
     State *sState;
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution;
+    unordered_map<string,u_int32_t> collustionMap;
 
 public:
-    Agent* getDefAgent(){agents.operator[](0).get();}
-
-    simulation(Agent* pursuerAgent, Agent* evaderAgent, Grid *absGrid,int seed)
+    std::vector<shared_ptr<Agent>> agents;
+    u_int16_t gridID;
+    shared_ptr<Agent> getDefAgent(){agents.operator[](0);}
+    Agent* getDefAgentPTR(){agents.operator[](0).get();}
+    size_t getCollustionMapSize(){return collustionMap.size();}
+    const unordered_map<string,u_int32_t>& getCollustionMap()const{return collustionMap;}
+    simulation(Agent* pursuerAgent, Agent* evaderAgent, Grid *absGrid,int seed,int _id)
     :trackingData(event::Size),distribution(0.0,1.0),generator(seed),sState(nullptr),
     g(absGrid)
     {
+        gridID=_id;
         agents.push_back(std::shared_ptr<Agent>(pursuerAgent));
         agents.push_back(std::shared_ptr<Agent>(evaderAgent));
         for(const auto &item:agents)
             item->print();
         setState();
     }
-
+    bool isInCollMap(const string &key)
+    {
+        if(auto pos = collustionMap.find(key);pos==collustionMap.end())
+            return false;
+        return true;
+    }
     void noSpeedAttacker()
     {
         noSpeed=true;
@@ -65,7 +78,7 @@ public:
         for (u_int32_t i = 0; i < iterationMax; ++i) {
             //if(i%1000==0) cout<<i<<endl;
             auto stop= false;
-            #ifdef DEBUG
+            #ifdef DEBUG3
             cout<<sState->to_string_state()<<endl;
             #endif
             stop = checkCondition();
@@ -75,12 +88,15 @@ public:
                     [&](const shared_ptr<Agent>& ptrAgent){
                         ptrAgent->doAction(sState);}
                     );
-                #ifdef DEBUG
+                #ifdef DEBUG3
                 cout<<sState->to_string_state()<<endl;
                 #endif
                 stop = checkCondition();
             }
             reset_state();
+            #ifdef DEBUG2
+            if(i%10000==0) cout<<"Iter:\t"<<i<<endl;
+            #endif
         }
         printStat();
     }
@@ -142,6 +158,7 @@ private:
         if(posEvader==posPursuer) // P and E coll
         {
             trackingData[event::CollId]++;
+            insetToCollusionMap(posEvader);
             return true;
         }
         if (valGoal>=0) // E at a goal
@@ -155,6 +172,16 @@ private:
         return false;
 
     }
+    void insetToCollusionMap(const Point &p)
+    {
+        std::string strPoint = p.to_str();
+        if(auto pos = collustionMap.find(strPoint);pos==collustionMap.end())
+        {
+            collustionMap.insert({strPoint,1});
+        }
+        else{ pos->second++;}
+    }
+
 };
 
 

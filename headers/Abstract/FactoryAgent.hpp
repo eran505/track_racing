@@ -4,7 +4,7 @@
 
 #ifndef TRACK_RACING_FACTORYAGENT_HPP
 #define TRACK_RACING_FACTORYAGENT_HPP
-//#define Sync
+#define Sync
 
 #include "util_game.hpp"
 #include "Policy.hpp"
@@ -31,12 +31,13 @@ class AbstractCreator{
     Point abGridSize;
     std::vector<simulation<State>> simulationVector;
     int seed;
-    u_int32_t iter = 1000000;
+    u_int32_t iter = 450000;
     std::unique_ptr<rtSimulation> rtSim= nullptr;
-    vector<shared_ptr<Agent>> lAgent;
+    unordered_map<u_int32_t ,Agent*> lAgent;
 public:
-    vector<shared_ptr<Agent>> getLAgents(){return lAgent;}
-    AbstractCreator(PathPolicy* evaderPolicy_,const Point& ptrGirdSize,const Point& mAbstractSize,int seed_):evaderPolicy(evaderPolicy_),seed(seed_){
+    unordered_map<u_int32_t ,Agent*> getLAgents(){return lAgent;}
+    AbstractCreator(PathPolicy* evaderPolicy, const Point& ptrGirdSize, const Point& mAbstractSize, int seed_):
+            abGridSize(mAbstractSize), evaderPolicy(evaderPolicy), seed(seed_){
         originalGridSize=ptrGirdSize;
         abGridSize=mAbstractSize;
     }
@@ -49,20 +50,30 @@ public:
         vector<int> l;
         //workerTasks.pop_back();
         std::vector<std::thread> workers;
-        workers.reserve(lsim.size());
+        //workers.reserve(workerTasks.size());
         lsim.back().simulate(iter);
-        lsim.back().getDefAgent()->getPolicyInt()->policy_data();
-        exit(0);
+        //RemoveIfVector(workerTasks);
+        workers.reserve(lsim.size());
+//        lsim.back().getDefAgent()->getPolicyInt()->policy_data();
+//        exit(0);
         #ifdef Sync
-        std::for_each(lsim.begin(),lsim.end(),[&](simulation<State> &t)
+
+        std::for_each(lsim.begin(),lsim.end()-1,[&](simulation<State> &t)
         {
-            t.simulate(iter);
+            cout<<"gridID:\t"<<t.gridID<<endl;
+            if(IsReachable(t.gridID))
+                t.simulate(iter);
+            else{
+                //delete t.getDefAgentPTR()->getPolicyInt();
+            }
         });
         #else
-        for(auto &item:lsim)
+        for(size_t index=0;index<lsim.size();++index)
         {
+            if(!IsReachable(lsim[index].gridID))
+                continue;
             std::function<void()> func = [&]() {
-                item.simulate(iter);
+                lsim[index].simulate(iter);
                 std::cout << "From Thread ID : "<<std::this_thread::get_id() << "\n";
             };
             workers.emplace_back(func);
@@ -71,10 +82,37 @@ public:
            if(t.joinable()) t.join();
         });
         #endif
-        cout<<"done!"<<endl;
         lAgent.reserve(lsim.size());
+
         for (auto &item : lsim)
-        {lAgent.emplace_back(item.getDefAgent());}
+        {
+            //auto ptrTmp = item.getDefAgentPTR();
+            cout<<"Is copying,,,"<<item.gridID<<endl;
+            lAgent.insert({item.gridID,item.agents[0].get()});
+        }
+        cout<<"done!"<<endl;
+    }
+
+    Point keyToPoint(unsigned int key)
+    {
+
+        u_int32_t x = (key%(abGridSize[0]*abGridSize[1]))/abGridSize[0];
+        u_int32_t  y = key%abGridSize[0];
+        u_int32_t  z = key/(abGridSize[1]*abGridSize[0]);
+
+        return Point(x,y,z);
+    }
+    void RemoveIfVector(vector<simulation<State>> &l)
+    {
+        auto iteVec = std::copy_if(l.begin(),l.end(),lsim.begin(),[&](simulation<State>& itemX){
+            if(l.back().isInCollMap(keyToPoint(itemX.gridID).to_str()) or itemX.gridID==l.back().gridID)
+                return true;
+            return false;
+        });
+        //lsim.erase(iteVec);
+    }
+    bool IsReachable(u_int32_t key){
+        return lsim.back().isInCollMap(keyToPoint(key).to_str());
     }
 };
 #endif //TRACK_RACING_FACTORYAGENT_HPP

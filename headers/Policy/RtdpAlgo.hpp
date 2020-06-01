@@ -27,7 +27,11 @@ class RtdpAlgo : public Policy{
     //stackStateActionIdxdouble expected_reward(State *s, Point &action);
     //double expected_reward_rec(State *s,int index_policy,deque<Point> &my_stack);
 public:
-    void setStochasticMovement(float m){_stochasticMovement=m;}
+    void setStochasticMovement(float m)
+    {
+        _stochasticMovement=m;
+        this->RTDP_util_object->setStochasticMovement(m);
+    }
     [[nodiscard]] float getStochasticMovement() const{ return _stochasticMovement;}
     [[nodiscard]] double getRewardColl() const{ return CollReward;}
     [[nodiscard]] double getGoalReward() const{ return GoalReward;}

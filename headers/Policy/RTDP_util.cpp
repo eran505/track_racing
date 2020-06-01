@@ -41,7 +41,7 @@ void RTDP_util::set_up_Q(int grid_size, vector<pair<int,int>>& max_speed_and_bud
 
 
 int RTDP_util::get_state_index_by_string(State *s_state) {
-    //string s = s_state->to_string_state();
+    //cout<< s_state->to_string_state()<<endl;
     // lamda
     auto s = HashFuction(s_state);
     //auto s = s_state->getHashValue();
@@ -50,6 +50,7 @@ int RTDP_util::get_state_index_by_string(State *s_state) {
         return it->second;
     }else{
         //debugDict.insert({s,s_state->to_string_state()});
+        //cout<<"not found\n";
         return this->add_entry_map_state(s,s_state);
 
     }
@@ -68,7 +69,8 @@ void RTDP_util::heuristic(State *s,int entry_index)
         double val;
         bool isWall = this->apply_action(oldState,my_policy->id_agent,*actionCur,my_policy->max_speed);
         if (isWall)
-            val = this->wallReward*discountFactor;
+            val = this->wallReward*discountFactor*this->_stochasticMovement+
+                    collReward*(1-this->_stochasticMovement);
         else{
             //val = this->compute_h(oldState);
             val=this->collReward*discountFactor;
@@ -247,8 +249,8 @@ double RTDP_util::compute_h(State *s) {
     s->getAllPosOpponent(vec_pos,team);
     double min = s->g_grid->getSizeIntGrid();
     double posA = -1;
-    for (int i = 0; i < vec_pos.size(); ++i) {
-        auto res = getMaxDistance(vec_pos[i],my_pos);
+    for (auto & vec_po : vec_pos) {
+        auto res = getMaxDistance(vec_po,my_pos);
         if (min>res)
         {
             min=res;

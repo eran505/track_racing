@@ -89,7 +89,7 @@ public:
             auto &[lpIp,lpIVector]=lpI;
             auto &[p,listPos]=myPathPair; // <p,vec>
             lpIp=p;
-            lpIVector.emplace_back(listPos.front(),Point(0,0,maxSpeed));
+            lpIVector.emplace_back(listPos.front(),Point(0,0,0));
             for(size_t i = 1;i<listPos.size();++i)
             {
                 auto speedI = listPos[i]-listPos[i-1];
@@ -103,6 +103,16 @@ public:
      * **/
     void bigGridAbs(weightedVectorPosSpeed& lp)
     {
+        //DEBUG
+        for(auto& item:lp)
+        {
+            for(auto& [pos,spped]:item.second)
+            {
+                cout<<pos.to_str()<<"_"<<spped.to_str()<<"\t";
+            }
+            cout<<endl;
+        }
+        //DEBUG
         vector<pair<float,vector<weightedPosition>>> setPaths;
         vector<Point> goals;
         short index=-1;
@@ -117,11 +127,22 @@ public:
             {
 
                 myPath[j]/=this->abstractSize;
+
                 if (j>0)
                 {
                     auto tmpI = lp[index].second[j];
                     if (!(myPath[j]==myPath[j-1]))
                     {
+                        //DEBUG
+                        if(myPath[j-1].to_str()=="(0, 0, 1)")
+                        {
+                            if(myPath[j].to_str()=="(1, 0, 0)")
+                                cout<<"=>"<<myPath[j].to_str()<<endl;
+                        }
+                        //DEBUG
+                        auto tmpPoint = myPath[j]-myPath[j-1]-l.back().speedPoint;
+                        if(tmpPoint.isBiggerAbsOne())
+                            l.emplace_back(Point(0),myPath[j-1],1);
                         l.emplace_back(myPath[j]-myPath[j-1],myPath[j],1);
                         inset_boundry_point(lp[index].second[j],lp[index].first,myPath[j], true);
                         inset_boundry_point(lp[index].second[j-1],lp[index].first,myPath[j-1],false);
@@ -171,7 +192,7 @@ public:
         else
             vec_to_inset = endPoints_abstraction.get();
 
-        auto& vec = vec_to_inset->operator[](gridPoint_[0]*this->abstractSize[0]+gridPoint_[1]);
+        auto& vec = vec_to_inset->operator[](AbstractPointToIndex(gridPoint_));
         if (auto pos=std::find_if(vec.begin(),vec.end(),[&](weightedPosition &pState){
             if(pState.speedPoint==statePoint.second && pState.positionPoint==statePoint.first)return true;
             return false; });pos == vec.end())
@@ -181,6 +202,13 @@ public:
             pos->weightedVal+=val;
         }
     }
+    u_int32_t AbstractPointToIndex(const Point &p)
+    {
+        auto x =  this->abstractSize[0]*p[0];
+        auto y =  p[1];
+        auto z =  (this->abstractSize[1]*this->abstractSize[0])*p[2];
+        return x+y+z;
+    }
     /**
      * make the big policy attacker grid
      * speedProbabilityVector = how much time the agent need to spent in the cell,
@@ -188,6 +216,18 @@ public:
      * */
     void make_dict_policy(vector<pair<float,vector<weightedPosition>>>& momvemtns)
     {
+        //Debug
+        float templateNumber = -100;
+        for(auto& pPath:momvemtns)
+        {
+            cout<<"P:\t"<<pPath.first<<endl;
+            for(auto &item:pPath.second)
+            {
+                cout<<item.positionPoint.to_str()<<"_"<<item.speedPoint.to_str()<<"\t";
+            }
+            cout<<"\n";
+        }
+        //Debug
         vector<pair<u_int64_t,pair<vector<pair<short,float>>,float>>> moveSpeedAbstract;
         const auto index= vecPolicy.size()-1;
         auto zero = Point(0);
@@ -210,13 +250,27 @@ public:
                 u_int64_t keyZero = Point::hashNnN(item[i].positionPoint.hashConst(),
                                                    zero.hashConst(Point::maxSpeed));
 
+
+                if(item[i].positionPoint.to_str()=="(1, 1, 1)")
+                {
+                    cout<<"item[i].speedPoint:\t"<<item[i].speedPoint.to_str()<<endl;
+                    cout<<difAction.to_str()<<endl;
+                    cout<<diffPos.to_str()<<endl;
+                    cout<<"key="<<key<<endl;
+                    cout<<item[i+1].positionPoint.to_str()<<endl;
+                    cout<<item[i+1].speedPoint.to_str()<<endl;
+                    cout<<"keyZero:\t"<<keyZero<<endl;
+                    cout<<"----------\n";
+                }
+
+
                 if (auto pos = this->vecPolicy[index]->find(key);pos==this->vecPolicy[index]->end())
                 {
                     this->vecPolicy[index]->try_emplace
-                    (key, new std::vector<float>({actionHkey,-p,key_op_difAction,0}));
+                    (key, new std::vector<float>({actionHkey,-p,key_op_difAction,templateNumber}));
 
                     this->vecPolicy[index]->try_emplace
-                    (keyZero, new std::vector<float>({diffPosHASH,-p,zeroHashAction,0}));
+                    (keyZero, new std::vector<float>({diffPosHASH,-p,zeroHashAction,templateNumber}));
 
                 }
                 else{
@@ -234,7 +288,7 @@ public:
                         auto isFindZero = std::find(posZero->second->begin(),posZero->second->end(),diffPosHASH);
                         if (isFindZero==posZero->second->end())
                         {
-                            pos->second->insert(pos->second->end(),{diffPosHASH,-p});
+                            posZero->second->insert(posZero->second->end(),{diffPosHASH,-p});
                         } else
                         {
                             auto b = std::distance(posZero->second->begin(),isFindZero)+1;
@@ -259,7 +313,8 @@ public:
             std::for_each(item.second->begin(),item.second->end(),[&](float x){
                 if(indexCur%2!=0)
                 {
-                    acc+=x;
+                    if(x != templateNumber)
+                        acc+=x;
                 }
                 indexCur++;});
             indexCur=0;
@@ -269,7 +324,7 @@ public:
             {
                 if (indexCur%2!=0){
 
-                    if(num==0)
+                    if(num==templateNumber)
                         num=1.0-ProbToMove;
                     else
                         {num=num/acc*ProbToMove;}
@@ -283,7 +338,7 @@ public:
         //vector<weightedPosition> l = {{Point(0),Point(0),1}};
         std::vector<simulation<State>> simulationList;
         simulationList.reserve(this->sizeVectors);
-        for (size_t k = 0 ; k<this->vecPolicy.size();++k) {
+        for (size_t k = 0 ; k<this->vecPolicy.size()-1;++k) {
             if (this->vecPolicy[k]->empty())
                 continue;
             auto [up,low]=getBound(k,this->abstractSize);
@@ -296,7 +351,7 @@ public:
             d->getPolicyInt()->add_tran(a->getPolicyInt());
 
             auto G = new Grid(up,low,this->endPoints_abstraction->operator[](k));
-            simulationList.emplace_back(d,a,G,seedSystem);
+            simulationList.emplace_back(d,a,G,seedSystem,k);
             //break;
         }
         std::for_each(StartingDefender.begin(),StartingDefender.end(),[&](weightedPosition &data){
@@ -306,16 +361,17 @@ public:
         conf.maxD=1;
         conf.maxA=1;
         auto k=vecPolicy.size()-1;
-        auto [up,low]=getBound(0,this->abstractSize);
-        up.array[2]=1;
+        //auto [up,low]=getBound(0,this->abstractSize);
+        Point up = this->girdSize/abstractSize;
+        Point low(0);
         auto* a = new Agent(startPoints_abstraction->back(),Section::adversary,10);
         auto* d = new Agent(StartingDefender,Section::gurd,10);
-        initRTDP(conf,d,k,(float(conf.maxD))/float(this->abstractSize[0]));
+        initRTDP(conf,d,k,(float(conf.maxD))/float(this->abstractSize[0]),true);
         setPathPolicy(conf,a,k);
         a->getPolicyInt()->add_tran(d->getPolicyInt());
         d->getPolicyInt()->add_tran(a->getPolicyInt());
         auto G = new Grid(up,low,this->endPoints_abstraction->operator[](k));
-        simulationList.emplace_back(d,a,G,seedSystem);
+        simulationList.emplace_back(d,a,G,seedSystem,k);
 
         return simulationList;
     }
@@ -347,7 +403,7 @@ private:
         vector<Point> l;
         for(int x=up[0]-1;x>=(low[0]);--x)
             for(int y=low[1];y<up[1];++y)
-                for(int z=0;z<9;++z)
+                for(int z=0;z<up[2];++z)
                     l.emplace_back(x,y,z);
 
         vector<Point> l2;
@@ -364,14 +420,14 @@ private:
         return l3;
     }
     static pair<Point,Point> getBound(int gridIndx,Point &abstract){
-        int upIndx=gridIndx/abstract[0];
+        int upIndx=(gridIndx%(abstract[1]*abstract[0]))/abstract[0];
         int lowIndx = gridIndx%abstract[0];
-        int z = gridIndx/abstract[2];
-        Point up(abstract[0]+upIndx*abstract[0],abstract[1]+lowIndx*abstract[1],abstract[2]);
-        Point low(0+upIndx*abstract[0],0+lowIndx*abstract[1],z);
+        int z = gridIndx/(abstract[1]*abstract[0]);
+        Point up(abstract[0]+upIndx*abstract[0],abstract[1]+lowIndx*abstract[1],abstract[2]*z+abstract[2]);
+        Point low(0+upIndx*abstract[0],0+lowIndx*abstract[1],z*abstract[2]);
         return {up,low};
     }
-    void initRTDP(configGame &conf,Agent* d,u_int32_t k,float stoProb=1)
+    void initRTDP(configGame &conf,Agent* d,u_int32_t k,float stoProb=1,bool hashOnlyPos=false)
     {
 
         auto listQtalbe = vector<pair<int,int>>();
@@ -382,7 +438,7 @@ private:
         Policy* rtdp = new RtdpAlgo(conf.maxD,this->sizeVectors,listQtalbe,d->get_id(),conf.home,gameInfo_share);
         auto tmp = dynamic_cast<RtdpAlgo*>(rtdp);
         tmp->setStochasticMovement(stoProb);
-        if(stoProb!=1)
+        if(hashOnlyPos)
             tmp->getUtilRTDP()->setHashFuction([](const State* ptrS){return ptrS->getHashValuePosOnly();});
         d->setPolicy(rtdp);
     }
@@ -427,7 +483,7 @@ private:
         auto col = statePos.array[1]/abstractSize.array[1];
         auto z = statePos.array[2]/abstractSize.array[2];
 
-        return (abstractSize.array[0])*row+col+z*(abstractSize.array[2]);
+        return (abstractSize.array[0])*row+col+z*(abstractSize.array[1]*abstractSize.array[0]);
     }
     void normalizeStartVectorPoint()
     {

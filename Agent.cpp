@@ -20,7 +20,7 @@ Agent::Agent( weightedPositionVector Startpos, char m_team, int b_budget)
         : my_Policy(nullptr),is_wall(false),my_team(m_team),my_id(std::to_string(ctr_object)+m_team) ,eval(false) {
     this->initialPosition = std::move(Startpos);
     this->my_budget=b_budget;
-    ctr_object++;
+    //ctr_object;
 }
 
 

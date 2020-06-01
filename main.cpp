@@ -63,8 +63,8 @@ typedef unsigned long ulong;
 int main() {
     GOT_HERE;
     int seed = 155139;
-    seed = 1587982523; //1895975606
-    //seed = int( time(nullptr));
+    //seed = 1587982523; //1895975606
+    seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
     torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -73,7 +73,7 @@ int main() {
     string repo = "/"+arrPAth[0]+"/"+arrPAth[1]+"/"+arrPAth[2]+"/"+arrPAth[3]+"/"+arrPAth[4];
     int MaxInt = INT_MAX;
     //const string home="/home/ise";
-    std::string pathCsv (home + "/car_model/config/con21.csv");
+    std::string pathCsv (home + "/car_model/config/con3.csv");
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -158,8 +158,8 @@ Grid * init_grid(configGame& conf){
 }
 MdpPlaner* init_mdp(Grid *g, configGame &conf){
     int maxSizeGrid = g->getPointSzie().array[0];
-    int maxA=0+maxSizeGrid/10;   //TODO:: change it to plus one !!!!!!!!!!!!!!!!!!!!!!!
-    int maxD=std::max(0+maxSizeGrid/100,1);
+    int maxA=2;   //TODO:: change it to plus one !!!!!!!!!!!!!!!!!!!!!!!
+    int maxD=1;
     conf.maxD=maxD;
     conf.maxA=maxA;
 
@@ -173,7 +173,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 
     std::vector<weightedPosition> listPointAttacker;
     std::vector<weightedPosition> listPointDefender;
-    listPointAttacker.emplace_back(Point(0,0,maxA),std::move(conf.posAttacker),1.0);
+    listPointAttacker.emplace_back(Point(0,0,0),std::move(conf.posAttacker),1.0);
     listPointDefender.emplace_back(Point(0,0,0),std::move(conf.posDefender),1.0);
 
 
@@ -207,10 +207,11 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
             , conf.midPos, conf.home, conf.rRoutes, nullptr);
     auto *tmp_pointer = dynamic_cast <PathPolicy*>(pGridPath);
     printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
-    auto* tmp = new State(*s->get_cur_state());
-    tmp_pointer->treeTraversal(tmp,conf.idNumber);
+    std::unique_ptr<State> tmp = std::make_unique<State>(State(*s->get_cur_state()));
+    Point abPoint(7,7,1);
+    tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint);
     pA1->setPolicy(pGridPath);
-    Point abPoint(5,5,11);
+
     auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,abPoint,conf.seed);
     z->initializeSimulation(conf,listPointDefender);
     auto *rl = new rtSimulation(abPoint,conf.sizeGrid,z->getLAgents(),pA1,s->get_cur_state(),pD2);
