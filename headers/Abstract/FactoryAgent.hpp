@@ -54,8 +54,13 @@ public:
         lsim.back().simulate(iter);
         //RemoveIfVector(workerTasks);
         workers.reserve(lsim.size());
-//        lsim.back().getDefAgent()->getPolicyInt()->policy_data();
-//        exit(0);
+
+        std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
+                [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
+
+        // lsim.back().getDefAgent()->getPolicyInt()->policy_data();
+        // exit(0);
+
         #ifdef Sync
 
         std::for_each(lsim.begin(),lsim.end()-1,[&](simulation<State> &t)
