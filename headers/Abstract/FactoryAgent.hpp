@@ -31,7 +31,7 @@ class AbstractCreator{
     Point abGridSize;
     std::vector<simulation<State>> simulationVector;
     int seed;
-    u_int32_t iter = 450000;
+    u_int32_t iter = 500000;
     std::unique_ptr<rtSimulation> rtSim= nullptr;
     unordered_map<u_int32_t ,Agent*> lAgent;
 public:
@@ -58,16 +58,18 @@ public:
         std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
                 [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
 
-        // lsim.back().getDefAgent()->getPolicyInt()->policy_data();
-        // exit(0);
+        lsim.back().getDefAgentDATA();
+        //exit(0);
 
         #ifdef Sync
 
         std::for_each(lsim.begin(),lsim.end()-1,[&](simulation<State> &t)
         {
             cout<<"gridID:\t"<<t.gridID<<endl;
-            if(IsReachable(t.gridID))
+            if(IsReachable(t.gridID) and t.gridID>=30 and t.gridID<40 ){
+                cout<<"t.gridID="<<t.gridID<<endl;
                 t.simulate(iter);
+            }
             else{
                 //delete t.getDefAgentPTR()->getPolicyInt();
             }

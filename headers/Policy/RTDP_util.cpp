@@ -166,11 +166,15 @@ int RTDP_util::get_state_argmax(State *s) {
     int entry_state = this->get_state_index_by_string(s);
     auto row = this->qTable[entry_state];
 
-    //DEBUG
-//    for(size_t k=0;k<27;++k)
-//        cout<<" "<<k<<":"<<row[k];
-//    cout<<'\n';
-    //DEBUG
+//    DEBUG
+//    cout<<s->to_string_state()<<endl;
+//    double tmp[27];
+//    for(size_t k=0;k<27;++k){
+//        tmp[k]=row[k];
+//        cout<<"\t["<<k<<"]="<<row[k];
+//    }
+//    cout<<endl;
+//    DEBUG
 
     vector<int> argMax_list = arg_max(row,this->hashActionMap->size());
     int size = argMax_list.size();

@@ -407,10 +407,10 @@ private:
                     l.emplace_back(x,y,z);
 
         vector<Point> l2;
-        for(short x=0;x<=maxD;++x)
+        for(int x=-maxD;x<=maxD;++x)
         {
-            for(int y=0;y<=maxD;++y)
-                for(int z=0;z<=maxD;++z)
+            for(int y=-maxD;y<=maxD;++y)
+                for(int z=-maxD;z<=maxD;++z)
                     l2.emplace_back(x,y,z);
         }
         float sizeL = l2.size()*l.size();

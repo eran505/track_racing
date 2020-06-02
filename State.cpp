@@ -160,12 +160,8 @@ u_int64_t  State::getHashValuePosOnly() const{
     {
         for(int i : item.second.array)
             vec.push_back(i);
-//        if(item.first[1]==Section::gurd)
-//        {
-//            Point speedDefender = speed_dict.find(item.first)->second;
-//            for(int j = 0; j < Point::D_point::D; ++j)
-//                vec.push_back(speedDefender[j]);
-//        }
+        for(int i = 0; i < Point::D_point::D; ++i)
+            vec.push_back(speed_dict.find(item.first)->second[i]);
 
     }
 

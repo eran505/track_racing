@@ -3,7 +3,7 @@
 //
 #define GOT_HERE std::cout << "At " __FILE__ ":" << __LINE__ << std::endl
 #define DEBUGER
-//#define DEBUGER2
+//#define PRINTME
 #ifndef TRACK_RACING_REALTIMESIMULATION_HPP
 #define TRACK_RACING_REALTIMESIMULATION_HPP
 #include "headers/Abstract/Simulation.hpp"
@@ -106,12 +106,14 @@ public:
     {
         for(size_t k=0;k<iterMax;++k)
         {
-            #ifdef DEBUGER2
-            cout<<this->state->to_string_state()<<endl;
+            u_int16_t ctr=0;
+            #ifdef PRINTME
+            cout<<ctr<<":\t"<<this->state->to_string_state()<<endl;
             #endif
             inMini=false;
             while(!Stop_Game())
             {
+                ctr++;
                 checkMeeting();
                 if (curAgentNumber==sizeM)
                 {
@@ -126,13 +128,13 @@ public:
                     {
                         getAgent(curAgentNumber)->doAction(this->state);
                         inMini=true;
-                        #ifdef DEBUGER2
+                        #ifdef PRINTME
                         cout<<curAgentNumber<<" ->  ";
                         #endif
                     }
                 _attacker->doAction(this->state);
-                #ifdef DEBUGER2
-                cout<<this->state->to_string_state()<<endl;
+                #ifdef PRINTME
+                cout<<ctr<<":\t"<<this->state->to_string_state()<<endl;
                 #endif
             }
             reset_state();

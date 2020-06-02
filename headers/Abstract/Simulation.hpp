@@ -3,7 +3,7 @@
 //
 
 //#define DEBUG3
-//#define DEBUG2
+#define DEBUG2
 #ifndef TRACK_RACING_SIMULATION_HPP
 #define TRACK_RACING_SIMULATION_HPP
 #include <thread>
@@ -33,7 +33,8 @@ class simulation{
 public:
     std::vector<shared_ptr<Agent>> agents;
     u_int16_t gridID;
-    shared_ptr<Agent> getDefAgent(){agents.operator[](0);}
+    void getDefAgentDATA(){agents[0]->getPolicyInt()->policy_data();}
+    shared_ptr<Agent> getDefAgent(){agents[0];}
     Agent* getDefAgentPTR(){agents.operator[](0).get();}
     size_t getCollustionMapSize(){return collustionMap.size();}
     const unordered_map<string,u_int32_t>& getCollustionMap()const{return collustionMap;}
