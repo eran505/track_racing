@@ -3,7 +3,7 @@
 //
 
 //#define DEBUG3
-#define DEBUG2
+//#define DEBUG2
 #ifndef TRACK_RACING_SIMULATION_HPP
 #define TRACK_RACING_SIMULATION_HPP
 #include <thread>
