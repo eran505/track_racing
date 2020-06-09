@@ -23,7 +23,7 @@ public:
     State(const State &other);
 
     void assignment( State &other);
-    void assignment(State &other, const string &id);
+    void assignment(const State &other, const string &id);
     float isGoal(string &idStr);
     bool isEndState(std::string &idStr);
     //Setters and Getters
@@ -31,11 +31,12 @@ public:
     State * getAbstractionState(Point &abstractPoint);
     [[nodiscard]] vector<Point> getAllPos(const Point &abstractPoint)const;
     void set_budget(const string& name_id,int budget_m){budget_dict[name_id]=budget_m;}
-    int get_budget(const string& name_id){ return budget_dict[name_id];}
+    int get_budget(const string& name_id)const { return 10;} //#TODO: change it when using budget
     void set_speed(const string& name_id,const Point& speed_m){speed_dict[name_id]=speed_m;}
     Point get_speed(const string& name_id){return speed_dict[name_id];}
     void set_position(const string& name_id,const Point& pos_m){pos_dict[name_id]=pos_m;}
-    const Point&  get_position(const string &name_id){ return pos_dict[name_id];}
+    [[nodiscard]] const Point&  get_position_ref(const string &name_id)const { return getValue(pos_dict,name_id);}
+    [[nodiscard]] const Point&  get_speed_ref(const string &name_id)const { return getValue(speed_dict,name_id);}
     set<string> is_collusion();
     virtual bool applyAction(const string &id, const Point &action, int max_speed);
     list<string> is_collusion(string &id_player);
@@ -53,7 +54,18 @@ public:
     void add_player_state(const string &name_id, const Point& m_pos, const Point& m_speed, int budget_b);
 
     vector<string> getIDs();
+
+    [[nodiscard]] static const Point& getValue(const map<string const,Point>& map , const string &str_name)
+    {
+        if(auto pos = map.find(str_name); pos==map.end())
+        {
+            throw std::invalid_argument( "received missing value" );
+        }else{ return pos->second;}
+
+    }
+
 };
 
 
 #endif //RACING_CAR_STATE_HPP
+

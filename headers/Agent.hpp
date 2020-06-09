@@ -26,6 +26,7 @@ protected:
     bool eval;
 
 public:
+    [[nodiscard]] const weightedPositionVector& getAllPositions()const{return initialPosition;}
     Point lastAction;
 
     void setID(string &_id)
@@ -72,6 +73,7 @@ public:
         // floating point problem
         return {initialPosition[initialPosition.size()-1].positionPoint,initialPosition[initialPosition.size()-1].speedPoint};
     }
+
 
 
     static int ctr_object;

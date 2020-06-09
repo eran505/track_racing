@@ -109,12 +109,12 @@ set<string> State::is_collusion() {
 
 
 float State::isGoal(string &idStr) {
-    const auto& pos = this->get_position(idStr);
+    const auto& pos = this->get_position_ref(idStr);
     return this->g_grid->get_goal_reward(pos);
 }
 
 bool State::isEndState(std::string &idStr) {
-    const auto& pos = this->get_position(idStr);
+    const auto& pos = this->get_position_ref(idStr);
     return this->g_grid->is_at_goal(pos);
 }
 
@@ -136,9 +136,9 @@ void State::assignment(State &other)
         this->assignment(other,item.first);
 }
 
-void State::assignment(State &other, const string &id) {
-    this->pos_dict[id]=other.get_position(id);
-    this->speed_dict[id]=other.get_speed(id);
+void State::assignment(const State &other, const string &id) {
+    this->pos_dict[id]=other.get_position_ref(id);
+    this->speed_dict[id]=other.get_speed_ref(id);
     this->budget_dict[id]=other.get_budget(id);
 }
 
@@ -160,7 +160,7 @@ u_int64_t  State::getHashValuePosOnly() const{
     {
         for(int i : item.second.array)
             vec.push_back(i);
-        //if (item.first.back()==Section::gurd)
+        if (item.first.back()==Section::gurd)
         for (int i = 0; i < Point::D_point::D; ++i)
             vec.push_back(speed_dict.find(item.first)->second[i]);
 
@@ -201,7 +201,7 @@ State* State::getAbstractionState(Point &abstractPoint) {
     auto* res = new State(*this);
     for(auto &pair:res->speed_dict)
     {
-        pair.second/=abstractPoint;
+        pair.second.change_speed_max(1);
     }
     for(auto &pair:res->pos_dict)
     {

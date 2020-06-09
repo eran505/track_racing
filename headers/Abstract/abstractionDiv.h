@@ -36,6 +36,7 @@ class abstractionDiv{
     std::unique_ptr<doubleVecPoint> endPoints_abstraction; // probabily for the speed in each cell in the bigGrid
     unordered_map<u_int64_t,float>* speedPorbabilityVector{};
     Point girdSize;
+    Point divPoint;
     Point abstractSize;
     std::vector<std::pair<float,std::vector<Point>>> myPaths;
     unordered_map<int,Point*>* hashActionDict;
@@ -56,6 +57,7 @@ public:
         sizeVectors=sizeMiniGrid;
         abstractSize=mAbstractSize;
         girdSize = ptrGirdSize;
+        divPoint=ptrGirdSize/mAbstractSize;
         realStateAbstractState = std::make_unique<weightedPositionDict>();
         seedSystem = seed;
         allDictPolicy=policyP->getDictPolicy();
@@ -159,11 +161,11 @@ public:
                 u_int64_t keyRealPosAttacker = lp[index].second[j].first.expHash(lp[index].second[j].second);
                 realStateAbstractState->insert({keyRealPosAttacker,l.back()});
             }
-            inset_boundry_point_bigGrid(lp.back().first,myPath.back());//insert to big grid
-            inset_boundry_point(lp.back().second.back(),lp.back().first,myPath.back());
+            inset_boundry_point_bigGrid(lp[index].first,myPath.back());//insert to big grid
+            inset_boundry_point(lp[index].second.back(),lp[index].first,myPath.back());
         }
         normProbability(this->startPoints_abstraction.get());
-        normProbability(this->endPoints_abstraction.get());
+        //normProbability(this->endPoints_abstraction.get());
         make_dict_policy(setPaths);
         cout<<endl;
     }
@@ -191,7 +193,8 @@ public:
             vec_to_inset = startPoints_abstraction.get();
         else
             vec_to_inset = endPoints_abstraction.get();
-
+        if(AbstractPointToIndex(gridPoint_)==48)
+            cout<<"startPoint:"<<entry<<"\t val:"<<val<<endl;
         auto& vec = vec_to_inset->operator[](AbstractPointToIndex(gridPoint_));
         if (auto pos=std::find_if(vec.begin(),vec.end(),[&](weightedPosition &pState){
             if(pState.speedPoint==statePoint.second && pState.positionPoint==statePoint.first)return true;
@@ -204,9 +207,9 @@ public:
     }
     u_int32_t AbstractPointToIndex(const Point &p)
     {
-        auto x =  this->abstractSize[0]*p[0];
+        auto x =  this->divPoint[0]*p[0];
         auto y =  p[1];
-        auto z =  (this->abstractSize[1]*this->abstractSize[0])*p[2];
+        auto z =  (this->divPoint[1]*this->divPoint[0])*p[2];
         return x+y+z;
     }
     /**
@@ -334,9 +337,9 @@ public:
         }
         cout<<"end"<<endl;
     }
-    std::vector<simulation<State>> initializeSimulation(configGame &conf,std::vector<weightedPosition>& StartingDefender){
+    std::vector<simulation> initializeSimulation(configGame &conf,std::vector<weightedPosition>& StartingDefender){
         //vector<weightedPosition> l = {{Point(0),Point(0),1}};
-        std::vector<simulation<State>> simulationList;
+        std::vector<simulation> simulationList;
         simulationList.reserve(this->sizeVectors);
         for (size_t k = 0 ; k<this->vecPolicy.size()-1;++k) {
             if (this->vecPolicy[k]->empty())
@@ -366,7 +369,7 @@ public:
         Point low(0);
         auto* a = new Agent(startPoints_abstraction->back(),Section::adversary,10);
         auto* d = new Agent(StartingDefender,Section::gurd,10);
-        initRTDP(conf,d,k,(float(conf.maxD))/float(this->abstractSize[0]),true);
+        initRTDP(conf,d,k,(float(conf.maxD))/float(4),true); //3=this->abstractSize[0]
         setPathPolicy(conf,a,k);
         a->getPolicyInt()->add_tran(d->getPolicyInt());
         d->getPolicyInt()->add_tran(a->getPolicyInt());
@@ -393,7 +396,7 @@ private:
             pos->second.first.emplace_back(inplace,p);
         }
     }
-    inline void initBigGrid(configGame &conf, std::vector<simulation<State>> &vecSim,std::vector<weightedPosition>& StartingDefender)
+    inline void initBigGrid(configGame &conf, std::vector<simulation> &vecSim,std::vector<weightedPosition>& StartingDefender)
     {
 
     }
@@ -472,7 +475,7 @@ private:
     }
     static inline u_int64_t getIndexEntry(StatePoint &s){
         auto hSpeed = s.get_speed().hashConst(Point::maxSpeed);
-        auto hPos = s.get_position().hashConst();
+        auto hPos = s.get_position_ref().hashConst();
         auto entryIdx = Point::hashNnN(hPos, hSpeed);
         return entryIdx;
     }
@@ -483,7 +486,7 @@ private:
         auto col = statePos.array[1]/abstractSize.array[1];
         auto z = statePos.array[2]/abstractSize.array[2];
 
-        return (abstractSize.array[0])*row+col+z*(abstractSize.array[1]*abstractSize.array[0]);
+        return divPoint[0]*row+col+z*(divPoint[0]*divPoint[1]);
     }
     void normalizeStartVectorPoint()
     {

@@ -374,7 +374,7 @@ float DeepRTDP::recH(State *s,int index, float acc_probablity,int lookup) {
 
 float DeepRTDP::compute_h(State *pState) {
     char team = this->id_agent[1];
-    auto my_pos = pState->get_position(this->id_agent);
+    auto my_pos = pState->get_position_ref(this->id_agent);
     vector<Point> vec_pos;
     pState->getAllPosOpponent(vec_pos,team);
     double min = pState->g_grid->getSizeIntGrid();

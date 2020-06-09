@@ -37,6 +37,7 @@ class rtSimulation{
     u_int32_t iterMax=100000;
     unordered_map<int,float > collusionMiniGrid;
     State* state;
+    Point divPoint;
     //std::unique_ptr<Agent> _defender;
 
     State* GetActionAbstract(State *s){
@@ -44,8 +45,8 @@ class rtSimulation{
     }
     u_int32_t getIndexMiniGrid(const Point &statePos){
 
-        auto row = statePos.array[0]*abstraction.array[0];
-        auto col = statePos.array[1]%abstraction.array[1];
+        auto row = statePos.array[0]*divPoint[0];
+        auto col = statePos.array[1]%divPoint[1];
         return col+row;
 
     }
@@ -83,6 +84,7 @@ public:
         sizeM = (this->GridSize/this->abstraction).accMulti();
         curAgentNumber=sizeM;
         changeIDs();
+        divPoint=this->GridSize/this->abstraction;
 
     }
 
@@ -119,8 +121,10 @@ public:
                 {
                     auto tmpState = GetActionAbstract(this->state);
                     auto ptrAgent = getAgent(curAgentNumber);
+                    cout<<"tmpState:\t"<<tmpState->to_string_state();
                     ptrAgent->doAction(tmpState);
                     delete tmpState;
+                    cout<<"\tAction:\t"<<ptrAgent->lastAction.to_str()<<"\t";
                     this->state->applyAction(ptrAgent->get_id(),
                                              ptrAgent->lastAction,
                                              ptrAgent->getPolicyInt()->max_speed);
@@ -146,8 +150,8 @@ public:
         printStat();
     }
     bool Stop_Game(){
-        const Point& posEvader= this->state->get_position(this->_attacker->get_id());
-        const Point& posPursuer = this->state->get_position(this->lDefenderAgent[curAgentNumber]->get_id());
+        const Point& posEvader= this->state->get_position_ref(this->_attacker->get_id());
+        const Point& posPursuer = this->state->get_position_ref(this->lDefenderAgent[curAgentNumber]->get_id());
         
         auto valGoal = state->g_grid->get_goal_reward(posEvader);
         if (state->g_grid->is_wall(posPursuer)) // agent P hit wall

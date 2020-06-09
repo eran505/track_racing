@@ -21,7 +21,7 @@ namespace AStar
         Point speed;
         bool operator == (const StatePoint& coordinates_);
         inline Point & get_speed(){return speed;}
-        inline Point & get_position(){return pos;}
+        inline Point & get_position_ref(){return pos;}
         //~StatePoint(){delete (pos);delete (speed);}
         string toStr() const { return pos.to_hash_str()+speed.to_hash_str();}
         StatePoint(const Point& p , const Point& s){

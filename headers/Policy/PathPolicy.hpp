@@ -163,7 +163,7 @@ const std::vector<float> *PathPolicy::TransitionAction(State *s) {
 u_int64_t PathPolicy::getAgentSateHash(State *s) {
     //cout<<s->to_string_state()<<endl;
     auto hSpeed = s->get_speed(this->id_agent).hashConst(Point::maxSpeed);
-    auto hPos = s->get_position(this->id_agent).hashConst();
+    auto hPos = s->get_position_ref(this->id_agent).hashConst();
     u_int64_t EntryIndx = Point::hashNnN(hPos,hSpeed);
     return EntryIndx;
 }
@@ -198,7 +198,7 @@ void PathPolicy::treeTraversal(State *ptrState,string &strIdExp,const Point *ab)
             //v.push_back(std::to_string(probAcc));
             for( auto item : path)
             {
-                auto posA = item.first.get_position(this->id_agent);
+                auto posA = item.first.get_position_ref(this->id_agent);
                 v.push_back(posA);
                 //cout<<posA.to_str()<<",";
             }

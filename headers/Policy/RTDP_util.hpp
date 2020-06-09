@@ -30,9 +30,9 @@ class RTDP_util{
     int size_Q;
     int size_mapAction;
     unordered_map<int,Point*>* hashActionMap;
-    double collReward=1;double goalReward=-1;double wallReward=-10;
+    double collReward=1;double goalReward=-1;double wallReward=-1;
     void set_up_Q(int grid_size,vector<pair<int,int>>& list_l);
-    void heuristic(State *s,int entry_index);
+    void heuristic(const State *s,int entry_index);
     double compute_h(State *s);
 
 public:
@@ -48,11 +48,12 @@ public:
     int last_entry;
     Point get_argmx_action(State *s);
     int get_state_argmax(State *s_state);
-    double get_value_state_max(State *s_state);
+    double get_value_state_max(const State *s_state);
     ~RTDP_util();
+    RTDP_util(string &mHome):home(mHome){}
     RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget,string &mHome);
-    int get_state_index_by_string(State *str_state);
-    unsigned int add_entry_map_state(keyItem basicString, State *s);
+    int get_state_index_by_string(const State *str_state);
+    unsigned int add_entry_map_state(keyItem basicString, const State *s);
 
     void set_value_matrix(int entryState, Point &action ,double val){
 //        if (entryState == 0)
@@ -66,7 +67,7 @@ public:
 
     }
     vector<float>* get_probabilty(State *s);
-
+    void update_final_State(State *s, double val);
     double rec_h(State *s, int index,double acc_probablity);
 
 };

@@ -156,13 +156,13 @@ void Game::loop_game() {
         for (auto i : *(this->in_game_guards)){
             //cout<<i->get_name()<<endl;
             i->doAction(planer->get_cur_state());
-            addToBuffer(i->get_id()+"@"+this->planer->get_cur_state()->get_position(i->get_id()).to_str());
+            addToBuffer(i->get_id()+"@"+this->planer->get_cur_state()->get_position_ref(i->get_id()).to_str());
         }
         //cout<<this->planer->get_cur_state()->to_string_state()<<endl;
         for (auto i : *(this->in_game_adversaries)){
             //cout<<i->get_name()<<endl;
             i->doAction(planer->get_cur_state());
-            auto pos = this->planer->get_cur_state()->get_position(i->get_id()).to_str();
+            auto pos = this->planer->get_cur_state()->get_position_ref(i->get_id()).to_str();
             addToBuffer(i->get_id()+"@"+pos);
 
 
@@ -199,7 +199,7 @@ void Game::constraint_checking_end_game(){
     list<Agent*> to_del_ad;
     list<Agent*> to_del_gu;
     for (auto i : *(this->in_game_adversaries)){
-        auto pos = &(planer->get_cur_state()->get_position(i->get_name_id())); // call the copy con
+        auto pos = &(planer->get_cur_state()->get_position_ref(i->get_name_id())); // call the copy con
         if (validate_player(i)){
             //cout<<"Del\t"<<i->get_id()<<"\tbudget/wall"<<endl;
             //push to list of del player
@@ -213,8 +213,8 @@ void Game::constraint_checking_end_game(){
             //remove this player from the game
             //cout<<"Del\t"<<i->get_id()<<"\tAt Goal"<<endl;
             // push to list of del player
-            //cout<<this->planer->get_cur_state()->get_position(i->get_id()).to_str()<<endl;
-            auto theGoal = this->planer->get_cur_state()->get_position(i->get_id()).to_str();
+            //cout<<this->planer->get_cur_state()->get_position_ref(i->get_id()).to_str()<<endl;
+            auto theGoal = this->planer->get_cur_state()->get_position_ref(i->get_id()).to_str();
             auto isTargetGoal = this->planer->get_Grid()->isGoalReward(*pos);
             (isTargetGoal) ? this->ctr_at_gal++:this->ctr_at_open++;
             //cout<<theGoal<<endl;
@@ -232,11 +232,11 @@ void Game::constraint_checking_end_game(){
             ctr_wall++;
             continue;
         }
-        auto pos = &(planer->get_cur_state()->get_position(i->get_name_id()));
+        auto pos = &(planer->get_cur_state()->get_position_ref(i->get_name_id()));
         //coll
         list<Agent*> l;
         for(auto adversary:*(this->in_game_adversaries)){
-            auto pos_bad = &planer->get_cur_state()->get_position(adversary->get_name_id());
+            auto pos_bad = &planer->get_cur_state()->get_position_ref(adversary->get_name_id());
             if( pos_bad->is_equal(pos)){
                 l.push_front(adversary);
             }

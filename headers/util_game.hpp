@@ -197,6 +197,15 @@ public:
         }
         return acc;
     }
+
+    [[nodiscard]] Point AbsPoint() const
+    {
+        Point tmp(0);
+        for (int i = 0; i < this->capacity; ++i)
+            tmp.array[i]=abs(this->array[i]);
+        return tmp;
+    }
+
     bool isBiggerAbsOne()
     {
         for (int i = 0; i < this->capacity; ++i)

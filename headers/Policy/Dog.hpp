@@ -47,7 +47,7 @@ public:
 
 Point Dog::get_action(State *s){
 //    auto x = range_random(0,0);
-    auto my_pos = s->get_position(this->id_agent);
+    auto my_pos = s->get_position_ref(this->id_agent);
     auto my_speed = s->get_speed(this->id_agent);
     auto index = this->get_goal_point();
     auto goal_i = this->golazz[index];
@@ -89,7 +89,7 @@ std::vector<float> *Dog::TransitionAction(State *s) {
     auto l = new std::vector<float>();
     float prob = 1/float(this->golazz.size());
     for (int i = 0; i < golazz.size(); ++i) {
-        auto action_i = clac_diff(i,s->get_position(this->id_agent));
+        auto action_i = clac_diff(i,s->get_position_ref(this->id_agent));
         auto action_index = action_i.hashMeAction(Point::actionMax);
         auto index = distance(l->begin(), find(l->begin(), l->end(), action_index));
         if (index==l->size()){

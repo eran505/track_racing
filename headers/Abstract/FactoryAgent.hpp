@@ -25,13 +25,14 @@
 #include "Abstract/RealTimeSimulation.hpp"
 class AbstractCreator{
 
-    vector<simulation<State>> lsim;
+    vector<simulation> lsim;
     PathPolicy* evaderPolicy;
     Point originalGridSize;
     Point abGridSize;
-    std::vector<simulation<State>> simulationVector;
+    Point divPoint;
+    std::vector<simulation> simulationVector;
     int seed;
-    u_int32_t iter = 500000;
+    u_int32_t iter = 50000;
     std::unique_ptr<rtSimulation> rtSim= nullptr;
     unordered_map<u_int32_t ,Agent*> lAgent;
 public:
@@ -40,6 +41,7 @@ public:
             abGridSize(mAbstractSize), evaderPolicy(evaderPolicy), seed(seed_){
         originalGridSize=ptrGirdSize;
         abGridSize=mAbstractSize;
+        divPoint = ptrGirdSize/mAbstractSize;
     }
 
     auto initializeSimulation(configGame &conf,std::vector<weightedPosition> defenderStart)
@@ -51,10 +53,9 @@ public:
         //workerTasks.pop_back();
         std::vector<std::thread> workers;
         //workers.reserve(workerTasks.size());
-        lsim.back().simulate(iter);
+        lsim.back().simulate(100000);
         //RemoveIfVector(workerTasks);
         workers.reserve(lsim.size());
-
         std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
                 [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
 
@@ -63,12 +64,13 @@ public:
 
         #ifdef Sync
 
-        std::for_each(lsim.begin(),lsim.end()-1,[&](simulation<State> &t)
+        std::for_each(lsim.begin(),lsim.end()-1,[&](simulation &t)
         {
             cout<<"gridID:\t"<<t.gridID<<endl;
-            if(IsReachable(t.gridID) and t.gridID>=30 and t.gridID<40 ){
+            if(IsReachable(t.gridID) ){
                 cout<<"t.gridID="<<t.gridID<<endl;
                 t.simulate(iter);
+                cout<<"getAvgExpectedReward:\t"<<t.getAvgExpectedReward()<<endl;
             }
             else{
                 //delete t.getDefAgentPTR()->getPolicyInt();
@@ -103,15 +105,15 @@ public:
     Point keyToPoint(unsigned int key)
     {
 
-        u_int32_t x = (key%(abGridSize[0]*abGridSize[1]))/abGridSize[0];
-        u_int32_t  y = key%abGridSize[0];
-        u_int32_t  z = key/(abGridSize[1]*abGridSize[0]);
+        u_int32_t x = (key%(divPoint[0]*divPoint[1]))/divPoint[0];
+        u_int32_t  y = key%divPoint[0];
+        u_int32_t  z = key/(divPoint[1]*divPoint[0]);
 
         return Point(x,y,z);
     }
-    void RemoveIfVector(vector<simulation<State>> &l)
+    void RemoveIfVector(vector<simulation> &l)
     {
-        auto iteVec = std::copy_if(l.begin(),l.end(),lsim.begin(),[&](simulation<State>& itemX){
+        auto iteVec = std::copy_if(l.begin(),l.end(),lsim.begin(),[&](simulation& itemX){
             if(l.back().isInCollMap(keyToPoint(itemX.gridID).to_str()) or itemX.gridID==l.back().gridID)
                 return true;
             return false;

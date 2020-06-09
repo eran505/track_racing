@@ -12,7 +12,7 @@ typedef shared_ptr<unordered_map<string,string>> dictionary;
 class RtdpAlgo : public Policy{
     double CollReward = 1;
     double GoalReward = -1;
-    double WallReward = -10;
+    double WallReward = -1;
     int ctr_stack=0;
     u_int32_t zeroIndexAction = Point(0).hashMeAction(Point::actionMax);
     float _stochasticMovement=1;
@@ -50,6 +50,11 @@ public:
     std::tuple<double,bool> EvalState2(State *s);
     std::tuple<double,bool> EvalState(State *s);
     bool stoMove();
+    void update_final_state(State *s) override {
+        auto [val,b]=EvalState2(s);
+        this->RTDP_util_object->update_final_State(s,val);}
+
+    double getArgMaxValueState(const State *s){ return this->RTDP_util_object->get_value_state_max(s);}
 };
 
 

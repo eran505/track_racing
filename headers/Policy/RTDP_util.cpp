@@ -40,10 +40,11 @@ void RTDP_util::set_up_Q(int grid_size, vector<pair<int,int>>& max_speed_and_bud
 }
 
 
-int RTDP_util::get_state_index_by_string(State *s_state) {
+int RTDP_util::get_state_index_by_string(const State *s_state) {
     //cout<< s_state->to_string_state()<<endl;
     // lamda
     auto s = HashFuction(s_state);
+    //cout<<"\tH="<<s<<"\t";
     //auto s = s_state->getHashValue();
     auto it = this->mapState->find(s);
     if (it != this->mapState->end()){
@@ -56,7 +57,7 @@ int RTDP_util::get_state_index_by_string(State *s_state) {
     }
     return 0;
 }
-void RTDP_util::heuristic(State *s,int entry_index)
+void RTDP_util::heuristic(const State *s,int entry_index)
 {
     vector<State*> vec_q;
     auto oldState = new State(*s);
@@ -114,7 +115,7 @@ double RTDP_util::rec_h(State *s,int index, double acc_probablity)
     return res_h;
 }
 
-unsigned int RTDP_util::add_entry_map_state(keyItem basicString,State *s) {
+unsigned int RTDP_util::add_entry_map_state(keyItem basicString,const State *s) {
     // compute heuristic
     this->heuristic(s,this->ctr_state);
 
@@ -159,6 +160,8 @@ vector<int> arg_max(const double arr[],int size ){
     }
     return listIdxs;
 }
+
+
 
 int RTDP_util::get_state_argmax(State *s) {
 
@@ -209,10 +212,9 @@ vector<float>* RTDP_util::get_probabilty(State *s) {
 }
 
 
-double RTDP_util::get_value_state_max(State *s_state) {
+double RTDP_util::get_value_state_max(const State *s_state) {
     int entry_state = this->get_state_index_by_string(s_state);
     auto arr = this->qTable[entry_state];
-   // double max = getMaxValueArrTmp(arr, size_mapAction);
     double max = *std::max_element(arr, arr + size_mapAction);;
     return max;
 }
@@ -248,7 +250,7 @@ bool RTDP_util::apply_action(State *s,const string &id,Point &action,int max_spe
 double RTDP_util::compute_h(State *s) {
 //    cout<<s->to_string_state()<<endl;
     char team = this->my_policy->id_agent[1];
-    auto my_pos = s->get_position(this->my_policy->id_agent);
+    auto my_pos = s->get_position_ref(this->my_policy->id_agent);
     vector<Point> vec_pos;
     s->getAllPosOpponent(vec_pos,team);
     double min = s->g_grid->getSizeIntGrid();
@@ -341,6 +343,15 @@ void RTDP_util::policyData() {
 
 
 
+
+}
+
+void RTDP_util::update_final_State(State *s, double val) {
+    auto entryIndex= this->get_state_index_by_string(s);
+    for (auto &[i,p]: *this->hashActionMap)
+    {
+        set_value_matrix(entryIndex,*p,val);
+    }
 
 }
 

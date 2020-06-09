@@ -85,8 +85,8 @@ public:
 
         auto goalz = s->g_grid->get_goals();
         int sizePoint  = Point::D_point::D;
-        auto posAgent = s->get_position(this->uAgentId);
-        auto posAdv = s->get_position(this->uOppId);
+        auto posAgent = s->get_position_ref(this->uAgentId);
+        auto posAdv = s->get_position_ref(this->uOppId);
         auto speedAgent = s->get_speed(this->uAgentId);
         auto speedAdv = s->get_speed(this->uOppId);
         auto budgetAgent = s->get_budget(this->uAgentId);
