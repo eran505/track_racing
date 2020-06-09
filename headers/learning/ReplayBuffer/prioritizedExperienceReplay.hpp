@@ -20,9 +20,9 @@ class prioritizedExperienceReplay{
     short ctr=0;
     bool ready;
     SumTree* opSumTree;
-    float alpha;
-    float epsilon;
-    float maximalPriority;
+    double alpha;
+    double epsilon;
+    double maximalPriority;
     bool allowDuplicatesInBatchSampling;
     std::default_random_engine eng{static_cast<long unsigned int>(/*time(0)*/324134)}; //Will be used to obtain a seed for the random number engine
 
@@ -52,8 +52,8 @@ public:
     vector<experienceTuple*> batchSampleData;
     vector<unsigned int> batchSampleIndex;
 
-    explicit prioritizedExperienceReplay(unsigned int size,int _CAPACITY_FOR_LEARNING,float _alpha=0.6, float _epslion=1e-6,
-                                         float maximal_priority=1.0, bool _allowDuplicatesInBatchSampling=true): powerOf2Size(1),
+    explicit prioritizedExperienceReplay(unsigned int size,int _CAPACITY_FOR_LEARNING,double _alpha=0.6, double _epslion=1e-6,
+                                         double maximal_priority=1.0, bool _allowDuplicatesInBatchSampling=true): powerOf2Size(1),
                                                                                                                  alpha(_alpha), maximalPriority(maximal_priority)
             , epsilon(_epslion), allowDuplicatesInBatchSampling(_allowDuplicatesInBatchSampling){
         while(size > powerOf2Size) powerOf2Size *=2;
@@ -62,7 +62,7 @@ public:
         CAPACITY_FOR_LEARNING=_CAPACITY_FOR_LEARNING;
     }
 
-    void updatePriority(unsigned int leafIdx, float error){
+    void updatePriority(unsigned int leafIdx, double error){
 
         if (error<0)
             throw std::invalid_argument( "The priorities must be non-negative values" );
@@ -71,7 +71,7 @@ public:
         this->opSumTree->update(leafIdx,newPriority);
     }
 
-    void add(float error, experienceTuple* sample){
+    void add(double error, experienceTuple* sample){
         this->ctr++;
         auto p =  powf((error + epsilon),this->alpha);
         this->opSumTree->add(p,sample);
@@ -85,7 +85,7 @@ public:
         return ready;
     }
 
-    void updatePriorities(vector<unsigned int> &leafIdxVec,vector<float> &errorVec)
+    void updatePriorities(vector<unsigned int> &leafIdxVec,vector<double> &errorVec)
     {
         for (size_t i = 0; i < leafIdxVec.size(); ++i)
             this->updatePriority(leafIdxVec[i],errorVec[i]);
@@ -101,14 +101,14 @@ public:
         this->batchSampleData.clear();
         this->batchSampleIndex.clear();
 
-        auto segment = this->opSumTree->total()/float(batchSize);
+        auto segment = this->opSumTree->total()/double(batchSize);
         for (int i = 0; i < batchSize; ++i) {
 //            auto a = i%2==0? 0.0:this->opSumTree->total()/2.0;
 //            auto b = i%2==0? this->opSumTree->total()/2.0:this->opSumTree->total();
 //            auto a = 0;
 //            auto b = this->opSumTree->total()-epsilon;
-            auto a = segment * float(i);
-            auto b = segment * (float((i + 1)));
+            auto a = segment * double(i);
+            auto b = segment * (double((i + 1)));
             std::uniform_real_distribution<> dis(a,b);
             auto  s =  dis(eng);
             auto tupIndexes = this->opSumTree->getElementByPartialSum(s);

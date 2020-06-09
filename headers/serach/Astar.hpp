@@ -72,7 +72,7 @@ namespace AStar
         unordered_map<u_int64_t ,std::pair<short,StatePoint>> * hashDictStates;
         unordered_map<u_int64_t, map<int,int>*> *dictPoly;
         void print_pathz(Node *l);
-        void getDict(unordered_map<u_int64_t,vector<float>*>* dict,double weight=1.0);
+        void getDict(unordered_map<u_int64_t,vector<double>*>* dict,double weight=1.0);
         void pathsToDict();
         void pathsToDict_rec(Node &item);
         void getDictPolicy(const listNode &l);

@@ -11,7 +11,7 @@
 #include "Policy/Policy.hpp"
 #include "Policy/RTDP_util.hpp"
 #include "Policy/RtdpAlgo.hpp"
-
+#include "Policy/PathPolicy.hpp"
 #include "Agent.hpp"
 #include "Grid.hpp"
 //pursuer and evader
@@ -135,7 +135,10 @@ public:
         printStat();
     }
 
-
+    RtdpAlgo* getRtdpAlgo()
+    {
+        return dynamic_cast<RtdpAlgo*>(this->agents[defenderInt]->getPolicyInt());
+    }
 
 private:
     void printStat()
@@ -146,6 +149,16 @@ private:
         cout<<"Goal: "<<this->trackingData[event::GoalId]<<"\t";
         cout<<"Open: "<<this->trackingData[event::OpenId]<<"\t";
         cout<<endl;
+        auto res = g->getAllGoalsData();
+        std::for_each(res.begin(),res.end(),[&](pair<double,Point> &l){
+            auto &[val,pos]=l;
+            cout<<"Goal:"<<pos.to_str()<<"\tval:\t"<<val<<endl;
+        });
+        auto pathPoly = dynamic_cast <PathPolicy*>(agents[attackerInt]->getPolicyInt());
+        cout<<"size Dict Attacker: "<<pathPoly->get_dictPolicy_size()<<"\n";
+
+        getRtdpAlgo()->genrateInfoPrint();
+        getDefAgentDATA();
 
     }
     void setState()
@@ -218,6 +231,7 @@ private:
         }
         else{ pos->second++;}
     }
+
 
 };
 

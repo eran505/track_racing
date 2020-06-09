@@ -32,7 +32,7 @@ class AbstractCreator{
     Point divPoint;
     std::vector<simulation> simulationVector;
     int seed;
-    u_int32_t iter = 50000;
+    u_int32_t iter = 1000000;
     std::unique_ptr<rtSimulation> rtSim= nullptr;
     unordered_map<u_int32_t ,Agent*> lAgent;
 public:
@@ -70,12 +70,18 @@ public:
             if(IsReachable(t.gridID) ){
                 cout<<"t.gridID="<<t.gridID<<endl;
                 t.simulate(iter);
-                cout<<"getAvgExpectedReward:\t"<<t.getAvgExpectedReward()<<endl;
+                auto newCollReward = t.getAvgExpectedReward();
+                insetBigAbstractGridReward(t.gridID,newCollReward);
+                cout<<"getAvgExpectedReward:\t"<<newCollReward<<endl;
             }
             else{
                 //delete t.getDefAgentPTR()->getPolicyInt();
             }
         });
+
+        lsim.back().simulate(iter); // learn again on the modified rewards
+        std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
+                      [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
         #else
         for(size_t index=0;index<lsim.size();++index)
         {
@@ -91,7 +97,7 @@ public:
            if(t.joinable()) t.join();
         });
         #endif
-        lAgent.reserve(lsim.size());
+        lAgent.reserve(lsim.size()/10);
 
         for (auto &item : lsim)
         {
@@ -122,6 +128,11 @@ public:
     }
     bool IsReachable(u_int32_t key){
         return lsim.back().isInCollMap(keyToPoint(key).to_str());
+    }
+    void insetBigAbstractGridReward(u_int32_t idGrid, double reward)
+    {
+        lsim.back().getRtdpAlgo()->insetRewardMap(keyToPoint(idGrid).expHash(),reward);
+        lsim.back().getRtdpAlgo()->resetAlgo();
     }
 };
 #endif //TRACK_RACING_FACTORYAGENT_HPP

@@ -10,8 +10,8 @@
 struct abstractContainer{
     u_int16_t action; // The action that in the last state
     u_int64_t hashState; // Hash vale of state
-    float valueV; // Expected sum of rewards
-    float probability; // Transition probability
+    double valueV; // Expected sum of rewards
+    double probability; // Transition probability
 };
 
 using namespace Trees;

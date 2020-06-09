@@ -24,17 +24,17 @@ using namespace torch;
  * */
 void print_tensor_size(const torch::Tensor& x);
 class Learner{
-    float discountedFactor;
+    double discountedFactor;
     neuralNet* evalNet;   // this Net chooses the best action (Policy-net)
     neuralNet* targetNet; // this Net does the T(s,a,s') calculation
     unsigned int batchSizeEntries;
     bool isDoubleNet;
     bool configNet;
-    float curError;
+    double curError;
     unsigned int ctrUpdate=0;
 
     prioritizedExperienceReplay* buffer;
-    unordered_map<unsigned long,vector<vector<float>>> netData;
+    unordered_map<unsigned long,vector<vector<double>>> netData;
     unsigned int ctrEval=0;
     unsigned int updateEvery=20;
     unsigned int siwchNetEvery;
@@ -47,12 +47,12 @@ public:
     bool epslionGreedy= false;
     void updateNetWork();
     void uploadNet();
-    void preTrainNet(vector<float>* state,vector<float> *targetY);
-    Learner(bool isDoubleNetwork, int sizeFeatuersIn, int batchSize,float discounterF,string &home,bool uploadNet);
+    void preTrainNet(vector<double>* state,vector<double> *targetY);
+    Learner(bool isDoubleNetwork, int sizeFeatuersIn, int batchSize,double discounterF,string &home,bool uploadNet);
     ~Learner();
-    int predictValue(vector<float> *state,bool isRandom);
+    int predictValue(vector<double> *state,bool isRandom);
     void updateNet();
-    void insertToBuffer(experienceTuple *Item , float errorItem);
+    void insertToBuffer(experienceTuple *Item , double errorItem);
     void loadStateDict(const torch::nn::Module& moduleEval,
             torch::nn::Module& moduleTarget, const std::string& ignore_name_regex);
     static bool isEmpty(at::Tensor x);
@@ -61,18 +61,18 @@ public:
                        const std::string& ignore_name_regex);
     static void SaveStateDict(const torch::nn::Module& module,
                                 const std::string& file_name);
-    float computerError(experienceTuple *exp,bool learn);
-    static unsigned long hashValueMe(vector<float> &vec);
+    double computerError(experienceTuple *exp,bool learn);
+    static unsigned long hashValueMe(vector<double> &vec);
 
 
     private:
     Tensor calcQtraget(const experienceTuple *exp);
-    void toCsvDict(string &pathFile, unordered_map<unsigned long,vector<vector<float>>> &netData);
+    void toCsvDict(string &pathFile, unordered_map<unsigned long,vector<vector<double>>> &netData);
 
 
 };
 
-Learner::Learner(bool isDoubleNetwork,int sizeFeatuersIn,int batchSize,float discounterF,string &home,bool isUploadNet):
+Learner::Learner(bool isDoubleNetwork,int sizeFeatuersIn,int batchSize,double discounterF,string &home,bool isUploadNet):
 batchSizeEntries(batchSize),evalNet(new neuralNet(sizeFeatuersIn)),updateCtr(0),
 targetNet(evalNet),home(home),isDoubleNet(isDoubleNetwork),discountedFactor(discounterF)
 ,siwchNetEvery(400)
@@ -87,7 +87,7 @@ targetNet(evalNet),home(home),isDoubleNet(isDoubleNetwork),discountedFactor(disc
     buffer = new prioritizedExperienceReplay(1000,batchSize*2); //4000 == bug !!!
 }
 
-int Learner::predictValue(vector<float> *state, bool isRandom=false) {
+int Learner::predictValue(vector<double> *state, bool isRandom=false) {
     ctrEval++;
     if (isRandom)
         return range_random(0,26);
@@ -96,10 +96,10 @@ int Learner::predictValue(vector<float> *state, bool isRandom=false) {
             if (range_random(0,9)==0)
             return range_random(0,26);
 
-    ArrayRef<float> xx = *state;
+    ArrayRef<double> xx = *state;
     auto Sstate = torch::tensor(xx);
     auto tensorVector = this->evalNet->evalArgMaxQ(Sstate);
-    vector<float > debugVec;
+    vector<double > debugVec;
 /** ----------------- debug -----------------*/
     if (ctrEval%500==0 or ctrEval%500==1 or ctrEval%500==2)
     {
@@ -127,11 +127,11 @@ int Learner::predictValue(vector<float> *state, bool isRandom=false) {
     return res.item().toInt();
 }
 
-float Learner::computerError(experienceTuple *exp,bool learnPhase=true)
+double Learner::computerError(experienceTuple *exp,bool learnPhase=true)
 {
-    ArrayRef<float> x;
-    float sum_of_elems;
-    vector<float> expReward;
+    ArrayRef<double> x;
+    double sum_of_elems;
+    vector<double> expReward;
     auto QMaxValues = this->calcQtraget(exp);
     x = *exp->ptrProbabilities;
     auto probList = torch::tensor(x);
@@ -156,12 +156,12 @@ float Learner::computerError(experienceTuple *exp,bool learnPhase=true)
 
     QTargetNext[int(actionIndex)]=qTensorSum.item().toFloat();
 
-    auto errorFloat = abs(valueCurState[int(actionIndex)].item().toFloat()-QTargetNext[int(actionIndex)].item().toFloat());
+    auto errordouble = abs(valueCurState[int(actionIndex)].item().toFloat()-QTargetNext[int(actionIndex)].item().toFloat());
     if (learnPhase)
         this->evalNet->learn(valueCurState,QTargetNext);
-    return errorFloat;
+    return errordouble;
 }
-void Learner::insertToBuffer(experienceTuple *item , float errorItem){
+void Learner::insertToBuffer(experienceTuple *item , double errorItem){
     this->buffer->add(errorItem,item);
 }
 void Learner::updateNet() {
@@ -174,7 +174,7 @@ void Learner::updateNet() {
 
     this->buffer->sample(this->batchSizeEntries);
     //this->buffer->numPostiveReward();
-    vector<float> errVec;
+    vector<double> errVec;
     for(auto & ptrItem : buffer->batchSampleData)
     {
 //        if (ptrItem== nullptr)
@@ -227,14 +227,14 @@ Learner::~Learner() {
 }
 
 Tensor Learner::calcQtraget(const experienceTuple *exp) {
-    vector<float> nNextStateExpectedReward;
+    vector<double> nNextStateExpectedReward;
     auto x = torch::zeros({0,0});
     torch::Tensor Qtarget;
     bool isFirst=true;
     // This scope calc the expected value of the transition
     vector<at::Tensor> l ;
     for (const auto nNextItem :  exp->ptrNextStateVec) {
-        ArrayRef<float> xx = *nNextItem;
+        ArrayRef<double> xx = *nNextItem;
         auto curTensor = torch::tensor(xx);
         l.push_back(curTensor);
     }
@@ -298,10 +298,10 @@ bool Learner::isEmpty(at::Tensor x) {
         return true;
 }
 
-void Learner::preTrainNet(vector<float>* state,vector<float> *targetY) {
+void Learner::preTrainNet(vector<double>* state,vector<double> *targetY) {
 
     auto predictY = this->evalNet->getActionStateValue(state,-1);
-    ArrayRef<float> xx = *targetY;
+    ArrayRef<double> xx = *targetY;
     auto hTarget = torch::tensor(xx);
 //    cout << "hTarget: "<<hTarget << endl;
 //    cout << "predictY: " <<predictY<<endl;
@@ -331,7 +331,7 @@ void print_script_module(const torch::jit::script::Module& module, size_t spaces
 }
 
 
-unsigned long Learner::hashValueMe(vector<float> &vec){
+unsigned long Learner::hashValueMe(vector<double> &vec){
 
     unsigned long seed = vec.size();
     for(auto& i : vec) {
@@ -340,7 +340,7 @@ unsigned long Learner::hashValueMe(vector<float> &vec){
     return seed;
 }
 
-void Learner::toCsvDict(string &pathFile, unordered_map<unsigned long, vector<vector<float>>> &netData) {
+void Learner::toCsvDict(string &pathFile, unordered_map<unsigned long, vector<vector<double>>> &netData) {
     try {
         for (const auto &item : netData) {
             auto pathFileI = pathFile + std::to_string(item.first) + ".csv";

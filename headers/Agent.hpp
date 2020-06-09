@@ -12,7 +12,7 @@
 //#include ""
 //class State;
 typedef vector<weightedPosition> weightedPositionVector;
-typedef std::vector<std::pair<float,Point>> weightedPointVector;
+typedef std::vector<std::pair<double,Point>> weightedPointVector;
 class Agent{
 
 protected:
@@ -61,8 +61,8 @@ public:
     void print()
     {
     }
-    pair<const Point&,const Point&> get_pos(float seed){
-        float acc = 0;
+    pair<const Point&,const Point&> get_pos(double seed){
+        double acc = 0;
         u_int16_t ctr=0;
         for (auto const &item:initialPosition){
             acc += item.weightedVal;
@@ -70,7 +70,7 @@ public:
                 return {item.positionPoint,item.speedPoint};
             ctr++;
         }
-        // floating point problem
+        // doubleing point problem
         return {initialPosition[initialPosition.size()-1].positionPoint,initialPosition[initialPosition.size()-1].speedPoint};
     }
 

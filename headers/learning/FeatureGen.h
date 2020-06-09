@@ -36,14 +36,14 @@ public:
             delete(item.second);
     };
     int getFeatureVecSize(){ return this->sizeVec;}
-    vector<float>* getFeaturesSA( State* s,const Point& actionA){
+    vector<double>* getFeaturesSA( State* s,const Point& actionA){
         auto vec = this->getFeaturesS(s);
         for (int i = 0; i < Point::D_point::D; ++i) {
             vec->push_back(actionA[i]);
         }
         return vec;
     }
-    void insetPoint(const Point &p,vector<float>* vec)
+    void insetPoint(const Point &p,vector<double>* vec)
     {
         for(int i = 0; i < Point::D_point::D; ++i)
         {
@@ -51,7 +51,7 @@ public:
         }
         indexer+=int(Point::D_point::D);
     }
-    void distWall(Point &size,Point &pos,vector<float> *vec){
+    void distWall(Point &size,Point &pos,vector<double> *vec){
         Point dis = size-pos;
         insetPoint(dis,vec);  // from gird wall
         insetPoint(pos,vec); //  from zero
@@ -59,12 +59,12 @@ public:
 
     }
 
-    void distFirstMinusSec(const Point &F,const Point &S,vector<float> *vec){
+    void distFirstMinusSec(const Point &F,const Point &S,vector<double> *vec){
         Point dis = F-S;
         insetPoint(dis,vec);
     }
 
-    void distOpAbs(const Point &attackPos,const Point &attackDef,vector<float> *vec){
+    void distOpAbs(const Point &attackPos,const Point &attackDef,vector<double> *vec){
         Point dis = attackPos-attackDef;
         for(int i = 0; i < Point::D_point::D; ++i){
             dis.array[i] = abs(dis.array[i]);
@@ -72,7 +72,7 @@ public:
         insetPoint(dis,vec);
     }
 
-    void isGettingCloser(vector<float> *vec,State *s){
+    void isGettingCloser(vector<double> *vec,State *s){
         for (auto const actionI : *actionMap)
         {
 
@@ -80,7 +80,7 @@ public:
     }
 
 
-    vector<float>* getFeaturesS(State* s){
+    vector<double>* getFeaturesS(State* s){
         auto size_grid = s->g_grid->getPointSzie();
 
         auto goalz = s->g_grid->get_goals();
@@ -91,7 +91,7 @@ public:
         auto speedAdv = s->get_speed(this->uOppId);
         auto budgetAgent = s->get_budget(this->uAgentId);
         auto budgetAdv = s->get_budget(this->uOppId);
-        auto* vec = new vector<float>(this->sizeVec);
+        auto* vec = new vector<double>(this->sizeVec);
 
 
         indexer=0;
@@ -119,7 +119,7 @@ public:
         // end================ debug===============================
         return vec ;
     }
-    static unsigned long hashValueMe(vector<float> &vec){
+    static unsigned long hashValueMe(vector<double> &vec){
 
         unsigned long seed = vec.size();
         for(auto& i : vec) {

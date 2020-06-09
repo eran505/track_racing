@@ -24,7 +24,7 @@ public:
 
     void assignment( State &other);
     void assignment(const State &other, const string &id);
-    float isGoal(string &idStr);
+    double isGoal(string &idStr);
     bool isEndState(std::string &idStr);
     //Setters and Getters
 

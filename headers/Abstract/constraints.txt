@@ -1,0 +1,6 @@
+
+
+The speed of the Attacker and Defender in the big abstract grid
+can not be hash straightforward
+
+

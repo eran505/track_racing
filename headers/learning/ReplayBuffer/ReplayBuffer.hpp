@@ -7,7 +7,7 @@
 
 #include "State.hpp"
 #include "util_game.hpp"
-typedef vector<float> feature;
+typedef vector<double> feature;
 class ReplayBuffer{
 public:
 

@@ -19,7 +19,7 @@ void RtdpAlgo::reset_policy() {
     Policy::reset_policy();
 }
 
-const vector<float >* RtdpAlgo::TransitionAction(State *s)
+const vector<double >* RtdpAlgo::TransitionAction(State *s)
 {
 
     return this->RTDP_util_object->get_probabilty(s);
@@ -85,7 +85,7 @@ Point RtdpAlgo::get_action(State *s)
 double RtdpAlgo::bellman_update(State *s, Point &action) {
     auto stateCur = new State(*s);
     // generate all possible next state with the probabilities
-    vector <pair<State*,float>> state_tran_q;
+    vector <pair<State*,double>> state_tran_q;
 
 
     this->applyActionToState(stateCur, &action);
@@ -108,15 +108,15 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
 
     for (Policy *item_policy: tran)
     {
-        vector <pair<State*,float>> state_tran_q_tmp;
+        vector <pair<State*,double>> state_tran_q_tmp;
         for (const auto &value: state_tran_q)
         {
 
-            float probability = value.second;
+            double probability = value.second;
 
             // Warning MUST del the Tran vec (options_actions)!!!
             auto options_actions = item_policy->TransitionAction(value.first);
-            for(std::vector<float>::size_type i = 0; i != options_actions->size(); i++) {
+            for(std::vector<double>::size_type i = 0; i != options_actions->size(); i++) {
                 // copy state
                 auto *new_state = new State(*value.first);
                 // take the action
@@ -146,7 +146,7 @@ tuple<double,bool> RtdpAlgo::EvalState2(State *s)
     }
     if (s->is_collusion(this->id_agent,this->cashID))
     {
-        return {CollReward,true};
+        return {getReward(s->get_position_ref(this->id_agent)),true};
     }
     if (auto x = s->isGoal(this->cashID);x>=0)
         return {GoalReward*x,true};
@@ -173,14 +173,11 @@ tuple<double,bool> RtdpAlgo::EvalState(State *s) {
     return {0,false};
 }
 
-double RtdpAlgo::UpdateCalc(const vector<pair<State *, float>>& state_tran_q) {
+double RtdpAlgo::UpdateCalc(const vector<pair<State *, double>>& state_tran_q) {
     double res=0;
     for (auto &item:state_tran_q)
     {
-        auto tupleRewardBool = this->EvalState2(item.first);
-        auto val = std::get<0>(tupleRewardBool);
-        auto isSndState = std::get<1>(tupleRewardBool);
-        //cout<<item.first->to_string_state()<<"= "<<val<<endl;
+        auto [val,isSndState] = this->EvalState2(item.first);
         if (!isSndState)
             val = this->RTDP_util_object->get_value_state_max(item.first);
         res+=val*item.second*this->RTDP_util_object->discountFactor;
@@ -226,6 +223,14 @@ bool RtdpAlgo::stoMove() {
     if (_stochasticMovement>=rand)
         return false;
     return true;
+}
+
+
+double RtdpAlgo::getReward(const Point &refPoint)const {
+    if(auto pos = this->rewardDict->find(refPoint.expHash());pos==rewardDict->end())
+        return this->CollReward;
+    else
+        return pos->second;
 }
 
 //double RtdpAlgo::expected_reward_rec(State *s, int index_policy, deque<Point> &my_stack) {

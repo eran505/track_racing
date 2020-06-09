@@ -445,7 +445,7 @@ void AStar::Generator::releaseMAP(unordered_map<string, Node *> map_) {
     }
 }
 
-void AStar::Generator::getDict(unordered_map<u_int64_t, vector<float>*>* mapStateAction,const double weight) {
+void AStar::Generator::getDict(unordered_map<u_int64_t, vector<double>*>* mapStateAction,const double weight) {
 
     for(const auto &item: *this->dictPoly)
     {
@@ -455,12 +455,12 @@ void AStar::Generator::getDict(unordered_map<u_int64_t, vector<float>*>* mapStat
         auto pos_tmp = mapStateAction->find(item.first);
         if (pos_tmp==mapStateAction->end())
         {
-            auto *vec = new vector<float>();
+            auto *vec = new vector<double>();
             for (auto mapItem: *item.second) {
                 int tmp = mapItem.first;
                 int tmp2 = mapItem.second;
                 vec->push_back(tmp);
-                vec->push_back(float(tmp2)/float(sumAll)*weight);
+                vec->push_back(double(tmp2)/double(sumAll)*weight);
             }
             mapStateAction->insert({item.first,vec});
         }
@@ -471,7 +471,7 @@ void AStar::Generator::getDict(unordered_map<u_int64_t, vector<float>*>* mapStat
                     int tmp = mapItem.first;
                     int tmp2 = mapItem.second;
                     pos_tmp->second->push_back(tmp);
-                    pos_tmp->second->push_back(float(tmp2)/float(sumAll)*weight);
+                    pos_tmp->second->push_back(double(tmp2)/double(sumAll)*weight);
                 }
             }
     }

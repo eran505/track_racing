@@ -18,7 +18,7 @@
 typedef size_t keyItem;
 class RTDP_util{
     double **qTable;
-    float _stochasticMovement=1;
+    double _stochasticMovement=1;
     unordered_map<keyItem,unsigned int> *mapState;
     vector<Policy*> *lTran= nullptr;
     unordered_map<keyItem,string> debugDict;
@@ -30,13 +30,18 @@ class RTDP_util{
     int size_Q;
     int size_mapAction;
     unordered_map<int,Point*>* hashActionMap;
-    double collReward=1;double goalReward=-1;double wallReward=-1;
+    double collReward=1;double goalReward=-1;double wallReward=-10;
     void set_up_Q(int grid_size,vector<pair<int,int>>& list_l);
     void heuristic(const State *s,int entry_index);
     double compute_h(State *s);
 
 public:
-    void setStochasticMovement(float m){this->_stochasticMovement=m;}
+    void printInfoGen()
+    {
+        cout<<"SizeQ:"<<size_Q<<"\tgen: "<<mapState->size()<<endl;
+    }
+    void resetTable(){this->mapState->clear();}
+    void setStochasticMovement(double m){this->_stochasticMovement=m;}
     void setHashFuction(std::function<u_int64_t (const State*)> fun){
         HashFuction=std::move(fun);
     }
@@ -66,7 +71,7 @@ public:
 
 
     }
-    vector<float>* get_probabilty(State *s);
+    vector<double>* get_probabilty(State *s);
     void update_final_State(State *s, double val);
     double rec_h(State *s, int index,double acc_probablity);
 

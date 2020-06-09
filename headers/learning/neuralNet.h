@@ -18,7 +18,7 @@ class neuralNet : torch::nn::Module{
     torch::nn::Linear fc1{nullptr}, fc2{nullptr}, fc3{nullptr}, fc4{nullptr} ;
     int batchSizeEntries;
     int ctrEp;
-    float GRADIENT_CLIP;
+    double GRADIENT_CLIP;
     torch::Device* deviceI;
     torch::optim::SGD* optimizer= nullptr;
     public:
@@ -50,7 +50,7 @@ class neuralNet : torch::nn::Module{
         Tensor evalArgMaxQ(Tensor &state);
         double getQvalueMAX(State *pState);
         Tensor calcQtraget(const ReplayBuffer *buffer,int index);
-        Tensor getActionStateValue(vector<float> *state, int actionIndx);
+        Tensor getActionStateValue(vector<double> *state, int actionIndx);
         void learn(const Tensor& qCurState,const Tensor& qNextState);
         void setOptimizer(){
             optimizer = new torch::optim::SGD(this->parameters(),torch::optim::SGDOptions(0.001) );
@@ -59,15 +59,15 @@ class neuralNet : torch::nn::Module{
         Tensor getEvalMaxValue(Tensor &Qtarget);
         void updateNet(const ReplayBuffer *buffer);
 
-    float get_grad_norm(int grad_norm_type);
+    double get_grad_norm(int grad_norm_type);
 };
 
 
-    Tensor neuralNet::getActionStateValue(vector<float> *state, int actionIndx)
+    Tensor neuralNet::getActionStateValue(vector<double> *state, int actionIndx)
     {
         //auto x_train = torch::randint(0, 10, {128});
         //cout<<x_train<<endl;
-        ArrayRef<float> tnesorX = *state;
+        ArrayRef<double> tnesorX = *state;
         auto Sstate = torch::tensor(tnesorX).to(*this->deviceI);
         Sstate.requires_grad_();
 
@@ -112,7 +112,7 @@ class neuralNet : torch::nn::Module{
         buffer->sampleEntries(batchSizeEntries,entries);
         for (const auto entryIndx:entries)
         {
-            vector<float> expReward;
+            vector<double> expReward;
             auto QMaxValues = this->calcQtraget(buffer,entryIndx);
             auto probList = buffer->pProbabilityNextStates[entryIndx];
             for (int i=0 ; i < buffer->rRewardNextStates[entryIndx]->size(); ++i)
@@ -125,10 +125,10 @@ class neuralNet : torch::nn::Module{
                 buffer->pProbabilityNextStates[entryIndx]->operator[](i));
             }
             // sum the vector
-            float sum_of_elems;
+            double sum_of_elems;
 
 //            cout<<""<<endl;
-            std::for_each(expReward.begin(), expReward.end(), [&] (float n) {
+            std::for_each(expReward.begin(), expReward.end(), [&] (double n) {
                 sum_of_elems += n;
             });
             auto valueCurState = this->getActionStateValue(buffer->stateS[entryIndx],buffer->aAction[entryIndx]);
@@ -153,14 +153,14 @@ Tensor neuralNet::getEvalMaxValue(Tensor &Qtarget) {
 
 
 Tensor neuralNet::calcQtraget(const ReplayBuffer *buffer,int index) {
-        vector<float> nNextStateExpectedReward;
+        vector<double> nNextStateExpectedReward;
         auto x = torch::zeros({0,0});
         torch::Tensor Qtarget;
         bool isFirst=true;
         // This scope calc the expected value of the transition
         vector<at::Tensor> l ;
         for (const auto nNextItem :  buffer->nNextStates[index]) {
-            ArrayRef<float> tensorX = *nNextItem;
+            ArrayRef<double> tensorX = *nNextItem;
             auto curTensor = torch::tensor(tensorX);
             l.push_back(curTensor);
         }
@@ -221,7 +221,7 @@ Tensor neuralNet::calcQtraget(const ReplayBuffer *buffer,int index) {
         //cout<<res<<endl;
 
         if (++ctrEp % 7000 == 0) {
-            cout<< " | Loss: " << loss.item<float>() << std::endl;
+            cout<< " | Loss: " << loss.item<double>() << std::endl;
 
             // Serialize your model periodically as a checkpoint.
             //torch::save(net, "net.pt")
@@ -258,7 +258,7 @@ double neuralNet::getQvalueMAX(State *pState) {
     return 0;
 }
 
-float neuralNet::get_grad_norm(int grad_norm_type) {
+double neuralNet::get_grad_norm(int grad_norm_type) {
     torch::Tensor tmp = torch::zeros({1});
 
     for (auto &p : this->named_parameters()) {

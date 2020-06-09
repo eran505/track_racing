@@ -53,7 +53,7 @@ struct configGame{
     int maxD;
     Point posDefender;
     vector<Point> gGoals ;
-    vector<float> probGoals;
+    vector<double> probGoals;
     vector<bool> goalTarget;
     int rRoutes;
     string idNumber;
@@ -102,7 +102,7 @@ protected:
             this->gGoals.push_back(vecToPoint(arrString));
         }
         for(auto &item:rProbGoals){
-            double pProb = stoi(item)/float(100);
+            double pProb = stoi(item)/double(100);
             this->probGoals.push_back(pProb);
         }
     }

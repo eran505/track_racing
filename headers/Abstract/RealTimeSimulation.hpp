@@ -3,7 +3,7 @@
 //
 #define GOT_HERE std::cout << "At " __FILE__ ":" << __LINE__ << std::endl
 #define DEBUGER
-#define PRINTME
+//#define PRINTME
 #ifndef TRACK_RACING_REALTIMESIMULATION_HPP
 #define TRACK_RACING_REALTIMESIMULATION_HPP
 #include "headers/Abstract/Simulation.hpp"
@@ -21,7 +21,7 @@ class rtSimulation{
      * output the paths of the two agents
      *
      * */
-    vector<float> trackingData;
+    vector<double> trackingData;
     Point abstraction;
     Point GridSize;
     bool inMini=false;
@@ -35,7 +35,7 @@ class rtSimulation{
     Agent* _attacker;
     Agent* _defender;
     u_int32_t iterMax=100000;
-    unordered_map<int,float > collusionMiniGrid;
+    unordered_map<int,double > collusionMiniGrid;
     State* state;
     Point divPoint;
     //std::unique_ptr<Agent> _defender;
@@ -121,10 +121,14 @@ public:
                 {
                     auto tmpState = GetActionAbstract(this->state);
                     auto ptrAgent = getAgent(curAgentNumber);
-                    cout<<"tmpState:\t"<<tmpState->to_string_state();
+                    #ifdef PRINTME
+                    cout<<"tmpState:\t"<<tmpState->to_string_state()<<endl;
+                    #endif
                     ptrAgent->doAction(tmpState);
                     delete tmpState;
-                    cout<<"\tAction:\t"<<ptrAgent->lastAction.to_str()<<"\t";
+                    #ifdef PRINTME
+                    cout<<"\tAction:\t"<<ptrAgent->lastAction.to_str()<<"\n";
+                    #endif
                     this->state->applyAction(ptrAgent->get_id(),
                                              ptrAgent->lastAction,
                                              ptrAgent->getPolicyInt()->max_speed);

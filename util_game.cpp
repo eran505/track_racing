@@ -100,9 +100,9 @@ int getMaxDistancePos(const Point &a , const  Point &b )
     return pos;
 }
 
-vector<float> getTopK(int k,vector<float> &vec){
-    vector<float> vectorSorted;
-    vector<float> vectorTopK;
+vector<double> getTopK(int k,vector<double> &vec){
+    vector<double> vectorSorted;
+    vector<double> vectorTopK;
     copy(vec.begin(), vec.end(), back_inserter(vectorSorted));
 
     sort( vectorSorted.begin(), vectorSorted.end());

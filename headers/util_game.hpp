@@ -163,9 +163,15 @@ public:
         }
         return false;
     }
-    vector<float>* getFeature()
+    int sum() const
     {
-        auto* vectorI = new vector<float>();
+        int ans = 0;
+        for (int i = 0; i < this->capacity; ++i) ans+=this->array[i];
+        return ans;
+    }
+    vector<double>* getFeature()
+    {
+        auto* vectorI = new vector<double>();
         for (int i = 0; i < this->capacity; ++i)
             vectorI->push_back(this->array[i]);
 
@@ -349,12 +355,12 @@ public:
 int getMaxDistance(const Point &a , const  Point &b );
 int getMaxDistancePos(const Point &a , const  Point &b );
 int range_random(int min, int max); //range : [min, max)
-vector<float> getTopK(int k,vector<float> &vec);
+vector<double> getTopK(int k,vector<double> &vec);
 
 
 template <typename T>
 
-bool Contains( std::vector<float>& Vec, const float Element )
+bool Contains( std::vector<double>& Vec, const double Element )
 {
     if (std::find(Vec.begin(), Vec.end(), Element) != Vec.end())
         return true;
@@ -365,8 +371,8 @@ bool Contains( std::vector<float>& Vec, const float Element )
 struct weightedPosition{
     Point speedPoint;
     Point positionPoint;
-    float weightedVal;
-    weightedPosition(const Point& speed_,const Point& pos_, float p)
+    double weightedVal;
+    weightedPosition(const Point& speed_,const Point& pos_, double p)
     :speedPoint(speed_),positionPoint(pos_),weightedVal(p){}
     bool operator== (const weightedPosition &other)const
     {

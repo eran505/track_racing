@@ -108,7 +108,7 @@ set<string> State::is_collusion() {
 
 
 
-float State::isGoal(string &idStr) {
+double State::isGoal(string &idStr) {
     const auto& pos = this->get_position_ref(idStr);
     return this->g_grid->get_goal_reward(pos);
 }
@@ -163,9 +163,7 @@ u_int64_t  State::getHashValuePosOnly() const{
         if (item.first.back()==Section::gurd)
         for (int i = 0; i < Point::D_point::D; ++i)
             vec.push_back(speed_dict.find(item.first)->second[i]);
-
     }
-
     u_int64_t  seed = vec.size();
     for(auto& i : vec) {
         seed ^=  (i * 2654435761) + 2654435769 + (seed << 6) + (seed >> 2);
@@ -199,14 +197,15 @@ void State::add_player_state(const string &name_id, const Point& m_pos, const Po
 
 State* State::getAbstractionState(Point &abstractPoint) {
     auto* res = new State(*this);
-    for(auto &pair:res->speed_dict)
-    {
-        pair.second.change_speed_max(1);
-    }
     for(auto &pair:res->pos_dict)
     {
         pair.second/=abstractPoint;
     }
+    for(auto &pair:res->speed_dict)
+    {
+        pair.second.change_speed_max(0);
+    }
+
     return res;
 }
 vector<Point> State::getAllPos(const Point &abstractPoint)const{

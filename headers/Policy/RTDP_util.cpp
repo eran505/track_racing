@@ -21,13 +21,13 @@ void RTDP_util::set_up_Q(int grid_size, vector<pair<int,int>>& max_speed_and_bud
     for(auto &item : max_speed_and_budget){
         auto max_speed = item.first;
         if (max_speed==0)
-            state_number_overall *=item.second;
+            state_number_overall *=(item.second+1);
         else
             state_number_overall *= pow(max_speed*2+1,int(Point::D))*(grid_size+1)*item.second;
     }
 
     printf("\nstate_number_overall:\t%lf\n",state_number_overall);
-    this->size_Q=int(state_number_overall*0.9);
+    this->size_Q=int(state_number_overall);
 
     if (size_Q>22000000)
         size_Q=23000000;
@@ -53,7 +53,6 @@ int RTDP_util::get_state_index_by_string(const State *s_state) {
         debugDict.insert({s,s_state->to_string_state()});
         //cout<<"  [not found]  ";
         return this->add_entry_map_state(s,s_state);
-
     }
     return 0;
 }
@@ -197,16 +196,16 @@ int RTDP_util::get_state_argmax(State *s) {
     return argMax;
 }
 
-vector<float>* RTDP_util::get_probabilty(State *s) {
+vector<double>* RTDP_util::get_probabilty(State *s) {
     int argMax;
     int entry_state = this->get_state_index_by_string(s);
     auto row = this->qTable[entry_state];
     vector<int> argMax_list = arg_max(row,this->size_mapAction);
-    auto* l = new vector<float>();
+    auto* l = new vector<double>();
     int prob = argMax_list.size();
     for (auto item: argMax_list){
         l->push_back(item);
-        l->push_back(float(prob)/1);
+        l->push_back(double(prob)/1);
     }
     return l;
 }

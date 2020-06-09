@@ -18,11 +18,11 @@
 #include "util/utilClass.hpp"
 #define DEBUG
 
-typedef unordered_map<u_int64_t,vector<float>*> dictPolicyPath;
+typedef unordered_map<u_int64_t,vector<double>*> dictPolicyPath;
 typedef std::vector<std::vector<weightedPosition>> doubleVecPoint;
 typedef std::unordered_map<u_int64_t ,pair<short,AStar::StatePoint>> hashIdStates;
 typedef vector<tuple<Point*,double>> listPointWeightedd;
-typedef std::vector<pair<float,vector<pair<Point,Point>>>> weightedVectorPosSpeed ;
+typedef std::vector<pair<double,vector<pair<Point,Point>>>> weightedVectorPosSpeed ;
 typedef std::unordered_map<u_int64_t,weightedPosition> weightedPositionDict ;
 using AStar::StatePoint;
 
@@ -34,11 +34,11 @@ class abstractionDiv{
     hashIdStates* dictHash;
     std::unique_ptr<doubleVecPoint> startPoints_abstraction;
     std::unique_ptr<doubleVecPoint> endPoints_abstraction; // probabily for the speed in each cell in the bigGrid
-    unordered_map<u_int64_t,float>* speedPorbabilityVector{};
+    unordered_map<u_int64_t,double>* speedPorbabilityVector{};
     Point girdSize;
     Point divPoint;
     Point abstractSize;
-    std::vector<std::pair<float,std::vector<Point>>> myPaths;
+    std::vector<std::pair<double,std::vector<Point>>> myPaths;
     unordered_map<int,Point*>* hashActionDict;
     int sizeVectors;
 
@@ -101,7 +101,7 @@ public:
         bigGridAbs(lp);
     }
     /**
-     * lp = the paths an entrt looks like the following: -> <probability(float),vector(pos,speed)>
+     * lp = the paths an entrt looks like the following: -> <probability(double),vector(pos,speed)>
      * **/
     void bigGridAbs(weightedVectorPosSpeed& lp)
     {
@@ -115,7 +115,7 @@ public:
             cout<<endl;
         }
         //DEBUG
-        vector<pair<float,vector<weightedPosition>>> setPaths;
+        vector<pair<double,vector<weightedPosition>>> setPaths;
         vector<Point> goals;
         short index=-1;
         for(auto & myPathPair : myPaths)
@@ -169,7 +169,7 @@ public:
         make_dict_policy(setPaths);
         cout<<endl;
     }
-    void inset_boundry_point_bigGrid(float val,Point &gridPoint_,bool entry=false)
+    void inset_boundry_point_bigGrid(double val,Point &gridPoint_,bool entry=false)
     {
         doubleVecPoint *vec_to_inset= nullptr;
         if(entry)
@@ -186,7 +186,7 @@ public:
             pos->weightedVal+=val;
 
     }
-    void inset_boundry_point(pair<Point,Point> &statePoint,float val,Point &gridPoint_,bool entry=false)
+    void inset_boundry_point(pair<Point,Point> &statePoint,double val,Point &gridPoint_,bool entry=false)
     {
         doubleVecPoint* vec_to_inset= nullptr;
         if(entry)
@@ -217,10 +217,10 @@ public:
      * speedProbabilityVector = how much time the agent need to spent in the cell,
      * the probability of moving to the next cell
      * */
-    void make_dict_policy(vector<pair<float,vector<weightedPosition>>>& momvemtns)
+    void make_dict_policy(vector<pair<double,vector<weightedPosition>>>& momvemtns)
     {
         //Debug
-        float templateNumber = -100;
+        double templateNumber = -100;
         for(auto& pPath:momvemtns)
         {
             cout<<"P:\t"<<pPath.first<<endl;
@@ -231,20 +231,20 @@ public:
             cout<<"\n";
         }
         //Debug
-        vector<pair<u_int64_t,pair<vector<pair<short,float>>,float>>> moveSpeedAbstract;
+        vector<pair<u_int64_t,pair<vector<pair<short,double>>,double>>> moveSpeedAbstract;
         const auto index= vecPolicy.size()-1;
         auto zero = Point(0);
-        auto zeroHashAction = float(zero.hashMeAction(Point::D_point::actionMax));
+        auto zeroHashAction = double(zero.hashMeAction(Point::D_point::actionMax));
         for (auto& itemPair : momvemtns){
             auto& [p,item]=itemPair;
             for(int i=0;i<item.size()-1;++i)
             {
                 auto difAction =  item[i+1].speedPoint-item[i].speedPoint;
                 auto diffPos = item[i+1].positionPoint-item[i].positionPoint;
-                auto diffPosHASH = float(diffPos.hashMeAction(Point::D_point::actionMax));
-                auto actionHkey = float(difAction.hashMeAction(Point::D_point::actionMax));
+                auto diffPosHASH = double(diffPos.hashMeAction(Point::D_point::actionMax));
+                auto actionHkey = double(difAction.hashMeAction(Point::D_point::actionMax));
                 auto op_difAction = item[i].speedPoint*-1;
-                auto key_op_difAction = float(op_difAction.hashMeAction(Point::D_point::actionMax));
+                auto key_op_difAction = double(op_difAction.hashMeAction(Point::D_point::actionMax));
 
                 u_int64_t key = Point::hashNnN(item[i].positionPoint.hashConst(),
                                                item[i].speedPoint.hashConst(Point::maxSpeed));
@@ -270,10 +270,10 @@ public:
                 if (auto pos = this->vecPolicy[index]->find(key);pos==this->vecPolicy[index]->end())
                 {
                     this->vecPolicy[index]->try_emplace
-                    (key, new std::vector<float>({actionHkey,-p,key_op_difAction,templateNumber}));
+                    (key, new std::vector<double>({actionHkey,-p,key_op_difAction,templateNumber}));
 
                     this->vecPolicy[index]->try_emplace
-                    (keyZero, new std::vector<float>({diffPosHASH,-p,zeroHashAction,templateNumber}));
+                    (keyZero, new std::vector<double>({diffPosHASH,-p,zeroHashAction,templateNumber}));
 
                 }
                 else{
@@ -311,9 +311,9 @@ public:
         getSpeedDictAbs(moveSpeedAbstract);
         for(auto& item: *this->vecPolicy[index])
         {
-            float acc=0;
+            double acc=0;
             int indexCur=0;
-            std::for_each(item.second->begin(),item.second->end(),[&](float x){
+            std::for_each(item.second->begin(),item.second->end(),[&](double x){
                 if(indexCur%2!=0)
                 {
                     if(x != templateNumber)
@@ -322,7 +322,7 @@ public:
                 indexCur++;});
             indexCur=0;
             auto iterMapSpeed = this->speedPorbabilityVector->find(item.first);
-            float ProbToMove = 1/iterMapSpeed->second;
+            double ProbToMove = 1/iterMapSpeed->second;
             for(auto &num:*item.second)
             {
                 if (indexCur%2!=0){
@@ -369,7 +369,7 @@ public:
         Point low(0);
         auto* a = new Agent(startPoints_abstraction->back(),Section::adversary,10);
         auto* d = new Agent(StartingDefender,Section::gurd,10);
-        initRTDP(conf,d,k,(float(conf.maxD))/float(4),true); //3=this->abstractSize[0]
+        initRTDP(conf,d,k,(double(conf.maxD))/double(abstractSize[0])/2,true); //3=this->abstractSize[0]
         setPathPolicy(conf,a,k);
         a->getPolicyInt()->add_tran(d->getPolicyInt());
         d->getPolicyInt()->add_tran(a->getPolicyInt());
@@ -379,7 +379,7 @@ public:
         return simulationList;
     }
 private:
-    static inline void insetToMoveDict(float p,float inplace,u_int64_t key, vector<pair<u_int64_t,pair<vector<pair<short,float>>,float>>>& moveSpeedAbstract)
+    static inline void insetToMoveDict(double p,double inplace,u_int64_t key, vector<pair<u_int64_t,pair<vector<pair<short,double>>,double>>>& moveSpeedAbstract)
     {
         if(auto pos = std::find_if(moveSpeedAbstract.begin(),moveSpeedAbstract.end(),[&](auto& entryI){
                 if(entryI.first==key) return true;
@@ -416,10 +416,10 @@ private:
                 for(int z=-maxD;z<=maxD;++z)
                     l2.emplace_back(x,y,z);
         }
-        float sizeL = l2.size()*l.size();
+        double sizeL = l2.size()*l.size();
         for(auto &speed:l2)
             for(auto &ipos:l)
-                l3.emplace_back(speed,ipos,float(1)/sizeL);
+                l3.emplace_back(speed,ipos,double(1)/sizeL);
         return l3;
     }
     static pair<Point,Point> getBound(int gridIndx,Point &abstract){
@@ -430,7 +430,7 @@ private:
         Point low(0+upIndx*abstract[0],0+lowIndx*abstract[1],z*abstract[2]);
         return {up,low};
     }
-    void initRTDP(configGame &conf,Agent* d,u_int32_t k,float stoProb=1,bool hashOnlyPos=false)
+    void initRTDP(configGame &conf,Agent* d,u_int32_t k,double stoProb=1,bool hashOnlyPos=false)
     {
 
         auto listQtalbe = vector<pair<int,int>>();
@@ -493,7 +493,7 @@ private:
         std::for_each(this->startPoints_abstraction->begin(),this->startPoints_abstraction->end(),
                 [&](std::vector<weightedPosition> &l)
                 {
-                    auto size = float (l.size());
+                    auto size = double (l.size());
                     std::for_each(l.begin(),l.end(),[&](weightedPosition &p){
                         p.weightedVal=1/size;
                     });
@@ -539,7 +539,7 @@ private:
     static inline void normProbability(doubleVecPoint* ptrVec)
     {
         std::for_each(ptrVec->begin(),ptrVec->end(),[](vector<weightedPosition> &l){
-            float acc=0;
+            double acc=0;
             std::for_each(l.begin(),l.end(),[&](weightedPosition &p){
                 acc+=p.weightedVal;
             });
@@ -548,13 +548,13 @@ private:
             });
         });
     }
-    inline void getSpeedDictAbs(vector<pair<u_int64_t,pair<vector<pair<short,float>>,float>>>& moveSpeedAbstract)
+    inline void getSpeedDictAbs(vector<pair<u_int64_t,pair<vector<pair<short,double>>,double>>>& moveSpeedAbstract)
     {
-        this->speedPorbabilityVector = new unordered_map<u_int64_t ,float>();
+        this->speedPorbabilityVector = new unordered_map<u_int64_t ,double>();
         for(auto& item: moveSpeedAbstract){
             auto key = item.first;
-            float val = 0;
-            std::for_each(item.second.first.begin(),item.second.first.end(),[&](pair<short,float>& x)
+            double val = 0;
+            std::for_each(item.second.first.begin(),item.second.first.end(),[&](pair<short,double>& x)
             {
                 val+=(x.first*(x.second/item.second.second));
             });

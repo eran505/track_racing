@@ -11,7 +11,7 @@
 #include "../../State.hpp"
 #include <functional>
 
-typedef vector<float> feature;
+typedef vector<double> feature;
 class experienceTuple{
 public:
     short aAction;
@@ -75,9 +75,9 @@ public:
  * Sampling an item - O(log N)
  * */
 
-float maxFunc(float a ,float b){ return std::max(a,b);}
-float minFunc(float a ,float b){ return std::min(a,b);}
-float addFunc(float a ,float b){ return a+b;}
+double maxFunc(double a ,double b){ return std::max(a,b);}
+double minFunc(double a ,double b){ return std::min(a,b);}
+double addFunc(double a ,double b){ return a+b;}
 enum operationTree{
     maxTree = 1,
     minTree = 2,
@@ -159,15 +159,15 @@ public:
     explicit SumTree(unsigned int _capacity,operationTree kind, bool duplication = false):capacity(_capacity),write(0)
     {
         dup=duplication;
-        float initialValue=0;
+        double initialValue=0;
         if (!((capacity & (capacity - 1)) == 0))
             throw std::invalid_argument( "A segment tree size must be a positive power of 2." );
 
         if (kind == maxTree){
-            initialValue=std::numeric_limits<float>::max();
+            initialValue=std::numeric_limits<double>::max();
             foo=maxFunc;
         }else if(kind == minTree){
-            initialValue=std::numeric_limits<float>::min();
+            initialValue=std::numeric_limits<double>::min();
             foo=minFunc;
         }else if(kind == addTree){
             foo=addFunc;
@@ -261,7 +261,7 @@ public:
      the total sum of the tree. for MIN, this will return the minimal value
      :return: the total value of the tree
       **/
-    float total(){ return this->tree[0]; }
+    double total(){ return this->tree[0]; }
     /**
  Update the value of the node at index idx
  :param leaf_idx: the index of the node to update

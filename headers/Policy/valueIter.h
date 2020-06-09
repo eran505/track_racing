@@ -11,7 +11,7 @@
 
 class valueIter: Policy{
 
-    float *valueTable;
+    double *valueTable;
 
 public:
     valueIter(string namePolicy, int maxSpeedAgent, string agentId);

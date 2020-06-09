@@ -13,25 +13,26 @@
 
 typedef shared_ptr<unordered_map<string ,string>> dictionary;
 
-typedef std::vector<std::pair<float,Point>> listPointWeighted;
+typedef std::vector<std::pair<double,Point>> listPointWeighted;
 
 class PathPolicy:public Policy{
     unsigned long maxPathsNumber;
     vector<Point> midVec;
-    unordered_map<u_int64_t,vector<float>*> *dictPolicy;
+    unordered_map<u_int64_t,vector<double>*> *dictPolicy;
 
     u_int64_t getAgentSateHash(State *s);
 public:
+    size_t get_dictPolicy_size()const{return dictPolicy->size();}
     vector<weightedPosition> startPoint;
     unordered_map<u_int64_t ,pair<short,AStar::StatePoint>>* statesIdDict;
-    std::vector<std::pair<float,Point>>* goalPoint;
-    vector<pair<float,vector<Point>>> myPaths;
-    unordered_map<u_int64_t,vector<float>*>* getDictPolicy(){return dictPolicy;}
+    std::vector<std::pair<double,Point>>* goalPoint;
+    vector<pair<double,vector<Point>>> myPaths;
+    unordered_map<u_int64_t,vector<double>*>* getDictPolicy(){return dictPolicy;}
 
     int getNumberOfState() {
         return dictPolicy->size();
     }
-    PathPolicy(string namePolicy, int maxSpeedAgent,std::vector<std::pair<float,Point>>* endPoint_, vector<weightedPosition>& startPoint_,
+    PathPolicy(string namePolicy, int maxSpeedAgent,std::vector<std::pair<double,Point>>* endPoint_, vector<weightedPosition>& startPoint_,
                Point &gridSzie, const string &agentID,vector<Point> midVecPoints,string &home,unsigned long maxPathz=ULONG_MAX,dictionary ptrDict=nullptr) : Policy(std::move(namePolicy),
                        maxSpeedAgent,std::move(agentID),home,std::move(ptrDict)),midVec(move(midVecPoints)) {
         this->goalPoint=endPoint_;
@@ -43,15 +44,15 @@ public:
         printf("\ndone!\n");
     }
 
-    PathPolicy(string namePolicy, int maxSpeedAgent,const string &agentID,string &home,unordered_map<u_int64_t,vector<float>*>* d,dictionary ptrDict=nullptr)
+    PathPolicy(string namePolicy, int maxSpeedAgent,const string &agentID,string &home,unordered_map<u_int64_t,vector<double>*>* d,dictionary ptrDict=nullptr)
     :Policy(std::move(namePolicy),maxSpeedAgent,agentID,
             home,std::move(ptrDict)),dictPolicy(d),goalPoint(nullptr),
             statesIdDict(nullptr),maxPathsNumber(0),startPoint(0),midVec(0)
     {}
     
-    void setPolicyDict(unordered_map<u_int64_t,vector<float>*>* d){this->dictPolicy=d;}
+    void setPolicyDict(unordered_map<u_int64_t,vector<double>*>* d){this->dictPolicy=d;}
     void initPolicy(Point &girdSize){
-        dictPolicy = new unordered_map<u_int64_t, vector<float>*>();
+        dictPolicy = new unordered_map<u_int64_t, vector<double>*>();
         double weightEnd;
         cout<<"A star..."<<endl;
         auto *AstarObject = new AStar::Generator(this->max_speed,girdSize);
@@ -103,11 +104,11 @@ public:
     };
     void reset_policy() override{};
     void policy_data() const override{};
-    const std::vector<float>* TransitionAction(State*) override;
+    const std::vector<double>* TransitionAction(State*) override;
     void normalizeDict();
 
 
-    vector<float> minizTrans(const vector<float>* x);
+    vector<double> minizTrans(const vector<double>* x);
 
     void policyData(string &strId);
 
@@ -121,13 +122,13 @@ public:
 Point PathPolicy::get_action(State *s) {
     auto EntryIndx = getAgentSateHash(s);
     //trajectory.push_back(s->to_string_state()+"="+std::to_string(EntryIndx));
-    std::unordered_map<u_int64_t , std::vector<float>*>::iterator it;
+    std::unordered_map<u_int64_t , std::vector<double>*>::iterator it;
     it = this->dictPolicy->find(EntryIndx);
     if (it==this->dictPolicy->end())
         throw;
     // get value between zero to one
-    float r = static_cast <float> (random()) / static_cast <float> (RAND_MAX);
-    float acc=0;
+    double r = static_cast <double> (random()) / static_cast <double> (RAND_MAX);
+    double acc=0;
     unsigned long i;
     for (i=1; i <it->second->size() ; ++i) {
         acc+=it->second->operator[](i);
@@ -135,7 +136,7 @@ Point PathPolicy::get_action(State *s) {
             break;
         i+=1;
     }
-    // problem with precision number (floating point)
+    // problem with precision number (doubleing point)
     if (it->second->size()<i)
     {
         i=it->second->size()-1;
@@ -147,7 +148,7 @@ Point PathPolicy::get_action(State *s) {
 
 }
 
-const std::vector<float> *PathPolicy::TransitionAction(State *s) {
+const std::vector<double> *PathPolicy::TransitionAction(State *s) {
     /* first  - action
      * second - probabilitiy*/
     //cout<<s->to_string_state()<<endl;
@@ -179,10 +180,10 @@ u_int64_t PathPolicy::getAgentSateHash(State *s) {
 void PathPolicy::treeTraversal(State *ptrState,string &strIdExp,const Point *ab)
 {
 
-    std::deque<pair<State,float>> q;
+    std::deque<pair<State,double>> q;
     q.emplace_back(*ptrState,1);
-    float probAcc=1;
-    vector <pair<State,float>> path;
+    double probAcc=1;
+    vector <pair<State,double>> path;
     while (!q.empty())
     {
         auto pairCur = q.front();
@@ -246,7 +247,7 @@ void PathPolicy::normalizeDict(){
     for(auto &item : *this->dictPolicy)
     {
         const size_t vecSize = item.second->size();
-        float sumProbability=0;
+        double sumProbability=0;
         int indx=0;
         for (auto sec_Item : *item.second) {
             if (indx%2==1)
@@ -277,9 +278,9 @@ void PathPolicy::normalizeDict(){
     }
 }
 
-vector<float> PathPolicy::minizTrans(const vector<float> *x) {
-    vector<float> newVector;
-    unordered_map<float,float> d;
+vector<double> PathPolicy::minizTrans(const vector<double> *x) {
+    vector<double> newVector;
+    unordered_map<double,double> d;
     for (int i = 0; i <x->size() ; ++i) {
         auto keyH = x->operator[](i);
         auto prob = x->operator[](++i);
