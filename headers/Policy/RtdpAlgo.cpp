@@ -227,8 +227,10 @@ bool RtdpAlgo::stoMove() {
 
 
 double RtdpAlgo::getReward(const Point &refPoint)const {
-    if(auto pos = this->rewardDict->find(refPoint.expHash());pos==rewardDict->end())
+    if(rewardDict->empty())
         return this->CollReward;
+    if(auto pos = this->rewardDict->find(refPoint.expHash());pos==rewardDict->end())
+        return this->GoalReward;
     else
         return pos->second;
 }

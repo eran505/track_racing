@@ -156,9 +156,8 @@ private:
         });
         auto pathPoly = dynamic_cast <PathPolicy*>(agents[attackerInt]->getPolicyInt());
         cout<<"size Dict Attacker: "<<pathPoly->get_dictPolicy_size()<<"\n";
-
         getRtdpAlgo()->genrateInfoPrint();
-        getDefAgentDATA();
+        //getDefAgentDATA();
 
     }
     void setState()

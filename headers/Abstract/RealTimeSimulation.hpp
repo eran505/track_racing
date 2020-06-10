@@ -25,6 +25,7 @@ class rtSimulation{
     Point abstraction;
     Point GridSize;
     bool inMini=false;
+    string resultsPath;
     set<string> collPoints;
     set<string> wallPoints;
     string _nameA;
@@ -77,6 +78,15 @@ class rtSimulation{
     }
 
 public:
+    unordered_map<int,double > getCollusionMiniGrid(){return collusionMiniGrid;}
+    vector<double> getTrackingData(){return trackingData;}
+    vector<string> getTrackingDataString()
+    {
+        auto v = std::vector<string>();
+        for(auto i : trackingData)
+            v.push_back(std::to_string(i));
+        return v;
+    }
     rtSimulation(const Point& _abstraction,const Point& GridSize,unordered_map<u_int32_t ,Agent*> lD, Agent* attacker,State* stateArg,Agent* defnder)
     :abstraction(_abstraction),GridSize(GridSize),lDefenderAgent(std::move(lD)),
     _attacker(std::move(attacker)),state(std::move(stateArg)),_defender(std::move(defnder)),trackingData(event::Size,0)

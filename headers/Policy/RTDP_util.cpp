@@ -50,7 +50,7 @@ int RTDP_util::get_state_index_by_string(const State *s_state) {
     if (it != this->mapState->end()){
         return it->second;
     }else{
-        debugDict.insert({s,s_state->to_string_state()});
+        //debugDict.insert({s,s_state->to_string_state()});
         //cout<<"  [not found]  ";
         return this->add_entry_map_state(s,s_state);
     }

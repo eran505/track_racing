@@ -39,6 +39,9 @@ public:
     void printInfoGen()
     {
         cout<<"SizeQ:"<<size_Q<<"\tgen: "<<mapState->size()<<endl;
+        if(size_Q<mapState->size())
+            throw std::invalid_argument( "The Q table is smaller from StateMap" );
+
     }
     void resetTable(){this->mapState->clear();}
     void setStochasticMovement(double m){this->_stochasticMovement=m;}

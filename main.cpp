@@ -36,7 +36,7 @@ void toCsv(string &pathFile, vector<vector<int>>* infoArr,vector<string> &labels
 Game* initGame(configGame& conf);
 vector<vector<string>> readConfigFile(string &filePath);
 void toCsvString(string pathFile,vector<string>* infoArr);
-
+void toCSVTemp(string pathFile, vector<string> &data);
 /*
  * TODO LIST:
  * 1. in the State class, i think that its enough
@@ -66,7 +66,7 @@ int main() {
     seed = 1591174590; // 0.84 coll ==> con3.csv
     //seed = 1591006463;//no coll
     //seed = 1587982523; //1895975606
-    //seed = int( time(nullptr));
+    seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
     torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -211,7 +211,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
     std::unique_ptr<State> tmp = std::make_unique<State>(State(*s->get_cur_state()));
     Point abPoint(8,8,1);
-    abPoint = Point(4,4,1);
+    //abPoint = Point(4,4,1);
+    //abPoint = Point(2,2,1);
 
     tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint);
     pA1->setPolicy(pGridPath);
@@ -220,6 +221,13 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     z->initializeSimulation(conf,listPointDefender);
     auto *rl = new rtSimulation(abPoint,conf.sizeGrid,z->getLAgents(),pA1,s->get_cur_state(),pD2);
     rl->simulation();
+    auto res = rl->getTrackingDataString();
+    res.push_back(conf.idNumber);
+    res.push_back(std::to_string(conf.seed));
+    res.push_back(std::to_string(conf.rRoutes));
+    res.push_back(abPoint.to_str());
+    res.push_back(conf.sizeGrid.to_str());
+    toCSVTemp("/home/ERANHER/car_model/out/out.csv", res);
     //////// RTDP POLICY ////////
     /* If max speed is zero, the explict number of state is in the second place */
 //    vector<pair<int,int>> list_Q_data;
@@ -240,6 +248,24 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     return s;
 }
 
+
+void toCSVTemp(string pathFile, vector<string> &data)
+{
+    try
+    {
+        csvfile csv(std::move(pathFile),";"); // throws exceptions!
+
+        // Data
+        for (string &i : data)
+            csv << i;
+        csv<< endrow;
+
+    }
+    catch (const std::exception &ex)
+    {
+        std::cout << "Exception was thrown: " << ex.what() << std::endl;
+    }
+}
 
 void toCsv(string &pathFile, vector<vector<int>>* infoArr,vector<string> &labels){
     try

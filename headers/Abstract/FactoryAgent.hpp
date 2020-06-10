@@ -53,13 +53,13 @@ public:
         //workerTasks.pop_back();
         std::vector<std::thread> workers;
         //workers.reserve(workerTasks.size());
-        lsim.back().simulate(10000);
+        lsim.back().simulate(iter/2);
         //RemoveIfVector(workerTasks);
         workers.reserve(lsim.size());
         std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
                 [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
 
-        lsim.back().getDefAgentDATA();
+        //lsim.back().getDefAgentDATA();
         //exit(0);
 
         #ifdef Sync
@@ -97,7 +97,7 @@ public:
            if(t.joinable()) t.join();
         });
         #endif
-        lAgent.reserve(lsim.size()/10);
+        //lAgent.reserve(lsim.size());
 
         for (auto &item : lsim)
         {
