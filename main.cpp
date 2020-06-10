@@ -211,7 +211,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
     std::unique_ptr<State> tmp = std::make_unique<State>(State(*s->get_cur_state()));
     Point abPoint(8,8,1);
-    //abPoint = Point(4,4,1);
+    abPoint = Point(4,4,1);
 
     tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint);
     pA1->setPolicy(pGridPath);

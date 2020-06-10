@@ -344,7 +344,7 @@ public:
         for (size_t k = 0 ; k<this->vecPolicy.size()-1;++k) {
             if (this->vecPolicy[k]->empty())
                 continue;
-            auto [up,low]=getBound(k,this->abstractSize);
+            auto [up,low]=getBound(k,this->abstractSize,this->divPoint);
             auto listPosStart = startingPosDefender(up,low,conf.maxD);
             auto* a = new Agent(startPoints_abstraction->operator[](k),Section::adversary,10);
             auto* d = new Agent(std::move(listPosStart),Section::gurd,10);
@@ -369,7 +369,7 @@ public:
         Point low(0);
         auto* a = new Agent(startPoints_abstraction->back(),Section::adversary,10);
         auto* d = new Agent(StartingDefender,Section::gurd,10);
-        initRTDP(conf,d,k,(double(conf.maxD))/double(abstractSize[0])/2,true); //3=this->abstractSize[0]
+        initRTDP(conf,d,k,(double(conf.maxD))/double(abstractSize[0]),true); //3=this->abstractSize[0]
         setPathPolicy(conf,a,k);
         a->getPolicyInt()->add_tran(d->getPolicyInt());
         d->getPolicyInt()->add_tran(a->getPolicyInt());
@@ -422,12 +422,13 @@ private:
                 l3.emplace_back(speed,ipos,double(1)/sizeL);
         return l3;
     }
-    static pair<Point,Point> getBound(int gridIndx,Point &abstract){
-        int upIndx=(gridIndx%(abstract[1]*abstract[0]))/abstract[0];
-        int lowIndx = gridIndx%abstract[0];
-        int z = gridIndx/(abstract[1]*abstract[0]);
-        Point up(abstract[0]+upIndx*abstract[0],abstract[1]+lowIndx*abstract[1],abstract[2]*z+abstract[2]);
-        Point low(0+upIndx*abstract[0],0+lowIndx*abstract[1],z*abstract[2]);
+    static pair<Point,Point> getBound(int key,Point &abstract, Point &divPoint){
+        int x = (key%(divPoint[0]*divPoint[1]))/divPoint[0];
+        int  y = key%divPoint[0];
+        int  z = key/(divPoint[1]*divPoint[0]);
+        Point up(abstract[0]+x*abstract[0],abstract[1]+y*abstract[1],abstract[2]*z+abstract[2]);
+        Point low(x*abstract[0],y*abstract[1],z*abstract[2]);
+        cout<<"low: "<<low.to_str()<<"  up: "<<up.to_str()<<endl;
         return {up,low};
     }
     void initRTDP(configGame &conf,Agent* d,u_int32_t k,double stoProb=1,bool hashOnlyPos=false)
@@ -438,7 +439,7 @@ private:
         shared_ptr<unordered_map<string,string>> gameInfo_share = std::make_shared<unordered_map<string,string>>();
         auto [it, result] = gameInfo_share->emplace("ID",conf.idNumber);
         listQtalbe.emplace_back(0,vecPolicy[k]->size());
-        Policy* rtdp = new RtdpAlgo(conf.maxD,this->sizeVectors,listQtalbe,d->get_id(),conf.home,gameInfo_share);
+        Policy* rtdp = new RtdpAlgo(conf.maxD,this->abstractSize.accMulti(),listQtalbe,d->get_id(),conf.home,gameInfo_share);
         auto tmp = dynamic_cast<RtdpAlgo*>(rtdp);
         tmp->setStochasticMovement(stoProb);
         if(hashOnlyPos)

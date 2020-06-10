@@ -21,7 +21,7 @@ void RTDP_util::set_up_Q(int grid_size, vector<pair<int,int>>& max_speed_and_bud
     for(auto &item : max_speed_and_budget){
         auto max_speed = item.first;
         if (max_speed==0)
-            state_number_overall *=(item.second+1);
+            state_number_overall *=(item.second);
         else
             state_number_overall *= pow(max_speed*2+1,int(Point::D))*(grid_size+1)*item.second;
     }

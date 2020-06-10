@@ -32,7 +32,7 @@ class AbstractCreator{
     Point divPoint;
     std::vector<simulation> simulationVector;
     int seed;
-    u_int32_t iter = 1000000;
+    u_int32_t iter = 500000;
     std::unique_ptr<rtSimulation> rtSim= nullptr;
     unordered_map<u_int32_t ,Agent*> lAgent;
 public:
@@ -53,7 +53,7 @@ public:
         //workerTasks.pop_back();
         std::vector<std::thread> workers;
         //workers.reserve(workerTasks.size());
-        lsim.back().simulate(100000);
+        lsim.back().simulate(10000);
         //RemoveIfVector(workerTasks);
         workers.reserve(lsim.size());
         std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
