@@ -49,8 +49,8 @@ struct configGame{
     Point sizeGrid ;
     string config;
     Point posAttacker;
-    int maxA;
-    int maxD;
+    int maxA{};
+    int maxD{};
     Point posDefender;
     vector<Point> gGoals ;
     vector<double> probGoals;
@@ -58,17 +58,27 @@ struct configGame{
     int rRoutes;
     string idNumber;
     vector<Point> midPos;
+    std::default_random_engine generator;
+    std::uniform_int_distribution<int> distribution;
 
 public:
-    string home;
 
-    explicit configGame(vector<string> &row):seed(0)
+    string home;
+    void initRandomNoise()
+    {
+        auto insetNoiseFunc = [&](Point &item){inset_noise_XY(item);};
+        std::for_each(gGoals.begin(),gGoals.end(),insetNoiseFunc);
+        inset_noise_XY(this->posAttacker);
+        inset_noise_XY(this->posDefender);
+    }
+    explicit configGame(vector<string> &row):seed(0),generator(seed)
     {
 
+        distribution = std::uniform_int_distribution<int>(-2,2);
         idNumber=row[0];
         sizeGrid = Point(stoi(row[1]),stoi(row[2]),stoi(row[3]));
-        posAttacker = vecToPoint(std::move(splitStr(row[4],"|")));
-        posDefender = vecToPoint(std::move(splitStr(row[5],"|")));
+        posAttacker = vecToPoint(splitStr(row[4],"|"));
+        posDefender = vecToPoint(splitStr(row[5],"|"));
         auto goalsVecPos = splitStr(row[6],"-");
         auto goalsVecWights = splitStr(row[7],"-");
         auto midVec = splitStr(row[9],"-");
@@ -80,7 +90,14 @@ public:
         config = "";
 
     };
-
+    double getRandom(){return distribution(generator);}
+    void inset_noise_XY(Point &refPoint)
+    {
+        auto noiseX = distribution(generator);
+        auto noiseY = distribution(generator);
+        refPoint.array[1]+=noiseY;
+        refPoint.array[0]+=noiseX;
+    }
     void getConfigNameFile(string& str)
     {
         config=str;

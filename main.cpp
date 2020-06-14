@@ -94,6 +94,7 @@ int main() {
         auto row = csvRows[i];
         // size of Grid
         configGame conf(row);
+        conf.initRandomNoise(); // inset random noise (-2,2) XY
         conf.home=home;
         conf.seed=seed;
         string strId=row[0];
@@ -104,6 +105,8 @@ int main() {
 
         curToCsvPolciy.append(toCsvPath);curToCsvPolciy.append("ID_");
         curToCsvPolciy.append(strId);curToCsvPolciy.append("_P.csv");
+
+
 
         auto resultsConfigI = initGame(conf);
 
@@ -227,7 +230,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     res.push_back(std::to_string(conf.rRoutes));
     res.push_back(abPoint.to_str());
     res.push_back(conf.sizeGrid.to_str());
-    toCSVTemp("/home/ERANHER/car_model/out/out.csv", res);
+    toCSVTemp(conf.home+"/car_model/out/out.csv", res);
     //////// RTDP POLICY ////////
     /* If max speed is zero, the explict number of state is in the second place */
 //    vector<pair<int,int>> list_Q_data;

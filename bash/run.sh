@@ -1,10 +1,10 @@
 #!/bin/bash
 
 
-PATHtoFileDir="/home/ERANHER/eran/repo/track_racing/cmake-build-debug/"
+PATHtoFileDir="/home/eranhe/eran/repo/track_racing/cmake-build-debug/"
 
 
-for i in {0..14}
+for i in {0..100}
 do
   cd ${PATHtoFileDir}
   ./track_racing
