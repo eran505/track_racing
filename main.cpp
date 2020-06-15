@@ -65,8 +65,8 @@ int main() {
     int seed = 155139;// zero coll => con3.csv
     seed = 1591174590; // 0.84 coll ==> con3.csv
     //seed = 1591006463;//no coll
-    //seed = 1587982523; //1895975606
-    seed = int( time(nullptr));
+    seed = 1592233920; //1895975606
+    //seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
     torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -216,11 +216,12 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     Point abPoint(8,8,1);
     //abPoint = Point(4,4,1);
     //abPoint = Point(2,2,1);
-
+    //abPoint = Point(20,20,1);
     tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint);
     pA1->setPolicy(pGridPath);
 
     auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,abPoint,conf.seed);
+
     z->initializeSimulation(conf,listPointDefender);
     auto *rl = new rtSimulation(abPoint,conf.sizeGrid,z->getLAgents(),pA1,s->get_cur_state(),pD2);
     rl->simulation();

@@ -46,8 +46,14 @@ public:
 
     auto initializeSimulation(configGame &conf,std::vector<weightedPosition> defenderStart)
     {
-        auto abstractionObject = abstractionDiv(originalGridSize,abGridSize,evaderPolicy,seed);
+        auto abstractionObject = abstractionDiv(originalGridSize,abGridSize,evaderPolicy,seed,Point(0),Point(0,0,0));
         auto workerTasks = abstractionObject.initializeSimulation(conf,defenderStart);
+
+        auto abstractionObject_Helper = abstractionDiv(originalGridSize,abGridSize,evaderPolicy,seed,Point(0),Point(4,0,0));
+        vector<simulation> offset_grids;
+        abstractionObject_Helper.miniGrid_initializeSimulation(conf,offset_grids);
+
+
         lsim = std::move(workerTasks);
         vector<int> l;
         //workerTasks.pop_back();

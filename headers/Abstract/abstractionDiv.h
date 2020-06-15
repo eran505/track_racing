@@ -36,11 +36,15 @@ class abstractionDiv{
     std::unique_ptr<doubleVecPoint> endPoints_abstraction; // probabily for the speed in each cell in the bigGrid
     unordered_map<u_int64_t,double>* speedPorbabilityVector{};
     Point girdSize;
+    Point offset;
     Point divPoint;
     Point abstractSize;
+public:
     std::vector<std::pair<double,std::vector<Point>>> myPaths;
+private:
     unordered_map<int,Point*>* hashActionDict;
     int sizeVectors;
+    bool crate_big_grid=true;
 
 public:
     ~abstractionDiv()
@@ -50,14 +54,16 @@ public:
         delete hashActionDict;
         delete dictHash;
     }
-    abstractionDiv(const Point& ptrGirdSize,
-            const Point& mAbstractSize,PathPolicy *policyP,int seed){
-        auto tmp = ptrGirdSize/mAbstractSize;
+    abstractionDiv(const Point& upper_bound, const Point& mAbstractSize,
+            PathPolicy *policyP,int seed,const Point& lower_bound=Point(0),
+            const Point &_offset=Point(0,0,0)):offset(_offset){
+        auto grid_size = upper_bound-(lower_bound+offset);
+        auto tmp = grid_size/mAbstractSize;
         auto sizeMiniGrid = tmp.accMulti();
         sizeVectors=sizeMiniGrid;
         abstractSize=mAbstractSize;
-        girdSize = ptrGirdSize;
-        divPoint=ptrGirdSize/mAbstractSize;
+        girdSize = grid_size;
+        divPoint=grid_size/mAbstractSize;
         realStateAbstractState = std::make_unique<weightedPositionDict>();
         seedSystem = seed;
         allDictPolicy=policyP->getDictPolicy();
@@ -71,14 +77,18 @@ public:
             startPoints_abstraction->operator[](i)=std::vector<weightedPosition>();
             endPoints_abstraction->operator[](i)=std::vector<weightedPosition>();
         }
+        if(offset.sum()!=0)
+            crate_big_grid=false;
+
         dictHash= policyP->statesIdDict;
-        myPaths = std::move(policyP->myPaths);
+        myPaths = policyP->myPaths;
         hashActionDict= Point::getDictAction();
         initAbstract();
-        //setEndStartPoint(policyP->startPoint,policyP->goalPoint,policyP->max_speed);
+
         entryPoint(policyP->max_speed);
         std::cout<<endl;
     }
+
     /**
      * TODO: need to fix this [initAbstract] by-pass
      * */
@@ -98,7 +108,49 @@ public:
                 lpIVector.emplace_back(listPos[i],speedI);
             }
         }
-        bigGridAbs(lp);
+        if(crate_big_grid)
+            bigGridAbs(lp);
+        else
+            set_start_end_point_only_miniGrid(lp);
+    }
+
+    void set_start_end_point_only_miniGrid(weightedVectorPosSpeed& lp)
+    {
+        for(auto &[val,vecPath]: lp)
+        {
+            Point previous;
+            bool is_in = false;
+            size_t ctr=-1;
+            for(auto &[posI,speedI]:vecPath){
+                ctr++;
+                if(offset.any_bigger(posI))
+                {
+                    if(is_in)
+                    {
+                        inset_boundry_point(vecPath[ctr-1],val,previous, false);
+                        is_in=false;
+                    }
+                    continue;
+                }
+                auto point_cur = (posI-offset)/abstractSize;
+                if(!is_in){// first pos -> inset
+                    inset_boundry_point(vecPath[ctr],val,point_cur, true);
+                    is_in=true;
+                }else{
+                    if(!(point_cur==previous))
+                    {
+                        inset_boundry_point(vecPath[ctr-1],val,previous, false);
+                        inset_boundry_point(vecPath[ctr],val,point_cur, true);
+                    }
+                }
+                previous=point_cur;
+            }
+            // inset the end point of the last grid
+            if(is_in)
+            {
+                inset_boundry_point(vecPath[ctr],val,previous, false);
+            }
+        }
     }
     /**
      * lp = the paths an entrt looks like the following: -> <probability(double),vector(pos,speed)>
@@ -121,55 +173,52 @@ public:
         for(auto & myPathPair : myPaths)
         {
             index++;
-            auto &[p,myPath]=myPathPair;
+            const auto& [p,myPath]=myPathPair;
             auto &pairItem= setPaths.emplace_back();
             auto &l = pairItem.second;
             pairItem.first=p;
+            Point point_previous;
             for(u_int32_t j=0;j<myPath.size();++j)
             {
 
-                myPath[j]/=this->abstractSize;
+                auto point_cur = myPath[j]/this->abstractSize;
 
                 if (j>0)
                 {
                     auto tmpI = lp[index].second[j];
-                    if (!(myPath[j]==myPath[j-1]))
+                    if (!(point_cur==point_previous))
                     {
-                        //DEBUG
-                        if(myPath[j-1].to_str()=="(0, 0, 1)")
-                        {
-                            if(myPath[j].to_str()=="(1, 0, 0)")
-                                cout<<"=>"<<myPath[j].to_str()<<endl;
-                        }
-                        //DEBUG
-                        auto tmpPoint = myPath[j]-myPath[j-1]-l.back().speedPoint;
+
+                        auto tmpPoint = point_cur-point_previous-l.back().speedPoint;
                         if(tmpPoint.isBiggerAbsOne())
-                            l.emplace_back(Point(0),myPath[j-1],1);
-                        l.emplace_back(myPath[j]-myPath[j-1],myPath[j],1);
-                        inset_boundry_point(lp[index].second[j],lp[index].first,myPath[j], true);
-                        inset_boundry_point(lp[index].second[j-1],lp[index].first,myPath[j-1],false);
+                            l.emplace_back(Point(0),point_previous,1);
+                        l.emplace_back(point_cur-point_previous,point_cur,1);
+                        inset_boundry_point(lp[index].second[j],lp[index].first,point_cur, true);
+                        inset_boundry_point(lp[index].second[j-1],lp[index].first,point_previous,false);
                     }
                     else
                         l.back().weightedVal+=1;
                 }
                 else{
-                    inset_boundry_point(lp[index].second[j],lp[index].first,myPath[j], true);
-                    l.emplace_back(Point(),myPath[j],1);
-                    inset_boundry_point_bigGrid(lp[index].first,myPath[j], true);//insert to big grid
+                    inset_boundry_point(lp[index].second[j],lp[index].first,point_cur, true);
+                    l.emplace_back(Point(),point_cur,1);
+                    //insert to big grid
+                    inset_boundry_point_bigGrid(lp[index].first,point_cur, true);
                 }
-                //inset to dict {pos,speed}->abstract_State
-                u_int64_t keyRealPosAttacker = lp[index].second[j].first.expHash(lp[index].second[j].second);
-                realStateAbstractState->insert({keyRealPosAttacker,l.back()});
+                point_previous=point_cur;
+
+                //u_int64_t keyRealPosAttacker = lp[index].second[j].first.expHash(lp[index].second[j].second);
+                //realStateAbstractState->insert({keyRealPosAttacker,l.back()});
             }
-            inset_boundry_point_bigGrid(lp[index].first,myPath.back());//insert to big grid
-            inset_boundry_point(lp[index].second.back(),lp[index].first,myPath.back());
+            inset_boundry_point_bigGrid(lp[index].first,point_previous);//insert to big grid
+            inset_boundry_point(lp[index].second.back(),lp[index].first,point_previous);
         }
         normProbability(this->startPoints_abstraction.get());
         //normProbability(this->endPoints_abstraction.get());
         make_dict_policy(setPaths);
         cout<<endl;
     }
-    void inset_boundry_point_bigGrid(double val,Point &gridPoint_,bool entry=false)
+    void inset_boundry_point_bigGrid(double val,const Point &gridPoint_,bool entry=false)
     {
         doubleVecPoint *vec_to_inset= nullptr;
         if(entry)
@@ -186,15 +235,14 @@ public:
             pos->weightedVal+=val;
 
     }
-    void inset_boundry_point(pair<Point,Point> &statePoint,double val,Point &gridPoint_,bool entry=false)
+    void inset_boundry_point(pair<Point,Point> &statePoint,double val,const Point &gridPoint_,bool entry=false)
     {
         doubleVecPoint* vec_to_inset= nullptr;
         if(entry)
             vec_to_inset = startPoints_abstraction.get();
         else
             vec_to_inset = endPoints_abstraction.get();
-        if(AbstractPointToIndex(gridPoint_)==48)
-            cout<<"startPoint:"<<entry<<"\t val:"<<val<<endl;
+
         auto& vec = vec_to_inset->operator[](AbstractPointToIndex(gridPoint_));
         if (auto pos=std::find_if(vec.begin(),vec.end(),[&](weightedPosition &pState){
             if(pState.speedPoint==statePoint.second && pState.positionPoint==statePoint.first)return true;
@@ -205,7 +253,7 @@ public:
             pos->weightedVal+=val;
         }
     }
-    u_int32_t AbstractPointToIndex(const Point &p)
+    u_int32_t AbstractPointToIndex(const Point &p)const
     {
         auto x =  this->divPoint[0]*p[0];
         auto y =  p[1];
@@ -254,17 +302,17 @@ public:
                                                    zero.hashConst(Point::maxSpeed));
 
 
-                if(item[i].positionPoint.to_str()=="(1, 1, 1)")
-                {
-                    cout<<"item[i].speedPoint:\t"<<item[i].speedPoint.to_str()<<endl;
-                    cout<<difAction.to_str()<<endl;
-                    cout<<diffPos.to_str()<<endl;
-                    cout<<"key="<<key<<endl;
-                    cout<<item[i+1].positionPoint.to_str()<<endl;
-                    cout<<item[i+1].speedPoint.to_str()<<endl;
-                    cout<<"keyZero:\t"<<keyZero<<endl;
-                    cout<<"----------\n";
-                }
+//                if(item[i].positionPoint.to_str()=="(1, 1, 1)")
+//                {
+//                    cout<<"item[i].speedPoint:\t"<<item[i].speedPoint.to_str()<<endl;
+//                    cout<<difAction.to_str()<<endl;
+//                    cout<<diffPos.to_str()<<endl;
+//                    cout<<"key="<<key<<endl;
+//                    cout<<item[i+1].positionPoint.to_str()<<endl;
+//                    cout<<item[i+1].speedPoint.to_str()<<endl;
+//                    cout<<"keyZero:\t"<<keyZero<<endl;
+//                    cout<<"----------\n";
+//                }
 
 
                 if (auto pos = this->vecPolicy[index]->find(key);pos==this->vecPolicy[index]->end())
@@ -337,14 +385,23 @@ public:
         }
         cout<<"end"<<endl;
     }
-    std::vector<simulation> initializeSimulation(configGame &conf,std::vector<weightedPosition>& StartingDefender){
-        //vector<weightedPosition> l = {{Point(0),Point(0),1}};
+
+    std::vector<simulation> initializeSimulation(configGame &conf,std::vector<weightedPosition>& StartingDefender)
+    {
         std::vector<simulation> simulationList;
+        miniGrid_initializeSimulation(conf,simulationList);
+        bigGrid_initializeSimulation(conf,StartingDefender,simulationList);
+        return simulationList;
+    }
+
+
+    void miniGrid_initializeSimulation(configGame &conf,std::vector<simulation> simulationList)
+    {
         simulationList.reserve(this->sizeVectors);
         for (size_t k = 0 ; k<this->vecPolicy.size()-1;++k) {
             if (this->vecPolicy[k]->empty())
                 continue;
-            auto [up,low]=getBound(k,this->abstractSize,this->divPoint);
+            auto [up,low]=getBound(k,this->abstractSize,this->divPoint,this->offset);
             auto listPosStart = startingPosDefender(up,low,conf.maxD);
             auto* a = new Agent(startPoints_abstraction->operator[](k),Section::adversary,10);
             auto* d = new Agent(std::move(listPosStart),Section::gurd,10);
@@ -357,6 +414,9 @@ public:
             simulationList.emplace_back(d,a,G,seedSystem,k);
             //break;
         }
+    }
+    void bigGrid_initializeSimulation(configGame &conf,std::vector<weightedPosition>& StartingDefender,std::vector<simulation> simulationList)
+    {
         std::for_each(StartingDefender.begin(),StartingDefender.end(),[&](weightedPosition &data){
             data.positionPoint/=abstractSize;
             data.speedPoint/=abstractSize;
@@ -375,8 +435,6 @@ public:
         d->getPolicyInt()->add_tran(a->getPolicyInt());
         auto G = new Grid(up,low,this->endPoints_abstraction->operator[](k));
         simulationList.emplace_back(d,a,G,seedSystem,k);
-
-        return simulationList;
     }
 private:
     static inline void insetToMoveDict(double p,double inplace,u_int64_t key, vector<pair<u_int64_t,pair<vector<pair<short,double>>,double>>>& moveSpeedAbstract)
@@ -423,12 +481,14 @@ private:
         cout<<"Loc Defender="<<l3.size()<<endl;
         return l3;
     }
-    static pair<Point,Point> getBound(int key,Point &abstract, Point &divPoint){
+    static pair<Point,Point> getBound(int key,Point &abstract, Point &divPoint,Point &offset){
         int x = (key%(divPoint[0]*divPoint[1]))/divPoint[0];
         int  y = key%divPoint[0];
         int  z = key/(divPoint[1]*divPoint[0]);
         Point up(abstract[0]+x*abstract[0],abstract[1]+y*abstract[1],abstract[2]*z+abstract[2]);
         Point low(x*abstract[0],y*abstract[1],z*abstract[2]);
+        up+=offset;
+        low+=offset;
         cout<<"ID:\t"<<key<<"  low: "<<low.to_str()<<"  up: "<<up.to_str()<<endl;
         return {up,low};
     }
@@ -455,20 +515,21 @@ private:
         a->setPolicy(aP);
     }
     void setDictHashState(hashIdStates* mDictHash){ dictHash=mDictHash;}
-    void setEndStartPoint(vector<weightedPosition>& start, listPointWeighted* end,int maxSpeed)
-    {
-        for(auto &itemI : start) {
-            auto s = Point(itemI.positionPoint);
-            auto idx = emplaceInDictVec(s);
-            startPoints_abstraction->operator[](idx).emplace_back(Point(0,0,maxSpeed),std::move(s),1);
-        }
-        for(auto &[a,b] : *end) {
-            auto e = Point(b);
-            auto idx = emplaceInDictVec(e);
-            endPoints_abstraction->operator[](idx).emplace_back(Point(0),std::move(e),1);
-        }
 
-    }
+//    void setEndStartPoint(vector<weightedPosition>& start, listPointWeighted* end,int maxSpeed)
+//    {
+//        for(auto &itemI : start) {
+//            auto s = Point(itemI.positionPoint);
+//            auto idx = emplaceInDictVec(s);
+//            startPoints_abstraction->operator[](idx).emplace_back(Point(0,0,maxSpeed),std::move(s),1);
+//        }
+//        for(auto &[a,b] : *end) {
+//            auto e = Point(b);
+//            auto idx = emplaceInDictVec(e);
+//            endPoints_abstraction->operator[](idx).emplace_back(Point(0),std::move(e),1);
+//        }
+//
+//    }
     static void insetToList(std::vector<weightedPosition> &l , AStar::StatePoint &s){
         auto to_inset = weightedPosition(s.speed,s.pos,1);
         if (std::find(l.begin(), l.end(),to_inset) == l.end())
@@ -484,11 +545,15 @@ private:
     int emplaceInDictVec(const Point &statePos)
     {
 
-        auto row = statePos.array[0]/abstractSize.array[0];
-        auto col = statePos.array[1]/abstractSize.array[1];
-        auto z = statePos.array[2]/abstractSize.array[2];
+        if(!(statePos>=this->offset))
+            return -1;
+        auto row = (statePos.array[0]-offset.array[0])/abstractSize.array[0];
+        auto col = (statePos.array[1]-offset.array[1])/abstractSize.array[1];
+        auto z   = (statePos.array[2]-offset.array[2])/abstractSize.array[2];
 
-        return divPoint[0]*row+col+z*(divPoint[0]*divPoint[1]);
+
+
+        return divPoint[0]*row + col + z * (divPoint[0] * divPoint[1]);
     }
     void normalizeStartVectorPoint()
     {
@@ -506,8 +571,11 @@ private:
         // cycle over all starting point
         for (const auto &item: *dictHash)
         {
-            //cout<<"in\n";
+
             auto idx = emplaceInDictVec(item.second.second.pos);
+            cout<<"idx: "<<idx<<"\t"<<item.second.second.pos.to_str()<<endl;
+            if(idx>=vecPolicy.size()-1 or idx<0)
+                continue;// the cases when the grid is not fully cover the big grid (some points not cover)
 
             auto pos = allDictPolicy->find(item.first);
             if (pos==allDictPolicy->end())
@@ -518,22 +586,6 @@ private:
             auto statSOld = StatePoint(statS);
             for (size_t k=0;k<vecNext->size()-1;k+=2)
             {
-                auto action = hashActionDict->operator[](vecNext->operator[](k));
-
-                statS.speed.operator+=(*action);
-                statS.pos.operator+=(statS.speed);
-                auto newIdx = emplaceInDictVec(statS.pos);
-                auto newID = getIndexEntry(statS);
-                if (newIdx != idx)
-                {
-                    auto tmp = StatePoint(statSOld);
-                    //insetToList(startPoints_abstraction->operator[](newIdx),statS);
-                    //insetToList(endPoints_abstraction->operator[](idx),tmp);
-                    // inset entry point into big-Grid
-                    //this->vecPolicy[vecPolicy.size()-1]->emplace(pos->first,pos->second);
-
-                }
-                statS = StatePoint(statSOld);
                 normalizeStartVectorPoint();
             }
         }

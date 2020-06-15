@@ -66,6 +66,20 @@ public:
         }
         return str;
     }
+    friend bool operator>(const Point &other1,const Point &other2)
+    {
+        for (int i = 0; i <other1.capacity; ++i)
+            if (other1.array[i]<=other2.array[i])
+                return false;
+        return true;
+    }
+    friend bool operator>=(const Point &other1,const Point &other2)
+    {
+        for (int i = 0; i <other1.capacity; ++i)
+            if (other1.array[i]<other2.array[i])
+                return false;
+        return true;
+    }
     int multi(){
         int res=1;
         for (int i = 0; i < this->capacity; ++i) {
@@ -101,6 +115,13 @@ public:
         return *this;
     }
 
+    Point operator+(const Point &other)const{
+        Point ans(0);
+        for (int i = 0; i < this->capacity; ++i) {
+            ans.array[i]=this->array[i]+other.array[i];
+        }
+        return ans;
+    }
 
     void operator+=(const Point &other){
 
@@ -143,6 +164,13 @@ public:
     bool any_bigger_equle(const Point &other){
         for (int i = 0; i < this->capacity; ++i) {
             if (this->array[i]<=other.array[i])
+                return true;
+        }
+        return false;
+    }
+    bool any_bigger(const Point &other){
+        for (int i = 0; i < this->capacity; ++i) {
+            if (this->array[i]>other.array[i])
                 return true;
         }
         return false;

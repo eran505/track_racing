@@ -29,6 +29,8 @@ bool Point::is_equal(const Point *other) const{
     return true;
 }
 
+
+
 int Point::operator[](int index) const{
     return this->array[index];
 }
