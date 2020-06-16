@@ -28,7 +28,7 @@ public:
     std::vector<std::pair<double,Point>>* goalPoint;
     vector<pair<double,vector<Point>>> myPaths;
     unordered_map<u_int64_t,vector<double>*>* getDictPolicy(){return dictPolicy;}
-
+    void setDictPolicy(unordered_map<u_int64_t,vector<double>*>* obj){dictPolicy=obj;}
     int getNumberOfState() {
         return dictPolicy->size();
     }

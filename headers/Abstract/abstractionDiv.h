@@ -66,7 +66,11 @@ public:
         divPoint=grid_size/mAbstractSize;
         realStateAbstractState = std::make_unique<weightedPositionDict>();
         seedSystem = seed;
+
         allDictPolicy=policyP->getDictPolicy();
+        dictHash= policyP->statesIdDict;
+        myPaths = policyP->myPaths;
+
         //auto number2D = girdSize.array[0]*girdSize.array[1];
         vecPolicy = vector<dictPolicyPath*>(sizeMiniGrid+1);
         startPoints_abstraction = std::make_unique<doubleVecPoint>(sizeMiniGrid+1);
@@ -80,15 +84,14 @@ public:
         if(offset.sum()!=0)
             crate_big_grid=false;
 
-        dictHash= policyP->statesIdDict;
-        myPaths = policyP->myPaths;
+
         hashActionDict= Point::getDictAction();
         initAbstract();
 
         entryPoint(policyP->max_speed);
         std::cout<<endl;
     }
-
+    dictPolicyPath* get_allDictPolicy(){return allDictPolicy;}
     /**
      * TODO: need to fix this [initAbstract] by-pass
      * */
@@ -395,9 +398,9 @@ public:
     }
 
 
-    void miniGrid_initializeSimulation(configGame &conf,std::vector<simulation> simulationList)
+    void miniGrid_initializeSimulation(configGame &conf,std::vector<simulation>& simulationList)
     {
-        simulationList.reserve(this->sizeVectors);
+        //simulationList.reserve(this->sizeVectors);
         for (size_t k = 0 ; k<this->vecPolicy.size()-1;++k) {
             if (this->vecPolicy[k]->empty())
                 continue;
@@ -410,12 +413,13 @@ public:
             a->getPolicyInt()->add_tran(d->getPolicyInt());
             d->getPolicyInt()->add_tran(a->getPolicyInt());
 
-            auto G = new Grid(up,low,this->endPoints_abstraction->operator[](k));
-            simulationList.emplace_back(d,a,G,seedSystem,k);
-            //break;
+            std::unique_ptr<Grid> G = std::make_unique<Grid>(up,low,this->endPoints_abstraction->operator[](k));
+            auto sim = simulation(d,a,std::move(G),seedSystem,k);
+            simulationList.push_back(std::move(sim));
+            cout<<"debug-line\n";
         }
     }
-    void bigGrid_initializeSimulation(configGame &conf,std::vector<weightedPosition>& StartingDefender,std::vector<simulation> simulationList)
+    void bigGrid_initializeSimulation(configGame &conf,std::vector<weightedPosition>& StartingDefender,std::vector<simulation>& simulationList)
     {
         std::for_each(StartingDefender.begin(),StartingDefender.end(),[&](weightedPosition &data){
             data.positionPoint/=abstractSize;
@@ -433,8 +437,9 @@ public:
         setPathPolicy(conf,a,k);
         a->getPolicyInt()->add_tran(d->getPolicyInt());
         d->getPolicyInt()->add_tran(a->getPolicyInt());
-        auto G = new Grid(up,low,this->endPoints_abstraction->operator[](k));
-        simulationList.emplace_back(d,a,G,seedSystem,k);
+        auto G = std::make_unique<Grid>(up,low,this->endPoints_abstraction->operator[](k));
+        auto sim = simulation(d,a,std::move(G),seedSystem,k);
+        simulationList.push_back(std::move(sim));
     }
 private:
     static inline void insetToMoveDict(double p,double inplace,u_int64_t key, vector<pair<u_int64_t,pair<vector<pair<short,double>>,double>>>& moveSpeedAbstract)

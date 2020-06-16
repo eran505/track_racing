@@ -27,24 +27,40 @@ class simulation{
     enum angentEntry{defenderInt=0,attackerInt=1};
     vector<u_int32_t> trackingData;
 
-    Grid *g;
+    std::unique_ptr<Grid> g;
     bool noSpeed=false;
-    State *sState;
+    std::unique_ptr<State> sState;
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution;
     unordered_map<string,u_int32_t> collustionMap;
 
 public:
+
     std::vector<shared_ptr<Agent>> agents;
     u_int16_t gridID;
+
+
+    simulation(simulation&& obj) noexcept
+    {
+        this->trackingData=std::move(obj.trackingData);
+        this->sState=std::move(obj.sState);
+        this->g=std::move(obj.g);
+        this->generator= obj.generator;
+        this->distribution=obj.distribution;
+        this->collustionMap= std::move(obj.collustionMap);
+        this->noSpeed=obj.noSpeed;
+        this->gridID = obj.gridID;
+        this->agents = std::move(obj.agents);
+    }
+
     void getDefAgentDATA(){agents[defenderInt]->getPolicyInt()->policy_data();}
     shared_ptr<Agent> getDefAgent(){agents[defenderInt];}
     Agent* getDefAgentPTR(){agents.operator[](0).get();}
     size_t getCollustionMapSize(){return collustionMap.size();}
     const unordered_map<string,u_int32_t>& getCollustionMap()const{return collustionMap;}
-    simulation(Agent* pursuerAgent, Agent* evaderAgent, Grid *absGrid,int seed,int _id)
+    simulation(Agent* pursuerAgent, Agent* evaderAgent, std::unique_ptr<Grid>  absGrid,int seed,int _id)
     :trackingData(event::Size),distribution(0.0,1.0),generator(seed),sState(nullptr),
-    g(absGrid)
+    g(std::move(absGrid))
     {
         gridID=_id;
         agents.push_back(std::shared_ptr<Agent>(pursuerAgent));
@@ -68,7 +84,7 @@ public:
                 w*=attackerPointItem.weightedVal;
                 auto ptrPolicy= agents[defenderInt]->getPolicyInt();
                 auto *tmp_pointer = dynamic_cast <RtdpAlgo*>(ptrPolicy);
-                auto val = tmp_pointer->getArgMaxValueState(sState);
+                auto val = tmp_pointer->getArgMaxValueState(sState.get());
                 ans += val*w;
             }
         }
@@ -87,9 +103,6 @@ public:
     }
     ~simulation(){
         cout<<"~simulation"<<endl;
-
-        delete sState;
-        delete g;
     }
 
 
@@ -113,14 +126,14 @@ public:
                 std::for_each(agents.begin(),agents.end(),
                               [&](const shared_ptr<Agent>& ptrAgentI)
                               {
-                    ptrAgentI->getPolicyInt()->update_final_state(sState);
+                    ptrAgentI->getPolicyInt()->update_final_state(sState.get());
                               });
             }
             while(!stop)
             {
                 std::for_each(std::begin(agents),std::end(agents),
                     [&](const shared_ptr<Agent>& ptrAgent){
-                        ptrAgent->doAction(sState);}
+                        ptrAgent->doAction(sState.get());}
                     );
                 #ifdef DEBUGPrint
                 cout<<sState->to_string_state()<<endl;
@@ -162,8 +175,8 @@ private:
     }
     void setState()
     {
-        sState = new State();
-        sState->g_grid=g;
+        sState = std::make_unique<State>();
+        sState->g_grid=g.get();
         for(auto& itemAgent:agents)
         {
             auto [pPos,sSpeed] = itemAgent->get_pos(this->distribution(this->generator));

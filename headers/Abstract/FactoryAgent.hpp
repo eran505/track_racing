@@ -36,6 +36,9 @@ class AbstractCreator{
     std::unique_ptr<rtSimulation> rtSim= nullptr;
     unordered_map<u_int32_t ,Agent*> lAgent;
 public:
+
+
+
     unordered_map<u_int32_t ,Agent*> getLAgents(){return lAgent;}
     AbstractCreator(PathPolicy* evaderPolicy, const Point& ptrGirdSize, const Point& mAbstractSize, int seed_):
             abGridSize(mAbstractSize), evaderPolicy(evaderPolicy), seed(seed_){
@@ -43,16 +46,20 @@ public:
         abGridSize=mAbstractSize;
         divPoint = ptrGirdSize/mAbstractSize;
     }
+    void getOwnerShip(abstractionDiv& object)
+    {
+        evaderPolicy->setDictPolicy(object.get_allDictPolicy());
 
+    }
     auto initializeSimulation(configGame &conf,std::vector<weightedPosition> defenderStart)
     {
         auto abstractionObject = abstractionDiv(originalGridSize,abGridSize,evaderPolicy,seed,Point(0),Point(0,0,0));
         auto workerTasks = abstractionObject.initializeSimulation(conf,defenderStart);
-
+        getOwnerShip(abstractionObject);
         auto abstractionObject_Helper = abstractionDiv(originalGridSize,abGridSize,evaderPolicy,seed,Point(0),Point(4,0,0));
         vector<simulation> offset_grids;
         abstractionObject_Helper.miniGrid_initializeSimulation(conf,offset_grids);
-
+        std::for_each(offset_grids.begin(),offset_grids.end(),[&](simulation &item){item.simulate(iter);});
 
         lsim = std::move(workerTasks);
         vector<int> l;
@@ -123,15 +130,7 @@ public:
 
         return Point(x,y,z);
     }
-    void RemoveIfVector(vector<simulation> &l)
-    {
-        auto iteVec = std::copy_if(l.begin(),l.end(),lsim.begin(),[&](simulation& itemX){
-            if(l.back().isInCollMap(keyToPoint(itemX.gridID).to_str()) or itemX.gridID==l.back().gridID)
-                return true;
-            return false;
-        });
-        //lsim.erase(iteVec);
-    }
+
     bool IsReachable(u_int32_t key){
         return lsim.back().isInCollMap(keyToPoint(key).to_str());
     }
