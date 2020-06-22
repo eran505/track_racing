@@ -3,11 +3,11 @@
 //
 #define GOT_HERE std::cout << "At " __FILE__ ":" << __LINE__ << std::endl
 #define DEBUGER
-//#define PRINTME
+#define PRINTME
 #ifndef TRACK_RACING_REALTIMESIMULATION_HPP
 #define TRACK_RACING_REALTIMESIMULATION_HPP
 #include "headers/Abstract/Simulation.hpp"
-
+#include "containerAbstract.h"
 class rtSimulation{
 
     /*
@@ -35,11 +35,13 @@ class rtSimulation{
     unordered_map<u_int32_t ,Agent*> lDefenderAgent;
     Agent* _attacker;
     Agent* _defender;
-    u_int32_t iterMax=100000;
+    u_int32_t iterMax=10000;
     unordered_map<int,double > collusionMiniGrid;
     State* state;
     Point divPoint;
     //std::unique_ptr<Agent> _defender;
+    vector<containerAbstract> conL;
+    size_t idxContier = 0;
 
     State* GetActionAbstract(State *s){
         return s->getAbstractionState(abstraction);
@@ -73,7 +75,7 @@ class rtSimulation{
             if(curAgentNumber<sizeM)
                 insetCollDict();
             #endif
-            changeIDs();
+            //evalMode();
         }
     }
 
@@ -87,31 +89,74 @@ public:
             v.push_back(std::to_string(i));
         return v;
     }
-    rtSimulation(const Point& _abstraction,const Point& GridSize,unordered_map<u_int32_t ,Agent*> lD, Agent* attacker,State* stateArg,Agent* defnder)
-    :abstraction(_abstraction),GridSize(GridSize),lDefenderAgent(std::move(lD)),
-    _attacker(std::move(attacker)),state(std::move(stateArg)),_defender(std::move(defnder)),trackingData(event::Size,0)
+    rtSimulation(const Point& _abstraction,const Point& GridSize, Agent* attacker,State* stateArg,Agent* defnder)
+    :abstraction(_abstraction),GridSize(GridSize),
+    _attacker(attacker),_defender(defnder),trackingData(event::Size,0),
+    state(stateArg)
     {
         sizeM = (this->GridSize/this->abstraction).accMulti();
         curAgentNumber=sizeM;
-        changeIDs();
-        divPoint=this->GridSize/this->abstraction;
 
+        divPoint=this->GridSize/this->abstraction;
+    }
+    static void evalMode(Agent* ptr)
+    {
+        ptr->evalPolicy();
     }
 
-    void changeIDs()
-    {
-        this->getAgent(curAgentNumber)->evalPolicy();
-        return;
-        auto l = this->state->getIDs();
-        for (auto &item:l)
-        {
-            if(item[item.size()-1]==Section::adversary)
-            {
-                this->_attacker->setID(item);
-            }
-            else this->getAgent(curAgentNumber)->setID(item);
-        }
 
+    void setContiner(vector<containerAbstract> &l)
+    {
+        conL = std::move(l);
+    }
+    void simulationV2()
+    {
+        for (size_t t=0 ; t<iterMax;++t)
+        {
+            simGame();
+            reset_state();
+        }
+        cout<<"----"<<endl;
+        printCollDict();
+        printStat();
+    }
+    void simGame() {
+        inMini=false;
+        size_t ctr=0;
+        #ifdef PRINTME
+        cout<<ctr<<":\t"<<this->state->to_string_state()<<endl;
+        #endif
+        while (true) {
+            ctr++;
+            if (Stop_Game())
+                break;
+            // get the right agent Defender
+            auto agentD = conL[idxContier].get_agent(state);
+            evalMode(agentD);
+            // if need to abstract the state
+            if (conL[idxContier].get_absState()) {
+                auto tmpState = GetActionAbstract(this->state);
+                #ifdef PRINTME
+                cout<<"tmpState:\t"<<tmpState->to_string_state()<<endl;
+                #endif
+                agentD->doAction(tmpState);
+                #ifdef PRINTME
+                cout<<"\tAction:\t"<<agentD->lastAction.to_str()<<"\n";
+                #endif
+                delete tmpState;
+                this->state->applyAction(agentD->get_id(), agentD->lastAction,
+                                         agentD->getPolicyInt()->max_speed);
+
+            } else {
+                agentD->doAction(state);
+                inMini=true;
+            }
+            // attacker turn
+            _attacker->doAction(this->state);
+            #ifdef PRINTME
+            cout<<ctr<<":\t"<<this->state->to_string_state()<<endl;
+            #endif
+        }
     }
 
     void simulation()
@@ -131,6 +176,7 @@ public:
                 {
                     auto tmpState = GetActionAbstract(this->state);
                     auto ptrAgent = getAgent(curAgentNumber);
+                    //ptrAgent = conL[idxContier].get_agent(this->state);
                     #ifdef PRINTME
                     cout<<"tmpState:\t"<<tmpState->to_string_state()<<endl;
                     #endif
@@ -165,7 +211,7 @@ public:
     }
     bool Stop_Game(){
         const Point& posEvader= this->state->get_position_ref(this->_attacker->get_id());
-        const Point& posPursuer = this->state->get_position_ref(this->lDefenderAgent[curAgentNumber]->get_id());
+        const Point& posPursuer = this->state->get_position_ref(this->_defender->get_id());
         
         auto valGoal = state->g_grid->get_goal_reward(posEvader);
         if (state->g_grid->is_wall(posPursuer)) // agent P hit wall

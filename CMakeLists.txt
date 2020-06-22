@@ -7,9 +7,9 @@ set(CMAKE_CXX_STANDARD 17)
 #set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -gdwarf-3")
 #set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -gdwarf-3")
 
-#set(CMAKE_CXX_FLAGS_DEFAULT "-O3 -g")
-#set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-#set(CMAKE_CXX_FLAGS_DEBUG  "-O3 -g")
+set(CMAKE_CXX_FLAGS_DEFAULT "-O3 -g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_DEBUG  "-O3 -g")
 ###
 
 #debug mode
@@ -39,7 +39,7 @@ add_executable(track_racing
         main.cpp
         MdpPlaner.cpp
         State.cpp
-        util_game.cpp headers/graph/graph_util.hpp headers/Policy/RTDP_util.hpp headers/Policy/RTDP_util.cpp headers/Policy/RtdpAlgo.hpp headers/Policy/RtdpAlgo.cpp headers/graph/graph_dummy.hpp headers/serach/Astar.hpp headers/serach/Astar.cpp headers/Policy/PathPolicy.hpp headers/util/csvfile.hpp headers/util/utilClass.hpp headers/learning/neuralNet.h headers/learning/FeatureGen.h headers/learning/DeepRTDP.h headers/learning/ReplayBuffer/ReplayBuffer.hpp headers/learning/DQN.hpp headers/Policy/valueIter.h headers/learning/Learner.h headers/learning/ReplayBuffer/SumTree.hpp headers/learning/ReplayBuffer/prioritizedExperienceReplay.hpp headers/learning/ReplayBuffer/ExperienceReplay.hpp headers/learning/ReplayBuffer/BufferReplay.hpp headers/util/Lookhead.h headers/learning/MCTS/UCT.hpp headers/Abstract/abstractionDiv.h headers/Abstract/AlgoRtdp.h headers/Trees/Tree.hpp "headers/Abstract/Simulation.hpp" headers/Abstract/FactoryAgent.hpp headers/Abstract/RealTimeSimulation.hpp headers/Policy/RTDP_dict.hpp headers/util/Configer.h)
+        util_game.cpp headers/graph/graph_util.hpp headers/Policy/RTDP_util.hpp headers/Policy/RTDP_util.cpp headers/Policy/RtdpAlgo.hpp headers/Policy/RtdpAlgo.cpp headers/graph/graph_dummy.hpp headers/serach/Astar.hpp headers/serach/Astar.cpp headers/Policy/PathPolicy.hpp headers/util/csvfile.hpp headers/util/utilClass.hpp headers/learning/neuralNet.h headers/learning/FeatureGen.h headers/learning/DeepRTDP.h headers/learning/ReplayBuffer/ReplayBuffer.hpp headers/learning/DQN.hpp headers/Policy/valueIter.h headers/learning/Learner.h headers/learning/ReplayBuffer/SumTree.hpp headers/learning/ReplayBuffer/prioritizedExperienceReplay.hpp headers/learning/ReplayBuffer/ExperienceReplay.hpp headers/learning/ReplayBuffer/BufferReplay.hpp headers/util/Lookhead.h headers/learning/MCTS/UCT.hpp headers/Abstract/abstractionDiv.h headers/Abstract/AlgoRtdp.h headers/Trees/Tree.hpp "headers/Abstract/Simulation.hpp" headers/Abstract/FactoryAgent.hpp headers/Abstract/RealTimeSimulation.hpp headers/Policy/RTDP_dict.hpp headers/util/Configer.h headers/Abstract/containerAbstract.h)
 
 target_link_libraries(track_racing "${TORCH_LIBRARIES}")
 

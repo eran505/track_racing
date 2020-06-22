@@ -22,44 +22,50 @@
 #include "Abstract/abstractionDiv.h"
 #include "Abstract/Simulation.hpp"
 #include <thread>
+#include <utility>
 #include "Abstract/RealTimeSimulation.hpp"
+#include "containerAbstract.h"
 class AbstractCreator{
-
-    vector<simulation> lsim;
-    PathPolicy* evaderPolicy;
+    vector<Point> allAbst;
     Point originalGridSize;
+    vector<simulation> lsim;
+    const PathPolicy* evaderPolicy;
     Point abGridSize;
+    vector<containerAbstract> l_containers;
     Point divPoint;
     std::vector<simulation> simulationVector;
     int seed;
     u_int32_t iter = 500000;
     std::unique_ptr<rtSimulation> rtSim= nullptr;
-    unordered_map<u_int32_t ,Agent*> lAgent;
 public:
 
+    vector<containerAbstract>& get_con(){return l_containers;}
 
-
-    unordered_map<u_int32_t ,Agent*> getLAgents(){return lAgent;}
-    AbstractCreator(PathPolicy* evaderPolicy, const Point& ptrGirdSize, const Point& mAbstractSize, int seed_):
-            abGridSize(mAbstractSize), evaderPolicy(evaderPolicy), seed(seed_){
-        originalGridSize=ptrGirdSize;
-        abGridSize=mAbstractSize;
-        divPoint = ptrGirdSize/mAbstractSize;
-    }
-    void getOwnerShip(abstractionDiv& object)
-    {
-        evaderPolicy->setDictPolicy(object.get_allDictPolicy());
+    AbstractCreator(const PathPolicy* evaderPolicy, const Point& ptrGirdSize, vector<Point> lPointAb, int seed_):
+        allAbst(std::move(lPointAb)),originalGridSize(ptrGirdSize),evaderPolicy(evaderPolicy), seed(seed_){
 
     }
-    auto initializeSimulation(configGame &conf,std::vector<weightedPosition> defenderStart)
+    void factory_containerAbstract(configGame &conf,const std::vector<weightedPosition>& defenderStart)
     {
-        auto abstractionObject = abstractionDiv(originalGridSize,abGridSize,evaderPolicy,seed,Point(0),Point(0,0,0));
-        auto workerTasks = abstractionObject.initializeSimulation(conf,defenderStart);
-        getOwnerShip(abstractionObject);
+        std::for_each(allAbst.begin(),allAbst.end(),[&](const Point& p){
+            this->abGridSize=p;
+            this->divPoint=this->originalGridSize/p;
+            this->initializeSimulation(conf,defenderStart);
+        });
+    }
+    void helperGridSim(configGame &conf)
+    {
         auto abstractionObject_Helper = abstractionDiv(originalGridSize,abGridSize,evaderPolicy,seed,Point(0),Point(4,0,0));
         vector<simulation> offset_grids;
         abstractionObject_Helper.miniGrid_initializeSimulation(conf,offset_grids);
         std::for_each(offset_grids.begin(),offset_grids.end(),[&](simulation &item){item.simulate(iter);});
+
+    }
+    void initializeSimulation(configGame &conf,const std::vector<weightedPosition> &defenderStart)
+    {
+        auto abstractionObject = abstractionDiv(originalGridSize,abGridSize,evaderPolicy,seed,Point(0),Point(0,0,0));
+        auto workerTasks = abstractionObject.initializeSimulation(conf,defenderStart);
+
 
         lsim = std::move(workerTasks);
         vector<int> l;
@@ -110,14 +116,15 @@ public:
            if(t.joinable()) t.join();
         });
         #endif
-        //lAgent.reserve(lsim.size());
-
+        unordered_map<u_int32_t ,Agent*> listAgent;
         for (auto &item : lsim)
         {
             //auto ptrTmp = item.getDefAgentPTR();
             cout<<"Is copying,,,"<<item.gridID<<endl;
-            lAgent.insert({item.gridID,item.agents[0].get()});
+            listAgent.insert({item.gridID,item.agents[0].get()});
         }
+        l_containers.emplace_back(Point(0),Point(this->abGridSize),Point(this->originalGridSize),
+                std::move(listAgent),lsim.back().gridID);
         cout<<"done!"<<endl;
     }
 

@@ -29,6 +29,7 @@ class simulation{
 
     std::unique_ptr<Grid> g;
     bool noSpeed=false;
+    int _seed;
     std::unique_ptr<State> sState;
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution;
@@ -39,19 +40,30 @@ public:
     std::vector<shared_ptr<Agent>> agents;
     u_int16_t gridID;
 
-
     simulation(simulation&& obj) noexcept
+    :trackingData(std::move(obj.trackingData)),g(std::move(obj.g)),
+        noSpeed(obj.noSpeed),_seed(obj._seed),
+        sState(std::move(obj.sState)),
+        generator(obj.generator),distribution(obj.distribution),
+        collustionMap(std::move(obj.collustionMap)),
+        agents(std::move(obj.agents)),gridID(obj.gridID)
+        {}
+
+    simulation& operator=(const simulation& obj) noexcept
     {
-        this->trackingData=std::move(obj.trackingData);
-        this->sState=std::move(obj.sState);
-        this->g=std::move(obj.g);
+        this->trackingData=(obj.trackingData);
+        this->sState=std::make_unique<State>(*obj.sState);
+        this->g=std::make_unique<Grid>(*obj.g);
         this->generator= obj.generator;
         this->distribution=obj.distribution;
-        this->collustionMap= std::move(obj.collustionMap);
+        this->collustionMap= (obj.collustionMap);
         this->noSpeed=obj.noSpeed;
         this->gridID = obj.gridID;
-        this->agents = std::move(obj.agents);
+        this->agents = (obj.agents);
+        this->_seed=obj._seed;
+        return *this;
     }
+
 
     void getDefAgentDATA(){agents[defenderInt]->getPolicyInt()->policy_data();}
     shared_ptr<Agent> getDefAgent(){agents[defenderInt];}
@@ -59,9 +71,10 @@ public:
     size_t getCollustionMapSize(){return collustionMap.size();}
     const unordered_map<string,u_int32_t>& getCollustionMap()const{return collustionMap;}
     simulation(Agent* pursuerAgent, Agent* evaderAgent, std::unique_ptr<Grid>  absGrid,int seed,int _id)
-    :trackingData(event::Size),distribution(0.0,1.0),generator(seed),sState(nullptr),
+    :trackingData(event::Size),_seed(seed),distribution(0.0,1.0),generator(seed),sState(nullptr),
     g(std::move(absGrid))
     {
+
         gridID=_id;
         agents.push_back(std::shared_ptr<Agent>(pursuerAgent));
         agents.push_back(std::shared_ptr<Agent>(evaderAgent));
@@ -114,7 +127,9 @@ public:
      * :iterationMax = number of simulations
      * **/
     void simulate(u_int32_t iterationMax){
-
+        #ifdef DEBUG2
+        cout<<"---> gridID:"<<gridID<<endl;
+        #endif
         for (u_int32_t i = 0; i < iterationMax; ++i) {
             auto stop= false;
             #ifdef DEBUGPrint

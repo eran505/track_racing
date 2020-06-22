@@ -30,7 +30,7 @@ class abstractionDiv{
     std::unique_ptr<weightedPositionDict> realStateAbstractState;
     int seedSystem;
     vector<dictPolicyPath*> vecPolicy;
-    dictPolicyPath* allDictPolicy;
+    shared_ptr<dictPolicyPath> allDictPolicy;
     hashIdStates* dictHash;
     std::unique_ptr<doubleVecPoint> startPoints_abstraction;
     std::unique_ptr<doubleVecPoint> endPoints_abstraction; // probabily for the speed in each cell in the bigGrid
@@ -42,20 +42,14 @@ class abstractionDiv{
 public:
     std::vector<std::pair<double,std::vector<Point>>> myPaths;
 private:
-    unordered_map<int,Point*>* hashActionDict;
+
     int sizeVectors;
     bool crate_big_grid=true;
 
 public:
-    ~abstractionDiv()
-    {
-        for(auto item : *hashActionDict)
-            delete item.second;
-        delete hashActionDict;
-        delete dictHash;
-    }
+    ~abstractionDiv() = default;
     abstractionDiv(const Point& upper_bound, const Point& mAbstractSize,
-            PathPolicy *policyP,int seed,const Point& lower_bound=Point(0),
+                   const PathPolicy* policyP,int seed,const Point& lower_bound=Point(0),
             const Point &_offset=Point(0,0,0)):offset(_offset){
         auto grid_size = upper_bound-(lower_bound+offset);
         auto tmp = grid_size/mAbstractSize;
@@ -85,13 +79,13 @@ public:
             crate_big_grid=false;
 
 
-        hashActionDict= Point::getDictAction();
+
         initAbstract();
 
         entryPoint(policyP->max_speed);
         std::cout<<endl;
     }
-    dictPolicyPath* get_allDictPolicy(){return allDictPolicy;}
+    //dictPolicyPath* get_allDictPolicy(){return allDictPolicy;}
     /**
      * TODO: need to fix this [initAbstract] by-pass
      * */
@@ -389,7 +383,7 @@ public:
         cout<<"end"<<endl;
     }
 
-    std::vector<simulation> initializeSimulation(configGame &conf,std::vector<weightedPosition>& StartingDefender)
+    std::vector<simulation> initializeSimulation(configGame &conf,const std::vector<weightedPosition>& StartingDefender)
     {
         std::vector<simulation> simulationList;
         miniGrid_initializeSimulation(conf,simulationList);
@@ -414,17 +408,19 @@ public:
             d->getPolicyInt()->add_tran(a->getPolicyInt());
 
             std::unique_ptr<Grid> G = std::make_unique<Grid>(up,low,this->endPoints_abstraction->operator[](k));
-            auto sim = simulation(d,a,std::move(G),seedSystem,k);
-            simulationList.push_back(std::move(sim));
+            //auto sim = simulation(d,a,std::move(G),seedSystem,k);
+            simulationList.emplace_back(d,a,std::move(G),seedSystem,k);
             cout<<"debug-line\n";
         }
     }
-    void bigGrid_initializeSimulation(configGame &conf,std::vector<weightedPosition>& StartingDefender,std::vector<simulation>& simulationList)
+    void bigGrid_initializeSimulation(configGame &conf,std::vector<weightedPosition> StartingDefender,std::vector<simulation>& simulationList)
     {
         std::for_each(StartingDefender.begin(),StartingDefender.end(),[&](weightedPosition &data){
             data.positionPoint/=abstractSize;
             data.speedPoint/=abstractSize;
         });
+        auto maxD=conf.maxD;
+        auto maxA=conf.maxA;
         conf.maxD=1;
         conf.maxA=1;
         auto k=vecPolicy.size()-1;
@@ -440,6 +436,8 @@ public:
         auto G = std::make_unique<Grid>(up,low,this->endPoints_abstraction->operator[](k));
         auto sim = simulation(d,a,std::move(G),seedSystem,k);
         simulationList.push_back(std::move(sim));
+        conf.maxA=maxA;
+        conf.maxD=maxD;
     }
 private:
     static inline void insetToMoveDict(double p,double inplace,u_int64_t key, vector<pair<u_int64_t,pair<vector<pair<short,double>>,double>>>& moveSpeedAbstract)
@@ -517,6 +515,7 @@ private:
         Policy* aP = new PathPolicy("Path", conf.maxA, a->get_id(), conf.home,this->vecPolicy[k]);
         auto *tmp_pointer = dynamic_cast <PathPolicy*>(aP);
         cout<<tmp_pointer->name<<endl;
+        tmp_pointer->set_dontDel(true);
         a->setPolicy(aP);
     }
     void setDictHashState(hashIdStates* mDictHash){ dictHash=mDictHash;}
@@ -578,6 +577,7 @@ private:
         {
 
             auto idx = emplaceInDictVec(item.second.second.pos);
+
             cout<<"idx: "<<idx<<"\t"<<item.second.second.pos.to_str()<<endl;
             if(idx>=vecPolicy.size()-1 or idx<0)
                 continue;// the cases when the grid is not fully cover the big grid (some points not cover)
@@ -585,6 +585,15 @@ private:
             auto pos = allDictPolicy->find(item.first);
             if (pos==allDictPolicy->end())
                 throw;
+            if(idx==0)
+            {
+                cout<<item.second.second.speed.to_str()<<":"<<item.second.second.pos.to_str()<<endl;
+                cout<<"item.first: "<<item.first<<"\n";
+                cout<<"item.second.first: "<<item.second.first<<"\n";
+                cout<<"HASH-ID:"<<pos->first<<": "<<endl;
+                std::for_each(pos->second->begin(),pos->second->end(),[](auto x){cout<<", "<<x;});
+                cout<<endl;
+            }
             vecPolicy[idx]->emplace(pos->first,pos->second);
             auto statS = item.second.second;
             auto vecNext = pos->second;

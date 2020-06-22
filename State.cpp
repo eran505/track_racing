@@ -208,7 +208,7 @@ State* State::getAbstractionState(Point &abstractPoint) {
 
     return res;
 }
-vector<Point> State::getAllPos(const Point &abstractPoint)const{
+vector<Point> State::getAllPos(const Point &abstractPoint=Point(1))const{
     vector<Point> l;
     for(auto &pair:pos_dict)
     {

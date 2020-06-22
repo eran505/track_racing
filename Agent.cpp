@@ -46,8 +46,6 @@ void Agent::trainPolicy(){
     my_Policy->evalPolicy= false;
 }
 
-
-
 void Agent::doAction(State *s) {
 
     this->lastAction = this->my_Policy->get_action(s);

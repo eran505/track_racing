@@ -12,29 +12,31 @@
 #include "util/csvfile.hpp"
 
 typedef shared_ptr<unordered_map<string ,string>> dictionary;
-
+typedef std::unordered_map<u_int64_t,vector<double>*> dictHashAction;
 typedef std::vector<std::pair<double,Point>> listPointWeighted;
 
 class PathPolicy:public Policy{
     unsigned long maxPathsNumber;
     vector<Point> midVec;
     unordered_map<u_int64_t,vector<double>*> *dictPolicy;
-
+    bool dont_del=false;
     u_int64_t getAgentSateHash(State *s);
 public:
-    size_t get_dictPolicy_size()const{return dictPolicy->size();}
+    void set_dontDel(bool b){dont_del=b;}
+    [[nodiscard]] auto get_dictPolicy_size()const{return share_dictHashAction->size();}
     vector<weightedPosition> startPoint;
     unordered_map<u_int64_t ,pair<short,AStar::StatePoint>>* statesIdDict;
+    shared_ptr<dictHashAction> share_dictHashAction;
     std::vector<std::pair<double,Point>>* goalPoint;
     vector<pair<double,vector<Point>>> myPaths;
-    unordered_map<u_int64_t,vector<double>*>* getDictPolicy(){return dictPolicy;}
-    void setDictPolicy(unordered_map<u_int64_t,vector<double>*>* obj){dictPolicy=obj;}
+    [[nodiscard]] std::shared_ptr<dictHashAction> getDictPolicy() const{return share_dictHashAction;}
+    //void setDictPolicy(dictHashAction* obj){dictPolicy=obj;}
     int getNumberOfState() {
         return dictPolicy->size();
     }
     PathPolicy(string namePolicy, int maxSpeedAgent,std::vector<std::pair<double,Point>>* endPoint_, vector<weightedPosition>& startPoint_,
                Point &gridSzie, const string &agentID,vector<Point> midVecPoints,string &home,unsigned long maxPathz=ULONG_MAX,dictionary ptrDict=nullptr) : Policy(std::move(namePolicy),
-                       maxSpeedAgent,std::move(agentID),home,std::move(ptrDict)),midVec(move(midVecPoints)) {
+                       maxSpeedAgent,agentID,home,std::move(ptrDict)),midVec(move(midVecPoints)) {
         this->goalPoint=endPoint_;
         this->dictPolicy= nullptr;
         this->startPoint=startPoint_;
@@ -46,13 +48,16 @@ public:
 
     PathPolicy(string namePolicy, int maxSpeedAgent,const string &agentID,string &home,unordered_map<u_int64_t,vector<double>*>* d,dictionary ptrDict=nullptr)
     :Policy(std::move(namePolicy),maxSpeedAgent,agentID,
-            home,std::move(ptrDict)),dictPolicy(d),goalPoint(nullptr),
+            home,std::move(ptrDict)),share_dictHashAction(d),goalPoint(nullptr),
             statesIdDict(nullptr),maxPathsNumber(0),startPoint(0),midVec(0)
-    {}
+    {
+        //share_dictHashAction=std::make_shared<auto>(d);
+    }
     
-    void setPolicyDict(unordered_map<u_int64_t,vector<double>*>* d){this->dictPolicy=d;}
     void initPolicy(Point &girdSize){
         dictPolicy = new unordered_map<u_int64_t, vector<double>*>();
+        share_dictHashAction = std::make_shared<dictHashAction>();
+
         double weightEnd;
         cout<<"A star..."<<endl;
         auto *AstarObject = new AStar::Generator(this->max_speed,girdSize);
@@ -73,7 +78,7 @@ public:
                         auto res = AstarObject->findPath(src,dest);
                     
                 }
-                AstarObject->getDict(dictPolicy,weightEnd);
+                AstarObject->getDict(share_dictHashAction.get(),weightEnd);
                 AstarObject->dictPolyClean();
             }
         }
@@ -91,15 +96,15 @@ public:
     }
     Point get_action(State *s) override;
     ~PathPolicy() override{
-        int ctr=0;
         cout<<"del A star"<<endl;
-        for(auto &item : *this->dictPolicy)
-        {
-            //cout<<item.first<<"\tctr:\t"<<ctr<<endl;
-            delete(item.second);
-            ctr++;
+        if(dont_del){
+            cout<<"dont_del PathPolicy"<<endl;
+            return;
         }
-        delete(dictPolicy);
+        for(auto &item : *this->share_dictHashAction)
+        {
+            delete(item.second);
+        }
         delete (statesIdDict);
     };
     void reset_policy() override{};
@@ -123,8 +128,8 @@ Point PathPolicy::get_action(State *s) {
     auto EntryIndx = getAgentSateHash(s);
     //trajectory.push_back(s->to_string_state()+"="+std::to_string(EntryIndx));
     std::unordered_map<u_int64_t , std::vector<double>*>::iterator it;
-    it = this->dictPolicy->find(EntryIndx);
-    if (it==this->dictPolicy->end())
+    it = this->share_dictHashAction->find(EntryIndx);
+    if (it==this->share_dictHashAction->end())
         throw;
     // get value between zero to one
     double r = static_cast <double> (random()) / static_cast <double> (RAND_MAX);
@@ -153,11 +158,11 @@ const std::vector<double> *PathPolicy::TransitionAction(State *s) {
      * second - probabilitiy*/
     //cout<<s->to_string_state()<<endl;
     auto EntryIdx = getAgentSateHash(s);
-    auto pos = this->dictPolicy->find(EntryIdx);
-    if (pos==this->dictPolicy->end())
+    auto pos = this->share_dictHashAction->find(EntryIdx);
+    if (pos==this->share_dictHashAction->end())
         throw std::runtime_error(std::string("Error: cant find the key "));
 
-    return this->dictPolicy->at(EntryIdx);
+    return this->share_dictHashAction->at(EntryIdx);
 
 }
 
@@ -244,7 +249,7 @@ void PathPolicy::treeTraversal(State *ptrState,string &strIdExp,const Point *ab)
 
 
 void PathPolicy::normalizeDict(){
-    for(auto &item : *this->dictPolicy)
+    for(auto &item : *this->share_dictHashAction)
     {
         const size_t vecSize = item.second->size();
         double sumProbability=0;
