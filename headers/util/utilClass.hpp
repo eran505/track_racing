@@ -95,8 +95,8 @@ public:
     {
         auto noiseX = distribution(generator);
         auto noiseY = distribution(generator);
-        refPoint.array[1]+=noiseY;
-        refPoint.array[0]+=noiseX;
+        refPoint.array[1]=std::min(std::max(noiseY+refPoint.array[1],0),sizeGrid[1]-1);
+        refPoint.array[0]=std::min(std::max(refPoint.array[0]+noiseX,0),sizeGrid[0]-1);
     }
     void getConfigNameFile(string& str)
     {

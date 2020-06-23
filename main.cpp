@@ -24,7 +24,7 @@
 #include "util/utilClass.hpp"
 #include <random>
 #include <headers/util/csvfile.hpp>
-#include <torch/script.h> // One-stop header.
+//#include <torch/script.h> // One-stop header.
 
 #include "learning/ReplayBuffer/SumTree.hpp"
 #include "learning/ReplayBuffer/prioritizedExperienceReplay.hpp"
@@ -63,12 +63,12 @@ typedef unsigned long ulong;
 int main() {
     GOT_HERE;
     int seed = 155139;// zero coll => con3.csv
-    seed = 1592856108; // 0.84 coll ==> con3.csv
+    seed = 1592896592; // 0.84 coll ==> con3.csv
     //seed = 1591006463;//no coll
     //seed = 1592233920; //1895975606
     seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
-    torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
+    //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
     auto arrPAth = splitStr(getExePath(),"/");
     string home = "/"+arrPAth[0]+"/"+arrPAth[1];
