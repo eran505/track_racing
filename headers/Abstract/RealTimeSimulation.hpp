@@ -35,7 +35,7 @@ class rtSimulation{
     unordered_map<u_int32_t ,Agent*> lDefenderAgent;
     Agent* _attacker;
     Agent* _defender;
-    u_int32_t iterMax=10000;
+    u_int32_t iterMax=100000;
     unordered_map<int,double > collusionMiniGrid;
     State* state;
     Point divPoint;
@@ -44,12 +44,12 @@ class rtSimulation{
     size_t idxContier = 0;
 
     State* GetActionAbstract(State *s){
-        return s->getAbstractionState(abstraction);
+        return s->getAbstractionState(conL[idxContier].get_absPoint());
     }
     u_int32_t getIndexMiniGrid(const Point &statePos){
 
-        auto row = statePos.array[0]*divPoint[0];
-        auto col = statePos.array[1]%divPoint[1];
+        auto row = statePos.array[0]*conL[idxContier].get_divPoint()[0];
+        auto col = statePos.array[1]%conL[idxContier].get_divPoint()[1];
         return col+row;
 
     }
@@ -105,7 +105,7 @@ public:
     }
 
 
-    void setContiner(vector<containerAbstract> &l)
+    void setContiner(vector<containerAbstract> l)
     {
         conL = std::move(l);
     }
@@ -120,6 +120,29 @@ public:
         printCollDict();
         printStat();
     }
+    static bool in_distance(const Point& one,const Point& two)
+    {
+
+        if(std::abs(one[0]-two[0])>2)
+            return false;
+        if(std::abs(one[1]-two[1])>2)
+            return false;
+        if(std::abs(one[2]-two[2])>2)
+            return false;
+        return true;
+    }
+    void change_continer(State* ptr){
+        auto getPos = ptr->getAllPos(conL[idxContier].get_absPoint());
+        assert(getPos.size()==2);
+        if(in_distance(getPos[0],getPos[1]))
+        {
+            if(this->idxContier<this->conL.size()-1)
+            {
+                idxContier++;
+                cout<<"idxContier++\n";
+            }
+        }
+    }
     void simGame() {
         inMini=false;
         size_t ctr=0;
@@ -127,6 +150,8 @@ public:
         cout<<ctr<<":\t"<<this->state->to_string_state()<<endl;
         #endif
         while (true) {
+            change_continer(this->state);
+            cout<<"change_continer:(idx)\t"<<idxContier<<endl;
             ctr++;
             if (Stop_Game())
                 break;
@@ -135,6 +160,7 @@ public:
             evalMode(agentD);
             // if need to abstract the state
             if (conL[idxContier].get_absState()) {
+
                 auto tmpState = GetActionAbstract(this->state);
                 #ifdef PRINTME
                 cout<<"tmpState:\t"<<tmpState->to_string_state()<<endl;
@@ -243,7 +269,7 @@ public:
 
     }
     void reset_state(){
-
+        idxContier=0;
         auto _rand = _attacker->getPolicyInt()->getRandom();
         auto [pPos,sSpeed] = _attacker->get_pos(_rand);
         this->state->set_position(_attacker->get_id(),

@@ -16,8 +16,9 @@
 #include "Policy.hpp"
 
 typedef size_t keyItem;
+
 class RTDP_util{
-    double **qTable;
+    unordered_map<u_int64_t ,std::array<double,27>> qTable;
     double _stochasticMovement=1;
     unordered_map<keyItem,unsigned int> *mapState;
     vector<Policy*> *lTran= nullptr;
@@ -39,8 +40,8 @@ public:
     void printInfoGen()
     {
         cout<<"SizeQ:"<<size_Q<<"\tgen: "<<mapState->size()<<endl;
-        if(size_Q<mapState->size())
-            throw std::invalid_argument( "The Q table is smaller from StateMap" );
+//        if(size_Q<mapState->size())
+//            throw std::invalid_argument( "The Q table is smaller from StateMap" );
 
     }
     void resetTable(){this->mapState->clear();}
@@ -69,7 +70,10 @@ public:
 //        if (action.hashMeAction(Point::actionMax)>26)
 //            cout<<"bigger"<<endl;
         //cout<<"Q("<<entryState<<","<<action.hashMeAction(Point::actionMax)<<")="<<this->qTable[entryState][action.hashMeAction(Point::actionMax)]<<endl;
+
         this->qTable[entryState][action.hashMeAction(Point::actionMax)]=val;
+
+
         //cout<<"Q("<<entryState<<","<<action.hashMeAction(Point::actionMax)<<")="<<this->qTable[entryState][action.hashMeAction(Point::actionMax)]<<endl;
 
 

@@ -7,37 +7,13 @@
 
 RTDP_util::RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget,string &mHome):home(mHome) {
     this->hashActionMap=Point::getDictAction();
-    this->set_up_Q(grid_size,max_speed_and_budget);
     this->mapState= new unordered_map<keyItem,unsigned int>();
     size_mapAction = hashActionMap->size();
     HashFuction=[](const State *s){return s->getHashValue();};
 }
 
 
-void RTDP_util::set_up_Q(int grid_size, vector<pair<int,int>>& max_speed_and_budget) {
-    int size_action = this->hashActionMap->size();
-    int size_player=max_speed_and_budget.size();
-    double state_number_overall = 1;
-    for(auto &item : max_speed_and_budget){
-        auto max_speed = item.first;
-        if (max_speed==0)
-            state_number_overall *=(item.second);
-        else
-            state_number_overall *= pow(max_speed*2+1,int(Point::D))*(grid_size+1)*item.second;
-    }
 
-    printf("\nstate_number_overall:\t%lf\n",state_number_overall);
-    this->size_Q=int(state_number_overall);
-
-    if (size_Q>22000000)
-        size_Q=23000000;
-    cout<<"\nsize_Q= "<<size_Q<<endl;
-    this->qTable = new double*[int(size_Q)]; // dynamic array (size 10) of pointers to int
-    for (int i = 0; i < size_Q; ++i)
-        this->qTable[i] = new double[size_action];
-    cout<<qTable<<endl;
-    cout<<"end allocation"<<endl;
-}
 
 
 int RTDP_util::get_state_index_by_string(const State *s_state) {
@@ -131,26 +107,15 @@ RTDP_util::~RTDP_util() {
     this->policyData();
     cout<<"state genrated:\t"<<ctr_state<<endl;
     cout<<"size_Q:\t"<<size_Q<<endl;
-    cout<<qTable<<endl;
-    //Free each sub-array
-    for(int i = 0; i < this->size_Q; ++i) {
-       // cout<<"i="<<std::to_string(i)<<endl;
-        double* currentIntPtr = qTable[i];
-        delete [] currentIntPtr;
-    }
-    //Free the array of pointers
-    delete[] qTable;
-    for(auto & it : *this->hashActionMap) {
-        delete(it.second);
-    }
+
     delete(mapState); // bug when try free also
     delete(hashActionMap);
 
 }
 
-vector<int> arg_max(const double arr[],int size ){
+vector<int> arg_max(std::array<double,27> arr,int size ){
     double max = -1;
-    max = *std::max_element(arr, arr+size);
+    max = *std::max_element(arr.begin(), arr.end());
     vector<int> listIdxs;
     listIdxs.reserve(1);
     for (int i = 0; i < size; ++i) {
@@ -214,7 +179,7 @@ vector<double>* RTDP_util::get_probabilty(State *s) {
 double RTDP_util::get_value_state_max(const State *s_state) {
     int entry_state = this->get_state_index_by_string(s_state);
     auto arr = this->qTable[entry_state];
-    double max = *std::max_element(arr, arr + size_mapAction);;
+    double max = *std::max_element(arr.begin(), arr.end());;
     return max;
 }
 

@@ -63,7 +63,7 @@ typedef unsigned long ulong;
 int main() {
     GOT_HERE;
     int seed = 155139;// zero coll => con3.csv
-    seed = 1591174590; // 0.84 coll ==> con3.csv
+    seed = 1592856108; // 0.84 coll ==> con3.csv
     //seed = 1591006463;//no coll
     //seed = 1592233920; //1895975606
     seed = int( time(nullptr));
@@ -214,13 +214,13 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
     std::unique_ptr<State> tmp = std::make_unique<State>(State(*s->get_cur_state()));
     Point abPoint(8,8,1);
-    //abPoint = Point(4,4,1);
+    Point abPoint1 = Point(4,4,1);
     //abPoint = Point(2,2,1);
     //abPoint = Point(20,20,1);
     tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint);
     pA1->setPolicy(pGridPath);
 
-    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{abPoint,Point(4,4,1)},conf.seed);
+    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{abPoint},conf.seed);
 
     z->factory_containerAbstract(conf,listPointDefender);
     auto *rl = new rtSimulation(abPoint,conf.sizeGrid,pA1,s->get_cur_state(),pD2);

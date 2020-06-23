@@ -9,7 +9,7 @@
 #include <thread>
 #include "util_game.hpp"
 #include "Policy/Policy.hpp"
-#include "Policy/RTDP_util.hpp"
+//#include "Policy/RTDP_util.hpp"
 #include "Policy/RtdpAlgo.hpp"
 #include "Policy/PathPolicy.hpp"
 #include "Agent.hpp"

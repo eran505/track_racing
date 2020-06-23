@@ -52,6 +52,7 @@ public:
             this->divPoint=this->originalGridSize/p;
             this->initializeSimulation(conf,defenderStart);
         });
+        cout<<"";
     }
     void helperGridSim(configGame &conf)
     {
@@ -116,15 +117,15 @@ public:
            if(t.joinable()) t.join();
         });
         #endif
-        unordered_map<u_int32_t ,Agent*> listAgent;
+
+        l_containers.emplace_back(Point(0),Point(this->abGridSize),Point(this->originalGridSize),lsim.back().gridID);
+        auto& obj = l_containers.back();
         for (auto &item : lsim)
         {
             //auto ptrTmp = item.getDefAgentPTR();
             cout<<"Is copying,,,"<<item.gridID<<endl;
-            listAgent.insert({item.gridID,item.agents[0].get()});
+            obj.insetToDict(item.gridID,item.agents[0]);
         }
-        l_containers.emplace_back(Point(0),Point(this->abGridSize),Point(this->originalGridSize),
-                std::move(listAgent),lsim.back().gridID);
         cout<<"done!"<<endl;
     }
 
