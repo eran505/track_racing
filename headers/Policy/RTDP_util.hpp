@@ -15,36 +15,55 @@
 #include <utility>
 #include "Policy.hpp"
 
-typedef size_t keyItem;
+
+
+typedef u_int64_t keyItem;
+typedef double cell;
 
 class RTDP_util{
-    unordered_map<u_int64_t ,std::array<double,27>> qTable;
+
+    enum {sizeN=27};
+    typedef std::array<cell,sizeN> arr;
+    std::unique_ptr<unordered_map<keyItem ,std::array<cell,sizeN>>>  qTable=
+            std::make_unique<unordered_map<keyItem ,std::array<cell,sizeN>>>();
     double _stochasticMovement=1;
-    unordered_map<keyItem,unsigned int> *mapState;
+
     vector<Policy*> *lTran= nullptr;
     unordered_map<keyItem,string> debugDict;
     const string home;
     std::function<u_int64_t (const State*)> HashFuction;
-    Policy* my_policy;
+    Policy* my_policy= nullptr;
     unsigned int ctr_state=0;
-    int ctr_random=0;
+    size_t ctr_random=0;
     int size_Q;
     int size_mapAction;
     unordered_map<int,Point*>* hashActionMap;
     double collReward=1;double goalReward=-1;double wallReward=-10;
-    void set_up_Q(int grid_size,vector<pair<int,int>>& list_l);
-    void heuristic(const State *s,int entry_index);
-    double compute_h(State *s);
+    void heuristic(const State *s,keyItem entry_index);
+    cell compute_h(State *s);
+
+    keyItem getStateKeyValue(const State *s)
+    {
+        return HashFuction(s);
+    }
+
+    arr& get_Q_entry_values(const State *s,keyItem key)
+    {
+        if(auto pos = qTable->find(key);pos==qTable->end())
+        {
+            add_entry_map_state(key,s);
+            return qTable->operator[](key);
+        }
+        else return pos->second;
+    }
+
 
 public:
     void printInfoGen()
     {
-        cout<<"SizeQ:"<<size_Q<<"\tgen: "<<mapState->size()<<endl;
-//        if(size_Q<mapState->size())
-//            throw std::invalid_argument( "The Q table is smaller from StateMap" );
-
+        cout<<"SizeQ:"<<size_Q<<"\tgen: "<<qTable->size()<<endl;
     }
-    void resetTable(){this->mapState->clear();}
+    void resetTable(){this->qTable->clear();}
     void setStochasticMovement(double m){this->_stochasticMovement=m;}
     void setHashFuction(std::function<u_int64_t (const State*)> fun){
         HashFuction=std::move(fun);
@@ -54,34 +73,27 @@ public:
     void set_tran(vector<Policy*>* l){this->lTran=l;}
     void MyPolicy(Policy *my){this->my_policy=my;}
     double discountFactor=0.987;
-    int last_entry;
+    keyItem last_entry;
     Point get_argmx_action(State *s);
-    int get_state_argmax(State *s_state);
-    double get_value_state_max(const State *s_state);
+    int get_state_argmax(const State *s_state);
+    static void arg_max(std::array<double,sizeN> &arr,vector<int> &vec);
     ~RTDP_util();
     RTDP_util(string &mHome):home(mHome){}
     RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget,string &mHome);
-    int get_state_index_by_string(const State *str_state);
-    unsigned int add_entry_map_state(keyItem basicString, const State *s);
+    void add_entry_map_state(keyItem basicString, const State *s);
 
-    void set_value_matrix(int entryState, Point &action ,double val){
-//        if (entryState == 0)
-//            cout<<action.hashMeAction(Point::actionMax)<<endl;
-//        if (action.hashMeAction(Point::actionMax)>26)
-//            cout<<"bigger"<<endl;
-        //cout<<"Q("<<entryState<<","<<action.hashMeAction(Point::actionMax)<<")="<<this->qTable[entryState][action.hashMeAction(Point::actionMax)]<<endl;
-
-        this->qTable[entryState][action.hashMeAction(Point::actionMax)]=val;
-
-
-        //cout<<"Q("<<entryState<<","<<action.hashMeAction(Point::actionMax)<<")="<<this->qTable[entryState][action.hashMeAction(Point::actionMax)]<<endl;
-
-
+    void set_value_matrix(keyItem entryState, Point &action ,double val){
+        this->qTable->operator[](entryState)[action.hashMeAction(Point::actionMax)]=val;
     }
-    vector<double>* get_probabilty(State *s);
+    vector<double>* get_probabilty(const State *s);
     void update_final_State(State *s, double val);
-    double rec_h(State *s, int index,double acc_probablity);
+    cell rec_h(State *s, int index,cell acc_probablity);
 
+    cell get_max_valueQ(const State *s)
+    {
+        auto& ar = get_Q_entry_values(s,getStateKeyValue(s));
+        return *std::max_element(ar.begin(),ar.end());
+    }
 };
 
 

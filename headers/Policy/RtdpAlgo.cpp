@@ -28,6 +28,7 @@ const vector<double >* RtdpAlgo::TransitionAction(State *s)
 Point RtdpAlgo::get_action(State *s)
 {
     //return the argmax action in the given state row
+    //cout<<s->to_string_state()<<endl;
     auto action = this->RTDP_util_object->get_argmx_action(s);
     //cout<<"action:="<<action.to_str()<<endl;
 
@@ -46,7 +47,7 @@ Point RtdpAlgo::get_action(State *s)
 
 
 
-    int entry=this->RTDP_util_object->last_entry;
+    u_int64_t entry=this->RTDP_util_object->last_entry;
     //update state action
     // set the max speed in the Z coordinate at the when taking off
     //inset to stack for backup update
@@ -179,20 +180,20 @@ double RtdpAlgo::UpdateCalc(const vector<pair<State *, double>>& state_tran_q) {
     {
         auto [val,isSndState] = this->EvalState2(item.first);
         if (!isSndState)
-            val = this->RTDP_util_object->get_value_state_max(item.first);
+            val = this->RTDP_util_object->get_max_valueQ(item.first);
         res+=val*item.second*this->RTDP_util_object->discountFactor;
         delete(item.first);
     }
     return res;
 }
 
-void RtdpAlgo::update(State *s, Point &action,int entryMatrix)
+void RtdpAlgo::update(State *s, Point &action,u_int64_t entryMatrix)
 {
     auto val = this->bellman_update(s,action);
     this->RTDP_util_object->set_value_matrix(entryMatrix,action,val);
 }
 
-void RtdpAlgo::inset_to_stack(State *s,Point &action,int state_entry)
+void RtdpAlgo::inset_to_stack(State *s,Point &action,u_int64_t state_entry)
 {
     stackStateActionIdx.push_back({new State(*s),{state_entry,action.hashMeAction(Point::actionMax)}});
     ctr_stack++;

@@ -113,7 +113,7 @@ void Game::startGame(int numIter)
     //this->reset_game();
 
     for (int i = 1; i <= numIter; ++i) {
-        //cout<<"game: "<<i<<endl;
+        cout<<"game: "<<i<<endl;
         this->loop_game();
         this->reset_game();
         ctr_round++;

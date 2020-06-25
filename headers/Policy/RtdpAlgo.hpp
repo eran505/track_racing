@@ -22,11 +22,11 @@ class RtdpAlgo : public Policy{
     double _stochasticMovement=1;
     std::unique_ptr<Point>  ZeroAction = std::make_unique<Point>(0,0,0);
     RTDP_util *RTDP_util_object;
-    vector<pair<State*,pair<int,int>>> stackStateActionIdx;
+    vector<pair<State*,pair<u_int64_t,int>>> stackStateActionIdx;
     double bellman_update(State *s,Point &action);
     double UpdateCalc(const vector <pair<State*,double>>& state_tran_q);
-    void update(State *s,Point &action,int entryMatrix);
-    void inset_to_stack(State *s,Point &action,int state_entry);
+    void update(State *s,Point &action,u_int64_t entryMatrix);
+    void inset_to_stack(State *s,Point &action,u_int64_t state_entry);
     void empty_stack_update();
 
     //stackStateActionIdxdouble expected_reward(State *s, Point &action);
@@ -68,7 +68,7 @@ public:
         auto [val,b]=EvalState2(s);
         this->RTDP_util_object->update_final_State(s,val);}
 
-    double getArgMaxValueState(const State *s){ return this->RTDP_util_object->get_value_state_max(s);}
+    double getArgMaxValueState(const State *s){ return this->RTDP_util_object->get_state_argmax(s);}
 
     [[nodiscard]] double getReward(const Point &refPoint) const;
 };

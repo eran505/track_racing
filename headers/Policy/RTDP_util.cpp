@@ -5,34 +5,28 @@
 
 #include "RTDP_util.hpp"
 
-RTDP_util::RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget,string &mHome):home(mHome) {
+RTDP_util::RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget,string &mHome):home(mHome),last_entry() {
     this->hashActionMap=Point::getDictAction();
-    this->mapState= new unordered_map<keyItem,unsigned int>();
     size_mapAction = hashActionMap->size();
     HashFuction=[](const State *s){return s->getHashValue();};
-}
 
-
-
-
-
-int RTDP_util::get_state_index_by_string(const State *s_state) {
-    //cout<< s_state->to_string_state()<<endl;
-    // lamda
-    auto s = HashFuction(s_state);
-    //cout<<"\tH="<<s<<"\t";
-    //auto s = s_state->getHashValue();
-    auto it = this->mapState->find(s);
-    if (it != this->mapState->end()){
-        return it->second;
-    }else{
-        //debugDict.insert({s,s_state->to_string_state()});
-        //cout<<"  [not found]  ";
-        return this->add_entry_map_state(s,s_state);
+    size_Q = 1;
+    for(auto &item : max_speed_and_budget)
+    {
+        auto max_speed = item.first;
+        if (max_speed==0)
+            size_Q *=(item.second);
+        else
+            size_Q *= pow(max_speed*2+1,int(Point::D))*(grid_size)*item.second;
     }
-    return 0;
 }
-void RTDP_util::heuristic(const State *s,int entry_index)
+
+
+
+
+
+
+void RTDP_util::heuristic(const State *s,keyItem entry_index)
 {
     vector<State*> vec_q;
     auto oldState = new State(*s);
@@ -90,60 +84,39 @@ double RTDP_util::rec_h(State *s,int index, double acc_probablity)
     return res_h;
 }
 
-unsigned int RTDP_util::add_entry_map_state(keyItem basicString,const State *s) {
+void RTDP_util::add_entry_map_state(keyItem key,const State *s) {
     // compute heuristic
-    this->heuristic(s,this->ctr_state);
-
-    // add to state_map
-    this->mapState->insert({basicString,ctr_state});
-    //this->ctr_state++;
-    if (ctr_state+1>=this->size_Q)
-        ctr_state=0;
-    return ctr_state++;
-
+    this->heuristic(s,key);
+    ctr_state++;
 }
 
 RTDP_util::~RTDP_util() {
     this->policyData();
     cout<<"state genrated:\t"<<ctr_state<<endl;
     cout<<"size_Q:\t"<<size_Q<<endl;
-
-    delete(mapState); // bug when try free also
     delete(hashActionMap);
 
 }
 
-vector<int> arg_max(std::array<double,27> arr,int size ){
+void RTDP_util::arg_max(std::array<double,sizeN> &arr,vector<int>& listIdxs){
     double max = -1;
     max = *std::max_element(arr.begin(), arr.end());
-    vector<int> listIdxs;
     listIdxs.reserve(1);
-    for (int i = 0; i < size; ++i) {
+    for (int i = 0; i < sizeN; ++i) {
         if (arr[i]==max)
             listIdxs.emplace_back(i);
     }
-    return listIdxs;
 }
 
 
 
-int RTDP_util::get_state_argmax(State *s) {
+int RTDP_util::get_state_argmax(const State *s) {
 
     int argMax;
-    int entry_state = this->get_state_index_by_string(s);
-    auto row = this->qTable[entry_state];
-
-//    DEBUG
-//    cout<<s->to_string_state()<<endl;
-//    double tmp[27];
-//    for(size_t k=0;k<27;++k){
-//        tmp[k]=row[k];
-//        cout<<"\t["<<k<<"]="<<row[k];
-//    }
-//    cout<<endl;
-//    DEBUG
-
-    vector<int> argMax_list = arg_max(row,this->hashActionMap->size());
+    keyItem key = getStateKeyValue(s);
+    auto& row = this->get_Q_entry_values(s,key);
+    vector<int> argMax_list;
+    arg_max(row,argMax_list);
     int size = argMax_list.size();
     if (size>1)
     {
@@ -151,21 +124,16 @@ int RTDP_util::get_state_argmax(State *s) {
         ctr_random = ++ctr_random%this->hashActionMap->size();
     } else
         argMax = argMax_list[0];
-    this->last_entry = entry_state;
-    //debug
-//    for (int i = 0; i < 27; ++i) {
-//        cout<<"\ti:"<<i<<" "<<this->qTable[0][i];
-//    }
-//    cout<<endl;
-    //debug
+
+    this->last_entry = key;
+
     return argMax;
 }
 
-vector<double>* RTDP_util::get_probabilty(State *s) {
-    int argMax;
-    int entry_state = this->get_state_index_by_string(s);
-    auto row = this->qTable[entry_state];
-    vector<int> argMax_list = arg_max(row,this->size_mapAction);
+vector<double>* RTDP_util::get_probabilty(const State *s) {
+    auto &row = this->get_Q_entry_values(s,getStateKeyValue(s));
+    vector<int> argMax_list;
+    arg_max(row,argMax_list);
     auto* l = new vector<double>();
     int prob = argMax_list.size();
     for (auto item: argMax_list){
@@ -176,12 +144,7 @@ vector<double>* RTDP_util::get_probabilty(State *s) {
 }
 
 
-double RTDP_util::get_value_state_max(const State *s_state) {
-    int entry_state = this->get_state_index_by_string(s_state);
-    auto arr = this->qTable[entry_state];
-    double max = *std::max_element(arr.begin(), arr.end());;
-    return max;
-}
+
 
 double getMaxValueArrTmp( const double *arr, size_t sizeArr)
 {
@@ -243,18 +206,6 @@ void RTDP_util::policyData() {
     //return;
     string pathFile=this->home+"/car_model/debug/";
 
-    // csv map state-----------------------------
-    try{
-        string nameFileCsv="StateMap.csv";
-        csvfile csv(std::move(pathFile+nameFileCsv),","); // throws exceptions!
-        csv << "ID" << "Entry" << endrow;
-        for(auto &item: *this->mapState)
-        {
-            csv<<item.first<<item.second<<endrow;
-        }
-    }
-    catch (const std::exception &ex){std::cout << "Exception was thrown: " << ex.what() << std::endl;}
-
     //csv action state-------------------------------
     try{
         string nameFileCsv="ActionMap.csv";
@@ -279,14 +230,15 @@ void RTDP_util::policyData() {
         for (int k = 0; k <size_action; ++k)
             csv<<k;
         csv<<endrow;
-        for (int i = 0; i < this->ctr_state; ++i) {
-            csv<<i;
-            for (int j = 0; j <size_action; ++j){
-//                cout<<"["<<i<<", "<<j<<"]="<<this->qTable[i][j]<<endl;
-                csv<<this->qTable[i][j];
-            }
+        for(auto &item1:*qTable)
+        {
+            std::for_each(item1.second.begin(),item1.second.end(),[&](auto val)
+            {
+                csv<<val;
+            });
             csv<<endrow;
         }
+
 
     }
 
@@ -311,7 +263,7 @@ void RTDP_util::policyData() {
 }
 
 void RTDP_util::update_final_State(State *s, double val) {
-    auto entryIndex= this->get_state_index_by_string(s);
+    auto entryIndex= this->HashFuction(s);
     for (auto &[i,p]: *this->hashActionMap)
     {
         set_value_matrix(entryIndex,*p,val);
