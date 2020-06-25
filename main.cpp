@@ -66,7 +66,7 @@ int main() {
     seed = 1592896592; // 0.84 coll ==> con3.csv
     //seed = 1591006463;//no coll
     //seed = 1592233920; //1895975606
-    seed = int( time(nullptr));
+    //seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -75,7 +75,7 @@ int main() {
     string repo = "/"+arrPAth[0]+"/"+arrPAth[1]+"/"+arrPAth[2]+"/"+arrPAth[3]+"/"+arrPAth[4];
     int MaxInt = INT_MAX;
     //const string home="/home/ise";
-    std::string pathCsv (home + "/car_model/config/con11.csv");
+    std::string pathCsv (home + "/car_model/config/con4.csv");
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -136,7 +136,7 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(50000);
+    my_game->startGame(500);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
@@ -161,7 +161,6 @@ Grid * init_grid(configGame& conf){
 
 }
 MdpPlaner* init_mdp(Grid *g, configGame &conf){
-    int maxSizeGrid = g->getPointSzie().array[0];
     int maxA=2;   //TODO:: change it to plus one !!!!!!!!!!!!!!!!!!!!!!!
     int maxD=1;
     conf.maxD=maxD;
@@ -219,33 +218,36 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint);
     pA1->setPolicy(pGridPath);
 
-//    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{abPoint},conf.seed);
-//
-//    z->factory_containerAbstract(conf,listPointDefender);
-//    auto *rl = new rtSimulation(abPoint,conf.sizeGrid,pA1,s->get_cur_state(),pD2);
-//    rl->setContiner(z->get_con());
-//    rl->simulationV2();
-//    auto res = rl->getTrackingDataString();
-//    res.push_back(conf.idNumber);
-//    res.push_back(std::to_string(conf.seed));
-//    res.push_back(std::to_string(conf.rRoutes));
-//    res.push_back(abPoint.to_str());
-//    res.push_back(conf.sizeGrid.to_str());
-//    toCSVTemp(conf.home+"/car_model/out/out.csv", res);
+    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{abPoint1},conf.seed);
+
+    z->factory_containerAbstract(conf,listPointDefender);
+    auto *rl = new rtSimulation(abPoint,conf.sizeGrid,pA1,s->get_cur_state(),pD2);
+    //rl->set_agent(std::move(z->mapAgent));
+    //rl->simulation();
+    rl->setContiner(z->get_con());
+    rl->simulationV2();
+    auto res = rl->getTrackingDataString();
+    res.push_back(conf.idNumber);
+    res.push_back(std::to_string(conf.seed));
+    res.push_back(std::to_string(conf.rRoutes));
+    res.push_back(abPoint.to_str());
+    res.push_back(conf.sizeGrid.to_str());
+    toCSVTemp(conf.home+"/car_model/out/out.csv", res);
     //////// RTDP POLICY ////////
     /* If max speed is zero, the explict number of state is in the second place */
-    vector<pair<int,int>> list_Q_data;
-    list_Q_data.emplace_back(maxD,1);
-    list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
+//    vector<pair<int,int>> list_Q_data;
+//    list_Q_data.emplace_back(maxD,1);
+//    list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
+//
+//    //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
+//    Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share);
+//    //auto* ab = new abstractionDiv(g->getPointSzie(),Point(5),tmp_pointer);
+//
+//    RTDP->add_tran(pGridPath);
+//    pA1->setPolicy(pGridPath);
+//    pD2->setPolicy(RTDP);
 
-    //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
-    Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share);
-    //auto* ab = new abstractionDiv(g->getPointSzie(),Point(5),tmp_pointer);
-
-    RTDP->add_tran(pGridPath);
-    pA1->setPolicy(pGridPath);
-    pD2->setPolicy(RTDP);
-
+    exit(0);
     return s;
 }
 
@@ -273,7 +275,6 @@ void toCsv(string &pathFile, vector<vector<int>>* infoArr,vector<string> &labels
     {
         csvfile csv(std::move(pathFile),","); // throws exceptions!
         // Hearer
-        size_t sizeLabels=labels.size();
         for (auto &label : labels)
             csv << label;
         csv<<endrow;
@@ -296,8 +297,6 @@ void toCsvString(string pathFile,vector<string>* infoArr){
     {
         csvfile csv(std::move(pathFile),","); // throws exceptions!
         // Hearer
-        const int upper = 500000;
-        size_t sizeVec = infoArr->size();
         unsigned int ctr=0;
         unsigned int lim=0;
         //if (sizeVec > upper) lim = sizeVec-400000;

@@ -86,6 +86,9 @@ double RTDP_util::rec_h(State *s,int index, double acc_probablity)
 
 void RTDP_util::add_entry_map_state(keyItem key,const State *s) {
     // compute heuristic
+    #ifdef VECTOR
+    this->qTable->try_emplace(key,27);
+    #endif
     this->heuristic(s,key);
     ctr_state++;
 }
@@ -94,16 +97,18 @@ RTDP_util::~RTDP_util() {
     this->policyData();
     cout<<"state genrated:\t"<<ctr_state<<endl;
     cout<<"size_Q:\t"<<size_Q<<endl;
+    std::for_each(hashActionMap->begin(),hashActionMap->end(),[](auto &item)
+    {delete item.second;});
     delete(hashActionMap);
 
 }
 
-void RTDP_util::arg_max(std::array<double,sizeN> &arr,vector<int>& listIdxs){
+void RTDP_util::arg_max(arr &arr,vector<int>& listIdxs){
     double max = -1;
     max = *std::max_element(arr.begin(), arr.end());
     listIdxs.reserve(1);
-    for (int i = 0; i < sizeN; ++i) {
-        if (arr[i]==max)
+    for (int i = 0; i < arr.size(); ++i) {
+        if (arr.operator[](i)==max)
             listIdxs.emplace_back(i);
     }
 }
@@ -264,10 +269,31 @@ void RTDP_util::policyData() {
 
 void RTDP_util::update_final_State(State *s, double val) {
     auto entryIndex= this->HashFuction(s);
+    #ifdef VECTOR
+    qTable->try_emplace(entryIndex,27);
+    #endif
     for (auto &[i,p]: *this->hashActionMap)
     {
         set_value_matrix(entryIndex,*p,val);
     }
 
+}
+
+void RTDP_util::reduceMap() {
+
+    for(auto &item:*qTable)
+    {
+        auto ArgMax = std::distance(item.second.begin(),std::max_element(item.second.begin(),item.second.end()));
+        item.second.clear();
+        vector<cell>().swap(item.second);
+        item.second.shrink_to_fit();
+        item.second.push_back(ArgMax);
+
+    }
+
+}
+
+void RTDP_util::resetQtable() {
+    qTable->clear();
 }
 

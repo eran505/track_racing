@@ -29,7 +29,7 @@ public:
     //Setters and Getters
 
     State * getAbstractionState(Point &abstractPoint);
-    [[nodiscard]] vector<Point> getAllPos(const Point &abstractPoint)const;
+    void getAllPos(vector<Point> &vec,const Point &abstractPoint)const;
     void set_budget(const string& name_id,int budget_m){budget_dict[name_id]=budget_m;}
     int get_budget(const string& name_id)const { return 10;} //#TODO: change it when using budget
     void set_speed(const string& name_id,const Point& speed_m){speed_dict[name_id]=speed_m;}

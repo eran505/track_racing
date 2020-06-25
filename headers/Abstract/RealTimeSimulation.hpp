@@ -3,7 +3,7 @@
 //
 #define GOT_HERE std::cout << "At " __FILE__ ":" << __LINE__ << std::endl
 #define DEBUGER
-#define PRINTME
+//#define PRINTME
 #ifndef TRACK_RACING_REALTIMESIMULATION_HPP
 #define TRACK_RACING_REALTIMESIMULATION_HPP
 #include "headers/Abstract/Simulation.hpp"
@@ -57,14 +57,17 @@ class rtSimulation{
     void checkMeeting()
     {
         u_int32_t ans = sizeM;
-        auto l = state->getAllPos(this->abstraction);
+        vector<Point> l;
+        state->getAllPos(l,this->abstraction);
         for (int i=0;i<l.size();++i)
         {
             for(int j=i+1;j<l.size();++j)
                 if(l[i]==l[j])
                 {
 
-                    ans = getIndexMiniGrid(l[i]);
+                    auto row = l[0].array[0]*divPoint.array[0];
+                    auto col = l[0].array[1]%divPoint.array[1];
+                    ans = col+row;
                     break;
                 }
         }
@@ -104,10 +107,16 @@ public:
         ptr->evalPolicy();
     }
 
+    void set_agent(unordered_map<u_int32_t,Agent*> &&map)
+    {
+        this->lDefenderAgent= std::move(map);
+        for(auto &item:lDefenderAgent){item.second->evalPolicy();}
+    }
 
     void setContiner(vector<containerAbstract> l)
     {
         conL = std::move(l);
+        for(auto &item:conL){item.eval();}
     }
     void simulationV2()
     {
@@ -131,9 +140,12 @@ public:
             return false;
         return true;
     }
-    void change_continer(State* ptr){
-        auto getPos = ptr->getAllPos(conL[idxContier].get_absPoint());
+    void change_continer(const State* ptr){
+        vector<Point> getPos;
+        ptr->getAllPos(getPos,conL[idxContier].get_absPoint());
+        #ifdef DEBUGER
         assert(getPos.size()==2);
+        #endif
         if(in_distance(getPos[0],getPos[1]))
         {
             if(this->idxContier<this->conL.size()-1)
@@ -143,6 +155,9 @@ public:
             }
         }
     }
+    /**
+    * pre-condition: all agents need to be at eval mode
+    **/
     void simGame() {
         inMini=false;
         size_t ctr=0;
@@ -151,7 +166,9 @@ public:
         #endif
         while (true) {
             change_continer(this->state);
+            #ifdef PRINTME
             cout<<"change_continer:(idx)\t"<<idxContier<<endl;
+            #endif
             ctr++;
             if (Stop_Game())
                 break;
@@ -196,11 +213,12 @@ public:
             inMini=false;
             while(!Stop_Game())
             {
+                cout<<"ctr="<<ctr<<endl;
                 ctr++;
                 checkMeeting();
                 if (curAgentNumber==sizeM)
                 {
-                    auto tmpState = GetActionAbstract(this->state);
+                    auto tmpState = state->getAbstractionState(abstraction);
                     auto ptrAgent = getAgent(curAgentNumber);
                     //ptrAgent = conL[idxContier].get_agent(this->state);
                     #ifdef PRINTME

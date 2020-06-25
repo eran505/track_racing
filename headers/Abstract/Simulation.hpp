@@ -4,6 +4,7 @@
 ////
 //#define DEBUGPrint
 //#define DEBUG2
+//#define ASSERT
 #ifndef TRACK_RACING_SIMULATION_HPP
 #define TRACK_RACING_SIMULATION_HPP
 #include <thread>
@@ -18,15 +19,16 @@
 
 namespace event{
     enum event : short{
-        CollId=0,WallId=1,GoalId=2,OpenId=3,Size=4
+        CollId=0,WallId=1,GoalId=2,OpenId=3,Size=4,
     };
+    enum agnetIDX{defenderInt=0,attackerInt=1};
+
 
 }
 
 class simulation{
-    enum angentEntry{defenderInt=0,attackerInt=1};
-    vector<u_int32_t> trackingData;
 
+    vector<u_int32_t> trackingData;
     std::unique_ptr<Grid> g;
     bool noSpeed=false;
     int _seed;
@@ -65,8 +67,8 @@ public:
     }
 
 
-    void getDefAgentDATA(){agents[defenderInt]->getPolicyInt()->policy_data();}
-    shared_ptr<Agent> getDefAgent(){agents[defenderInt];}
+    void getDefAgentDATA(){agents[event::agnetIDX::defenderInt]->getPolicyInt()->policy_data();}
+    shared_ptr<Agent> getDefAgent(){agents[event::agnetIDX::defenderInt];}
     Agent* getDefAgentPTR(){agents.operator[](0).get();}
     size_t getCollustionMapSize(){return collustionMap.size();}
     const unordered_map<string,u_int32_t>& getCollustionMap()const{return collustionMap;}
@@ -85,19 +87,26 @@ public:
     double getAvgExpectedReward()
     {
         double ans=0;
-        auto DefnderEntryPoints = agents[defenderInt]->getAllPositions();
-        auto AttackerEntryPoints = agents[attackerInt]->getAllPositions();
+        auto DefnderEntryPoints = agents[event::agnetIDX::defenderInt]->getAllPositions();
+        auto AttackerEntryPoints = agents[event::agnetIDX::attackerInt]->getAllPositions();
         for( const auto &item:DefnderEntryPoints)
         {
-            setPosSpeed(item.speedPoint,item.positionPoint,agents[defenderInt]->get_id());
+            setPosSpeed(item.speedPoint,item.positionPoint,agents[event::agnetIDX::defenderInt]->get_id());
             auto w = item.weightedVal;
             for(const auto &attackerPointItem:AttackerEntryPoints )
             {
-                setPosSpeed(attackerPointItem.speedPoint,attackerPointItem.positionPoint,agents[attackerInt]->get_id());
+                setPosSpeed(attackerPointItem.speedPoint,attackerPointItem.positionPoint,agents[event::agnetIDX::attackerInt]->get_id());
                 w*=attackerPointItem.weightedVal;
-                auto ptrPolicy= agents[defenderInt]->getPolicyInt();
+                auto ptrPolicy= agents[event::agnetIDX::defenderInt]->getPolicyInt();
                 auto *tmp_pointer = dynamic_cast <RtdpAlgo*>(ptrPolicy);
-                auto val = tmp_pointer->getArgMaxValueState(sState.get());
+                double val = tmp_pointer->getArgMaxValueState(sState.get());
+                #ifdef ASSERT
+                if(val > 1.0 or val < -10.0)
+                {
+                    cout<<"val: "<<val<<endl;
+                    assert(false);
+                }
+                #endif
                 ans += val*w;
             }
         }
@@ -165,7 +174,7 @@ public:
 
     RtdpAlgo* getRtdpAlgo()
     {
-        return dynamic_cast<RtdpAlgo*>(this->agents[defenderInt]->getPolicyInt());
+        return dynamic_cast<RtdpAlgo*>(this->agents[event::agnetIDX::defenderInt]->getPolicyInt());
     }
 
 private:
@@ -182,7 +191,7 @@ private:
             auto &[val,pos]=l;
             cout<<"Goal:"<<pos.to_str()<<"\tval:\t"<<val<<endl;
         });
-        auto pathPoly = dynamic_cast <PathPolicy*>(agents[attackerInt]->getPolicyInt());
+        auto pathPoly = dynamic_cast <PathPolicy*>(agents[event::agnetIDX::attackerInt]->getPolicyInt());
         cout<<"size Dict Attacker: "<<pathPoly->get_dictPolicy_size()<<"\n";
         getRtdpAlgo()->genrateInfoPrint();
         //getDefAgentDATA();

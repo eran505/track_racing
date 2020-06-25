@@ -55,9 +55,9 @@ public:
     void set_id(string id_m){this->id_agent=id_m;}
     virtual Point get_action(State *s)=0;
     virtual void reset_policy() {};
-
+    virtual void minimization(){};
     virtual void update_final_state(State *s){};
-
+    virtual void learnRest(){};
     virtual void policy_data()const=0;
     virtual const vector<double >* TransitionAction(State *s)=0;
     void add_tran(Policy *ptr_tran)

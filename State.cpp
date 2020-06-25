@@ -208,13 +208,12 @@ State* State::getAbstractionState(Point &abstractPoint) {
 
     return res;
 }
-vector<Point> State::getAllPos(const Point &abstractPoint=Point(1))const{
-    vector<Point> l;
+void State::getAllPos(vector<Point> &l,const Point &abstractPoint=Point(1))const{
     for(auto &pair:pos_dict)
     {
         l.emplace_back(pair.second/abstractPoint);
     }
-    return l;
+
 }
 vector<string> State::getIDs()
 {

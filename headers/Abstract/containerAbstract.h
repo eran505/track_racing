@@ -4,11 +4,11 @@
 
 #ifndef TRACK_RACING_CONTAINERABSTRACT_H
 #define TRACK_RACING_CONTAINERABSTRACT_H
-#define assertMac
+//#define assertMac
 #include "util_game.hpp"
 #include "Agent.hpp"
 #include "State.hpp"
-#include <cassert>
+//#include <cassert>
 class containerAbstract{
 
     Point _offset;
@@ -20,24 +20,29 @@ class containerAbstract{
     u_int32_t  idx=0;
     bool absState=false;
 
-    bool is_meet(const State* s)
+    bool isOnTheSameGrid(const State *s)
     {
-        auto l = s->getAllPos(this->_abstract);
-#ifdef assertMac
+        vector<Point> l;
+        s->getAllPos(l,this->_abstract);
         assert(l.size()==2);
-#endif
-        if (!(l[0]==l[1]))
+        if(!(l[0]==l[1])){
             return false;
+        }
+        else{
+            auto row = l[0].array[0]*_divPoint.array[0];
+            auto col = l[0].array[1]%_divPoint.array[1];
+            idx=col+row;
+            return true;
+        }
 
-        getIndexMiniGrid(l[0]);
-        cout<<"in\t:"<<idx<<endl;
-        return true;
     }
-    u_int32_t getIndexMiniGrid(const Point &statePos){
-        auto row = statePos.array[0]*_divPoint[0];
-        auto col = statePos.array[1]%_divPoint[1];
-        cout<<"statePos:=>\t"<<col+row<<endl;
-        idx=col+row;
+
+
+
+    inline u_int32_t getIndexMiniGrid(const Point &p){
+        auto row_i = p.array[0]*_divPoint.array[0];
+        auto col_i = p.array[1]%_divPoint.array[1];
+        idx=col_i+row_i;
 
     }
 
@@ -52,6 +57,7 @@ public:
     {
         cout<<"~containerAbstract"<<endl;
     }
+    void eval(){for(auto &item:_lagh)item.second->evalPolicy();}
     Point& get_absPoint(){return _abstract;}
     Point& get_divPoint(){return _divPoint;}
     void insetToDict(u_int32_t x,std::shared_ptr<Agent> ptrA)
@@ -62,9 +68,8 @@ public:
     bool get_absState()const{return absState;}
     Agent* get_agent(const State* s)
     {
-
         absState = false;
-        if(!is_meet(s))
+        if(!isOnTheSameGrid(s))
         {
             absState=true;
             return _lagh[idxBigScope].get();

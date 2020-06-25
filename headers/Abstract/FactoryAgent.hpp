@@ -34,12 +34,13 @@ class AbstractCreator{
     vector<containerAbstract> l_containers;
     Point divPoint;
     std::vector<simulation> simulationVector;
+
     int seed;
     u_int32_t iter = 500000;
     std::unique_ptr<rtSimulation> rtSim= nullptr;
 public:
-
     vector<containerAbstract>& get_con(){return l_containers;}
+    std::unordered_map<u_int32_t,Agent*> mapAgent;
 
     AbstractCreator(const PathPolicy* evaderPolicy, const Point& ptrGirdSize, vector<Point> lPointAb, int seed_):
         allAbst(std::move(lPointAb)),originalGridSize(ptrGirdSize),evaderPolicy(evaderPolicy), seed(seed_){
@@ -62,6 +63,10 @@ public:
         std::for_each(offset_grids.begin(),offset_grids.end(),[&](simulation &item){item.simulate(iter);});
 
     }
+    static void reduceMemo(simulation &t)
+    {
+        t.agents[event::agnetIDX::defenderInt].get()->getPolicyInt()->minimization();
+    }
     void initializeSimulation(configGame &conf,const std::vector<weightedPosition> &defenderStart)
     {
         auto abstractionObject = abstractionDiv(originalGridSize,abGridSize,evaderPolicy,seed,Point(0),Point(0,0,0));
@@ -73,7 +78,7 @@ public:
         //workerTasks.pop_back();
         std::vector<std::thread> workers;
         //workers.reserve(workerTasks.size());
-        lsim.back().simulate(iter/2);
+        lsim.back().simulate(iter/10);
         //RemoveIfVector(workerTasks);
         workers.reserve(lsim.size());
         std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
@@ -93,13 +98,16 @@ public:
                 auto newCollReward = t.getAvgExpectedReward();
                 insetBigAbstractGridReward(t.gridID,newCollReward);
                 cout<<"getAvgExpectedReward:\t"<<newCollReward<<endl;
+                //reduceMemo(t);
             }
             else{
                 //delete t.getDefAgentPTR()->getPolicyInt();
             }
         });
-
+        // need to reset the Agent
+        lsim.back().agents[event::agnetIDX::defenderInt].get()->getPolicyInt()->learnRest();
         lsim.back().simulate(iter); // learn again on the modified rewards
+        //reduceMemo(lsim.back());
         std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
                       [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
         #else
@@ -125,6 +133,7 @@ public:
             //auto ptrTmp = item.getDefAgentPTR();
             cout<<"Is copying,,,"<<item.gridID<<endl;
             obj.insetToDict(item.gridID,item.agents[0]);
+            //mapAgent.try_emplace(item.gridID,item.agents[0].get());
         }
         cout<<"done!"<<endl;
     }

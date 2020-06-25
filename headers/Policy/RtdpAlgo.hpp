@@ -28,7 +28,8 @@ class RtdpAlgo : public Policy{
     void update(State *s,Point &action,u_int64_t entryMatrix);
     void inset_to_stack(State *s,Point &action,u_int64_t state_entry);
     void empty_stack_update();
-
+    void minimization()override{this->RTDP_util_object->reduceMap();}
+    void learnRest()override {this->RTDP_util_object->resetQtable();}
     //stackStateActionIdxdouble expected_reward(State *s, Point &action);
     //double expected_reward_rec(State *s,int index_policy,deque<Point> &my_stack);
 public:
@@ -68,7 +69,7 @@ public:
         auto [val,b]=EvalState2(s);
         this->RTDP_util_object->update_final_State(s,val);}
 
-    double getArgMaxValueState(const State *s){ return this->RTDP_util_object->get_state_argmax(s);}
+    double getArgMaxValueState(const State *s){ return this->RTDP_util_object->get_max_valueQ(s);}
 
     [[nodiscard]] double getReward(const Point &refPoint) const;
 };

@@ -14,7 +14,7 @@
 #include <algorithm>
 #include <utility>
 #include "Policy.hpp"
-
+#define VECTOR
 
 
 typedef u_int64_t keyItem;
@@ -23,9 +23,15 @@ typedef double cell;
 class RTDP_util{
 
     enum {sizeN=27};
+
+
+    #ifdef VECTOR
+    typedef std::vector<cell> arr;
+    #else
     typedef std::array<cell,sizeN> arr;
-    std::unique_ptr<unordered_map<keyItem ,std::array<cell,sizeN>>>  qTable=
-            std::make_unique<unordered_map<keyItem ,std::array<cell,sizeN>>>();
+    #endif
+    std::unique_ptr<unordered_map<keyItem ,arr>>  qTable=
+            std::make_unique<unordered_map<keyItem ,arr>>();
     double _stochasticMovement=1;
 
     vector<Policy*> *lTran= nullptr;
@@ -63,12 +69,14 @@ public:
     {
         cout<<"SizeQ:"<<size_Q<<"\tgen: "<<qTable->size()<<endl;
     }
+    void reduceMap();
     void resetTable(){this->qTable->clear();}
     void setStochasticMovement(double m){this->_stochasticMovement=m;}
     void setHashFuction(std::function<u_int64_t (const State*)> fun){
         HashFuction=std::move(fun);
     }
     void policyData();
+    void resetQtable();
     bool apply_action(State *s,const string &id,Point &action,int max_speed);
     void set_tran(vector<Policy*>* l){this->lTran=l;}
     void MyPolicy(Policy *my){this->my_policy=my;}
@@ -76,14 +84,14 @@ public:
     keyItem last_entry;
     Point get_argmx_action(State *s);
     int get_state_argmax(const State *s_state);
-    static void arg_max(std::array<double,sizeN> &arr,vector<int> &vec);
+    static void arg_max(arr &arr,vector<int> &vec);
     ~RTDP_util();
     RTDP_util(string &mHome):home(mHome){}
     RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget,string &mHome);
     void add_entry_map_state(keyItem basicString, const State *s);
 
     void set_value_matrix(keyItem entryState, Point &action ,double val){
-        this->qTable->operator[](entryState)[action.hashMeAction(Point::actionMax)]=val;
+        this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax))=val;
     }
     vector<double>* get_probabilty(const State *s);
     void update_final_State(State *s, double val);

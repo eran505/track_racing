@@ -106,6 +106,8 @@ public:
             delete(item.second);
         }
         delete (statesIdDict);
+        delete (dictPolicy);
+        delete(goalPoint);
     };
     void reset_policy() override{};
     void policy_data() const override{};

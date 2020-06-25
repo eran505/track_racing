@@ -19,6 +19,7 @@ void RtdpAlgo::reset_policy() {
     Policy::reset_policy();
 }
 
+
 const vector<double >* RtdpAlgo::TransitionAction(State *s)
 {
 
@@ -28,12 +29,12 @@ const vector<double >* RtdpAlgo::TransitionAction(State *s)
 Point RtdpAlgo::get_action(State *s)
 {
     //return the argmax action in the given state row
-    //cout<<s->to_string_state()<<endl;
     auto action = this->RTDP_util_object->get_argmx_action(s);
-    //cout<<"action:="<<action.to_str()<<endl;
 
     if (this->evalPolicy)
     {
+        //auto actionIndx = int(this->RTDP_util_object->get_max_valueQ(s));
+        //action = *this->hashActionMap->find(actionIndx)->second;
         if (!s->takeOff)
             if(action.hashMeAction(Point::actionMax)!=13 ){
                 //s->set_speed(this->id_agent,Point(0,0,max_speed)); //#TODO: uncomment this !!!!
@@ -43,7 +44,6 @@ Point RtdpAlgo::get_action(State *s)
             }
         return action;
     }
-
 
 
 
