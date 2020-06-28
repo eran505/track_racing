@@ -81,7 +81,7 @@ int main() {
     int ctrId=1;
     vector<string> labels={"ctr_round","ctr_wall","ctr_coll","ctr_at_goal","ctr_open"};
 
-    const std::string exeFilePath (repo+"/bash/clean.sh "+pathCsv);
+    const std::string exeFilePath ("/"+repo+"/track_racing/bash/clean.sh "+pathCsv);
     try{ system(exeFilePath.c_str() );} catch (int e) {cout<<"try and catch"<<endl;}
 
     for (int i=1; i<csvRows.size();++i)
