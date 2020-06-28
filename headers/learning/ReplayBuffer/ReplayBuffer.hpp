@@ -7,6 +7,7 @@
 
 #include "State.hpp"
 #include "util_game.hpp"
+#include <unordered_set>
 typedef vector<double> feature;
 class ReplayBuffer{
 public:

@@ -16,7 +16,7 @@ set(CMAKE_CXX_FLAGS_DEBUG  "-O3 -g")
 #set(CMAKE_CXX_FLAGS -DDEBUG)
 set(CMAKE_CXX_FLAGS "-Wall " )
 
-find_package(Torch REQUIRED)
+#find_package(Torch REQUIRED)
 
 include_directories(.)
 include_directories(headers)

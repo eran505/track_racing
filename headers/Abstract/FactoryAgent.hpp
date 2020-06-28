@@ -36,7 +36,7 @@ class AbstractCreator{
     std::vector<simulation> simulationVector;
 
     int seed;
-    u_int32_t iter = 500000;
+    u_int32_t iter = 2000000;
     std::unique_ptr<rtSimulation> rtSim= nullptr;
 public:
     vector<containerAbstract>& get_con(){return l_containers;}
@@ -78,14 +78,14 @@ public:
         //workerTasks.pop_back();
         std::vector<std::thread> workers;
         //workers.reserve(workerTasks.size());
-        lsim.back().simulate(iter/10);
+        lsim.back().simulate(iter*2);
         //RemoveIfVector(workerTasks);
         workers.reserve(lsim.size());
         std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
                 [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
 
         //lsim.back().getDefAgentDATA();
-        //exit(0);
+        exit(0);
 
         #ifdef Sync
 
@@ -96,7 +96,7 @@ public:
                 cout<<"t.gridID="<<t.gridID<<endl;
                 t.simulate(iter);
                 auto newCollReward = t.getAvgExpectedReward();
-                insetBigAbstractGridReward(t.gridID,newCollReward);
+                //insetBigAbstractGridReward(t.gridID,newCollReward);
                 cout<<"getAvgExpectedReward:\t"<<newCollReward<<endl;
                 //reduceMemo(t);
             }
@@ -105,11 +105,10 @@ public:
             }
         });
         // need to reset the Agent
-        lsim.back().agents[event::agnetIDX::defenderInt].get()->getPolicyInt()->learnRest();
-        lsim.back().simulate(iter); // learn again on the modified rewards
-        //reduceMemo(lsim.back());
-        std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
-                      [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
+        //lsim.back().agents[event::agnetIDX::defenderInt].get()->getPolicyInt()->learnRest();
+        //lsim.back().simulate(iter); // learn again on the modified rewards
+        //std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
+        //              [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
         #else
         for(size_t index=0;index<lsim.size();++index)
         {
@@ -136,6 +135,7 @@ public:
             //mapAgent.try_emplace(item.gridID,item.agents[0].get());
         }
         cout<<"done!"<<endl;
+        exit(0);
     }
 
     Point keyToPoint(unsigned int key)

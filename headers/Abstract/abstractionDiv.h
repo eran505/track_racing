@@ -182,7 +182,7 @@ public:
 
                 if (j>0)
                 {
-                    auto tmpI = lp[index].second[j];
+                    //auto tmpI = lp[index].second[j];
                     if (!(point_cur==point_previous))
                     {
 
@@ -282,7 +282,7 @@ public:
         auto zeroHashAction = double(zero.hashMeAction(Point::D_point::actionMax));
         for (auto& itemPair : momvemtns){
             auto& [p,item]=itemPair;
-            for(int i=0;i<item.size()-1;++i)
+            for(size_t i=0;i<item.size()-1;++i)
             {
                 auto difAction =  item[i+1].speedPoint-item[i].speedPoint;
                 auto diffPos = item[i+1].positionPoint-item[i].positionPoint;
@@ -501,7 +501,7 @@ private:
         auto listQtalbe = vector<pair<int,int>>();
         listQtalbe.emplace_back(conf.maxD,1);
         shared_ptr<unordered_map<string,string>> gameInfo_share = std::make_shared<unordered_map<string,string>>();
-        auto [it, result] = gameInfo_share->emplace("ID",conf.idNumber);
+        gameInfo_share->emplace("ID",conf.idNumber).first;
         listQtalbe.emplace_back(0,vecPolicy[k]->size());
         Policy* rtdp = new RtdpAlgo(conf.maxD,GridSzie,listQtalbe,d->get_id(),conf.home,gameInfo_share);
         auto tmp = dynamic_cast<RtdpAlgo*>(rtdp);
@@ -597,7 +597,6 @@ private:
             vecPolicy[idx]->emplace(pos->first,pos->second);
             auto statS = item.second.second;
             auto vecNext = pos->second;
-            auto statSOld = StatePoint(statS);
             for (size_t k=0;k<vecNext->size()-1;k+=2)
             {
                 normalizeStartVectorPoint();
@@ -630,19 +629,10 @@ private:
             this->speedPorbabilityVector->emplace(key,val);
         }
     }
-    void combainPolicyandMoveDict(int k)
-    {
-        auto* posLast = this->vecPolicy.back();
-        for(auto itemPair : *posLast)
-        {
-            auto pos = speedPorbabilityVector->find(itemPair.first);
-            if (pos==speedPorbabilityVector->end())
-                throw;
-            auto p = pos->second;
-            auto posSpeed = this->dictHash->find(itemPair.first)->second.second;
-
-        }
-    }
+//    vector<u_int32_t> get_all_relevant_mini_grids(u_int16_t max_speed_D, u_int16_t max_speed_A){
+//
+//    }
+//
 };
 
 

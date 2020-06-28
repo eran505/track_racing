@@ -18,7 +18,7 @@ typedef std::vector<std::pair<double,Point>> listPointWeighted;
 class PathPolicy:public Policy{
     unsigned long maxPathsNumber;
     vector<Point> midVec;
-    unordered_map<u_int64_t,vector<double>*> *dictPolicy;
+
     bool dont_del=false;
     u_int64_t getAgentSateHash(State *s);
 public:
@@ -32,13 +32,12 @@ public:
     [[nodiscard]] std::shared_ptr<dictHashAction> getDictPolicy() const{return share_dictHashAction;}
     //void setDictPolicy(dictHashAction* obj){dictPolicy=obj;}
     int getNumberOfState() {
-        return dictPolicy->size();
+        return share_dictHashAction->size();
     }
     PathPolicy(string namePolicy, int maxSpeedAgent,std::vector<std::pair<double,Point>>* endPoint_, vector<weightedPosition>& startPoint_,
                Point &gridSzie, const string &agentID,vector<Point> midVecPoints,string &home,unsigned long maxPathz=ULONG_MAX,dictionary ptrDict=nullptr) : Policy(std::move(namePolicy),
                        maxSpeedAgent,agentID,home,std::move(ptrDict)),midVec(move(midVecPoints)) {
         this->goalPoint=endPoint_;
-        this->dictPolicy= nullptr;
         this->startPoint=startPoint_;
         this->statesIdDict= nullptr;
         this->maxPathsNumber = maxPathz;
@@ -55,7 +54,6 @@ public:
     }
     
     void initPolicy(Point &girdSize){
-        dictPolicy = new unordered_map<u_int64_t, vector<double>*>();
         share_dictHashAction = std::make_shared<dictHashAction>();
 
         double weightEnd;
@@ -106,7 +104,6 @@ public:
             delete(item.second);
         }
         delete (statesIdDict);
-        delete (dictPolicy);
         delete(goalPoint);
     };
     void reset_policy() override{};

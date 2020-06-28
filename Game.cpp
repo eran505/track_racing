@@ -113,7 +113,7 @@ void Game::startGame(int numIter)
     //this->reset_game();
 
     for (int i = 1; i <= numIter; ++i) {
-        cout<<"game: "<<i<<endl;
+        //cout<<"game: "<<i<<endl;
         this->loop_game();
         this->reset_game();
         ctr_round++;
@@ -296,7 +296,7 @@ void Game::del_list_func(list<Agent *> l,bool guard) {
         this->del_palyer(i, guard);
 }
 
-bool Game::isConverage() {
+bool Game::isConverage() const {
     int lim=4;
     long acc=0;
     bool isEnd = false;

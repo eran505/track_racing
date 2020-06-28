@@ -175,7 +175,7 @@ public:
         while (!q.empty()) {
             path = q.front();
             q.pop_front();
-            if (path.size()>k+1)
+            if (int(path.size())>k+1)
                 continue;
 
             int last = path[path.size() - 1];

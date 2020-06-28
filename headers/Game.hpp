@@ -21,7 +21,7 @@ class Game {
     list<Agent*> *out_game;
     MdpPlaner *planer;
     int ctr_coll=0;
-    const int MAX_BUFFER=10000;
+    const int MAX_BUFFER=5000;
     int counterBuffer=0;
     int ctr_at_gal=0;
     int ctr_wall=0;
@@ -56,7 +56,7 @@ public:
     void fill_agents();
     void print_list_in_game();
     void loop_game();
-    bool isConverage();
+    bool isConverage() const;
     void constraint_checking_end_game();
     void del_palyer(Agent *agent,bool is_guard);
     bool is_end_game();

@@ -75,7 +75,7 @@ int main() {
     string repo = "/"+arrPAth[0]+"/"+arrPAth[1]+"/"+arrPAth[2]+"/"+arrPAth[3]+"/"+arrPAth[4];
     int MaxInt = INT_MAX;
     //const string home="/home/ise";
-    std::string pathCsv (home + "/car_model/config/con5.csv");
+    std::string pathCsv (home + "/car_model/config/con6.csv");
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -136,7 +136,7 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(500);
+    my_game->startGame(5000000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
@@ -213,12 +213,12 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     std::unique_ptr<State> tmp = std::make_unique<State>(State(*s->get_cur_state()));
     Point abPoint(8,8,1);
     Point abPoint1 = Point(4,4,1);
-    //abPoint = Point(2,2,1);
+    abPoint1 = Point(2,2,1);
     //abPoint = Point(20,20,1);
     tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint);
     pA1->setPolicy(pGridPath);
 
-    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{abPoint,abPoint1},conf.seed);
+    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{abPoint1},conf.seed);
 
     z->factory_containerAbstract(conf,listPointDefender);
     auto *rl = new rtSimulation(abPoint,conf.sizeGrid,pA1,s->get_cur_state(),pD2);
@@ -234,7 +234,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     res.push_back(conf.sizeGrid.to_str());
     toCSVTemp(conf.home+"/car_model/out/out.csv", res);
     //////// RTDP POLICY ////////
-    /* If max speed is zero, the explict number of state is in the second place */
+//    /* If max speed is zero, the explict number of state is in the second place */
 //    vector<pair<int,int>> list_Q_data;
 //    list_Q_data.emplace_back(maxD,1);
 //    list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
