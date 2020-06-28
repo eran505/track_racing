@@ -19,6 +19,19 @@ auto calcMovingAvg(pair<vector<pair<S,V>>,V>& iItem)
     return res;
 }
 
+template<typename T = std::string>
+std::vector<T> cut_first_appear(const std::vector<T> &l,const T& t)
+{
+    auto pos = std::find(l.begin(),l.end(),t);
+    return std::vector<T> (l.begin(),pos);
+}
+std::string join(const std::vector<std::string> & sequence, const std::string & separator)
+{
+    std::string result;
+    for(size_t i = 0; i < sequence.size(); ++i)
+        result += sequence[i] + ((i != sequence.size()-1) ? separator : "");
+    return result;
+}
 string getExePath()
 {
     char result[ PATH_MAX ];

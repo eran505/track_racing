@@ -64,17 +64,17 @@ int main() {
     GOT_HERE;
     int seed = 155139;// zero coll => con3.csv
     seed = 1592896592; // 0.84 coll ==> con3.csv
-    //seed = 1591006463;//no coll
+    //seed = 1591006463;//no col l
     //seed = 1592233920; //1895975606
     //seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
     auto arrPAth = splitStr(getExePath(),"/");
-    string home = "/"+arrPAth[0]+"/"+arrPAth[1];
-    string repo = "/"+arrPAth[0]+"/"+arrPAth[1]+"/"+arrPAth[2]+"/"+arrPAth[3]+"/"+arrPAth[4];
-    int MaxInt = INT_MAX;
-    //const string home="/home/ise";
+    string f = "eran"; string sep = "/";
+    string home = join(cut_first_appear(arrPAth,f),sep);
+    f = "track_racing";
+    string repo = join(cut_first_appear(arrPAth,f),sep);
     std::string pathCsv (home + "/car_model/config/con6.csv");
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
