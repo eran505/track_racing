@@ -73,6 +73,7 @@ int main() {
     auto arrPAth = splitStr(getExePath(),"/");
     string f = "eran"; string sep = "/";
     string home = join(cut_first_appear(arrPAth,f),sep);
+    home = sep+home;
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     std::string pathCsv (home + "/car_model/config/con6.csv");
