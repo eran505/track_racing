@@ -78,7 +78,7 @@ public:
         //workerTasks.pop_back();
         std::vector<std::thread> workers;
         //workers.reserve(workerTasks.size());
-        lsim.back().simulate(iter*2);
+        lsim.back().simulate(iter*0.8);
         //RemoveIfVector(workerTasks);
         workers.reserve(lsim.size());
         std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
@@ -96,7 +96,7 @@ public:
                 cout<<"t.gridID="<<t.gridID<<endl;
                 t.simulate(iter);
                 auto newCollReward = t.getAvgExpectedReward();
-                //insetBigAbstractGridReward(t.gridID,newCollReward);
+                insetBigAbstractGridReward(t.gridID,newCollReward);
                 cout<<"getAvgExpectedReward:\t"<<newCollReward<<endl;
                 //reduceMemo(t);
             }
@@ -104,11 +104,11 @@ public:
                 //delete t.getDefAgentPTR()->getPolicyInt();
             }
         });
-        // need to reset the Agent
-        //lsim.back().agents[event::agnetIDX::defenderInt].get()->getPolicyInt()->learnRest();
-        //lsim.back().simulate(iter); // learn again on the modified rewards
-        //std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
-        //              [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
+        // Need to reset the Agent
+        lsim.back().agents[event::agnetIDX::defenderInt].get()->getPolicyInt()->learnRest();
+        lsim.back().simulate(iter*2); // learn again on the modified rewards
+        std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
+                      [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
         #else
         for(size_t index=0;index<lsim.size();++index)
         {
