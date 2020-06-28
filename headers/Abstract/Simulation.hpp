@@ -3,7 +3,7 @@
 //
 ////
 //#define DEBUGPrint
-//#define DEBUG2
+#define DEBUG2
 //#define ASSERT
 #ifndef TRACK_RACING_SIMULATION_HPP
 #define TRACK_RACING_SIMULATION_HPP
@@ -166,7 +166,7 @@ public:
             }
             reset_state();
             #ifdef DEBUG2
-            if(i%10000==0) cout<<"Iter:\t"<<i<<endl;
+            if(i%100000==0) cout<<"Iter:\t"<<i<<endl;
             #endif
         }
         printStat();
