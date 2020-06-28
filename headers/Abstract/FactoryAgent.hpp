@@ -36,7 +36,7 @@ class AbstractCreator{
     std::vector<simulation> simulationVector;
 
     int seed;
-    u_int32_t iter = 2000000;
+    u_int32_t iter = 1000000;
     std::unique_ptr<rtSimulation> rtSim= nullptr;
 public:
     vector<containerAbstract>& get_con(){return l_containers;}
@@ -85,7 +85,7 @@ public:
                 [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
 
         //lsim.back().getDefAgentDATA();
-        exit(0);
+
 
         #ifdef Sync
 
@@ -135,7 +135,7 @@ public:
             //mapAgent.try_emplace(item.gridID,item.agents[0].get());
         }
         cout<<"done!"<<endl;
-        exit(0);
+
     }
 
     Point keyToPoint(unsigned int key)
