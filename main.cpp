@@ -234,8 +234,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     res.push_back(abPoint.to_str());
     res.push_back(conf.sizeGrid.to_str());
     toCSVTemp(conf.home+"/car_model/out/out.csv", res);
-    //////// RTDP POLICY ////////
-//    /* If max speed is zero, the explict number of state is in the second place */
+//    //////// RTDP POLICY ////////
+    /* If max speed is zero, the explict number of state is in the second place */
 //    vector<pair<int,int>> list_Q_data;
 //    list_Q_data.emplace_back(maxD,1);
 //    list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
@@ -247,7 +247,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 //    RTDP->add_tran(pGridPath);
 //    pA1->setPolicy(pGridPath);
 //    pD2->setPolicy(RTDP);
-
+//
     exit(0);
     return s;
 }

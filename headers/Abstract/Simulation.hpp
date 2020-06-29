@@ -181,6 +181,7 @@ private:
     void printStat()
     {
         //        CollId=0,WallId=1,GoalId=2,OpenId=3,Size=4
+        cout<<"sim out ID-->"<<this->gridID<<endl;
         cout<<"Coll: "<<this->trackingData[event::CollId]<<"\t";
         cout<<"Wall: "<<this->trackingData[event::WallId]<<"\t";
         cout<<"Goal: "<<this->trackingData[event::GoalId]<<"\t";
