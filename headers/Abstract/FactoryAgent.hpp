@@ -36,7 +36,7 @@ class AbstractCreator{
     std::vector<simulation> simulationVector;
 
     int seed;
-    u_int32_t iter = 500000;
+    u_int32_t iter = 1000000;
     std::unique_ptr<rtSimulation> rtSim= nullptr;
 public:
     vector<containerAbstract>& get_con(){return l_containers;}
@@ -79,7 +79,7 @@ public:
         //workerTasks.pop_back();
         std::vector<std::thread> workers;
         //workers.reserve(workerTasks.size());
-        lsim.back().simulate(iter*0.8);
+        lsim.back().simulate(iter*0.5);
         //RemoveIfVector(workerTasks);
         workers.reserve(lsim.size());
         std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
@@ -107,7 +107,7 @@ public:
         });
         // Need to reset the Agent
         lsim.back().agents[event::agnetIDX::defenderInt].get()->getPolicyInt()->learnRest();
-        lsim.back().simulate(iter); // learn again on the modified rewards
+        lsim.back().simulate(iter*2.5); // learn again on the modified rewards
         std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
                       [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
         #else

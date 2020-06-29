@@ -37,8 +37,6 @@ class containerAbstract{
 
     }
 
-
-
     inline u_int32_t getIndexMiniGrid(const Point &p){
         auto row_i = p.array[0]*_divPoint.array[0];
         auto col_i = p.array[1]%_divPoint.array[1];
@@ -82,6 +80,7 @@ public:
         else
             return pos->second.get();
     }
+
 
 
 };

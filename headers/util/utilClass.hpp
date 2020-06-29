@@ -58,7 +58,7 @@ vector<string> splitStr(const string& str, const string& delim)
 }
 
 struct configGame{
-    int seed;
+    int _seed;
     Point sizeGrid ;
     string config;
     Point posAttacker;
@@ -84,7 +84,7 @@ public:
         inset_noise_XY(this->posAttacker);
         inset_noise_XY(this->posDefender);
     }
-    explicit configGame(vector<string> &row):seed(0),generator(seed)
+    explicit configGame(vector<string> &row,int seed):_seed(seed),generator(_seed)
     {
 
         distribution = std::uniform_int_distribution<int>(-2,2);

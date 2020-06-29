@@ -35,15 +35,15 @@ class rtSimulation{
     unordered_map<u_int32_t ,Agent*> lDefenderAgent;
     Agent* _attacker;
     Agent* _defender;
-    u_int32_t iterMax=100000;
-    unordered_map<int,double > collusionMiniGrid;
+    u_int32_t iterMax=1000000;
+    unordered_map<string,u_int32_t > collusionMiniGrid;
     State* state;
     Point divPoint;
     //std::unique_ptr<Agent> _defender;
     vector<containerAbstract> conL;
     size_t idxContier = 0;
 
-    State* GetActionAbstract(State *s){
+    std::unique_ptr<State> GetActionAbstract(State *s){
         return s->getAbstractionState(conL[idxContier].get_absPoint());
     }
     u_int32_t getIndexMiniGrid(const Point &statePos){
@@ -83,7 +83,7 @@ class rtSimulation{
     }
 
 public:
-    unordered_map<int,double > getCollusionMiniGrid(){return collusionMiniGrid;}
+    unordered_map<string,u_int32_t > getCollusionMiniGrid(){return collusionMiniGrid;}
     vector<double> getTrackingData(){return trackingData;}
     vector<string> getTrackingDataString()
     {
@@ -106,7 +106,15 @@ public:
     {
         ptr->evalPolicy();
     }
-
+    string collusionMiniGrid_to_string(){
+        string str;
+        for(auto &pair: collusionMiniGrid)
+        {
+            str+=pair.first+":"+std::to_string(pair.second);
+            str+=" | ";
+        }
+        return str;
+    }
     void set_agent(unordered_map<u_int32_t,Agent*> &&map)
     {
         this->lDefenderAgent= std::move(map);
@@ -151,7 +159,7 @@ public:
             if(this->idxContier<this->conL.size()-1)
             {
                 idxContier++;
-                cout<<"idxContier++\n";
+                //cout<<"idxContier++\n";
             }
         }
     }
@@ -167,32 +175,40 @@ public:
         while (true) {
             change_continer(this->state);
             #ifdef PRINTME
-            cout<<"change_continer:(idx)\t"<<idxContier<<endl;
+            //cout<<"change_continer:(idx)\t"<<idxContier<<endl;
             #endif
             ctr++;
-            if (Stop_Game())
-                break;
+
             // get the right agent Defender
             auto agentD = conL[idxContier].get_agent(state);
             evalMode(agentD);
-            // if need to abstract the state
-            if (conL[idxContier].get_absState()) {
 
+            bool abstractionMode = conL[idxContier].get_absState();
+
+            #ifdef DEBUGER
+            if(!abstractionMode)
+                insetCollDict();
+            #endif
+
+            if (Stop_Game())
+                break;
+
+
+            // if need to abstract the state
+            if (abstractionMode) {
                 auto tmpState = GetActionAbstract(this->state);
                 #ifdef PRINTME
                 cout<<"tmpState:\t"<<tmpState->to_string_state()<<endl;
                 #endif
-                agentD->doAction(tmpState);
+                agentD->doAction(tmpState.get());
                 #ifdef PRINTME
                 cout<<"\tAction:\t"<<agentD->lastAction.to_str()<<"\n";
                 #endif
-                delete tmpState;
                 this->state->applyAction(agentD->get_id(), agentD->lastAction,
                                          agentD->getPolicyInt()->max_speed);
 
             } else {
                 agentD->doAction(state);
-                inMini=true;
             }
             // attacker turn
             _attacker->doAction(this->state);
@@ -224,8 +240,7 @@ public:
                     #ifdef PRINTME
                     cout<<"tmpState:\t"<<tmpState->to_string_state()<<endl;
                     #endif
-                    ptrAgent->doAction(tmpState);
-                    delete tmpState;
+                    ptrAgent->doAction(tmpState.get());
                     #ifdef PRINTME
                     cout<<"\tAction:\t"<<ptrAgent->lastAction.to_str()<<"\n";
                     #endif
@@ -234,6 +249,7 @@ public:
                                              ptrAgent->getPolicyInt()->max_speed);
                 } else
                     {
+
                         getAgent(curAgentNumber)->doAction(this->state);
                         inMini=true;
                         #ifdef PRINTME
@@ -318,11 +334,24 @@ public:
     }
     void insetCollDict()
     {
-        if(auto pos = collusionMiniGrid.find(curAgentNumber);pos==collusionMiniGrid.end())
+        if(inMini) // dont mark more than one time
+            return;
+        inMini= true;
+        auto str_point = getAbstractPoint();
+        if(auto pos = collusionMiniGrid.find(str_point);pos==collusionMiniGrid.end())
         {
-            collusionMiniGrid.insert({curAgentNumber,1});
+            collusionMiniGrid.insert({str_point,1});
         }
         else{ pos->second++;}
+    }
+    string getAbstractPoint()
+    {
+
+
+        std::vector<Point> l;
+        this->state->getAllPos(l,conL[idxContier].get_absPoint());
+        assert(l.size()==2);
+        return l.front().to_str();
     }
     void printCollDict(){
         for(auto &item: collusionMiniGrid){

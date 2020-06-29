@@ -145,7 +145,7 @@ void State::assignment(const State &other, const string &id) {
 void State::getAllPosOpponent(vector<Point> &results,char team) {
     for(auto &pos: this->pos_dict)
     {
-        if (pos.first[1]==team)
+        if (pos.first.back()==team)
             continue;
         results.push_back(pos.second);
         auto itemSpeed = this->speed_dict.find(pos.first);
@@ -195,14 +195,16 @@ void State::add_player_state(const string &name_id, const Point& m_pos, const Po
     this->budget_dict[name_id]=budget_b;
 }
 
-State* State::getAbstractionState(Point &abstractPoint) {
-    auto* res = new State(*this);
+std::unique_ptr<State> State::getAbstractionState(Point &abstractPoint) {
+    auto res = std::make_unique<State>(*this);
     for(auto &pair:res->pos_dict)
     {
         pair.second/=abstractPoint;
     }
     for(auto &pair:res->speed_dict)
     {
+        if (pair.first.back()==Section::gurd)
+            continue;
         pair.second.change_speed_max(0);
     }
 

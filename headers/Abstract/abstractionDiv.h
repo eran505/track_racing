@@ -37,6 +37,7 @@ class abstractionDiv{
     unordered_map<u_int64_t,double>* speedPorbabilityVector{};
     Point girdSize;
     Point offset;
+    vector<int> goalListIndx;
     Point divPoint;
     Point abstractSize;
 public:
@@ -105,6 +106,7 @@ public:
                 lpIVector.emplace_back(listPos[i],speedI);
             }
         }
+        init_goal_list(lp);
         if(crate_big_grid)
             bigGridAbs(lp);
         else
@@ -402,7 +404,7 @@ public:
             auto listPosStart = startingPosDefender(up,low,conf.maxD);
             auto* a = new Agent(startPoints_abstraction->operator[](k),Section::adversary,10);
             auto* d = new Agent(std::move(listPosStart),Section::gurd,10);
-            initRTDP(this->abstractSize.accMulti(),conf,d,k);
+            initRTDP(this->abstractSize.accMulti(),conf,d,k,if_inedx_in_goalList(k));
             setPathPolicy(conf,a,k);
             a->getPolicyInt()->add_tran(d->getPolicyInt());
             d->getPolicyInt()->add_tran(a->getPolicyInt());
@@ -428,8 +430,8 @@ public:
         Point up = this->girdSize/abstractSize;
         Point low(0);
         auto* a = new Agent(startPoints_abstraction->back(),Section::adversary,10);
-        auto* d = new Agent(StartingDefender,Section::gurd,10);
-        initRTDP(this->divPoint.accMulti(),conf,d,k,(double(conf.maxD))/double(abstractSize[0]),true); //3=this->abstractSize[0]
+        auto* d = new Agent(addStartingPoint(StartingDefender),Section::gurd,10);
+        initRTDP(this->divPoint.accMulti(),conf,d,k,false,(double(conf.maxD))/double(abstractSize[0]),true); //3=this->abstractSize[0]
         setPathPolicy(conf,a,k);
         a->getPolicyInt()->add_tran(d->getPolicyInt());
         d->getPolicyInt()->add_tran(a->getPolicyInt());
@@ -440,6 +442,25 @@ public:
         conf.maxD=maxD;
     }
 private:
+    /**
+    * This function solves the problem when the agent has an action
+    * in the strat position that is different from the original one (0,0,0)
+    * this problem occurs in the RealTimeSimulation.hpp when we do an action
+    * and stay in the same place because the gird is big relative to the abstraction
+    **/
+    static vector<weightedPosition> addStartingPoint(const vector<weightedPosition>& l)
+    {
+        auto ptrDictAction = Point::getDictAction();
+        vector<weightedPosition> ans;
+        for(auto &item : l)
+        {
+            for(auto &itemSecond: *ptrDictAction)
+            {
+                ans.emplace_back(*itemSecond.second,item.positionPoint,1.0/ptrDictAction->size()*item.weightedVal);
+            }
+        }
+        return ans;
+    }
     static inline void insetToMoveDict(double p,double inplace,u_int64_t key, vector<pair<u_int64_t,pair<vector<pair<short,double>>,double>>>& moveSpeedAbstract)
     {
         if(auto pos = std::find_if(moveSpeedAbstract.begin(),moveSpeedAbstract.end(),[&](auto& entryI){
@@ -495,15 +516,14 @@ private:
         cout<<"ID:\t"<<key<<"  low: "<<low.to_str()<<"  up: "<<up.to_str()<<endl;
         return {up,low};
     }
-    void initRTDP(u_int32_t GridSzie,configGame &conf,Agent* d,u_int32_t k,double stoProb=1,bool hashOnlyPos=false)
+    void initRTDP(u_int32_t GridSzie,configGame &conf,Agent* d,u_int32_t k,bool goal_fail=false,double stoProb=1,bool hashOnlyPos=false)
     {
-
         auto listQtalbe = vector<pair<int,int>>();
         listQtalbe.emplace_back(conf.maxD,1);
         shared_ptr<unordered_map<string,string>> gameInfo_share = std::make_shared<unordered_map<string,string>>();
         gameInfo_share->emplace("ID",conf.idNumber).first;
         listQtalbe.emplace_back(0,vecPolicy[k]->size());
-        Policy* rtdp = new RtdpAlgo(conf.maxD,GridSzie,listQtalbe,d->get_id(),conf.home,gameInfo_share);
+        Policy* rtdp = new RtdpAlgo(conf.maxD,GridSzie,listQtalbe,d->get_id(),conf.home,gameInfo_share, !goal_fail);
         auto tmp = dynamic_cast<RtdpAlgo*>(rtdp);
         tmp->setStochasticMovement(stoProb);
         if(hashOnlyPos)
@@ -628,6 +648,23 @@ private:
             });
             this->speedPorbabilityVector->emplace(key,val);
         }
+    }
+    void init_goal_list(weightedVectorPosSpeed &lp)
+    {
+        for(auto &item : lp)
+        {
+            Point& goal = item.second.back().first;
+            int idx = emplaceInDictVec(goal);
+            if(std::find(goalListIndx.begin(),goalListIndx.end(),idx)==goalListIndx.end())
+                goalListIndx.push_back(idx);
+
+        }
+    }
+    bool if_inedx_in_goalList(int k)
+    {
+        if(std::find(goalListIndx.begin(),goalListIndx.end(),k)==goalListIndx.end())
+            return false;
+        return true;
     }
 //    vector<u_int32_t> get_all_relevant_mini_grids(u_int16_t max_speed_D, u_int16_t max_speed_A){
 //

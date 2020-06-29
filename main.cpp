@@ -64,7 +64,7 @@ int main() {
     GOT_HERE;
     int seed = 155139;// zero coll => con3.csv
     seed = 1592896592; // 0.84 coll ==> con3.csv
-    //seed = 1591006463;//no col l
+    seed = 1593438694;//no col l
     //seed = 1592233920; //1895975606
     //seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
@@ -93,10 +93,9 @@ int main() {
         string curToCsvPolciy;
         auto row = csvRows[i];
         // size of Grid
-        configGame conf(row);
+        configGame conf(row,seed);
         conf.initRandomNoise(); // inset random noise (-1,1) XY
         conf.home=home;
-        conf.seed=seed;
         string strId=row[0];
         cout<<"ID:\t"<<strId<<endl;
 
@@ -199,7 +198,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     }
 
 
-    auto* s = new MdpPlaner(conf.seed);
+    auto* s = new MdpPlaner(conf._seed);
     s->add_player(pA1);
     s->add_player(pD2);
     s->set_grid(g);
@@ -213,13 +212,13 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
     std::unique_ptr<State> tmp = std::make_unique<State>(State(*s->get_cur_state()));
     Point abPoint(8,8,1);
-    Point abPoint1 = Point(4,4,1);
-    abPoint1 = Point(2,2,1);
+    abPoint = Point(4,4,1);
+    //abPoint = Point(2,2,1);
     //abPoint = Point(20,20,1);
     tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint);
     pA1->setPolicy(pGridPath);
 
-    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{abPoint1},conf.seed);
+    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{abPoint},conf._seed);
 
     z->factory_containerAbstract(conf,listPointDefender);
     auto *rl = new rtSimulation(abPoint,conf.sizeGrid,pA1,s->get_cur_state(),pD2);
@@ -229,10 +228,15 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     rl->simulationV2();
     auto res = rl->getTrackingDataString();
     res.push_back(conf.idNumber);
-    res.push_back(std::to_string(conf.seed));
+    res.push_back(std::to_string(conf._seed));
     res.push_back(std::to_string(conf.rRoutes));
     res.push_back(abPoint.to_str());
     res.push_back(conf.sizeGrid.to_str());
+    res.push_back(conf.gGoals.front().to_str());
+    res.push_back(conf.posAttacker.to_str());
+    res.push_back(conf.posDefender.to_str());
+    res.push_back(rl->collusionMiniGrid_to_string());
+
     toCSVTemp(conf.home+"/car_model/out/out.csv", res);
 //    //////// RTDP POLICY ////////
     /* If max speed is zero, the explict number of state is in the second place */

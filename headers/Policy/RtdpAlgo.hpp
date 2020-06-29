@@ -23,6 +23,7 @@ class RtdpAlgo : public Policy{
     std::unique_ptr<Point>  ZeroAction = std::make_unique<Point>(0,0,0);
     RTDP_util *RTDP_util_object;
     vector<pair<State*,pair<u_int64_t,int>>> stackStateActionIdx;
+    std::function <std::tuple<double,bool>(State *s)> evaluationState;
     double bellman_update(State *s,Point &action);
     double UpdateCalc(const vector <pair<State*,double>>& state_tran_q);
     void update(State *s,Point &action,u_int64_t entryMatrix);
@@ -50,7 +51,7 @@ public:
         delete(this->RTDP_util_object);
     }
     RTDP_util* getUtilRTDP(){return RTDP_util_object;}
-    RtdpAlgo(int maxSpeedAgent, int grid_size, vector<pair<int,int>> &max_speed_and_budget,const string &agentID,string &home,dictionary &ptrDict);
+    RtdpAlgo(int maxSpeedAgent, int grid_size, vector<pair<int,int>> &max_speed_and_budget,const string &agentID,string &home,dictionary &ptrDict,bool miniGrid= false);
     Point get_action(State *s) override;
     const vector<double >* TransitionAction(State *s) override ;
     void reset_policy() override;
@@ -66,7 +67,7 @@ public:
     }
 
     void update_final_state(State *s) override {
-        auto [val,b]=EvalState2(s);
+        auto [val,b]=this->evaluationState(s);
         this->RTDP_util_object->update_final_State(s,val);}
 
     double getArgMaxValueState(const State *s){ return this->RTDP_util_object->get_max_valueQ(s);}

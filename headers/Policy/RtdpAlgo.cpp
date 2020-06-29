@@ -5,11 +5,15 @@
 #include "RtdpAlgo.hpp"
 
 #include <utility>
-RtdpAlgo::RtdpAlgo(int maxSpeedAgent, int grid_size, vector<pair<int,int>>& max_speed_and_budget,const string &agentID,string &home,dictionary &ptrDict)
+RtdpAlgo::RtdpAlgo(int maxSpeedAgent, int grid_size, vector<pair<int,int>>& max_speed_and_budget,const string &agentID,string &home,dictionary &ptrDict,bool miniGrid)
         : Policy("RTDP", maxSpeedAgent,agentID,home,ptrDict) {
    this->RTDP_util_object = new RTDP_util(grid_size,max_speed_and_budget,home);
     this->RTDP_util_object->set_tran(&this->tran);
     this->RTDP_util_object->MyPolicy(this);
+    if(miniGrid)
+        this->evaluationState = [this](State *s){return this->EvalState2(s);};
+    else
+        this->evaluationState = [this](State *s){return this->EvalState(s);};
 }
 
 
@@ -178,7 +182,7 @@ double RtdpAlgo::UpdateCalc(const vector<pair<State *, double>>& state_tran_q) {
     double res=0;
     for (auto &item:state_tran_q)
     {
-        auto [val,isSndState] = this->EvalState2(item.first);
+        auto [val,isSndState] = this->evaluationState(item.first);
         if (!isSndState)
             val = this->RTDP_util_object->get_max_valueQ(item.first);
         res+=val*item.second*this->RTDP_util_object->discountFactor;

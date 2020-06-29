@@ -22,7 +22,18 @@ RTDP_util::RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget,s
 }
 
 
+double RTDP_util::applyNonAction(const State *s)
+{
+    if(_stochasticMovement==1)
+        return collReward;
+    State oldState = State(*s);
+    Point p(0);
+    bool isWall = this->apply_action(&oldState,my_policy->id_agent,p,my_policy->max_speed);
+    if(isWall)
+        return wallReward;
+    return collReward;
 
+}
 
 
 
@@ -30,17 +41,20 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
 {
     vector<State*> vec_q;
     auto oldState = new State(*s);
-    //cout<<s->to_string_state()<<endl;
+
+    // get the reward for action (0,0,0)
+    double zero_move_reward = applyNonAction(s);
 
     for (const auto &item_action : *this->hashActionMap)
     {
         // apply action state and let the envirmont to roll and check the reward/pos
         Point *actionCur = item_action.second;
         double val;
+
         bool isWall = this->apply_action(oldState,my_policy->id_agent,*actionCur,my_policy->max_speed);
         if (isWall)
             val = this->wallReward*discountFactor*this->_stochasticMovement+
-                    collReward*(1-this->_stochasticMovement);
+                    zero_move_reward*(1-this->_stochasticMovement);
         else{
             //val = this->compute_h(oldState);
             val=this->collReward*discountFactor;

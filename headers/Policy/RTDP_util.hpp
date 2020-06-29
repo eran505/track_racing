@@ -62,7 +62,7 @@ class RTDP_util{
         }
         else return pos->second;
     }
-
+    double applyNonAction(const State *s);
 
 public:
     void printInfoGen()
