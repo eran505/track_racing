@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
     auto pathCsvConfig = getConfigPath(argc,argv);
     string pathCsv;
     if(!pathCsvConfig)
-        pathCsv  = home + "/car_model/config/con4.csv";
+        pathCsv  = home + "/car_model/config/con6.csv";
     else
         pathCsv = string(pathCsvConfig);
     std::string toCsvPath (home+ "/car_model/exp/out/");
