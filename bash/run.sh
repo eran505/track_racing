@@ -7,5 +7,5 @@ for i in {0..100}
 do
   echo "-->$i<--"
   cd "${PATHtoFileDir}" || exit
-  ./track_racing 2
+  ./track_racing 6
 done
