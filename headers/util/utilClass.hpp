@@ -60,6 +60,7 @@ vector<string> splitStr(const string& str, const string& delim)
 struct configGame{
     int _seed;
     Point sizeGrid ;
+    Point abst = Point(0);
     string config;
     Point posAttacker;
     int maxA{};

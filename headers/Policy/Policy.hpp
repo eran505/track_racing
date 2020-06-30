@@ -59,6 +59,7 @@ public:
     virtual void update_final_state(State *s){};
     virtual void learnRest(){};
     virtual void policy_data()const=0;
+    virtual bool isInPolicy(const State *s)const{return true;}
     virtual const vector<double >* TransitionAction(State *s)=0;
     void add_tran(Policy *ptr_tran)
     {

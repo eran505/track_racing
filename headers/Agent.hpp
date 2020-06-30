@@ -16,7 +16,7 @@ typedef std::vector<std::pair<double,Point>> weightedPointVector;
 class Agent{
 
 protected:
-    Policy* my_Policy;
+    Policy* my_Policy= nullptr;
     weightedPositionVector initialPosition;
     int my_budget;
     bool is_wall;
@@ -37,13 +37,13 @@ public:
     }
     bool get_is_wall() const{ return is_wall;}
     void rest(){is_wall= false; this->my_Policy->reset_policy();}
-    const string& get_name_id(){ return my_id;}
+    const string& get_name_id()const{ return my_id;}
     Agent(weightedPositionVector Startpos,string m_id , char m_team,int b_budget);
     Agent(weightedPositionVector Startpos, char m_team,int b_budget);
-    const string& get_id(){ return my_id; }
+    const string& get_id()const{ return my_id; }
     char get_team() const { return my_team; }
     string get_name();
-    const Policy* getPolicy(){ return my_Policy;};
+    const Policy* getPolicy()const{ return my_Policy;};
     void doAction(State *s);
     void setPolicy(Policy* pPtr){pPtr->set_id(this->my_id); this->my_Policy=pPtr;}
     ~Agent();

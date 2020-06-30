@@ -33,7 +33,7 @@ class RTDP_util{
     std::unique_ptr<unordered_map<keyItem ,arr>>  qTable=
             std::make_unique<unordered_map<keyItem ,arr>>();
     double _stochasticMovement=1;
-
+    u_int64_t update_counter=0;
     vector<Policy*> *lTran= nullptr;
     unordered_map<keyItem,string> debugDict;
     const string home;
@@ -41,6 +41,7 @@ class RTDP_util{
     Policy* my_policy= nullptr;
     unsigned int ctr_state=0;
     size_t ctr_random=0;
+    double epslion=0.0000001;
     int size_Q;
     int size_mapAction;
     unordered_map<int,Point*>* hashActionMap;
@@ -48,7 +49,7 @@ class RTDP_util{
     void heuristic(const State *s,keyItem entry_index);
     cell compute_h(State *s);
 
-    keyItem getStateKeyValue(const State *s)
+    keyItem getStateKeyValue(const State *s) const
     {
         return HashFuction(s);
     }
@@ -65,6 +66,13 @@ class RTDP_util{
     double applyNonAction(const State *s);
 
 public:
+    u_int64_t get_update_ctr() const{return this->update_counter;}
+    bool isInQ(const State *s) const
+    {
+        if(auto pos = this->qTable->find(getStateKeyValue(s));pos==qTable->end())
+            return false;
+        return true;
+    }
     void printInfoGen()
     {
         cout<<"SizeQ:"<<size_Q<<"\tgen: "<<qTable->size()<<endl;
@@ -91,6 +99,9 @@ public:
     void add_entry_map_state(keyItem basicString, const State *s);
 
     void set_value_matrix(keyItem entryState, Point &action ,double val){
+        if(val-this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax))<epslion)
+            return;
+        this->update_counter++;
         this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax))=val;
     }
     vector<double>* get_probabilty(const State *s);

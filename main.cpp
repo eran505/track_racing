@@ -29,7 +29,7 @@
 #include "learning/ReplayBuffer/SumTree.hpp"
 #include "learning/ReplayBuffer/prioritizedExperienceReplay.hpp"
 #define GOT_HERE std::cout << "At " __FILE__ ": " << __LINE__ << std::endl
-
+const char *  getConfigPath(int argc, char** argv);
 Grid * init_grid(configGame &conf);
 MdpPlaner* init_mdp(Grid *g, configGame &conf);
 void toCsv(string &pathFile, vector<vector<int>>* infoArr,vector<string> &labels);
@@ -37,6 +37,7 @@ Game* initGame(configGame& conf);
 vector<vector<string>> readConfigFile(string &filePath);
 void toCsvString(string pathFile,vector<string>* infoArr);
 void toCSVTemp(string pathFile, vector<string> &data);
+void getConfigPath(int argc, char** argv,configGame &conf);
 /*
  * TODO LIST:
  * 1. in the State class, i think that its enough
@@ -60,12 +61,12 @@ using namespace std::chrono;
 #include <string_view>
 typedef unsigned long ulong;
 
-int main() {
+int main(int argc, char** argv) {
     GOT_HERE;
     int seed = 155139;// zero coll => con3.csv
     seed = 1592896592; // 0.84 coll ==> con3.csv
     seed = 1593438694;//no col l
-    //seed = 1592233920; //1895975606
+    seed = 1593509219; //1895975606
     //seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
@@ -76,7 +77,12 @@ int main() {
     home = sep+home;
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
-    std::string pathCsv (home + "/car_model/config/con6.csv");
+    auto pathCsvConfig = getConfigPath(argc,argv);
+    string pathCsv;
+    if(!pathCsvConfig)
+        pathCsv  = home + "/car_model/config/con4.csv";
+    else
+        pathCsv = string(pathCsvConfig);
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -96,6 +102,7 @@ int main() {
         configGame conf(row,seed);
         conf.initRandomNoise(); // inset random noise (-1,1) XY
         conf.home=home;
+        getConfigPath(argc,argv,conf);
         string strId=row[0];
         cout<<"ID:\t"<<strId<<endl;
 
@@ -111,8 +118,8 @@ int main() {
 
 
 
-        toCsv(curToCsv,resultsConfigI->info,labels);
-        toCsv(curToCsvPolciy,resultsConfigI->guardEval,labels);
+        //toCsv(curToCsv,resultsConfigI->info,labels);
+        //toCsv(curToCsvPolciy,resultsConfigI->guardEval,labels);
         ctrId++;
         //Agent::ctr_object = 0;
         delete (resultsConfigI);
@@ -136,9 +143,9 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(5000000);
+    my_game->startGame(0);
     string nameFile="buffer_"+conf.idNumber+".csv";
-    toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
+    //toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
 
 
@@ -211,17 +218,17 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     auto *tmp_pointer = dynamic_cast <PathPolicy*>(pGridPath);
     printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
     std::unique_ptr<State> tmp = std::make_unique<State>(State(*s->get_cur_state()));
-    Point abPoint(8,8,1);
-    abPoint = Point(4,4,1);
-    //abPoint = Point(2,2,1);
+    Point abPoint1(8,8,1);
+    Point abPoint2 = Point(4,4,1);
+    Point abPoint3 = Point(2,2,1);
     //abPoint = Point(20,20,1);
-    tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint);
+    tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint2);
     pA1->setPolicy(pGridPath);
 
-    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{abPoint},conf._seed);
+    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{abPoint2},conf._seed);
 
     z->factory_containerAbstract(conf,listPointDefender);
-    auto *rl = new rtSimulation(abPoint,conf.sizeGrid,pA1,s->get_cur_state(),pD2);
+    auto *rl = new rtSimulation(conf.sizeGrid,pA1,s->get_cur_state(),pD2);
     //rl->set_agent(std::move(z->mapAgent));
     //rl->simulation();
     rl->setContiner(z->get_con());
@@ -230,7 +237,9 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     res.push_back(conf.idNumber);
     res.push_back(std::to_string(conf._seed));
     res.push_back(std::to_string(conf.rRoutes));
-    res.push_back(abPoint.to_str());
+
+    res.push_back(z->get_abstraction_tostring());
+
     res.push_back(conf.sizeGrid.to_str());
     res.push_back(conf.gGoals.front().to_str());
     res.push_back(conf.posAttacker.to_str());
@@ -251,7 +260,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 //    RTDP->add_tran(pGridPath);
 //    pA1->setPolicy(pGridPath);
 //    pD2->setPolicy(RTDP);
-//
+
     exit(0);
     return s;
 }
@@ -336,4 +345,21 @@ vector<vector<string>> readConfigFile(string &filePath){
 //    }
 
     return rowsCsv;
+}
+const char *  getConfigPath(int argc, char** argv)
+{
+    return nullptr;
+    if(argc==1)
+        return nullptr;
+    else
+        return argv[1];
+}
+void getConfigPath(int argc, char** argv,configGame &conf)
+{
+    if(argc>1)
+    {
+        int i = std::stoi(string(argv[2]));
+        conf.abst = Point(i,i,1);
+    }
+
 }

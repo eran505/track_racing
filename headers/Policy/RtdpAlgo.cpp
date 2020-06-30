@@ -49,6 +49,8 @@ Point RtdpAlgo::get_action(State *s)
         return action;
     }
 
+    if(ctrInFun%400000==0) cout<<"QTable updates: "<<this->RTDP_util_object->get_update_ctr()<<endl;
+    ctrInFun++;
 
 
     u_int64_t entry=this->RTDP_util_object->last_entry;
@@ -199,7 +201,7 @@ void RtdpAlgo::update(State *s, Point &action,u_int64_t entryMatrix)
 
 void RtdpAlgo::inset_to_stack(State *s,Point &action,u_int64_t state_entry)
 {
-    stackStateActionIdx.push_back({new State(*s),{state_entry,action.hashMeAction(Point::actionMax)}});
+    stackStateActionIdx.push_back({State(*s),{state_entry,action.hashMeAction(Point::actionMax)}});
     ctr_stack++;
 }
 
@@ -209,9 +211,9 @@ void RtdpAlgo::empty_stack_update() {
         auto pos = this->hashActionMap->find(this->stackStateActionIdx[i].second.second);
         if (pos==this->hashActionMap->end())
             throw;
-        this->update(this->stackStateActionIdx[i].first,*pos->second,
+        this->update(&this->stackStateActionIdx[i].first,*pos->second,
                 this->stackStateActionIdx[i].second.first);
-        delete(this->stackStateActionIdx[i].first);
+
     }
     ctr_stack=0;
     this->stackStateActionIdx.clear();

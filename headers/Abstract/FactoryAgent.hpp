@@ -36,9 +36,15 @@ class AbstractCreator{
     std::vector<simulation> simulationVector;
 
     int seed;
-    u_int32_t iter = 1000000;
+    u_int32_t iter = 2000000;
     std::unique_ptr<rtSimulation> rtSim= nullptr;
 public:
+    string get_abstraction_tostring()
+    {
+        string ans;
+        std::for_each(allAbst.begin(),allAbst.end(),[&](const Point &p){ans+=p.to_str()+"_";});
+        return ans;
+    }
     vector<containerAbstract>& get_con(){return l_containers;}
     std::unordered_map<u_int32_t,Agent*> mapAgent;
 
@@ -95,7 +101,7 @@ public:
             cout<<"gridID:\t"<<t.gridID<<endl;
             if(IsReachable(t.gridID) ){
                 cout<<"t.gridID="<<t.gridID<<endl;
-                t.simulate(iter);
+                t.simulate(iter*0.5);
                 auto newCollReward = t.getAvgExpectedReward();
                 insetBigAbstractGridReward(t.gridID,newCollReward);
                 cout<<"getAvgExpectedReward:\t"<<newCollReward<<endl;
@@ -107,9 +113,10 @@ public:
         });
         // Need to reset the Agent
         lsim.back().agents[event::agnetIDX::defenderInt].get()->getPolicyInt()->learnRest();
-        lsim.back().simulate(iter*2.5); // learn again on the modified rewards
+        lsim.back().simulate(iter*2); // learn again on the modified rewards
         std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
                       [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
+
         #else
         for(size_t index=0;index<lsim.size();++index)
         {

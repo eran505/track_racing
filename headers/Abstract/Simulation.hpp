@@ -219,7 +219,9 @@ private:
         {
             auto [pPos,sSpeed] = itemAgent->get_pos(this->distribution(this->generator));
             setPosSpeed(sSpeed,pPos,itemAgent->get_id());
+            itemAgent->rest();
         }
+
     }
     void setPosSpeed(const Point &sSpeed,const Point &pPos,const string &id_str)
     {

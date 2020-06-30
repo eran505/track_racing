@@ -75,7 +75,8 @@ public:
         if(auto pos = _lagh.find(idx); pos==_lagh.end())
         {
             cout<<s->to_string_state()<<endl;cout<<idx<<endl;cout<<absState<<endl;
-            assert(false);
+            return _lagh[idxBigScope].get();
+            //assert(false);
         }
         else
             return pos->second.get();

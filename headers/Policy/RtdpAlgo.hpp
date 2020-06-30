@@ -13,7 +13,7 @@ typedef unordered_map<u_int64_t ,double> rewardMap ;
 class RtdpAlgo : public Policy{
 
     std::unique_ptr<rewardMap>  rewardDict = std::make_unique<rewardMap>();
-
+    u_int64_t ctrInFun=0;
     double CollReward = 1;
     double GoalReward = -1;
     double WallReward = -10;
@@ -22,7 +22,7 @@ class RtdpAlgo : public Policy{
     double _stochasticMovement=1;
     std::unique_ptr<Point>  ZeroAction = std::make_unique<Point>(0,0,0);
     RTDP_util *RTDP_util_object;
-    vector<pair<State*,pair<u_int64_t,int>>> stackStateActionIdx;
+    vector<pair<State,pair<u_int64_t,int>>> stackStateActionIdx;
     std::function <std::tuple<double,bool>(State *s)> evaluationState;
     double bellman_update(State *s,Point &action);
     double UpdateCalc(const vector <pair<State*,double>>& state_tran_q);
@@ -50,6 +50,7 @@ public:
         cout<<"del RTDP"<<endl;
         delete(this->RTDP_util_object);
     }
+    bool isInPolicy(const State *s) const override {return this->RTDP_util_object->isInQ(s);}
     RTDP_util* getUtilRTDP(){return RTDP_util_object;}
     RtdpAlgo(int maxSpeedAgent, int grid_size, vector<pair<int,int>> &max_speed_and_budget,const string &agentID,string &home,dictionary &ptrDict,bool miniGrid= false);
     Point get_action(State *s) override;

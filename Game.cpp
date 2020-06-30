@@ -105,6 +105,7 @@ void Game::evalPolicy() {
 
 void Game::startGame(int numIter)
 {
+    if(numIter==0) return;
     //int size = numIter%10000 == 0 ? numIter/10000 :numIter/10000+1;
     this->guardEval->reserve(numIter/modEval);
     //auto info = new vector<vector<int>>();
@@ -120,7 +121,7 @@ void Game::startGame(int numIter)
         if (ctr_round%modEval==0){
             evalPolicy();
             //this->print_stats();
-            vector<int> tmp(4);
+            vector<int> tmp(5);
             tmp[0]=ctr_round;
             tmp[1]=this->ctr_wall;
             tmp[2]=this->ctr_coll;
@@ -134,7 +135,7 @@ void Game::startGame(int numIter)
     cout<<"Collision:\t"<<ctr_coll<<endl;
     if (ctr_round%1000>0)
     {
-        vector<int> tmp(4);
+        vector<int> tmp(5);
         tmp[0]=ctr_round;
         tmp[1]=this->ctr_wall;
         tmp[2]=this->ctr_coll;

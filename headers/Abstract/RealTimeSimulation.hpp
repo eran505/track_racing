@@ -3,7 +3,7 @@
 //
 #define GOT_HERE std::cout << "At " __FILE__ ":" << __LINE__ << std::endl
 #define DEBUGER
-#define PRINTME
+//#define PRINTME
 #ifndef TRACK_RACING_REALTIMESIMULATION_HPP
 #define TRACK_RACING_REALTIMESIMULATION_HPP
 #include "headers/Abstract/Simulation.hpp"
@@ -22,23 +22,20 @@ class rtSimulation{
      *
      * */
     vector<double> trackingData;
-    Point abstraction;
     Point GridSize;
     bool inMini=false;
     string resultsPath;
     set<string> collPoints;
     set<string> wallPoints;
+    const Point zeroPoint = Point(0);
     string _nameA;
-    u_int32_t sizeM;
     string _nameD;
-    u_int32_t curAgentNumber=-1;
     unordered_map<u_int32_t ,Agent*> lDefenderAgent;
     Agent* _attacker;
     Agent* _defender;
-    u_int32_t iterMax=1000000;
+    u_int32_t iterMax=10000;
     unordered_map<string,u_int32_t > collusionMiniGrid;
     State* state;
-    Point divPoint;
     //std::unique_ptr<Agent> _defender;
     vector<containerAbstract> conL;
     size_t idxContier = 0;
@@ -54,34 +51,13 @@ class rtSimulation{
 
     }
 
-    void checkMeeting()
+
+    void checkIfStateInPolicy(State *s,const Agent* a)
     {
-        u_int32_t ans = sizeM;
-        vector<Point> l;
-        state->getAllPos(l,this->abstraction);
-        for (int i=0;i<l.size();++i)
-        {
-            for(int j=i+1;j<l.size();++j)
-                if(l[i]==l[j])
-                {
-
-                    auto row = l[0].array[0]*divPoint.array[0];
-                    auto col = l[0].array[1]%divPoint.array[1];
-                    ans = col+row;
-                    break;
-                }
-        }
-        if (ans != curAgentNumber)
-        {
-            curAgentNumber=ans;
-            #ifdef DEBUGER
-            if(curAgentNumber<sizeM)
-                insetCollDict();
-            #endif
-            //evalMode();
-        }
+        bool isIn = a->getPolicy()->isInPolicy(s);
+        if(!isIn)
+            s->set_speed(a->get_id(),this->zeroPoint);
     }
-
 public:
     unordered_map<string,u_int32_t > getCollusionMiniGrid(){return collusionMiniGrid;}
     vector<double> getTrackingData(){return trackingData;}
@@ -92,15 +68,12 @@ public:
             v.push_back(std::to_string(i));
         return v;
     }
-    rtSimulation(const Point& _abstraction,const Point& GridSize, Agent* attacker,State* stateArg,Agent* defnder)
-    :abstraction(_abstraction),GridSize(GridSize),
+    rtSimulation(const Point& GridSize, Agent* attacker,State* stateArg,Agent* defnder)
+    :GridSize(GridSize),
     _attacker(attacker),_defender(defnder),trackingData(event::Size,0),
     state(stateArg)
     {
-        sizeM = (this->GridSize/this->abstraction).accMulti();
-        curAgentNumber=sizeM;
 
-        divPoint=this->GridSize/this->abstraction;
     }
     static void evalMode(Agent* ptr)
     {
@@ -200,6 +173,9 @@ public:
                 #ifdef PRINTME
                 cout<<"tmpState:\t"<<tmpState->to_string_state()<<endl;
                 #endif
+                // check if the state in the policy else zero the speed
+                checkIfStateInPolicy(tmpState.get(),agentD);
+
                 agentD->doAction(tmpState.get());
                 #ifdef PRINTME
                 cout<<"\tAction:\t"<<agentD->lastAction.to_str()<<"\n";
@@ -216,58 +192,6 @@ public:
             cout<<ctr<<":\t"<<this->state->to_string_state()<<endl;
             #endif
         }
-    }
-
-    void simulation()
-    {
-        for(size_t k=0;k<iterMax;++k)
-        {
-            u_int16_t ctr=0;
-            #ifdef PRINTME
-            cout<<ctr<<":\t"<<this->state->to_string_state()<<endl;
-            #endif
-            inMini=false;
-            while(!Stop_Game())
-            {
-                cout<<"ctr="<<ctr<<endl;
-                ctr++;
-                checkMeeting();
-                if (curAgentNumber==sizeM)
-                {
-                    auto tmpState = state->getAbstractionState(abstraction);
-                    auto ptrAgent = getAgent(curAgentNumber);
-                    //ptrAgent = conL[idxContier].get_agent(this->state);
-                    #ifdef PRINTME
-                    cout<<"tmpState:\t"<<tmpState->to_string_state()<<endl;
-                    #endif
-                    ptrAgent->doAction(tmpState.get());
-                    #ifdef PRINTME
-                    cout<<"\tAction:\t"<<ptrAgent->lastAction.to_str()<<"\n";
-                    #endif
-                    this->state->applyAction(ptrAgent->get_id(),
-                                             ptrAgent->lastAction,
-                                             ptrAgent->getPolicyInt()->max_speed);
-                } else
-                    {
-
-                        getAgent(curAgentNumber)->doAction(this->state);
-                        inMini=true;
-                        #ifdef PRINTME
-                        //cout<<curAgentNumber<<" ->  ";
-                        #endif
-                    }
-                _attacker->doAction(this->state);
-                #ifdef PRINTME
-                cout<<ctr<<":\t"<<this->state->to_string_state()<<endl;
-                #endif
-            }
-            reset_state();
-        }
-        cout<<"----"<<endl;
-        #ifdef DEBUGER
-        printCollDict();
-        #endif
-        printStat();
     }
     bool Stop_Game(){
         const Point& posEvader= this->state->get_position_ref(this->_attacker->get_id());

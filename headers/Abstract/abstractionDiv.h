@@ -301,25 +301,14 @@ public:
                                                    zero.hashConst(Point::maxSpeed));
 
 
-//                if(item[i].positionPoint.to_str()=="(1, 1, 1)")
-//                {
-//                    cout<<"item[i].speedPoint:\t"<<item[i].speedPoint.to_str()<<endl;
-//                    cout<<difAction.to_str()<<endl;
-//                    cout<<diffPos.to_str()<<endl;
-//                    cout<<"key="<<key<<endl;
-//                    cout<<item[i+1].positionPoint.to_str()<<endl;
-//                    cout<<item[i+1].speedPoint.to_str()<<endl;
-//                    cout<<"keyZero:\t"<<keyZero<<endl;
-//                    cout<<"----------\n";
-//                }
 
 
                 if (auto pos = this->vecPolicy[index]->find(key);pos==this->vecPolicy[index]->end())
                 {
-                    this->vecPolicy[index]->try_emplace
+                    this->vecPolicy[index]->emplace
                     (key, new std::vector<double>({actionHkey,-p,key_op_difAction,templateNumber}));
 
-                    this->vecPolicy[index]->try_emplace
+                    this->vecPolicy[index]->emplace
                     (keyZero, new std::vector<double>({diffPosHASH,-p,zeroHashAction,templateNumber}));
 
                 }
@@ -430,7 +419,7 @@ public:
         Point up = this->girdSize/abstractSize;
         Point low(0);
         auto* a = new Agent(startPoints_abstraction->back(),Section::adversary,10);
-        auto* d = new Agent(addStartingPoint(StartingDefender),Section::gurd,10);
+        auto* d = new Agent((StartingDefender),Section::gurd,10);
         initRTDP(this->divPoint.accMulti(),conf,d,k,false,(double(conf.maxD))/double(abstractSize[0]),true); //3=this->abstractSize[0]
         setPathPolicy(conf,a,k);
         a->getPolicyInt()->add_tran(d->getPolicyInt());
