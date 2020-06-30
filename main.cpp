@@ -219,13 +219,15 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
     std::unique_ptr<State> tmp = std::make_unique<State>(State(*s->get_cur_state()));
     Point abPoint1(8,8,1);
-    Point abPoint2 = Point(4,4,1);
+    abPoint1 = Point(4,4,1);
     Point abPoint3 = Point(2,2,1);
-    //abPoint = Point(20,20,1);
-    tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint2);
+    tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint1);
     pA1->setPolicy(pGridPath);
 
-    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{abPoint2},conf._seed);
+    if(conf.abst.accMulti()!=0)
+        abPoint1=conf.abst;
+
+    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{abPoint1},conf._seed);
 
     z->factory_containerAbstract(conf,listPointDefender);
     auto *rl = new rtSimulation(conf.sizeGrid,pA1,s->get_cur_state(),pD2);
@@ -358,7 +360,7 @@ void getConfigPath(int argc, char** argv,configGame &conf)
 {
     if(argc>1)
     {
-        int i = std::stoi(string(argv[2]));
+        int i = std::stoi(string(argv[1]));
         conf.abst = Point(i,i,1);
     }
 
