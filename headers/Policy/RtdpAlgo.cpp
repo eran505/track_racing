@@ -242,6 +242,22 @@ double RtdpAlgo::getReward(const Point &refPoint)const {
         return pos->second;
 }
 
+void RtdpAlgo::learnRest() {
+    Policy::learnRest();
+    this->RTDP_util_object->resetQtable();
+    bool the_same=true;
+    if(rewardDict->empty())
+        return;
+    auto first_val = rewardDict->begin()->second;
+    for(auto &item:*rewardDict)
+        if(first_val!=item.second)
+            the_same=false;
+    if(the_same)
+        for(auto &item:*rewardDict) this->rewardDict->clear();
+
+
+}
+
 //double RtdpAlgo::expected_reward_rec(State *s, int index_policy, deque<Point> &my_stack) {
 //    return 0;
 //}

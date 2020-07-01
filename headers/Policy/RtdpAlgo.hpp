@@ -30,7 +30,7 @@ class RtdpAlgo : public Policy{
     void inset_to_stack(State *s,Point &action,u_int64_t state_entry);
     void empty_stack_update();
     void minimization()override{this->RTDP_util_object->reduceMap();}
-    void learnRest()override {this->RTDP_util_object->resetQtable();}
+    void learnRest()override;
     //stackStateActionIdxdouble expected_reward(State *s, Point &action);
     //double expected_reward_rec(State *s,int index_policy,deque<Point> &my_stack);
 public:

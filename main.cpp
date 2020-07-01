@@ -64,7 +64,7 @@ typedef unsigned long ulong;
 int main(int argc, char** argv) {
     GOT_HERE;
     int seed = 155139;// zero coll => con3.csv
-    seed = 1593562445; //1895975606
+    seed = 1593621791; //1895975606
     seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
@@ -230,8 +230,6 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 
     z->factory_containerAbstract(conf,listPointDefender);
     auto *rl = new rtSimulation(conf.sizeGrid,pA1,s->get_cur_state(),pD2);
-    //rl->set_agent(std::move(z->mapAgent));
-    //rl->simulation();
     rl->setContiner(z->get_con());
     rl->simulationV2();
     auto res = rl->getTrackingDataString();
@@ -296,8 +294,8 @@ void toCsv(string &pathFile, vector<vector<int>>* infoArr,vector<string> &labels
         // Data
         for (const auto &row:*infoArr)
         {
-            for (size_t i = 0; i < row.size() ; ++i)
-                csv << row[i];
+            for (int i : row)
+                csv << i;
             csv<< endrow;
         }
     }

@@ -36,7 +36,7 @@ class AbstractCreator{
     std::vector<simulation> simulationVector;
 
     int seed;
-    u_int32_t iter = 2000000;
+    u_int32_t iter = 1000000;
     std::unique_ptr<rtSimulation> rtSim= nullptr;
 public:
     string get_abstraction_tostring()
@@ -101,7 +101,7 @@ public:
             cout<<"gridID:\t"<<t.gridID<<endl;
             if(IsReachable(t.gridID) ){
                 cout<<"t.gridID="<<t.gridID<<endl;
-                t.simulate(iter*0.5);
+                t.simulate(iter);
                 auto newCollReward = t.getAvgExpectedReward();
                 insetBigAbstractGridReward(t.gridID,newCollReward);
                 cout<<"getAvgExpectedReward:\t"<<newCollReward<<endl;

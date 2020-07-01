@@ -60,9 +60,9 @@ class simulation{
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution;
     unordered_map<string,u_int32_t> collustionMap;
-    Converager<10> arr_converage;
+    Converager<15> arr_converage;
     u_int32_t ctr_converage = 0;
-    const u_int32_t FixInset = 20000;
+    const u_int32_t FixInset = 80000;
     #ifdef DATA_P
     Converager<5,std::vector<uint32_t >> evalPolicyer;
     vector<u_int32_t> acc_dataTrack = std::vector<u_int32_t>(event::Size);
@@ -97,7 +97,14 @@ public:
         return *this;
     }
 
-
+    void print_evalPolicyer()
+    {
+        for(const auto &item:this->evalPolicyer.arr_con)
+        {
+            for(const auto item1:item) cout<<item1<<",";
+            cout<<endl;
+        }
+    }
     void getDefAgentDATA(){agents[event::agnetIDX::defenderInt]->getPolicyInt()->policy_data();}
     shared_ptr<Agent> getDefAgent(){agents[event::agnetIDX::defenderInt];}
     Agent* getDefAgentPTR(){agents.operator[](0).get();}
@@ -202,12 +209,13 @@ public:
             #ifdef DEBUGPrint
             cout<<"END"<<endl;
             #endif
-            //setPolicyEval();
+            setPolicyEval();
             reset_state();
             #ifdef DEBUG2
             if(i%100000==0) cout<<"Iter:\t"<<i<<endl;
             #endif
         }
+        print_evalPolicyer();
         printStat();
     }
 

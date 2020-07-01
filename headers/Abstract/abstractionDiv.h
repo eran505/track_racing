@@ -420,7 +420,7 @@ public:
         Point low(0);
         auto* a = new Agent(startPoints_abstraction->back(),Section::adversary,10);
         auto* d = new Agent((StartingDefender),Section::gurd,10);
-        initRTDP(this->divPoint.accMulti(),conf,d,k,false,(double(conf.maxD))*6.0/(double(abstractSize[0])),true); //3=this->abstractSize[0]
+        initRTDP(this->divPoint.accMulti(),conf,d,k,false,(double(conf.maxD))/(double(abstractSize[0])),true); //3=this->abstractSize[0]
         setPathPolicy(conf,a,k);
         a->getPolicyInt()->add_tran(d->getPolicyInt());
         d->getPolicyInt()->add_tran(a->getPolicyInt());

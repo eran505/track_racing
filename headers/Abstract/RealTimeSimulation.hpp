@@ -3,7 +3,7 @@
 //
 #define GOT_HERE std::cout << "At " __FILE__ ":" << __LINE__ << std::endl
 #define DEBUGER
-#define PRINTME
+//#define PRINTME
 #ifndef TRACK_RACING_REALTIMESIMULATION_HPP
 #define TRACK_RACING_REALTIMESIMULATION_HPP
 #include "headers/Abstract/Simulation.hpp"
@@ -33,7 +33,7 @@ class rtSimulation{
     unordered_map<u_int32_t ,Agent*> lDefenderAgent;
     Agent* _attacker;
     Agent* _defender;
-    u_int32_t iterMax=10000;
+    u_int32_t iterMax=100000;
     unordered_map<string,u_int32_t > collusionMiniGrid;
     State* state;
     //std::unique_ptr<Agent> _defender;

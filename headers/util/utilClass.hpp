@@ -88,7 +88,7 @@ public:
     explicit configGame(vector<string> &row,int seed):_seed(seed),generator(_seed)
     {
 
-        distribution = std::uniform_int_distribution<int>(-2,2);
+        distribution = std::uniform_int_distribution<int>(-1,1);
         idNumber=row[0];
         sizeGrid = Point(stoi(row[1]),stoi(row[2]),stoi(row[3]));
         posAttacker = vecToPoint(splitStr(row[4],"|"));
