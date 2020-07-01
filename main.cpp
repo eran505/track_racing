@@ -245,7 +245,9 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     res.push_back(conf.posDefender.to_str());
     res.push_back(rl->collusionMiniGrid_to_string());
 
-    toCSVTemp(conf.home+"/car_model/out/out.csv", res);
+    string path = conf.home+"/car_model/out/abs_"+std::to_string(abPoint1[0])+".csv";
+
+    toCSVTemp(path, res);
 //    //////// RTDP POLICY ////////
     /* If max speed is zero, the explict number of state is in the second place */
 //    vector<pair<int,int>> list_Q_data;

@@ -3,7 +3,7 @@
 
 PATHtoFileDir=${HOME}"/eran/repo/track_racing/"
 
-for i in {0..100}
+for i in {0..1000}
 do
   echo "-->$i<--"
   cd "${PATHtoFileDir}" || exit
