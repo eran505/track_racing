@@ -64,10 +64,8 @@ typedef unsigned long ulong;
 int main(int argc, char** argv) {
     GOT_HERE;
     int seed = 155139;// zero coll => con3.csv
-    seed = 1592896592; // 0.84 coll ==> con3.csv
-    seed = 1593438694;//no col l
-    seed = 1593509219; //1895975606
-    //seed = int( time(nullptr));
+    seed = 1593562445; //1895975606
+    seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -219,8 +217,9 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
     std::unique_ptr<State> tmp = std::make_unique<State>(State(*s->get_cur_state()));
     Point abPoint1(8,8,1);
+    //abPoint1 = Point(2,2,1);
     abPoint1 = Point(4,4,1);
-    Point abPoint3 = Point(2,2,1);
+    abPoint1 = Point(6,6,1);
     tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint1);
     pA1->setPolicy(pGridPath);
 

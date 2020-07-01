@@ -3,7 +3,7 @@
 //
 #define GOT_HERE std::cout << "At " __FILE__ ":" << __LINE__ << std::endl
 #define DEBUGER
-//#define PRINTME
+#define PRINTME
 #ifndef TRACK_RACING_REALTIMESIMULATION_HPP
 #define TRACK_RACING_REALTIMESIMULATION_HPP
 #include "headers/Abstract/Simulation.hpp"

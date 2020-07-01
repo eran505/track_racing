@@ -35,6 +35,7 @@ class RtdpAlgo : public Policy{
     //double expected_reward_rec(State *s,int index_policy,deque<Point> &my_stack);
 public:
     void genrateInfoPrint(){this->RTDP_util_object->printInfoGen();}
+    [[nodiscard]] u_int64_t getUpdateCtr()const{return  this->RTDP_util_object->get_update_ctr();}
     void resetAlgo(){this->RTDP_util_object->resetTable();}
     void setStochasticMovement(double m)
     {

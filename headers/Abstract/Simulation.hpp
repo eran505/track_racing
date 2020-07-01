@@ -2,6 +2,7 @@
 // Created by ERANHER on 13.5.2020.
 //
 ////
+
 //#define DEBUGPrint
 #define DEBUG2
 //#define ASSERT
@@ -16,6 +17,28 @@
 #include "Agent.hpp"
 #include "Grid.hpp"
 //pursuer and evader
+#define DATA_P
+template<size_t N,typename V = u_int64_t>
+struct Converager{
+    std::array<V,N> arr_con = std::array<V,N>();
+    size_t ctr=0;
+
+    void inset_elm(V&& v)
+    {
+        //std::for_each(arr_con.begin(),arr_con.end(),[](auto x){cout<<x<<",";});
+        //cout<<endl;
+        arr_con[ctr]=std::forward<V>(v);
+        ctr = ++ctr%N;
+    }
+    bool is_converage()
+    {
+        auto size_ctr = N;
+        while(--size_ctr>0 && arr_con[size_ctr]==arr_con[0]);
+        return size_ctr==0;
+    }
+
+};
+
 
 namespace event{
     enum event : short{
@@ -25,6 +48,7 @@ namespace event{
 
 
 }
+
 
 class simulation{
 
@@ -36,7 +60,14 @@ class simulation{
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution;
     unordered_map<string,u_int32_t> collustionMap;
-
+    Converager<10> arr_converage;
+    u_int32_t ctr_converage = 0;
+    const u_int32_t FixInset = 20000;
+    #ifdef DATA_P
+    Converager<5,std::vector<uint32_t >> evalPolicyer;
+    vector<u_int32_t> acc_dataTrack = std::vector<u_int32_t>(event::Size);
+    u_int64_t ctrPolicyEvla=0;
+    #endif
 public:
 
     std::vector<shared_ptr<Agent>> agents;
@@ -136,16 +167,17 @@ public:
      * :iterationMax = number of simulations
      * **/
     void simulate(u_int32_t iterationMax){
+        bool stop=false;
         #ifdef DEBUG2
         cout<<"---> gridID:"<<gridID<<endl;
         #endif
         for (u_int32_t i = 0; i < iterationMax; ++i) {
-            auto stop= false;
+            if(stop)
+                break;
             #ifdef DEBUGPrint
             cout<<sState->to_string_state()<<endl;
             #endif
-            stop = checkCondition();
-            if(stop) // if the 1st state is terminal
+            if(checkCondition()) // if the 1st state is terminal
             {
                 std::for_each(agents.begin(),agents.end(),
                               [&](const shared_ptr<Agent>& ptrAgentI)
@@ -153,17 +185,24 @@ public:
                     ptrAgentI->getPolicyInt()->update_final_state(sState.get());
                               });
             }
-            while(!stop)
-            {
-                std::for_each(std::begin(agents),std::end(agents),
-                    [&](const shared_ptr<Agent>& ptrAgent){
-                        ptrAgent->doAction(sState.get());}
+            else {
+                while (true) {
+                    std::for_each(std::begin(agents), std::end(agents),
+                                  [&](const shared_ptr<Agent> &ptrAgent) {
+                                      ptrAgent->doAction(sState.get());
+                                  }
                     );
-                #ifdef DEBUGPrint
-                cout<<sState->to_string_state()<<endl;
-                #endif
-                stop = checkCondition();
+                    #ifdef DEBUGPrint
+                    cout<<sState->to_string_state()<<endl;
+                    #endif
+                    if (isConverage(agents[event::agnetIDX::defenderInt].get())) stop=true;
+                    if (checkCondition()) break;
+                }
             }
+            #ifdef DEBUGPrint
+            cout<<"END"<<endl;
+            #endif
+            //setPolicyEval();
             reset_state();
             #ifdef DEBUG2
             if(i%100000==0) cout<<"Iter:\t"<<i<<endl;
@@ -210,7 +249,18 @@ private:
         }
 
     }
-
+    bool isConverage(const Agent *a)
+    {
+        ctr_converage++;
+        if(ctr_converage%FixInset==0)
+        {
+            ctr_converage=0;
+            const auto* rtdp_ptr = dynamic_cast<const RtdpAlgo*>(a->getPolicy());
+            arr_converage.inset_elm(rtdp_ptr->getUpdateCtr());
+            return arr_converage.is_converage();
+        }
+        return false;
+    }
     /**
      * Reset the State
      * **/
@@ -221,6 +271,17 @@ private:
             setPosSpeed(sSpeed,pPos,itemAgent->get_id());
             itemAgent->rest();
         }
+
+    }
+    void setPolicyEval()
+    {
+        ctrPolicyEvla++;
+        if((ctrPolicyEvla%10000)!=0) return;
+        vector<u_int32_t> l(event::Size);
+        for(auto i = 0 ; i<event::Size;++i)
+            l[i]=trackingData[i]-acc_dataTrack[i];
+        std::copy(this->trackingData.begin(),this->trackingData.end(),acc_dataTrack.begin());
+        evalPolicyer.inset_elm(std::move(l));
 
     }
     void setPosSpeed(const Point &sSpeed,const Point &pPos,const string &id_str)
@@ -273,6 +334,5 @@ private:
 
 
 };
-
 
 #endif //TRACK_RACING_SIMULATION_HPP

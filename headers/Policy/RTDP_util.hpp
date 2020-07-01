@@ -99,7 +99,7 @@ public:
     void add_entry_map_state(keyItem basicString, const State *s);
 
     void set_value_matrix(keyItem entryState, Point &action ,double val){
-        if(val-this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax))<epslion)
+        if(std::abs(val-this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax)))<epslion)
             return;
         this->update_counter++;
         this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax))=val;

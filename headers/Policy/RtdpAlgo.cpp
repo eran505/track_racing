@@ -147,7 +147,7 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
 }
 tuple<double,bool> RtdpAlgo::EvalState2(State *s)
 {
-    if (this->is_wall)
+    if (s->g_grid->is_wall(s->get_position_ref(this->GetId())))
     {
         return {WallReward,true};
     }
@@ -164,7 +164,7 @@ tuple<double,bool> RtdpAlgo::EvalState(State *s) {
 
     if (s->isGoal(this->cashID)) {
         return {GoalReward,true};
-    } else if (this->is_wall){
+    } else if (s->g_grid->is_wall(s->get_position_ref(this->GetId()))){
         return {WallReward,true};
     }else if(s->isEndState(this->cashID))
     {
