@@ -141,7 +141,7 @@ Game* initGame(configGame &conf ){
     //exit(0);
     cout<<"------LOOP GAME!!------"<<endl;
 
-    my_game->startGame(0);
+    my_game->startGame(6000000);
     string nameFile="buffer_"+conf.idNumber+".csv";
     //toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
 
@@ -250,7 +250,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
         res.push_back(conf.posDefender.to_str());
         res.push_back(rl->collusionMiniGrid_to_string());
 
-        string path = conf.home+"/car_model/out/abs.csv";
+        string path = conf.home+"/car_model/out/new.csv";
 
         toCSVTemp(path, res);
         delete rl;

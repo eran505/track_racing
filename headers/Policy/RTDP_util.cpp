@@ -140,10 +140,7 @@ int RTDP_util::get_state_argmax(const State *s) {
     int size = argMax_list.size();
     if (size>1)
     {
-        //auto x = this->my_policy->getRandom();
-        //auto idxPlace = 0 + rand() % (( (size-1) + 1 ) - (size-1);
-        argMax = argMax_list.front();
-        //argMax = argMax_list[ctr_random%size];
+        argMax = argMax_list[int(this->my_policy->getRandom()*size)%size];
         //ctr_random = ++ctr_random%this->hashActionMap->size();
     } else
         argMax = argMax_list[0];
