@@ -133,7 +133,7 @@ void Game::startGame(int numIter)
             break;
     }
     cout<<"Collision:\t"<<ctr_coll<<endl;
-    if (ctr_round%1000>0)
+    if (ctr_round%10000>0)
     {
         vector<int> tmp(5);
         tmp[0]=ctr_round;

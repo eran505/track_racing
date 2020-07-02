@@ -64,8 +64,8 @@ typedef unsigned long ulong;
 int main(int argc, char** argv) {
     GOT_HERE;
     int seed = 155139;// zero coll => con3.csv
-    seed = 1593645020; //1895975606
-    seed = int( time(nullptr));
+    seed = 1593682510; //1895975606
+    //seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);

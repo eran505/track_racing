@@ -162,7 +162,7 @@ tuple<double,bool> RtdpAlgo::EvalState2(State *s)
 
 tuple<double,bool> RtdpAlgo::EvalState(State *s) {
 
-    if (s->isGoal(this->cashID)) {
+    if (s->isGoal(this->cashID)>=0) {
         return {GoalReward,true};
     } else if (s->g_grid->is_wall(s->get_position_ref(this->GetId()))){
         return {WallReward,true};

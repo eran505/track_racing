@@ -131,8 +131,7 @@ void RTDP_util::arg_max(arr &arr,vector<int>& listIdxs){
 
 
 int RTDP_util::get_state_argmax(const State *s) {
-
-    int argMax;
+    int argMax = -1;
     keyItem key = getStateKeyValue(s);
     auto& row = this->get_Q_entry_values(s,key);
     vector<int> argMax_list;
@@ -140,8 +139,9 @@ int RTDP_util::get_state_argmax(const State *s) {
     int size = argMax_list.size();
     if (size>1)
     {
-        argMax = argMax_list[int(this->my_policy->getRandom()*size)%size];
-        //ctr_random = ++ctr_random%this->hashActionMap->size();
+        int idx = int(this->my_policy->getRandom()*size)%size;
+        //ctr_random = ++ctr_random%size;
+        argMax = argMax_list[idx];
     } else
         argMax = argMax_list[0];
 
@@ -179,7 +179,7 @@ double getMaxValueArrTmp( const double *arr, size_t sizeArr)
 
 
 Point RTDP_util::get_argmx_action(State *s) {
-
+    //cout<<s->to_string_state()<<endl;
     int index_action = this->get_state_argmax(s);
 
     auto pos = this->hashActionMap->find(index_action);

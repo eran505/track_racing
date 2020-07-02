@@ -41,7 +41,7 @@ class RTDP_util{
     Policy* my_policy= nullptr;
     unsigned int ctr_state=0;
     size_t ctr_random=0;
-    double epslion=0.000000001;
+    double epslion=0.0000000001;
     int size_Q;
     int size_mapAction;
     unordered_map<int,Point*>* hashActionMap;

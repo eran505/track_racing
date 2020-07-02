@@ -28,7 +28,7 @@ class Game {
     int ctr_at_open=0;
     int ctr_round=0;
     int numEval=500;
-    int modEval = 1000;
+    int modEval = 10000;
 
 
 public:
