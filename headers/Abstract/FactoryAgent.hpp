@@ -113,7 +113,7 @@ public:
         });
         // Need to reset the Agent
         lsim.back().agents[event::agnetIDX::defenderInt].get()->getPolicyInt()->learnRest();
-        lsim.back().simulate(iter*2); // learn again on the modified rewards
+        lsim.back().simulate(iter*3); // learn again on the modified rewards
         std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
                       [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
 

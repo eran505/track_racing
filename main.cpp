@@ -64,7 +64,7 @@ typedef unsigned long ulong;
 int main(int argc, char** argv) {
     GOT_HERE;
     int seed = 155139;// zero coll => con3.csv
-    seed = 1593621791; //1895975606
+    seed = 1593645020; //1895975606
     seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
@@ -220,34 +220,43 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     //abPoint1 = Point(2,2,1);
     abPoint1 = Point(4,4,1);
     abPoint1 = Point(6,6,1);
+    abPoint1 = Point(12,12,1);
+    abPoint1 = Point(3,3,1);
     tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint1);
     pA1->setPolicy(pGridPath);
 
     if(conf.abst.accMulti()!=0)
         abPoint1=conf.abst;
+    vector<Point> absList = {Point(2,2,1),Point(4,4,1),Point(3,3,1)
+            ,Point(6,6,1),Point(8,8,1),Point(12,12,1)};
+    for(const auto& absItem: absList)
+    {
+        auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{absItem},conf._seed);
 
-    auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{abPoint1},conf._seed);
+        z->factory_containerAbstract(conf,listPointDefender);
+        auto *rl = new rtSimulation(conf.sizeGrid,pA1,s->get_cur_state(),pD2);
+        rl->setContiner(z->get_con());
+        rl->simulationV2();
+        auto res = rl->getTrackingDataString();
+        res.push_back(conf.idNumber);
+        res.push_back(std::to_string(conf._seed));
+        res.push_back(std::to_string(conf.rRoutes));
 
-    z->factory_containerAbstract(conf,listPointDefender);
-    auto *rl = new rtSimulation(conf.sizeGrid,pA1,s->get_cur_state(),pD2);
-    rl->setContiner(z->get_con());
-    rl->simulationV2();
-    auto res = rl->getTrackingDataString();
-    res.push_back(conf.idNumber);
-    res.push_back(std::to_string(conf._seed));
-    res.push_back(std::to_string(conf.rRoutes));
+        res.push_back(z->get_abstraction_tostring());
 
-    res.push_back(z->get_abstraction_tostring());
+        res.push_back(conf.sizeGrid.to_str());
+        res.push_back(conf.gGoals.front().to_str());
+        res.push_back(conf.posAttacker.to_str());
+        res.push_back(conf.posDefender.to_str());
+        res.push_back(rl->collusionMiniGrid_to_string());
 
-    res.push_back(conf.sizeGrid.to_str());
-    res.push_back(conf.gGoals.front().to_str());
-    res.push_back(conf.posAttacker.to_str());
-    res.push_back(conf.posDefender.to_str());
-    res.push_back(rl->collusionMiniGrid_to_string());
+        string path = conf.home+"/car_model/out/abs.csv";
 
-    string path = conf.home+"/car_model/out/abs_"+std::to_string(abPoint1[0])+".csv";
+        toCSVTemp(path, res);
+        delete rl;
+        delete z;
+    }
 
-    toCSVTemp(path, res);
 //    //////// RTDP POLICY ////////
     /* If max speed is zero, the explict number of state is in the second place */
 //    vector<pair<int,int>> list_Q_data;
