@@ -106,6 +106,10 @@ void RTDP_util::add_entry_map_state(keyItem key,const State *s) {
     #endif
     this->heuristic(s,key);
     ctr_state++;
+    const auto &[it,bol] = debugDict.try_emplace(key,s->to_string_state());
+    if(!bol)
+        throw;
+
 }
 
 RTDP_util::~RTDP_util() {
@@ -264,7 +268,7 @@ void RTDP_util::policyData() {
 
     catch (const std::exception &ex){std::cout << "Exception was thrown: " << ex.what() << std::endl;}
     try{
-        string nameFileCsv="Sting.csv";
+        string nameFileCsv="dico.csv";
         csvfile csv(std::move(pathFile+nameFileCsv),";"); // throws exceptions!
         for(auto &item:debugDict)
         {

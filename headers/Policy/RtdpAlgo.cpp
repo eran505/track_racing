@@ -5,15 +5,16 @@
 #include "RtdpAlgo.hpp"
 
 #include <utility>
-RtdpAlgo::RtdpAlgo(int maxSpeedAgent, int grid_size, vector<pair<int,int>>& max_speed_and_budget,const string &agentID,string &home,dictionary &ptrDict,bool miniGrid)
+RtdpAlgo::RtdpAlgo(int maxSpeedAgent, int grid_size, vector<pair<int,int>>& max_speed_and_budget,const string &agentID,string &home,dictionary &ptrDict,short miniGrid)
         : Policy("RTDP", maxSpeedAgent,agentID,home,ptrDict) {
    this->RTDP_util_object = new RTDP_util(grid_size,max_speed_and_budget,home);
     this->RTDP_util_object->set_tran(&this->tran);
     this->RTDP_util_object->MyPolicy(this);
-    if(miniGrid)
+    if(miniGrid==2)
         this->evaluationState = [this](State *s){return this->EvalState2(s);};
-    else
-        this->evaluationState = [this](State *s){return this->EvalState(s);};
+    else if(miniGrid==3)
+        this->evaluationState = [this](State *s){return this->EvalState3(s);};
+    else this->evaluationState = [this](State *s){return this->EvalState(s);};
 }
 
 
@@ -34,7 +35,7 @@ Point RtdpAlgo::get_action(State *s)
 {
     //return the argmax action in the given state row
     auto action = this->RTDP_util_object->get_argmx_action(s);
-
+    //cout<<"___action:\t"<<action.to_str()<<"\t";
     if (this->evalPolicy)
     {
         //auto actionIndx = int(this->RTDP_util_object->get_max_valueQ(s));
@@ -74,6 +75,7 @@ Point RtdpAlgo::get_action(State *s)
 
     if(stoMove())
     {
+        //cout<<"  [zero]  ";
         return s->get_speed(this->id_agent)*-1;
     }
     return action;
@@ -180,6 +182,31 @@ tuple<double,bool> RtdpAlgo::EvalState(State *s) {
     return {0,false};
 }
 
+tuple<double,bool> RtdpAlgo::EvalState3(State *s) {
+
+
+    if (s->g_grid->is_wall(s->get_position_ref(this->GetId()))){
+        return {WallReward,true};
+    }
+    auto res = s->is_collusion(this->id_agent,this->cashID);
+    if (res){
+        if(get_lastPos()==s->get_position_ref(this->id_agent))
+            return {CollReward,true};
+    }
+    if (s->isGoal(this->cashID)>=0) {
+        return {GoalReward, true};
+    }
+    if(s->isEndState(this->cashID)){
+            return {0,true};
+    }
+    return {0,false};
+}
+
+const Point& RtdpAlgo::get_lastPos() const{
+    return this->stackStateActionIdx.back().first.get_position_ref(this->id_agent);
+
+}
+
 double RtdpAlgo::UpdateCalc(const vector<pair<State *, double>>& state_tran_q) {
     double res=0;
     for (auto &item:state_tran_q)
@@ -243,19 +270,33 @@ double RtdpAlgo::getReward(const Point &refPoint)const {
 }
 
 void RtdpAlgo::learnRest() {
+    double epsilon_reward = 0.00001;
+    cout<<"print - dict goal\n";
+    for(auto &item : *rewardDict) cout<<"{"<<item.first<<", "<<item.second<<"}\t";
+    cout<<endl;
     Policy::learnRest();
     this->RTDP_util_object->resetQtable();
     bool the_same=true;
     if(rewardDict->empty())
         return;
     auto first_val = rewardDict->begin()->second;
-    for(auto &item:*rewardDict)
-        if(first_val!=item.second)
+    for(auto &item:*rewardDict){
+        if(std::abs(first_val-item.second)>epsilon_reward){
             the_same=false;
+        }
+    }
     if(the_same)
+    {
         for(auto &item:*rewardDict) this->rewardDict->clear();
-
-
+    }
+    else{
+        for(auto &item:*rewardDict)
+            if(item.second<epsilon_reward)
+                item.second=epsilon_reward;
+    }
+    cout<<"print - dict goal\n";
+    for(auto &item : *rewardDict) cout<<"{"<<item.first<<", "<<item.second<<"}\t";
+    cout<<endl;
 }
 
 //double RtdpAlgo::expected_reward_rec(State *s, int index_policy, deque<Point> &my_stack) {

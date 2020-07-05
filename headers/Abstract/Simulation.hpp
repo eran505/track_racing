@@ -4,8 +4,9 @@
 ////
 
 //#define DEBUGPrint
+#define ConVer
 #define DEBUG2
-//#define ASSERT
+#define ASSERT
 #ifndef TRACK_RACING_SIMULATION_HPP
 #define TRACK_RACING_SIMULATION_HPP
 #include <thread>
@@ -202,7 +203,9 @@ public:
                     #ifdef DEBUGPrint
                     cout<<sState->to_string_state()<<endl;
                     #endif
+                    #ifdef ConVer
                     if (isConverage(agents[event::agnetIDX::defenderInt].get())) stop=true;
+                    #endif
                     if (checkCondition()) break;
                 }
             }
@@ -212,7 +215,7 @@ public:
             setPolicyEval();
             reset_state();
             #ifdef DEBUG2
-            if(i%100000==0) cout<<"Iter:\t"<<i<<endl;
+            if(i%1000000==0) {cout<<"Iter:\t"<<i<<endl;printMe();}
             #endif
         }
         print_evalPolicyer();
@@ -225,6 +228,14 @@ public:
     }
 
 private:
+    void printMe(){
+
+        cout<<"Coll: "<<this->trackingData[event::CollId]<<"\t";
+        cout<<"Wall: "<<this->trackingData[event::WallId]<<"\t";
+        cout<<"Goal: "<<this->trackingData[event::GoalId]<<"\t";
+        cout<<"Open: "<<this->trackingData[event::OpenId]<<"\t";
+        cout<<endl;
+    }
     void printStat()
     {
         //        CollId=0,WallId=1,GoalId=2,OpenId=3,Size=4

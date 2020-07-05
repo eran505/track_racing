@@ -393,7 +393,7 @@ public:
             auto listPosStart = startingPosDefender(up,low,conf.maxD);
             auto* a = new Agent(startPoints_abstraction->operator[](k),Section::adversary,10);
             auto* d = new Agent(std::move(listPosStart),Section::gurd,10);
-            initRTDP(this->abstractSize.accMulti(),conf,d,k,if_inedx_in_goalList(k));
+            initRTDP(this->abstractSize.accMulti(),conf,d,k,2);
             setPathPolicy(conf,a,k);
             a->getPolicyInt()->add_tran(d->getPolicyInt());
             d->getPolicyInt()->add_tran(a->getPolicyInt());
@@ -420,7 +420,7 @@ public:
         Point low(0);
         auto* a = new Agent(startPoints_abstraction->back(),Section::adversary,10);
         auto* d = new Agent((StartingDefender),Section::gurd,10);
-        initRTDP(this->divPoint.accMulti(),conf,d,k,false,(double(conf.maxD))/(double(abstractSize[0])),true); //3=this->abstractSize[0]
+        initRTDP(this->divPoint.accMulti(),conf,d,k,3,(double(conf.maxD))/(double(abstractSize[0])),true); //3=this->abstractSize[0]
         setPathPolicy(conf,a,k);
         a->getPolicyInt()->add_tran(d->getPolicyInt());
         d->getPolicyInt()->add_tran(a->getPolicyInt());
@@ -505,14 +505,14 @@ private:
         cout<<"ID:\t"<<key<<"  low: "<<low.to_str()<<"  up: "<<up.to_str()<<endl;
         return {up,low};
     }
-    void initRTDP(u_int32_t GridSzie,configGame &conf,Agent* d,u_int32_t k,bool goal_fail=false,double stoProb=1,bool hashOnlyPos=false)
+    void initRTDP(u_int32_t GridSzie,configGame &conf,Agent* d,u_int32_t k,short evlNum,double stoProb=1,bool hashOnlyPos=false)
     {
         auto listQtalbe = vector<pair<int,int>>();
         listQtalbe.emplace_back(conf.maxD,1);
         shared_ptr<unordered_map<string,string>> gameInfo_share = std::make_shared<unordered_map<string,string>>();
         gameInfo_share->emplace("ID",conf.idNumber).first;
         listQtalbe.emplace_back(0,vecPolicy[k]->size());
-        Policy* rtdp = new RtdpAlgo(conf.maxD,GridSzie,listQtalbe,d->get_id(),conf.home,gameInfo_share, !goal_fail);
+        Policy* rtdp = new RtdpAlgo(conf.maxD,GridSzie,listQtalbe,d->get_id(),conf.home,gameInfo_share, evlNum);
         auto tmp = dynamic_cast<RtdpAlgo*>(rtdp);
         tmp->setStochasticMovement(stoProb);
         if(hashOnlyPos)

@@ -133,6 +133,7 @@ public:
         });
         #endif
 
+        //lsim.back().agents[event::agnetIDX::defenderInt].get()->getPolicyInt()->policy_data();
         l_containers.emplace_back(Point(0),Point(this->abGridSize),Point(this->originalGridSize),lsim.back().gridID);
         auto& obj = l_containers.back();
         for (auto &item : lsim)

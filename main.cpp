@@ -64,8 +64,8 @@ typedef unsigned long ulong;
 int main(int argc, char** argv) {
     GOT_HERE;
     int seed = 155139;// zero coll => con3.csv
-    seed = 1593682510; //1895975606
-    //seed = int( time(nullptr));
+    seed = 1593953567; //1895975606
+    seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
     auto pathCsvConfig = getConfigPath(argc,argv);
     string pathCsv;
     if(!pathCsvConfig)
-        pathCsv  = home + "/car_model/config/con6.csv";
+        pathCsv  = home + "/car_model/config/con16.csv";
     else
         pathCsv = string(pathCsvConfig);
     std::string toCsvPath (home+ "/car_model/exp/out/");
@@ -227,8 +227,9 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 
     if(conf.abst.accMulti()!=0)
         abPoint1=conf.abst;
-    vector<Point> absList = {Point(2,2,1),Point(4,4,1),Point(3,3,1)
-            ,Point(6,6,1),Point(8,8,1),Point(12,12,1)};
+//    vector<Point> absList = {Point(2,2,1),Point(4,4,1),Point(3,3,1)
+//            ,Point(6,6,1),Point(8,8,1),Point(12,12,1)};
+    auto absList = {Point(2,2,1),Point(4,4,1),Point(3,3,1)};
     for(const auto& absItem: absList)
     {
         auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{absItem},conf._seed);
