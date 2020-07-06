@@ -7,7 +7,7 @@
 #define ConVer
 #define DEBUG2
 #define ASSERT
-#define DEBUGPrint
+//#define DEBUGPrint
 #ifndef TRACK_RACING_SIMULATION_HPP
 #define TRACK_RACING_SIMULATION_HPP
 #include <thread>

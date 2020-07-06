@@ -89,7 +89,6 @@ int main(int argc, char** argv) {
 
     for (int i=1; i<csvRows.size();++i)
     {
-
         string curToCsv;
         string curToCsvPolciy;
         auto row = csvRows[i];
@@ -129,7 +128,7 @@ int main(int argc, char** argv) {
 }
 
 Game* initGame(configGame &conf ){
-    auto g= init_grid(conf);
+    auto g = init_grid(conf);
     //g->print_vaule();
 
     auto pPlaner = init_mdp(g,conf);
@@ -225,7 +224,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint8);
     pA1->setPolicy(pGridPath);
 
-    vector<Point> absList = {abPoint4};
+    vector<Point> absList = {abPoint4,abPoint2};
 
 
     for(const auto& absItem: absList)

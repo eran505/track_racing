@@ -140,6 +140,7 @@ public:
 
 protected:
 
+
     static Point vecToPoint(vector<string> arr)
     {
         if (Point::D == 3)

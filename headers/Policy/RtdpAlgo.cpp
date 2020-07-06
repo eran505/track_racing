@@ -77,8 +77,9 @@ Point RtdpAlgo::get_action(State *s)
 
     if(stoMove())
     {
-        cout<<"  "<<action.to_str()<<" => "<<"[zero]  ";
+        //cout<<"  "<<action.to_str()<<" => "<<"[zero]  ";
         return s->get_speed(this->id_agent)*-1;
+        //return s->get_speed(this->id_agent);
     }
     return action;
 }
@@ -104,6 +105,7 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
     {
         auto zeroState = new State(*s);
         auto slideAction = s->get_speed(this->id_agent)*-1;
+        //Point slideAction = s->get_speed_ref(this->id_agent);
         this->applyActionToState(zeroState,&slideAction);
         state_tran_q.emplace_back(zeroState,1-_stochasticMovement);
         state_tran_q.emplace_back(stateCur,_stochasticMovement);

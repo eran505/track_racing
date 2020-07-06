@@ -36,7 +36,7 @@ class AbstractCreator{
     std::vector<simulation> simulationVector;
     std::vector<std::vector<u_int32_t>> lPolEval;
     int seed;
-    u_int32_t iter = 1500000;
+    u_int32_t iter = 2000000;
     std::unique_ptr<rtSimulation> rtSim= nullptr;
 public:
     vector<vector<u_int32_t>>& get_lPolEval(){return lPolEval;}
@@ -114,7 +114,7 @@ public:
         });
         // Need to reset the Agent
         lsim.back().agents[event::agnetIDX::defenderInt].get()->getPolicyInt()->learnRest();
-        lsim.back().simulate(iter*2); // learn again on the modified rewards
+        lsim.back().simulate(iter*(8/abGridSize[0])); // learn again on the modified rewards
         lPolEval.push_back(lsim.back().getAverageInfo());
         std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
                       [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
