@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-PATHtoFileDir=${HOME}"/eran/repo/track_racing/"
+PATHtoFileDir=${HOME}"/eran/repo/track_racing/cmake-build-debug/"
 
 for i in {1..1000}
 do
