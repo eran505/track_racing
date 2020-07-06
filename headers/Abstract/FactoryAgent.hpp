@@ -36,7 +36,7 @@ class AbstractCreator{
     std::vector<simulation> simulationVector;
 
     int seed;
-    u_int32_t iter = 1000000;
+    u_int32_t iter = 2000000;
     std::unique_ptr<rtSimulation> rtSim= nullptr;
 public:
     string get_abstraction_tostring()
@@ -144,7 +144,6 @@ public:
             //mapAgent.try_emplace(item.gridID,item.agents[0].get());
         }
         cout<<"done!"<<endl;
-
     }
 
     Point keyToPoint(unsigned int key)
@@ -165,5 +164,6 @@ public:
         lsim.back().getRtdpAlgo()->insetRewardMap(keyToPoint(idGrid).expHash(),reward);
         lsim.back().getRtdpAlgo()->resetAlgo();
     }
-};
+
+    };
 #endif //TRACK_RACING_FACTORYAGENT_HPP

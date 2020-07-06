@@ -38,6 +38,7 @@ struct Converager{
         return size_ctr==0;
     }
 
+
 };
 
 
@@ -70,7 +71,10 @@ class simulation{
     u_int64_t ctrPolicyEvla=0;
     #endif
 public:
-
+    vector<u_int32_t > getAverageInfo()
+    {
+        this->evalPolicyer.arr_con.back();
+    }
     std::vector<shared_ptr<Agent>> agents;
     u_int16_t gridID;
 

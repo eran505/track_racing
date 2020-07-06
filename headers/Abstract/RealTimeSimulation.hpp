@@ -148,7 +148,7 @@ public:
         while (true) {
             change_continer(this->state);
             #ifdef PRINTME
-            //cout<<"change_continer:(idx)\t"<<idxContier<<endl;
+            cout<<"change_continer:(idx)\t"<<idxContier<<endl;
             #endif
             ctr++;
 

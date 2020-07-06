@@ -63,6 +63,7 @@ typedef unsigned long ulong;
 
 int main(int argc, char** argv) {
     GOT_HERE;
+    parser(argv,argc);
     int seed = 155139;// zero coll => con3.csv
     seed = 1593953567; //1895975606
     seed = int( time(nullptr));
@@ -78,7 +79,7 @@ int main(int argc, char** argv) {
     auto pathCsvConfig = getConfigPath(argc,argv);
     string pathCsv;
     if(!pathCsvConfig)
-        pathCsv  = home + "/car_model/config/con16.csv";
+        pathCsv  = home + "/car_model/config/con32.csv";
     else
         pathCsv = string(pathCsvConfig);
     std::string toCsvPath (home+ "/car_model/exp/out/");
@@ -216,10 +217,10 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     auto *tmp_pointer = dynamic_cast <PathPolicy*>(pGridPath);
     printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
     std::unique_ptr<State> tmp = std::make_unique<State>(State(*s->get_cur_state()));
-    Point abPoint1(8,8,1);
+    Point abPoint8(8,8,1);
     //abPoint1 = Point(2,2,1);
-    abPoint1 = Point(4,4,1);
-    abPoint1 = Point(6,6,1);
+    Point abPoint4 = Point(4,4,1);
+    Point abPoint1 = Point(6,6,1);
     abPoint1 = Point(12,12,1);
     abPoint1 = Point(3,3,1);
     tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint1);
@@ -227,12 +228,11 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 
     if(conf.abst.accMulti()!=0)
         abPoint1=conf.abst;
-//    vector<Point> absList = {Point(2,2,1),Point(4,4,1),Point(3,3,1)
-//            ,Point(6,6,1),Point(8,8,1),Point(12,12,1)};
-    auto absList = {Point(2,2,1),Point(4,4,1),Point(3,3,1)};
-    for(const auto& absItem: absList)
+    vector<Point> absList = {abPoint8,abPoint4};
+    auto absListt = {Point(4,4,1)};
+    for(const auto& absItem: absListt)
     {
-        auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{absItem},conf._seed);
+        auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,absList,conf._seed);
 
         z->factory_containerAbstract(conf,listPointDefender);
         auto *rl = new rtSimulation(conf.sizeGrid,pA1,s->get_cur_state(),pD2);

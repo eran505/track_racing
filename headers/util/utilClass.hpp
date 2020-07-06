@@ -5,10 +5,22 @@
 #include "util_game.hpp"
 #include <string_view>
 #include <unistd.h>
+#include <cstring>
 #ifndef TRACK_RACING_UTILCLASS_HPP
 #define TRACK_RACING_UTILCLASS_HPP
 
-
+unordered_map<char,string> parser(char** view_str,int size_arr)
+{
+    unordered_map<char,string> argv_dict;
+    auto i=1;
+    while(i<size_arr)
+    {
+        char sign =  view_str[i][0];
+        argv_dict.try_emplace(sign,view_str[++i]);
+        ++i;
+    }
+    return argv_dict;
+}
 template <typename S, typename V>
 auto calcMovingAvg(pair<vector<pair<S,V>>,V>& iItem)
 {
