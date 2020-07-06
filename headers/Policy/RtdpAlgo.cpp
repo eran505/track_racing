@@ -327,10 +327,10 @@ void RtdpAlgo::learnRest() {
                               return prior+p.second;});
 
     std::for_each(rewardDict->begin(),rewardDict->end(),[&](auto &item){item.second=item.second/res;});
-    rewardDict->operator[](22172038609469)= -1;
-    rewardDict->operator[](11093819475081)= -1;
-    rewardDict->operator[](22417480760448)= -1;
-    rewardDict->operator[](33122146222978)= 1;
+//    rewardDict->operator[](22172038609469)= -1;
+//    rewardDict->operator[](11093819475081)= -1;
+//    rewardDict->operator[](22417480760448)= -1;
+//    rewardDict->operator[](33122146222978)= 1;
 
     for(auto &item : *rewardDict) cout<<"{"<<item.first<<", "<<item.second<<"}\t";
     cout<<endl;
