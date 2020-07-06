@@ -17,6 +17,7 @@ class RtdpAlgo : public Policy{
     double CollReward = 1;
     double GoalReward = -1;
     double WallReward = -10;
+    Point zero_action=Point(0);
     int ctr_stack=0;
     u_int32_t zeroIndexAction = Point(0).hashMeAction(Point::actionMax);
     double _stochasticMovement=1;
@@ -60,7 +61,8 @@ public:
     void policy_data() const override;
     std::tuple<double,bool> EvalState2(State *s);
     std::tuple<double,bool> EvalState(State *s);
-    tuple<double,bool> EvalState3(State *s);
+    tuple<double,bool> EvalState4(State *s);
+        tuple<double,bool> EvalState3(State *s);
     [[nodiscard]] const Point& get_lastPos() const;
     bool stoMove();
 

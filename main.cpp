@@ -63,10 +63,10 @@ typedef unsigned long ulong;
 
 int main(int argc, char** argv) {
     GOT_HERE;
-    parser(argv,argc);
+
     int seed = 155139;// zero coll => con3.csv
-    seed = 1593953567; //1895975606
-    seed = int( time(nullptr));
+    seed = 2; //1895975606
+    //seed = int( time(nullptr));
     cout<<"seed:\t"<<seed<<endl;
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -78,10 +78,7 @@ int main(int argc, char** argv) {
     string repo = join(cut_first_appear(arrPAth,f),sep);
     auto pathCsvConfig = getConfigPath(argc,argv);
     string pathCsv;
-    if(!pathCsvConfig)
-        pathCsv  = home + "/car_model/config/con32.csv";
-    else
-        pathCsv = string(pathCsvConfig);
+    pathCsv  = home + "/car_model/config/con16.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -92,16 +89,17 @@ int main(int argc, char** argv) {
 
     for (int i=1; i<csvRows.size();++i)
     {
-        cout << "  rand(): " << rand() << '\n';
-        cout<<"seed:\t"<<seed<<endl;
+
         string curToCsv;
         string curToCsvPolciy;
         auto row = csvRows[i];
         // size of Grid
         configGame conf(row,seed);
+        conf.inset_data(parser(argv,argc));
         conf.initRandomNoise(); // inset random noise (-1,1) XY
         conf.home=home;
-        getConfigPath(argc,argv,conf);
+        cout<<"seed:\t"<<conf._seed<<endl;
+        cout<<"evla_mode:\t"<<conf.eval_mode<<endl;
         string strId=row[0];
         cout<<"ID:\t"<<strId<<endl;
 
@@ -218,21 +216,21 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
     std::unique_ptr<State> tmp = std::make_unique<State>(State(*s->get_cur_state()));
     Point abPoint8(8,8,1);
-    //abPoint1 = Point(2,2,1);
+    Point abPoint2 = Point(2,2,1);
     Point abPoint4 = Point(4,4,1);
-    Point abPoint1 = Point(6,6,1);
-    abPoint1 = Point(12,12,1);
-    abPoint1 = Point(3,3,1);
-    tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint1);
+    Point abPoint6 = Point(6,6,1);
+    Point abPoint12 = Point(12,12,1);
+    Point abPoint3 = Point(3,3,1);
+
+    tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint8);
     pA1->setPolicy(pGridPath);
 
-    if(conf.abst.accMulti()!=0)
-        abPoint1=conf.abst;
-    vector<Point> absList = {abPoint8,abPoint4};
-    auto absListt = {Point(4,4,1)};
-    for(const auto& absItem: absListt)
+    vector<Point> absList = {abPoint4};
+
+
+    for(const auto& absItem: absList)
     {
-        auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,absList,conf._seed);
+        auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{absItem},conf._seed);
 
         z->factory_containerAbstract(conf,listPointDefender);
         auto *rl = new rtSimulation(conf.sizeGrid,pA1,s->get_cur_state(),pD2);
@@ -249,10 +247,11 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
         res.push_back(conf.gGoals.front().to_str());
         res.push_back(conf.posAttacker.to_str());
         res.push_back(conf.posDefender.to_str());
+        res.push_back(std::to_string(rl->sum_of_coll()));
         res.push_back(rl->collusionMiniGrid_to_string());
-
-        string path = conf.home+"/car_model/out/new.csv";
-
+        for (auto &item : z->get_lPolEval())for(auto numL: item)res.push_back(std::to_string(numL));
+        string file_name = std::to_string(conf.eval_mode)+"new.csv";
+        string path = conf.home+"/car_model/out/"+file_name;
         toCSVTemp(path, res);
         delete rl;
         delete z;

@@ -88,6 +88,12 @@ public:
         }
         return str;
     }
+    size_t  sum_of_coll()
+    {
+        size_t s=0;
+        for(const auto& item:this->collusionMiniGrid) s+=item.second;
+        return s;
+    }
     void set_agent(unordered_map<u_int32_t,Agent*> &&map)
     {
         this->lDefenderAgent= std::move(map);

@@ -7,6 +7,7 @@
 #define ConVer
 #define DEBUG2
 #define ASSERT
+#define DEBUGPrint
 #ifndef TRACK_RACING_SIMULATION_HPP
 #define TRACK_RACING_SIMULATION_HPP
 #include <thread>
@@ -23,20 +24,29 @@ template<size_t N,typename V = u_int64_t>
 struct Converager{
     std::array<V,N> arr_con = std::array<V,N>();
     size_t ctr=0;
+    bool full=false;
+    std::function<bool(V,V)> comparator;
+
+
+    void set_comparator(std::function<bool(V,V)> fun){comparator=fun;}
 
     void inset_elm(V&& v)
     {
-        //std::for_each(arr_con.begin(),arr_con.end(),[](auto x){cout<<x<<",";});
-        //cout<<endl;
         arr_con[ctr]=std::forward<V>(v);
         ctr = ++ctr%N;
     }
     bool is_converage()
     {
-        auto size_ctr = N;
-        while(--size_ctr>0 && arr_con[size_ctr]==arr_con[0]);
+        assert(this->comparator!= nullptr);
+        auto size_ctr = N-1;
+        while(--size_ctr>0 && comparator(arr_con[size_ctr],arr_con[0]) );
         return size_ctr==0;
     }
+    V acc(std::function<V(V&,V&)> acc)
+    {
+        std::accumulate(arr_con.begin(),arr_con.end(),0.0,acc);
+    }
+    size_t size(){return N;}
 
 
 };
@@ -64,16 +74,16 @@ class simulation{
     unordered_map<string,u_int32_t> collustionMap;
     Converager<15> arr_converage;
     u_int32_t ctr_converage = 0;
-    const u_int32_t FixInset = 80000;
+    const u_int32_t FixInset = 100000;
     #ifdef DATA_P
-    Converager<5,std::vector<uint32_t >> evalPolicyer;
+    Converager<3,std::vector<uint32_t >> evalPolicyer;
     vector<u_int32_t> acc_dataTrack = std::vector<u_int32_t>(event::Size);
     u_int64_t ctrPolicyEvla=0;
     #endif
 public:
     vector<u_int32_t > getAverageInfo()
     {
-        this->evalPolicyer.arr_con.back();
+        return this->evalPolicyer.arr_con.front();
     }
     std::vector<shared_ptr<Agent>> agents;
     u_int16_t gridID;
@@ -84,8 +94,11 @@ public:
         sState(std::move(obj.sState)),
         generator(obj.generator),distribution(obj.distribution),
         collustionMap(std::move(obj.collustionMap)),
-        agents(std::move(obj.agents)),gridID(obj.gridID)
-        {}
+        agents(std::move(obj.agents)),gridID(obj.gridID),arr_converage(std::move(obj.arr_converage)),
+        evalPolicyer(obj.evalPolicyer)
+        {
+
+        }
 
     simulation& operator=(const simulation& obj) noexcept
     {
@@ -106,6 +119,8 @@ public:
     {
         for(const auto &item:this->evalPolicyer.arr_con)
         {
+            if(item.empty())
+                continue;
             for(const auto item1:item) cout<<item1<<",";
             cout<<endl;
         }
@@ -126,6 +141,18 @@ public:
         for(const auto &item:agents)
             item->print();
         setState();
+        set_lambda();
+    }
+    void set_lambda(){
+        this->arr_converage.set_comparator([&](u_int64_t a ,u_int64_t b)
+                                           {
+                                               if(a==b) return true;
+                                               return false;
+                                           });
+
+        this->evalPolicyer.set_comparator([&](const vector<u_int32_t> &a ,const vector<u_int32_t >& b)
+                                          {if(a.empty() or b.empty()) return false;
+                                              for(auto k=0;k<a.size();++k) {if(a[k]!=b[k]){return false;}}return true;});
     }
     double getAvgExpectedReward()
     {
@@ -208,16 +235,16 @@ public:
                     cout<<sState->to_string_state()<<endl;
                     #endif
                     #ifdef ConVer
-                    if (isConverage(agents[event::agnetIDX::defenderInt].get())) stop=true;
+                    //if (isConverage(agents[event::agnetIDX::defenderInt].get())){stop=true;cout<<"isCon"<<endl;}
                     #endif
-                    if (checkCondition()) break;
+                    if (checkCondition()) {break;}
                 }
             }
             #ifdef DEBUGPrint
             cout<<"END"<<endl;
             #endif
-            setPolicyEval();
             reset_state();
+            setPolicyEval();
             #ifdef DEBUG2
             if(i%1000000==0) {cout<<"Iter:\t"<<i<<endl;printMe();}
             #endif
@@ -296,15 +323,19 @@ private:
         }
 
     }
-    void setPolicyEval()
+    bool setPolicyEval()
     {
         ctrPolicyEvla++;
-        if((ctrPolicyEvla%10000)!=0) return;
+        if((ctrPolicyEvla%FixInset)!=0) return false;
         vector<u_int32_t> l(event::Size);
         for(auto i = 0 ; i<event::Size;++i)
             l[i]=trackingData[i]-acc_dataTrack[i];
         std::copy(this->trackingData.begin(),this->trackingData.end(),acc_dataTrack.begin());
         evalPolicyer.inset_elm(std::move(l));
+        //print_evalPolicyer();
+        if(evalPolicyer.is_converage())
+            return true;
+        return false;
 
     }
     void setPosSpeed(const Point &sSpeed,const Point &pPos,const string &id_str)

@@ -34,11 +34,12 @@ class AbstractCreator{
     vector<containerAbstract> l_containers;
     Point divPoint;
     std::vector<simulation> simulationVector;
-
+    std::vector<std::vector<u_int32_t>> lPolEval;
     int seed;
-    u_int32_t iter = 2000000;
+    u_int32_t iter = 1500000;
     std::unique_ptr<rtSimulation> rtSim= nullptr;
 public:
+    vector<vector<u_int32_t>>& get_lPolEval(){return lPolEval;}
     string get_abstraction_tostring()
     {
         string ans;
@@ -50,7 +51,7 @@ public:
 
     AbstractCreator(const PathPolicy* evaderPolicy, const Point& ptrGirdSize, vector<Point> lPointAb, int seed_):
         allAbst(std::move(lPointAb)),originalGridSize(ptrGirdSize),evaderPolicy(evaderPolicy), seed(seed_){
-
+        lPolEval.reserve(lPointAb.size());
     }
     void factory_containerAbstract(configGame &conf,const std::vector<weightedPosition>& defenderStart)
     {
@@ -85,7 +86,7 @@ public:
         //workerTasks.pop_back();
         std::vector<std::thread> workers;
         //workers.reserve(workerTasks.size());
-        lsim.back().simulate(iter*0.5);
+        lsim.back().simulate(iter*0.2);
         //RemoveIfVector(workerTasks);
         workers.reserve(lsim.size());
         std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
@@ -113,7 +114,8 @@ public:
         });
         // Need to reset the Agent
         lsim.back().agents[event::agnetIDX::defenderInt].get()->getPolicyInt()->learnRest();
-        lsim.back().simulate(iter*3); // learn again on the modified rewards
+        lsim.back().simulate(iter*2); // learn again on the modified rewards
+        lPolEval.push_back(lsim.back().getAverageInfo());
         std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
                       [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
 

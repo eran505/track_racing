@@ -70,7 +70,7 @@ vector<string> splitStr(const string& str, const string& delim)
 }
 
 struct configGame{
-    int _seed;
+    int _seed{};
     Point sizeGrid ;
     Point abst = Point(0);
     string config;
@@ -81,12 +81,12 @@ struct configGame{
     vector<Point> gGoals ;
     vector<double> probGoals;
     vector<bool> goalTarget;
-    int rRoutes;
+    int rRoutes{};
     string idNumber;
     vector<Point> midPos;
     std::default_random_engine generator;
     std::uniform_int_distribution<int> distribution;
-
+    int eval_mode=4;
 public:
 
     string home;
@@ -97,6 +97,15 @@ public:
         inset_noise_XY(this->posAttacker);
         inset_noise_XY(this->posDefender);
     }
+    void inset_data(unordered_map<char,std::string> dicoD)
+    {
+        if(auto pos = dicoD.find('s');pos!=dicoD.end())
+            this->_seed=std::stoi( pos->second );
+        if(auto pos = dicoD.find('e');pos!=dicoD.end())
+            this->eval_mode=std::stoi( pos->second );
+    }
+    configGame()= default;
+
     explicit configGame(vector<string> &row,int seed):_seed(seed),generator(_seed)
     {
 

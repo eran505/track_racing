@@ -100,7 +100,7 @@ double RTDP_util::rec_h(State *s,int index, double acc_probablity)
 
 void RTDP_util::add_entry_map_state(keyItem key,const State *s) {
     // compute heuristic
-    //cout<<"\t--new_state--\t"<<endl;
+    //10cout<<"\t--new_state--\t"<<endl;
     #ifdef VECTOR
     this->qTable->try_emplace(key,27);
     #endif

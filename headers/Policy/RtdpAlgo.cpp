@@ -14,6 +14,8 @@ RtdpAlgo::RtdpAlgo(int maxSpeedAgent, int grid_size, vector<pair<int,int>>& max_
         this->evaluationState = [this](State *s){return this->EvalState2(s);};
     else if(miniGrid==3)
         this->evaluationState = [this](State *s){return this->EvalState3(s);};
+    else if(miniGrid==4)
+        this->evaluationState = [this](State *s){return this->EvalState4(s);};
     else this->evaluationState = [this](State *s){return this->EvalState(s);};
 }
 
@@ -75,7 +77,7 @@ Point RtdpAlgo::get_action(State *s)
 
     if(stoMove())
     {
-        //cout<<"  [zero]  ";
+        cout<<"  "<<action.to_str()<<" => "<<"[zero]  ";
         return s->get_speed(this->id_agent)*-1;
     }
     return action;
@@ -191,13 +193,34 @@ tuple<double,bool> RtdpAlgo::EvalState3(State *s) {
     auto res = s->is_collusion(this->id_agent,this->cashID);
     if (res){
         if(get_lastPos()==s->get_position_ref(this->id_agent))
-            return {CollReward,true};
+            return {getReward(s->get_position_ref(this->id_agent)),true};
     }
     if (s->isGoal(this->cashID)>=0) {
         return {GoalReward, true};
     }
     if(s->isEndState(this->cashID)){
             return {0,true};
+    }
+    return {0,false};
+}
+
+tuple<double,bool> RtdpAlgo::EvalState4(State *s) {
+
+
+    if (s->g_grid->is_wall(s->get_position_ref(this->GetId()))){
+        return {WallReward,true};
+    }
+    auto res = s->is_collusion(this->id_agent,this->cashID);
+    if (res){
+        if(get_lastPos()==s->get_position_ref(this->id_agent))
+            if(s->get_speed_ref(this->id_agent)==zero_action)
+                return {getReward(s->get_position_ref(this->id_agent)),true};
+    }
+    if (s->isGoal(this->cashID)>=0) {
+        return {GoalReward, true};
+    }
+    if(s->isEndState(this->cashID)){
+        return {0,true};
     }
     return {0,false};
 }
@@ -285,16 +308,28 @@ void RtdpAlgo::learnRest() {
             the_same=false;
         }
     }
+    cout<<"print - dict goal\n";
     if(the_same)
     {
         for(auto &item:*rewardDict) this->rewardDict->clear();
+        return;
     }
-    else{
-        for(auto &item:*rewardDict)
-            if(item.second<epsilon_reward)
-                item.second=epsilon_reward;
-    }
-    cout<<"print - dict goal\n";
+
+    double min_val = min_element(rewardDict->begin(), rewardDict->end(),
+                [](const auto& l, const auto& r) { return l.second < r.second; })->second;
+
+    std::for_each(rewardDict->begin(),rewardDict->end(),[&](auto &item){item.second=item.second+std::abs(min_val)+epsilon_reward;});
+
+    double res = accumulate(rewardDict->begin(), rewardDict->end(), (double)0.0,
+                          [&](double prior, const pair<u_int32_t , double > p) -> double {
+                              return prior+p.second;});
+
+    std::for_each(rewardDict->begin(),rewardDict->end(),[&](auto &item){item.second=item.second/res;});
+    rewardDict->operator[](22172038609469)= -1;
+    rewardDict->operator[](11093819475081)= -1;
+    rewardDict->operator[](22417480760448)= -1;
+    rewardDict->operator[](33122146222978)= 1;
+
     for(auto &item : *rewardDict) cout<<"{"<<item.first<<", "<<item.second<<"}\t";
     cout<<endl;
 }
