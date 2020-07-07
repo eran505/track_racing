@@ -95,7 +95,7 @@ public:
 
         if(first) // not sure //TODO::justify it
         {
-            lsim.back().collMap_to_percentage_self();
+            //lsim.back().collMap_to_percentage_self();
             first=false;
         }
 
