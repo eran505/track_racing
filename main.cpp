@@ -63,7 +63,7 @@ typedef unsigned long ulong;
 
 int main(int argc, char** argv) {
     GOT_HERE;
-
+    auto dict_argv = parser(argv,argc);
     int seed = 155139;// zero coll => con3.csv
     seed = 7; //1895975606
     //seed = int( time(nullptr));
@@ -94,6 +94,7 @@ int main(int argc, char** argv) {
         // size of Grid
         configGame conf(row,seed);
         conf.inset_data(parser(argv,argc));
+        srand(conf._seed);
         conf.initRandomNoise(); // inset random noise (-1,1) XY
         conf.home=home;
         cout<<"seed:\t"<<conf._seed<<endl;
@@ -223,7 +224,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint8);
     pA1->setPolicy(pGridPath);
 
-    vector<Point> absList = {abPoint4,abPoint2};
+    vector<Point> absList = {abPoint4};
 
 
     for(const auto& absItem: absList)

@@ -72,7 +72,7 @@ class simulation{
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution;
     unordered_map<string,double> collustionMap;
-    Converager<11> arr_converage;
+    Converager<17> arr_converage;
     u_int32_t ctr_converage = 0;
     const u_int32_t FixInset = 100000;
     #ifdef DATA_P

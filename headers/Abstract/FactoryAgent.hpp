@@ -37,11 +37,7 @@ class AbstractCreator{
     std::vector<simulation> simulationVector;
     std::vector<std::vector<u_int32_t>> lPolEval;
     int seed;
-<<<<<<< HEAD
     u_int32_t iter =3000000;
-=======
-    u_int32_t iter = 2000000;
->>>>>>> 27aa0b98953c638872856439109d12ddae689b62
     std::unique_ptr<rtSimulation> rtSim= nullptr;
 public:
     vector<vector<u_int32_t>>& get_lPolEval(){return lPolEval;}
