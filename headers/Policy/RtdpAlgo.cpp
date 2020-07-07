@@ -103,12 +103,12 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
     this->applyActionToState(stateCur, &action);
     if(_stochasticMovement!=1)
     {
-          state_tran_q.emplace_back(stateCur,1);
-//        auto zeroState = new State(*s);
-//        auto slideAction = s->get_speed(this->id_agent)*-1;
-//        this->applyActionToState(zeroState,&slideAction);
-//        state_tran_q.emplace_back(zeroState,1-_stochasticMovement);
-//        state_tran_q.emplace_back(stateCur,_stochasticMovement);
+//          state_tran_q.emplace_back(stateCur,1);
+        auto zeroState = new State(*s);
+        auto slideAction = s->get_speed(this->id_agent)*-1;
+        this->applyActionToState(zeroState,&slideAction);
+        state_tran_q.emplace_back(zeroState,1-_stochasticMovement);
+        state_tran_q.emplace_back(stateCur,_stochasticMovement);
 
     }else{
         state_tran_q.emplace_back(stateCur,1);

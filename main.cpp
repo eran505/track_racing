@@ -224,12 +224,12 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint8);
     pA1->setPolicy(pGridPath);
 
-    vector<Point> absList = {abPoint4};
+    vector<Point> absList = {abPoint4,abPoint2};
 
 
     for(const auto& absItem: absList)
     {
-        auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{absItem,abPoint2},conf._seed);
+        auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{absItem},conf._seed);
 
         z->factory_containerAbstract(conf,listPointDefender);
         auto *rl = new rtSimulation(conf.sizeGrid,pA1,s->get_cur_state(),pD2);

@@ -86,7 +86,7 @@ struct configGame{
     vector<Point> midPos;
     std::default_random_engine generator;
     std::uniform_int_distribution<int> distribution;
-    int eval_mode=3;
+    int eval_mode=4;
 public:
 
     string home;
