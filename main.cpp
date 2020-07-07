@@ -65,9 +65,8 @@ int main(int argc, char** argv) {
     GOT_HERE;
 
     int seed = 155139;// zero coll => con3.csv
-    seed = 2; //1895975606
+    seed = 7; //1895975606
     //seed = int( time(nullptr));
-    cout<<"seed:\t"<<seed<<endl;
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
     auto arrPAth = splitStr(getExePath(),"/");
@@ -224,7 +223,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint8);
     pA1->setPolicy(pGridPath);
 
-    vector<Point> absList = {abPoint4};
+    vector<Point> absList = {abPoint4,abPoint2};
 
 
     for(const auto& absItem: absList)
@@ -246,8 +245,11 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
         res.push_back(conf.gGoals.front().to_str());
         res.push_back(conf.posAttacker.to_str());
         res.push_back(conf.posDefender.to_str());
-        res.push_back(std::to_string(rl->sum_of_coll()));
-        res.push_back(rl->collusionMiniGrid_to_string());
+        for(auto j=0;j<z->get_allAbst_size();++j)
+        {
+            res.push_back(std::to_string(rl->sum_of_coll(j)));
+            res.push_back(rl->collusionMiniGrid_to_string(j));
+        }
         for (auto &item : z->get_lPolEval())for(auto numL: item)res.push_back(std::to_string(numL));
         string file_name = std::to_string(conf.eval_mode)+"new.csv";
         string path = conf.home+"/car_model/out/"+file_name;

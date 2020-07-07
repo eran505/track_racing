@@ -26,6 +26,7 @@
 #include "Abstract/RealTimeSimulation.hpp"
 #include "containerAbstract.h"
 class AbstractCreator{
+    bool first=true;
     vector<Point> allAbst;
     Point originalGridSize;
     vector<simulation> lsim;
@@ -36,7 +37,11 @@ class AbstractCreator{
     std::vector<simulation> simulationVector;
     std::vector<std::vector<u_int32_t>> lPolEval;
     int seed;
+<<<<<<< HEAD
+    u_int32_t iter =3000000;
+=======
     u_int32_t iter = 2000000;
+>>>>>>> 27aa0b98953c638872856439109d12ddae689b62
     std::unique_ptr<rtSimulation> rtSim= nullptr;
 public:
     vector<vector<u_int32_t>>& get_lPolEval(){return lPolEval;}
@@ -62,6 +67,7 @@ public:
         });
         cout<<"";
     }
+    size_t get_allAbst_size(){return allAbst.size();}
     void helperGridSim(configGame &conf)
     {
         auto abstractionObject_Helper = abstractionDiv(originalGridSize,abGridSize,evaderPolicy,seed,Point(0),Point(4,0,0));
@@ -76,9 +82,8 @@ public:
     }
     void initializeSimulation(configGame &conf,const std::vector<weightedPosition> &defenderStart)
     {
-        auto abstractionObject = abstractionDiv(originalGridSize,abGridSize,evaderPolicy,seed,Point(0),Point(0,0,0));
+        auto abstractionObject = abstractionDiv(originalGridSize,abGridSize,evaderPolicy,seed,Point(0),Point(0,0,0),conf.posDefender);
         auto workerTasks = abstractionObject.initializeSimulation(conf,defenderStart);
-
 
 
         lsim = std::move(workerTasks);
@@ -92,7 +97,11 @@ public:
         std::for_each(lsim.back().getCollustionMap().begin(),lsim.back().getCollustionMap().end(),
                 [&](auto &item){cout<<item.first<<";"<<item.second<<endl;});
 
-        //lsim.back().getDefAgentDATA();
+        if(first) // not sure //TODO::justify it
+        {
+            lsim.back().collMap_to_percentage_self();
+            first=false;
+        }
 
 
         #ifdef Sync

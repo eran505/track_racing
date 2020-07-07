@@ -37,6 +37,7 @@ class abstractionDiv{
     unordered_map<u_int64_t,double>* speedPorbabilityVector{};
     Point girdSize;
     Point offset;
+    Point _startD;
     vector<int> goalListIndx;
     Point divPoint;
     Point abstractSize;
@@ -51,11 +52,12 @@ public:
     ~abstractionDiv() = default;
     abstractionDiv(const Point& upper_bound, const Point& mAbstractSize,
                    const PathPolicy* policyP,int seed,const Point& lower_bound=Point(0),
-            const Point &_offset=Point(0,0,0)):offset(_offset){
+            const Point &_offset=Point(0,0,0),const Point& startD=Point(-1)):offset(_offset){
         auto grid_size = upper_bound-(lower_bound+offset);
         auto tmp = grid_size/mAbstractSize;
         auto sizeMiniGrid = tmp.accMulti();
         sizeVectors=sizeMiniGrid;
+        _startD = startD;
         abstractSize=mAbstractSize;
         girdSize = grid_size;
         divPoint=grid_size/mAbstractSize;
@@ -106,6 +108,7 @@ public:
                 lpIVector.emplace_back(listPos[i],speedI);
             }
         }
+        //get_possible_visted_grids(lp,this->_startD);
         init_goal_list(lp);
         if(crate_big_grid)
             bigGridAbs(lp);
@@ -655,10 +658,43 @@ private:
             return false;
         return true;
     }
-//    vector<u_int32_t> get_all_relevant_mini_grids(u_int16_t max_speed_D, u_int16_t max_speed_A){
-//
-//    }
-//
+
+    void get_possible_visted_grids(const weightedVectorPosSpeed &lp,const Point &startD){
+        vector<pair<Point,u_int32_t>> vecPointTime;
+        u_int32_t max_time_t=0;
+        for(const auto& [p,path]:lp )
+        {
+            u_int16_t time_t=0;
+            for(const auto &posSpeed:path)
+            {
+                auto abstPoint = posSpeed.first/this->abstractSize;
+                if(auto it = std::find_if(vecPointTime.begin(),vecPointTime.end(),[&](const pair<Point,u_int32_t>& item){
+                        return (item.first == abstPoint);
+                    });it==vecPointTime.end())
+                    vecPointTime.emplace_back(abstPoint,time_t);
+                else {if(it->second<time_t)it->second=time_t;}
+                time_t++;
+            }
+            if(max_time_t<time_t)max_time_t=time_t;
+        }
+        vector<pair<Point,u_int32_t>> vecPointTime_D;
+        auto p = Point(startD);
+        for(auto k=max_time_t;k>0;--k)
+        {
+
+            auto abstPoint = p/this->abstractSize;
+            if(auto it = std::find_if(vecPointTime_D.begin(),vecPointTime_D.end(),[&](const pair<Point,u_int32_t>& item){
+                    return (item.first == abstPoint);
+                });it==vecPointTime_D.end())
+                vecPointTime_D.emplace_back(abstPoint,k);
+            else {if(it->second<k)it->second=k;}
+            p.array[0]-=1;
+            p.array[1]-=1;
+        }
+
+
+
+    }
 };
 
 

@@ -71,12 +71,12 @@ class simulation{
     std::unique_ptr<State> sState;
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution;
-    unordered_map<string,u_int32_t> collustionMap;
-    Converager<15> arr_converage;
+    unordered_map<string,double> collustionMap;
+    Converager<11> arr_converage;
     u_int32_t ctr_converage = 0;
     const u_int32_t FixInset = 100000;
     #ifdef DATA_P
-    Converager<3,std::vector<uint32_t >> evalPolicyer;
+    Converager<5,std::vector<uint32_t >> evalPolicyer;
     vector<u_int32_t> acc_dataTrack = std::vector<u_int32_t>(event::Size);
     u_int64_t ctrPolicyEvla=0;
     #endif
@@ -129,7 +129,7 @@ public:
     shared_ptr<Agent> getDefAgent(){agents[event::agnetIDX::defenderInt];}
     Agent* getDefAgentPTR(){agents.operator[](0).get();}
     size_t getCollustionMapSize(){return collustionMap.size();}
-    const unordered_map<string,u_int32_t>& getCollustionMap()const{return collustionMap;}
+    const unordered_map<string,double>& getCollustionMap()const{return collustionMap;}
     simulation(Agent* pursuerAgent, Agent* evaderAgent, std::unique_ptr<Grid>  absGrid,int seed,int _id)
     :trackingData(event::Size),_seed(seed),distribution(0.0,1.0),generator(seed),sState(nullptr),
     g(std::move(absGrid))
@@ -211,8 +211,6 @@ public:
         cout<<"---> gridID:"<<gridID<<endl;
         #endif
         for (u_int32_t i = 0; i < iterationMax; ++i) {
-            if(stop)
-                break;
             #ifdef DEBUGPrint
             cout<<sState->to_string_state()<<endl;
             #endif
@@ -235,7 +233,6 @@ public:
                     cout<<sState->to_string_state()<<endl;
                     #endif
                     #ifdef ConVer
-                    //if (isConverage(agents[event::agnetIDX::defenderInt].get())){stop=true;cout<<"isCon"<<endl;}
                     #endif
                     if (checkCondition()) {break;}
                 }
@@ -244,7 +241,9 @@ public:
             cout<<"END"<<endl;
             #endif
             reset_state();
-            setPolicyEval();
+            if (isConverage(agents[event::agnetIDX::defenderInt].get())){cout<<"isCon"<<endl;break;}
+            auto bol = setPolicyEval();
+            //if(bol) break;
             #ifdef DEBUG2
             if(i%1000000==0) {cout<<"Iter:\t"<<i<<endl;printMe();}
             #endif
@@ -385,7 +384,27 @@ private:
         }
         else{ pos->second++;}
     }
+public:
+    void collMap_to_percentage_self()
+    {
+        simulation::collMap_to_percentage(this->collustionMap,0.2);
+    }
 
+    template< typename T>
+    void collMap_to_percentage(unordered_map<T,double> &map,  double therhold=0.0){
+        auto acc = std::accumulate(map.begin(),map.end(),
+                0,[](int value,const auto &item){return value+item.second;});
+        for(auto &[a,b]: map ) b=b/acc;
+        for(auto it = begin(map); it != end(map);)
+        {
+            if (it->second <therhold)
+            {
+                it = map.erase(it);
+            }
+            else
+                ++it;
+        }
+    }
 
 };
 

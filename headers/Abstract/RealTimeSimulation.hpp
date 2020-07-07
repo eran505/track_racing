@@ -34,7 +34,7 @@ class rtSimulation{
     Agent* _attacker;
     Agent* _defender;
     u_int32_t iterMax=100000;
-    unordered_map<string,u_int32_t > collusionMiniGrid;
+    vector<unordered_map<string,u_int32_t>> collusionMiniGrid;
     State* state;
     //std::unique_ptr<Agent> _defender;
     vector<containerAbstract> conL;
@@ -59,7 +59,6 @@ class rtSimulation{
             s->set_speed(a->get_id(),this->zeroPoint);
     }
 public:
-    unordered_map<string,u_int32_t > getCollusionMiniGrid(){return collusionMiniGrid;}
     vector<double> getTrackingData(){return trackingData;}
     vector<string> getTrackingDataString()
     {
@@ -79,19 +78,25 @@ public:
     {
         ptr->evalPolicy();
     }
-    string collusionMiniGrid_to_string(){
+    string collusionMiniGrid_to_string(int k){
         string str;
-        for(auto &pair: collusionMiniGrid)
+        if(k>=collusionMiniGrid.size())
+            throw ;
+        auto& collusionMiniGridI = collusionMiniGrid[k];
+        for(auto &pair: collusionMiniGridI)
         {
             str+=pair.first+":"+std::to_string(pair.second);
             str+=" | ";
         }
         return str;
     }
-    size_t  sum_of_coll()
+    size_t  sum_of_coll(int k)
     {
+        if(k>=collusionMiniGrid.size())
+            throw ;
+        auto& collusionMiniGridI = collusionMiniGrid[k];
         size_t s=0;
-        for(const auto& item:this->collusionMiniGrid) s+=item.second;
+        for(const auto& item:collusionMiniGridI) s+=item.second;
         return s;
     }
     void set_agent(unordered_map<u_int32_t,Agent*> &&map)
@@ -104,6 +109,9 @@ public:
     {
         conL = std::move(l);
         for(auto &item:conL){item.eval();}
+        for(auto k = 0 ; k <conL.size();++k)
+        collusionMiniGrid.emplace_back();
+        cout<<endl;
     }
     void simulationV2()
     {
@@ -119,11 +127,11 @@ public:
     static bool in_distance(const Point& one,const Point& two)
     {
 
-        if(std::abs(one[0]-two[0])>2)
+        if(std::abs(one[0]-two[0])>=2)
             return false;
-        if(std::abs(one[1]-two[1])>2)
+        if(std::abs(one[1]-two[1])>=2)
             return false;
-        if(std::abs(one[2]-two[2])>2)
+        if(std::abs(one[2]-two[2])>=2)
             return false;
         return true;
     }
@@ -137,7 +145,10 @@ public:
         {
             if(this->idxContier<this->conL.size()-1)
             {
+                insetCollDict();
                 idxContier++;
+                inMini=false;
+
                 //cout<<"idxContier++\n";
             }
         }
@@ -169,7 +180,7 @@ public:
                 insetCollDict();
             #endif
 
-            if (Stop_Game())
+            if (stopGame())
                 break;
 
 
@@ -199,7 +210,7 @@ public:
             #endif
         }
     }
-    bool Stop_Game(){
+    bool stopGame(){
         const Point& posEvader= this->state->get_position_ref(this->_attacker->get_id());
         const Point& posPursuer = this->state->get_position_ref(this->_defender->get_id());
         
@@ -267,26 +278,30 @@ public:
         if(inMini) // dont mark more than one time
             return;
         inMini= true;
+        auto& collusionMiniGridI = collusionMiniGrid[idxContier];
         auto str_point = getAbstractPoint();
-        if(auto pos = collusionMiniGrid.find(str_point);pos==collusionMiniGrid.end())
+        if(auto pos = collusionMiniGridI.find(str_point);pos==collusionMiniGridI.end())
         {
-            collusionMiniGrid.insert({str_point,1});
+            collusionMiniGridI.insert({str_point,1});
         }
         else{ pos->second++;}
     }
     string getAbstractPoint()
     {
-
-
         std::vector<Point> l;
         this->state->getAllPos(l,conL[idxContier].get_absPoint());
         assert(l.size()==2);
         return l.front().to_str();
     }
     void printCollDict(){
-        for(auto &item: collusionMiniGrid){
-            cout<<item.first<<" : "<<item.second<<endl;
+        for(const auto& map: collusionMiniGrid)
+        {
+            cout<<"-----"<<endl;
+            for(auto &item: map){
+                cout<<item.first<<" : "<<item.second<<endl;
+            }
         }
+
     }
     Agent * getAgent(unsigned int key)
     {

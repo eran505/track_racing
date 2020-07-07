@@ -103,12 +103,21 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
     this->applyActionToState(stateCur, &action);
     if(_stochasticMovement!=1)
     {
+<<<<<<< HEAD
+          state_tran_q.emplace_back(stateCur,1);
+//        auto zeroState = new State(*s);
+//        auto slideAction = s->get_speed(this->id_agent)*-1;
+//        this->applyActionToState(zeroState,&slideAction);
+//        state_tran_q.emplace_back(zeroState,1-_stochasticMovement);
+//        state_tran_q.emplace_back(stateCur,_stochasticMovement);
+=======
         auto zeroState = new State(*s);
         auto slideAction = s->get_speed(this->id_agent)*-1;
         //Point slideAction = s->get_speed_ref(this->id_agent);
         this->applyActionToState(zeroState,&slideAction);
         state_tran_q.emplace_back(zeroState,1-_stochasticMovement);
         state_tran_q.emplace_back(stateCur,_stochasticMovement);
+>>>>>>> 27aa0b98953c638872856439109d12ddae689b62
     }else{
         state_tran_q.emplace_back(stateCur,1);
     }
@@ -313,7 +322,7 @@ void RtdpAlgo::learnRest() {
     cout<<"print - dict goal\n";
     if(the_same)
     {
-        for(auto &item:*rewardDict) this->rewardDict->clear();
+        for(auto &item:*rewardDict) item.second=CollReward;
         return;
     }
 
@@ -327,10 +336,19 @@ void RtdpAlgo::learnRest() {
                               return prior+p.second;});
 
     std::for_each(rewardDict->begin(),rewardDict->end(),[&](auto &item){item.second=item.second/res;});
+<<<<<<< HEAD
+
+    //DEBUG
+    //std::for_each(rewardDict->begin(),rewardDict->end(),[&](auto &item){item.second=-1;});
+    //rewardDict->operator[](33122146222978)=1;
+    //DEBUG
+
+=======
 //    rewardDict->operator[](22172038609469)= -1;
 //    rewardDict->operator[](11093819475081)= -1;
 //    rewardDict->operator[](22417480760448)= -1;
 //    rewardDict->operator[](33122146222978)= 1;
+>>>>>>> 27aa0b98953c638872856439109d12ddae689b62
 
     for(auto &item : *rewardDict) cout<<"{"<<item.first<<", "<<item.second<<"}\t";
     cout<<endl;
