@@ -152,7 +152,14 @@ public:
         return newp;
     }
 
-
+    Point operator%(const Point& other) const
+    {
+        Point p(0);
+        for (int i = 0; i < this->capacity; ++i) {
+            p.array[i]=this->array[i]%other.array[i];
+        }
+        return p;
+    }
 
     Point& operator-=(const Point* other){
 
