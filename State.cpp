@@ -207,8 +207,19 @@ std::unique_ptr<State> State::getAbstractionState(Point &abstractPoint) {
             continue;
         pair.second.change_speed_max(0);
     }
-
     return res;
+}
+std::unique_ptr<State> State::getAbstractionState_inplace(Point &abstractPoint,State *out) const{
+    for(auto &pair:this->pos_dict)
+    {
+        out->set_position(pair.first,pair.second/abstractPoint);
+    }
+    for(auto &pair:out->speed_dict)
+    {
+        if (pair.first.back()==Section::gurd)
+            continue;
+        pair.second.change_speed_max(0);
+    }
 }
 void State::getAllPos(vector<Point> &l,const Point &abstractPoint=Point(1))const{
     for(auto &pair:pos_dict)
@@ -217,6 +228,8 @@ void State::getAllPos(vector<Point> &l,const Point &abstractPoint=Point(1))const
     }
 
 }
+void State::getAllPos(vector<Point> &vec)const
+{    for(auto &pair:pos_dict) vec.emplace_back(pair.second); }
 vector<string> State::getIDs()
 {
     vector<string> l;

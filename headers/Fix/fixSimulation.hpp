@@ -12,18 +12,32 @@
 
 class fixSimulation{
 
-    Grid _g;
-    std::unique_ptr<State> _state;
+    //Grid _g;
+
     std::unique_ptr<Agent> _attacker;
     std::shared_ptr<Agent> _defender;
+    std::unique_ptr<State> _state;
     fixManager _manager;
 
+public:
+    fixSimulation(configGame &conf,Policy *pGridPath,std::vector<weightedPosition>& listPointAttacker
+    ,std::vector<weightedPosition>& listPointDefender,std::vector<pair<Point,Point>> &levels,State *s):
+    _attacker(std::make_unique<Agent>(listPointAttacker,adversary,1)),
+    _defender(std::make_unique<Agent>(listPointDefender,gurd,1)),
+    _state(std::make_unique<State>(*s)),
+    _manager(conf,levels,_defender)
+    {
+        _attacker->setPolicy(pGridPath);
+        cout<<"done"<<endl;
 
 
+    }
+
+private:
     void main_loop(State* s)
     {
         _manager.managing(s);
-        _defender->doAction(s);
+        //_manager->make_action(s);
         _attacker->doAction(s);
         check_condtion(s);
     }
@@ -47,7 +61,7 @@ class fixSimulation{
     }
     inline bool is_absolut_wall(const Point& pos_D)
     {
-        return this->_g.is_wall(pos_D);
+        return this->_state->g_grid->is_wall(pos_D);
     }
     inline bool is_absolut_goal(const Point& pos_A)
     {
@@ -57,7 +71,11 @@ class fixSimulation{
     }
 
 
-
+    void reset_state()
+    {
+        _manager.reset();
+        _attacker.reset();
+    }
 };
 
 

@@ -11,7 +11,7 @@
 typedef shared_ptr<unordered_map<string,string>> dictionary;
 typedef unordered_map<u_int64_t ,double> rewardMap ;
 class RtdpAlgo : public Policy{
-
+protected:
     std::unique_ptr<rewardMap>  rewardDict = std::make_unique<rewardMap>();
     u_int64_t ctrInFun=0;
     double CollReward = 1;

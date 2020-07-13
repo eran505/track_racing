@@ -21,7 +21,7 @@ typedef u_int64_t keyItem;
 typedef double cell;
 
 class RTDP_util{
-
+protected:
     enum {sizeN=27};
 
 
@@ -114,6 +114,14 @@ public:
         auto& ar = get_Q_entry_values(s,getStateKeyValue(s));
         return *std::max_element(ar.begin(),ar.end());
     }
+
+
+    void set_q_table(std::unique_ptr<unordered_map<keyItem ,arr>> &&table)
+    {
+        qTable=std::move(table);
+    }
+    std::unique_ptr<unordered_map<keyItem ,arr>> && get_q_table()
+    { return std::move(qTable);}
 };
 
 

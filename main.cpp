@@ -23,6 +23,7 @@
 #include "learning/DeepRTDP.h"
 #include "util/utilClass.hpp"
 #include <random>
+#include "Fix/fixSimulation.hpp"
 #include <headers/util/csvfile.hpp>
 //#include <torch/script.h> // One-stop header.
 
@@ -37,6 +38,8 @@ Game* initGame(configGame& conf);
 vector<vector<string>> readConfigFile(string &filePath);
 void toCsvString(string pathFile,vector<string>* infoArr);
 void toCSVTemp(string pathFile, vector<string> &data);
+void FixAbstGame(configGame &conf, PathPolicy* policyA, std::vector<weightedPosition>& listPointAttacker,
+                 std::vector<weightedPosition>& listPointDef, State *s);
 void getConfigPath(int argc, char** argv,configGame &conf);
 /*
  * TODO LIST:
@@ -214,69 +217,82 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     auto *tmp_pointer = dynamic_cast <PathPolicy*>(pGridPath);
     printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
     std::unique_ptr<State> tmp = std::make_unique<State>(State(*s->get_cur_state()));
-    Point abPoint8(8,8,1);
-    Point abPoint2 = Point(2,2,1);
-    Point abPoint4 = Point(4,4,1);
-    Point abPoint6 = Point(6,6,1);
-    Point abPoint12 = Point(12,12,1);
-    Point abPoint3 = Point(3,3,1);
-
-    tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint8);
-    pA1->setPolicy(pGridPath);
-
-    vector<Point> absList = {abPoint4};
 
 
-    for(const auto& absItem: absList)
-    {
-        auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{absItem,abPoint2},conf._seed);
-
-        z->factory_containerAbstract(conf,listPointDefender);
-        auto *rl = new rtSimulation(conf.sizeGrid,pA1,s->get_cur_state(),pD2);
-        rl->setContiner(z->get_con());
-        rl->simulationV2();
-        auto res = rl->getTrackingDataString();
-        res.push_back(conf.idNumber);
-        res.push_back(std::to_string(conf._seed));
-        res.push_back(std::to_string(conf.rRoutes));
-
-        res.push_back(z->get_abstraction_tostring());
-
-        res.push_back(conf.sizeGrid.to_str());
-        res.push_back(conf.gGoals.front().to_str());
-        res.push_back(conf.posAttacker.to_str());
-        res.push_back(conf.posDefender.to_str());
-        for(auto j=0;j<z->get_allAbst_size();++j)
-        {
-            res.push_back(std::to_string(rl->sum_of_coll(j)));
-            res.push_back(rl->collusionMiniGrid_to_string(j));
-        }
-        for (auto &item : z->get_lPolEval())for(auto numL: item)res.push_back(std::to_string(numL));
-        string file_name = std::to_string(conf.eval_mode)+"__new.csv";
-        string path = conf.home+"/car_model/out/"+file_name;
-        toCSVTemp(path, res);
-        delete rl;
-        delete z;
-    }
+    //    Point abPoint8(8,8,1);
+//    Point abPoint2 = Point(2,2,1);
+//    Point abPoint4 = Point(4,4,1);
+//    Point abPoint6 = Point(6,6,1);
+//    Point abPoint12 = Point(12,12,1);
+//    Point abPoint3 = Point(3,3,1);
+//
+//    tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint8);
+//    pA1->setPolicy(pGridPath);
+//
+//    vector<Point> absList = {abPoint4};
+//
+//
+//    for(const auto& absItem: absList)
+//    {
+//        auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{absItem,abPoint2},conf._seed);
+//
+//        z->factory_containerAbstract(conf,listPointDefender);
+//        auto *rl = new rtSimulation(conf.sizeGrid,pA1,s->get_cur_state(),pD2);
+//        rl->setContiner(z->get_con());
+//        rl->simulationV2();
+//        auto res = rl->getTrackingDataString();
+//        res.push_back(conf.idNumber);
+//        res.push_back(std::to_string(conf._seed));
+//        res.push_back(std::to_string(conf.rRoutes));
+//
+//        res.push_back(z->get_abstraction_tostring());
+//
+//        res.push_back(conf.sizeGrid.to_str());
+//        res.push_back(conf.gGoals.front().to_str());
+//        res.push_back(conf.posAttacker.to_str());
+//        res.push_back(conf.posDefender.to_str());
+//        for(auto j=0;j<z->get_allAbst_size();++j)
+//        {
+//            res.push_back(std::to_string(rl->sum_of_coll(j)));
+//            res.push_back(rl->collusionMiniGrid_to_string(j));
+//        }
+//        for (auto &item : z->get_lPolEval())for(auto numL: item)res.push_back(std::to_string(numL));
+//        string file_name = std::to_string(conf.eval_mode)+"__new.csv";
+//        string path = conf.home+"/car_model/out/"+file_name;
+//        toCSVTemp(path, res);
+//        delete rl;
+//        delete z;
+//    }
 
 //    //////// RTDP POLICY ////////
     /* If max speed is zero, the explict number of state is in the second place */
-//    vector<pair<int,int>> list_Q_data;
-//    list_Q_data.emplace_back(maxD,1);
-//    list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
-//
-//    //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
-//    Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share);
-//    //auto* ab = new abstractionDiv(g->getPointSzie(),Point(5),tmp_pointer);
-//
-//    RTDP->add_tran(pGridPath);
-//    pA1->setPolicy(pGridPath);
-//    pD2->setPolicy(RTDP);
+    vector<pair<int,int>> list_Q_data;
+    list_Q_data.emplace_back(maxD,1);
+    list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
 
-    exit(0);
+    //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
+    Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share);
+    //auto* ab = new abstractionDiv(g->getPointSzie(),Point(5),tmp_pointer);
+
+    RTDP->add_tran(pGridPath);
+    pA1->setPolicy(pGridPath);
+    pD2->setPolicy(RTDP);
+
+    FixAbstGame(conf,tmp_pointer,listPointAttacker,listPointDefender,s->get_cur_state());
     return s;
 }
 
+void FixAbstGame(configGame &conf, PathPolicy* policyA, std::vector<weightedPosition>& listPointAttacker,
+                 std::vector<weightedPosition>& listPointDef, State *s)
+{
+    vector<pair<Point,Point>> vec(3);
+    vec[0]={Point(2,2,1),Point(4,4,1)};
+    vec[1]={Point(2,2,1),Point(2,2,1)};
+    vec[2]={Point(0,0,0),Point(1,1,1)};
+    auto sim = fixSimulation(conf, policyA, listPointAttacker, listPointDef,
+                             vec, s);
+    exit(0);
+}
 
 void toCSVTemp(string pathFile, vector<string> &data)
 {
