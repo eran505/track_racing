@@ -127,11 +127,11 @@ public:
     static bool in_distance(const Point& one,const Point& two)
     {
 
-        if(std::abs(one[0]-two[0])>=2)
+        if(std::abs(one[0]-two[0])>2)
             return false;
-        if(std::abs(one[1]-two[1])>=2)
+        if(std::abs(one[1]-two[1])>2)
             return false;
-        if(std::abs(one[2]-two[2])>=2)
+        if(std::abs(one[2]-two[2])>2)
             return false;
         return true;
     }
@@ -215,7 +215,7 @@ public:
         const Point& posPursuer = this->state->get_position_ref(this->_defender->get_id());
         
         auto valGoal = state->g_grid->get_goal_reward(posEvader);
-        if (state->g_grid->is_wall(posPursuer)) // agent P hit wall
+            if (state->g_grid->is_wall(posPursuer)) // agent P hit wall
         {
             wallPoints.insert(posPursuer.to_str());
             if(inMini)

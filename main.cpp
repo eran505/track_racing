@@ -64,8 +64,8 @@ typedef unsigned long ulong;
 int main(int argc, char** argv) {
     GOT_HERE;
     auto dict_argv = parser(argv,argc);
-    int seed = 155139;// zero coll => con3.csv
-    seed = 7; //1895975606
+    int seed = 1594198815;
+
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -224,12 +224,12 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint8);
     pA1->setPolicy(pGridPath);
 
-    vector<Point> absList = {abPoint4,abPoint2};
+    vector<Point> absList = {abPoint4};
 
 
     for(const auto& absItem: absList)
     {
-        auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{absItem},conf._seed);
+        auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{absItem,abPoint2},conf._seed);
 
         z->factory_containerAbstract(conf,listPointDefender);
         auto *rl = new rtSimulation(conf.sizeGrid,pA1,s->get_cur_state(),pD2);
@@ -252,7 +252,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
             res.push_back(rl->collusionMiniGrid_to_string(j));
         }
         for (auto &item : z->get_lPolEval())for(auto numL: item)res.push_back(std::to_string(numL));
-        string file_name = std::to_string(conf.eval_mode)+"new.csv";
+        string file_name = std::to_string(conf.eval_mode)+"__new.csv";
         string path = conf.home+"/car_model/out/"+file_name;
         toCSVTemp(path, res);
         delete rl;

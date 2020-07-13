@@ -87,7 +87,7 @@ public:
         }
         return res;
     }
-    int sumPoint()
+    int sumPoint() const
     {
         int sum=0;
         for (int i = 0; i < this->capacity; ++i) {
@@ -212,7 +212,7 @@ public:
 
         return vectorI;
     }
-    bool any_ngative(){
+    [[nodiscard]] bool any_ngative()const {
         for (int i = 0; i < this->capacity; ++i) {
             if (this->array[i]<0)
                 return true;
