@@ -9,7 +9,7 @@
 #include "Policy.hpp"
 #include "Agent.hpp"
 #include "fixManager.hpp"
-
+#define DEBUGING
 class fixSimulation{
 
     //Grid _g;
@@ -20,23 +20,40 @@ class fixSimulation{
     fixManager _manager;
 
 public:
-    fixSimulation(configGame &conf,Policy *pGridPath,std::vector<weightedPosition>& listPointAttacker
+    fixSimulation(configGame &conf,Policy *policyA,Policy *policyD,std::vector<weightedPosition>& listPointAttacker
     ,std::vector<weightedPosition>& listPointDefender,std::vector<pair<Point,Point>> &levels,State *s):
     _attacker(std::make_unique<Agent>(listPointAttacker,adversary,1)),
     _defender(std::make_unique<Agent>(listPointDefender,gurd,1)),
-    _state(std::make_unique<State>(*s)),
-    _manager(conf,levels,_defender,_state.get())
+    _state(std::make_unique<State>(*s))
     {
-        _attacker->setPolicy(pGridPath);
-        cout<<"done"<<endl;
-
+        _attacker->setPolicy(policyA);
+        _defender->setPolicy(policyD);
+        _manager = fixManager(conf,levels,_defender,_state.get());
     }
     void main_loop()
     {
+        while(true)
+        {
+            reset();
+            while(true)
+            {
+                if(loop())
+                    break;
+            }
+            this->_manager.end();
+            if(is_converage())
+                break;
+        }
+    }
+    bool loop()
+    {
+        #ifdef DEBUGING
+        cout<<_state->to_string_state()<<endl;
+        #endif
         _manager.managing(_state.get());
-        //_manager->make_action(s);
+        _manager.make_action(_state.get());
         _attacker->doAction(_state.get());
-        check_condtion();
+         return check_condtion();
     }
 private:
 
@@ -70,11 +87,12 @@ private:
     }
 
 
-    void reset_state()
+    void reset()
     {
         _manager.reset();
         _attacker.reset();
     }
+    bool is_converage() {return false;}
 };
 
 

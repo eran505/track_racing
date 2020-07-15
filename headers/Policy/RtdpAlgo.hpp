@@ -71,7 +71,7 @@ public:
         if(!ok)
             throw std::invalid_argument( "duplication key" );
     }
-
+    void set_mode_agent(int mode_number);
     void update_final_state(State *s) override {
         auto [val,b]=this->evaluationState(s);
         this->RTDP_util_object->update_final_State(s,val);}
@@ -79,6 +79,37 @@ public:
     double getArgMaxValueState(const State *s){ return this->RTDP_util_object->get_max_valueQ(s);}
 
     [[nodiscard]] double getReward(const Point &refPoint) const;
+
+    /**
+     * Abstraction RTDP
+     * */
+    Point offset= Point(0);
+    Point abs = Point(0);
+    std::function <void(State *s)> abstraction_expnd= [&](State *s){};
+    bool abstract = false;
+    void transform_abstraction_AD_inplace(State *s)
+    {
+        (s->pos_dict[this->cashID]-=offset)/=abs;
+        s->speed_dict[this->cashID].change_speed_max(1);
+        (s->pos_dict[this->id_agent]-=offset)/=abs;
+    }
+    State transform_abstraction_DA(State *s)
+    {
+        auto s_tmp = State(*s);
+        (s_tmp.pos_dict[this->id_agent]-=offset)/=abs;
+        (s_tmp.pos_dict[this->cashID]-=offset)/=abs;
+        s_tmp.speed_dict[this->cashID].change_speed_max(1);
+        return s_tmp;
+    }
+    void transform_abstraction_D(State *s)
+    {
+        (s->pos_dict[this->id_agent]-=offset)/=abs;
+    }
+    void transform_abstraction_A_inplace(State *s)
+    {
+        s->speed_dict[this->cashID].change_speed_max(1);
+        (s->pos_dict[this->id_agent]-=offset)/=abs;
+    }
 };
 
 

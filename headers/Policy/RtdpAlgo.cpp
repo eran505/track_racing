@@ -10,16 +10,25 @@ RtdpAlgo::RtdpAlgo(int maxSpeedAgent, int grid_size, vector<pair<int,int>>& max_
    this->RTDP_util_object = new RTDP_util(grid_size,max_speed_and_budget,home);
     this->RTDP_util_object->set_tran(&this->tran);
     this->RTDP_util_object->MyPolicy(this);
+    set_mode_agent(miniGrid);
+}
+
+void RtdpAlgo::set_mode_agent(int miniGrid)
+{
     if(miniGrid==2)
         this->evaluationState = [this](State *s){return this->EvalState2(s);};
     else if(miniGrid==3)
         this->evaluationState = [this](State *s){return this->EvalState3(s);};
     else if(miniGrid==4)
         this->evaluationState = [this](State *s){return this->EvalState4(s);};
+    else if(miniGrid==5)
+    {
+        abstraction_expnd=[&](State *s){this->transform_abstraction_A_inplace(s);};
+        this->evaluationState = [this](State *s){return this->EvalState4(s);};
+    }
     else this->evaluationState = [this](State *s){return this->EvalState(s);};
+
 }
-
-
 
 void RtdpAlgo::reset_policy() {
     this->empty_stack_update();
@@ -36,7 +45,15 @@ const vector<double >* RtdpAlgo::TransitionAction(State *s)
 Point RtdpAlgo::get_action(State *s)
 {
     //return the argmax action in the given state row
-    auto action = this->RTDP_util_object->get_argmx_action(s);
+    Point action;
+    if(abstract)
+    {
+        State tmp = transform_abstraction_DA(s);
+        action = this->RTDP_util_object->get_argmx_action(&tmp);
+        this->transform_abstraction_D(s);
+    }
+    else
+        action = this->RTDP_util_object->get_argmx_action(s);
     //cout<<"___action:\t"<<action.to_str()<<"\t";
     if (this->evalPolicy)
     {
@@ -143,6 +160,9 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
                 } else {
                     Point *actionI = pos->second;
                     item_policy->applyActionToState(new_state,actionI);
+
+                    this->abstraction_expnd(new_state);
+
                     state_tran_q_tmp.emplace_back(new_state,options_actions->operator[](++i)*probability);
                 }
             }

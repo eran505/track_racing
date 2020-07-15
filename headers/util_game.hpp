@@ -175,6 +175,13 @@ public:
         }
         return *this;
     }
+    Point& operator-=(const Point& other){
+
+        for (int i = 0; i < this->capacity; ++i) {
+            this->array[i]=this->array[i]-other.array[i];
+        }
+        return *this;
+    }
     bool any_bigger_equle(const Point &other){
         for (int i = 0; i < this->capacity; ++i) {
             if (this->array[i]<=other.array[i])
@@ -422,6 +429,23 @@ bool Contains( std::vector<double>& Vec, const double Element )
         return true;
 
     return false;
+}
+
+template<typename K=uint32_t>
+auto map_transpose(const std::unordered_map<K,std::vector<K>> &dico)
+{
+    unordered_map<K,std::vector<K>> map;
+    for (auto [k,v]:dico)
+    {
+        for(auto &item:v)
+        {
+            if(auto pos = map.find(item);pos!=map.end())
+                pos->second.push_back(k);
+            else
+                map[item]={k};
+        }
+    }
+    return map;
 }
 
 struct weightedPosition{

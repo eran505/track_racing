@@ -38,7 +38,7 @@ Game* initGame(configGame& conf);
 vector<vector<string>> readConfigFile(string &filePath);
 void toCsvString(string pathFile,vector<string>* infoArr);
 void toCSVTemp(string pathFile, vector<string> &data);
-void FixAbstGame(configGame &conf, PathPolicy* policyA, std::vector<weightedPosition>& listPointAttacker,
+void FixAbstGame(configGame &conf, Policy* policyA,Policy *policyD, std::vector<weightedPosition>& listPointAttacker,
                  std::vector<weightedPosition>& listPointDef, State *s);
 void getConfigPath(int argc, char** argv,configGame &conf);
 /*
@@ -274,22 +274,23 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share);
     //auto* ab = new abstractionDiv(g->getPointSzie(),Point(5),tmp_pointer);
 
+
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);
     pD2->setPolicy(RTDP);
 
-    FixAbstGame(conf,tmp_pointer,listPointAttacker,listPointDefender,s->get_cur_state());
+    FixAbstGame(conf,pGridPath,RTDP,listPointAttacker,listPointDefender,s->get_cur_state());
     return s;
 }
 
-void FixAbstGame(configGame &conf, PathPolicy* policyA, std::vector<weightedPosition>& listPointAttacker,
+void FixAbstGame(configGame &conf, Policy* policyA,Policy *policyD, std::vector<weightedPosition>& listPointAttacker,
                  std::vector<weightedPosition>& listPointDef, State *s)
 {
     vector<pair<Point,Point>> vec(3);
     vec[0]={Point(2,2,1),Point(4,4,1)};
     vec[1]={Point(2,2,1),Point(2,2,1)};
-    vec[2]={Point(0,0,0),Point(1,1,1)};
-    auto sim = fixSimulation(conf, policyA, listPointAttacker, listPointDef,
+    vec[2]={Point(1,1,1),Point(1,1,1)};
+    auto sim = fixSimulation(conf, policyA,policyD, listPointAttacker, listPointDef,
                              vec, s);
     sim.main_loop();
     exit(0);

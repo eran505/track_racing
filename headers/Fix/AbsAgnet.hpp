@@ -13,10 +13,13 @@
  **/
 class agentAbs{
 
-    std::shared_ptr<Agent> _agnet;
+    std::shared_ptr<Agent> _agnet= nullptr;
 
 public:
-    explicit agentAbs(std::shared_ptr<Agent> &agent_D):_agnet(agent_D){}
+    explicit agentAbs(std::shared_ptr<Agent> &agent_D){
+        _agnet = agent_D;
+    }
+    agentAbs()= default;
     [[nodiscard]] string get_id()const{ return _agnet->get_id();}
     bool is_inbound(const State *s)const{
         return s->g_grid->is_wall(s->get_position_ref(_agnet->get_id()));
@@ -27,7 +30,7 @@ public:
         //auto trans_state = _transform_state(s);
 
         // do action
-        //_agnet->doAction(trans_state.get());
+        _agnet->doAction(s);
 
         //apply action
         apply_action_actual_state(s);
@@ -57,6 +60,19 @@ public:
     void set_dict(fixAbstractLevel &obj)
     {
         get_RTDP_util()->set_q_table(std::move(obj.get_dict()));
+    }
+    void end(fixAbstractLevel &obj)
+    {
+        update_stack();
+        retrun_dict(obj);
+    }
+    void change_abstrct_point(const Point& offset,const Point& abs)
+    {
+        get_RtdpAlgo()->abstract=true;
+        get_RtdpAlgo()->abs=abs;
+        get_RtdpAlgo()->offset=offset;
+
+
     }
 private:
     RtdpAlgo* get_RtdpAlgo()

@@ -35,13 +35,14 @@ public:
         make_levels(conf.sizeGrid);
         tranform_state_inital(s);
     }
-
+    fixManager(){}
     void make_levels(const Point &gridSize) {
-        const Point& orignal_size = gridSize;
+        Point orignal_size = gridSize;
         int ctr=0;
         for (const auto &[window,cell_size]: _fix_list)
         {
             _levels.emplace_back(cell_size,window,orignal_size,ctr==0);
+            orignal_size=orignal_size/window;
             ctr++;
         }
         _levels[_level_index].inset_containerFix(0); // init the map of the higher level
@@ -81,11 +82,11 @@ public:
     }
 #endif
 
-    Point get_diff_abstract_A_D(const State *s) const {
-        vector<Point> vecPoses;
-        _transform_state->getAllPos(vecPoses);
+    static Point get_diff_abstract_A_D(const std::vector<Point> &vecPoses) {
         return (vecPoses[0] - vecPoses[1]).AbsPoint();
     }
+
+
 
 
 
@@ -114,13 +115,17 @@ public:
     /** switch levels if need  **/
     void managing(const State *s) const {
         //TODO: need to inital the tranform state with the right grid for bound checking
+        std::vector<Point> vecPoses;
+        _transform_state->getAllPos(vecPoses);
 
-        Point dif = get_diff_abstract_A_D(s);
+        Point dif = get_diff_abstract_A_D(vecPoses);
         //is down scope
         auto is_down = check_condition_for_down_scope(dif);
         //is up scope
         auto is_up = check_condition_for_up_scope();
 
+        if(is_down)
+           Point p =  get_grid_intersection(vecPoses);
     }
     void down_scope(const State *s)
     {
@@ -136,7 +141,8 @@ public:
         // change the state
         this->_levels[_level_index].state_transformition(s, this->_transform_state.get());
         // get an action
-        this->_defender.make_move(this->_transform_state.get());
+        this->_defender.make_move(s);
+        //TODO:maybe send abstraction and up_cast in bellman_eq function (elegant)
 
         // update q table
         // backup update if need
@@ -149,9 +155,25 @@ public:
     void reset()
     {
         _level_index=0;
-
-
-
+        this->_defender.set_dict(_levels[_level_index]);
+        this->change_agnet_abstraction();
+    }
+    void change_agnet_abstraction()
+    {
+        this->_defender.change_abstrct_point(
+                _levels[_level_index].get_offset(),
+                _levels[_level_index].get_Point_abstract()
+                );
+    }
+    void end()
+    {
+        this->_defender.end(_levels[_level_index]);
+    }
+    [[nodiscard]] Point get_grid_intersection(const std::vector<Point>& vecPoses) const {
+        #ifdef ASSERTME
+        assert(vecPoses.size()==2);
+        #endif
+        return _levels[_level_index].get_grid(vecPoses[0],vecPoses[1]);
     }
 
 };
