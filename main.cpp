@@ -291,6 +291,7 @@ void FixAbstGame(configGame &conf, PathPolicy* policyA, std::vector<weightedPosi
     vec[2]={Point(0,0,0),Point(1,1,1)};
     auto sim = fixSimulation(conf, policyA, listPointAttacker, listPointDef,
                              vec, s);
+    sim.main_loop();
     exit(0);
 }
 

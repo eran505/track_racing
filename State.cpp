@@ -240,6 +240,20 @@ vector<string> State::getIDs()
     return l;
 }
 
+void State::transform_state_inplace(const Point &abstractPoint) {
+    for(auto &pair:this->pos_dict)
+    {
+        pair.second/=abstractPoint;
+    }
+    for(auto &pair:this->speed_dict)
+    {
+//        if (pair.first.back()==Section::gurd)
+//            continue;
+        pair.second.change_speed_max(1);
+    }
+
+}
+
 
 
 

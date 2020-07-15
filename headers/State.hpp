@@ -66,6 +66,7 @@ public:
     }
 
     std::unique_ptr<State> getAbstractionState_inplace(Point &abstractPoint, State *out)const;
+    void transform_state_inplace(const Point &trans);
 };
 
 

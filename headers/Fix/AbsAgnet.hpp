@@ -48,7 +48,7 @@ public:
 
     void retrun_dict(fixAbstractLevel &obj)
     {
-        obj.get_ref_containerFix().Q_table=std::move(get_RTDP_util()->get_q_table());
+        obj.return_dict(std::move(get_RTDP_util()->get_q_table()));
     }
     void update_stack()
     {
@@ -56,7 +56,7 @@ public:
     }
     void set_dict(fixAbstractLevel &obj)
     {
-        get_RTDP_util()->set_q_table(std::move(obj.get_ref_containerFix().Q_table));
+        get_RTDP_util()->set_q_table(std::move(obj.get_dict()));
     }
 private:
     RtdpAlgo* get_RtdpAlgo()

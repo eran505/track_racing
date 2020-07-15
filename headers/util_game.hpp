@@ -122,6 +122,13 @@ public:
         }
         return ans;
     }
+    Point operator*(const Point &other)const{
+        Point ans(0);
+        for (int i = 0; i < this->capacity; ++i) {
+            ans.array[i]=this->array[i]*other.array[i];
+        }
+        return ans;
+    }
 
     void operator+=(const Point &other){
 

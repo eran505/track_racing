@@ -25,23 +25,22 @@ public:
     _attacker(std::make_unique<Agent>(listPointAttacker,adversary,1)),
     _defender(std::make_unique<Agent>(listPointDefender,gurd,1)),
     _state(std::make_unique<State>(*s)),
-    _manager(conf,levels,_defender)
+    _manager(conf,levels,_defender,_state.get())
     {
         _attacker->setPolicy(pGridPath);
         cout<<"done"<<endl;
 
-
     }
-
-private:
-    void main_loop(State* s)
+    void main_loop()
     {
-        _manager.managing(s);
+        _manager.managing(_state.get());
         //_manager->make_action(s);
-        _attacker->doAction(s);
-        check_condtion(s);
+        _attacker->doAction(_state.get());
+        check_condtion();
     }
-    bool check_condtion(const State *s)
+private:
+
+    bool check_condtion()
     {
         const Point& pos_A = this->_state->get_position_ref(this->_attacker->get_id());
         const Point& pos_D = this->_state->get_position_ref(this->_defender->get_id());

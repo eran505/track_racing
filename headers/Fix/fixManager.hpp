@@ -24,25 +24,29 @@ class fixManager {
     std::unique_ptr<State> _transform_state;
 
 public:
-    fixManager(const configGame &conf, vector<pair<Point,Point>> levels,std::shared_ptr<Agent> &D)
+    fixManager(const configGame &conf, vector<pair<Point,Point>> levels,std::shared_ptr<Agent> &D,const State *s)
     : _fix_list(std::move(levels)),
-    _defender(D){
+    _defender(D),
+    _transform_state(std::make_unique<State>(*s))
+    {
         #ifdef ASSERTME
         assert(assert_fix(conf.sizeGrid)); // fix can be dived the grid
         #endif
         make_levels(conf.sizeGrid);
+        tranform_state_inital(s);
     }
 
     void make_levels(const Point &gridSize) {
-        Point grid_size_tmp = gridSize;
-        for (const auto &[window,cell_size] : _fix_list)
+        const Point& orignal_size = gridSize;
+        int ctr=0;
+        for (const auto &[window,cell_size]: _fix_list)
         {
-            _levels.emplace_back(cell_size,window);
+            _levels.emplace_back(cell_size,window,orignal_size,ctr==0);
+            ctr++;
         }
-        _levels[0].inset_containerFix(0); // init the map of the higher level
+        _levels[_level_index].inset_containerFix(0); // init the map of the higher level
         cout<<"";
     }
-
     static bool equle_or_less(const Point &one, const Point &other) {
         for (auto i = 0; i < one.capacity; ++i) {
             if (one[i] <= other[i])
@@ -51,14 +55,14 @@ public:
         return true;
     }
 
-    void switch_scope(int num) {
+    void switch_scope(int num){
         _level_index += num;
         #ifdef ASSERTME
         assert(_level_index > 0 and _level_index < _levels.size());
         #endif
     }
 
-    fixAbstractLevel get_level() {
+    fixAbstractLevel& get_level() {
         #ifdef ASSERTME
         return _levels.at(_level_index);
         #else
@@ -98,15 +102,24 @@ public:
     void apply_action_to_state(const Point &action, State *s) const {
         s->applyAction(this->_defender.get_id(), action, this->_defender.get_max_speed());
     }
+    void tranform_state_inital(const State *s)
+    {
+        Point abstract_point = _levels[_level_index].get_Point_abstract();
+        //TODO: at the moment the abstract speed doesn't handle properly !!!!!
+        _transform_state->transform_state_inplace(abstract_point);
+        // change the grid
 
+
+    }
     /** switch levels if need  **/
     void managing(const State *s) const {
+        //TODO: need to inital the tranform state with the right grid for bound checking
+
         Point dif = get_diff_abstract_A_D(s);
         //is down scope
         auto is_down = check_condition_for_down_scope(dif);
         //is up scope
         auto is_up = check_condition_for_up_scope();
-
 
     }
     void down_scope(const State *s)
@@ -117,7 +130,7 @@ public:
         #ifdef ASSERTME
         assert(_level_index<_levels.size());
         #endif
-        _defender.set_dict(_levels[_level_index].get_dict(s));
+        _defender.set_dict(_levels[_level_index]);
     }
     void make_action(State *s) {
         // change the state
@@ -133,7 +146,7 @@ public:
         // apply the action on the actual state
         apply_action_to_state(last_action, s);
     }
-    void reset(const State *s)
+    void reset()
     {
         _level_index=0;
 
