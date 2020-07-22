@@ -7,59 +7,72 @@
 #include "util_game.hpp"
 #include "State.hpp"
 #include "containerFix.hpp"
-
+#include "Grid_transition.h"
 typedef std::vector<double> arr;
 typedef std::unique_ptr<unordered_map<u_int64_t,arr>> qTbale_dict;
 
 class fixAbstractLevel{
+    u_int32_t ctr_insertion=0;
     Point _tolerance;
     Point _mini_gird_size;
+    Point _upper_window=Point(0);
     Point _window;
     Point _orignal_size;
+    Point _offset=Point(0);
     Point _grid_size;
-    unordered_map<u_int32_t,std::vector<u_int32_t>> window_map;
-    unordered_map<u_int32_t,std::vector<u_int32_t>> key_to_window;
+    Point _window_mini_gird_size;
+    GridTransition tran_grid;
     unordered_map<u_int32_t,containerFix> block_info;
     bool highest_level=false;
     u_int32_t block_max_size=-1; //TODO: init the bolck max size
     u_int32_t current_entry=0;
-
+    u_int32_t _key=0;
+    std::unique_ptr<Grid> _gird = std::make_unique<Grid>();
 
     std::unique_ptr<unordered_map<u_int64_t,arr>> _talbeQ=std::make_unique<unordered_map<u_int64_t,arr>>();
     std::function<u_int32_t (const State *s)> state_to_entry= nullptr;
 
 public:
-    const Point& get_offset(){return block_info[current_entry].offset;}
+    template<typename P=Point>
+    void set_window(P &&point){_window=std::forward<P>(point);}
+    Point get_window(){return _window;}
+    containerFix & get_relevent_abstraction(const Point& D, const Point &A) {
+        return get_containerFix(_key);
+    }
+    const Point& get_offset(){return _offset;}
     void set_max_block(u_int32_t n){this->block_max_size=n;}
+    void set_gird_in_Grid_transition(Grid *g){tran_grid.set_grid_all_goalz(g);}
     fixAbstractLevel()= default;
-    const Point& get_tolerance()const{return _window;}
+    const Point& get_window_tol()const{return _window;}
     const Point& get_Point_abstract()const{return _mini_gird_size;}
-    explicit fixAbstractLevel(const Point &mini_gird_size)
-    :_mini_gird_size(mini_gird_size)
-    ,block_info()
-    {}
-    fixAbstractLevel(const Point &mini_grid_szie,const Point& window)
-    :_mini_gird_size(mini_grid_szie),
-    _window(window)
-    {}
-    fixAbstractLevel(const Point &mini_grid_szie,const Point& window,const Point& orignal_size,bool first)
+    fixAbstractLevel(const Point &mini_grid_szie,const Point& window,const Point& orignal_size,const Point &gird_size,bool first)
             :_mini_gird_size(mini_grid_szie),
              _window(window),
              _orignal_size(orignal_size),
-             _grid_size(_orignal_size/mini_grid_szie)
+             _grid_size(_orignal_size/mini_grid_szie),
+             _tolerance(gird_size)
     {
 
+        tran_grid =  GridTransition(mini_grid_szie,gird_size,orignal_size,window);
         if(first)
             state_to_entry=[&](const State *s){ return 0u;};
-        else state_to_entry=[&](const State *s){ return this->state_to_entry_impl(s);};
-        preprocessing_window_map();
+        else {
+            state_to_entry=[&](const State *s){ return this->state_to_entry_impl(s);};;
+        }
 
+        _window_mini_gird_size = _window*_mini_gird_size;
         cout<<"_orignal_size"<<_orignal_size.to_str()<<endl;
         cout<<"_grid_size"<<_grid_size.to_str()<<endl;
         cout<<"window"<<_window.to_str()<<endl;
         cout<<"_mini_gird_size"<<_mini_gird_size.to_str()<<endl;
+        cout<<"tol="<<gird_size.to_str()<<endl;
         cout<<"===="<<endl;
 
+    }
+    u_int32_t get_ctr_insert() const{return ctr_insertion;}
+    void window_generator(const Point& up_window_size){
+        _upper_window=up_window_size;
+        tran_grid.preprocessing();
     }
     Point get_abstract_point(const Point& original_position)const{
         return original_position/_mini_gird_size;
@@ -73,19 +86,59 @@ public:
     {
         s->getAbstractionState_inplace(_mini_gird_size,trans);
     }
-    void inset_containerFix(u_int32_t num_id){
+    containerFix& insert_containerFix(u_int32_t num_id){
+        ctr_insertion++;
         auto [obj,bool_flag] = this->block_info.try_emplace(num_id,containerFix());
+        auto [l,u] = tran_grid.cur_bound;
+        cout<<"[G] low:"<<l.to_str()<<", up:"<<u.to_str()<<endl;
+        obj->second.G->set_upperBound(this->_tolerance);
+        obj->second.upper=u;
+        obj->second.lower=l;
+        tran_grid.inset_goalz(obj->second.G.get(),u,l,this->_mini_gird_size);
+        return obj->second;
 
-        obj->second.G= nullptr;
     }
-    qTbale_dict&& get_dict(const State *s)
+    bool is_collison(const Point &a,const Point &d)
     {
-        return std::move(this->_talbeQ);
+        Point abs_a = a/this->_mini_gird_size;
+        Point abs_d = d/this->_mini_gird_size;
+        Point dif = (abs_d - abs_a).AbsPoint();
+        return equle_or_less(dif,_window);
     }
-    Point get_grid(const Point &position_D,const Point &position_A) const
+    bool is_collision_by_distance(const Point &a,const Point &d)
     {
-        return key_to_point(get_intersection(Point_to_key(position_A,
-                _grid_size),Point_to_key(position_D,_grid_size)),_grid_size);
+        Point dif = (a - d).AbsPoint();
+        if(dif<_window_mini_gird_size)
+            return true;
+        return false;
+    }
+    void change_entry_mini_grid(const Point &position_D,const Point &position_A)
+    {
+        auto res_KEY = tran_grid.get_info_max(position_A,position_D);
+        this->_key=res_KEY;
+
+
+    }
+    Grid* get_grid_and_change_entry(const Point &position_D,const Point &position_A,const Point& offset)
+    {
+        change_entry_mini_grid(position_D,position_A);
+        auto Gptr = get_grid();
+        _offset=block_info[_key].lower;
+        cout<<" key:"<<_key<<" ";
+        return Gptr;
+    }
+    Grid* get_grid()
+    {
+        return get_containerFix(_key).G.get();
+
+    }
+    void transform_point_inplcae(Point &point)
+    {
+        return (point-=_offset)/=_mini_gird_size;
+    }
+    Point transform_point(const Point &point)
+    {
+        return (point-_offset)/_mini_gird_size;
     }
     auto& get_ref_containerFix()
     {
@@ -93,8 +146,10 @@ public:
             assert(false);
         return this->block_info.operator[](current_entry);
     }
-    void return_dict(qTbale_dict&& q){this->_talbeQ=std::move(q);}
-    qTbale_dict&& get_dict(){return std::move(this->_talbeQ);}
+
+    void return_dict(qTbale_dict&& q){get_containerFix(_key).q=std::move(q);}
+
+    qTbale_dict&& get_dict(){return std::move(get_containerFix(_key).q);}
 
 private:
     u_int32_t state_to_entry_impl(const State *s)
@@ -104,63 +159,6 @@ private:
 
     }
 
-    u_int32_t get_intersection(u_int32_t A, u_int32_t D) const
-    {
-        auto& vecA = this->key_to_window.at(A);
-        auto& vecD = this->key_to_window.at(D);
-        std::vector<u_int32_t > l;
-        for(auto &item:vecA) {
-            if (std::find(vecD.begin(), vecD.end(), item) != vecD.end()) l.push_back(item);
-        }
-        return *std::min_element(l.begin(),l.end());
-    }
-    void preprocessing_window_map()
-    {
-        // input: Point
-        // output: map key: gridID -> all the window that within the id
-        insert_keys_window_map();
-        auto vec_action_window = get_all_option_match_window(_window);
-        u_int32_t max_id = _grid_size.accMulti();
-        for (auto i=0 ;i<max_id;++i )
-        {
-
-            Point cur_point(i/_grid_size[0],i%_grid_size[1],i/(_grid_size[1]*_grid_size[0]));
-            for (const auto& item_action: vec_action_window)
-            {
-                auto p = item_action+cur_point;
-                if(p.out_of_bound(_grid_size))
-                    continue;
-                if(auto pos = window_map.find(Point_to_key(p,_grid_size));pos!=window_map.end())
-                {
-                    pos->second.push_back(i);
-                }
-
-            }
-
-        }
-        key_to_window = map_transpose(window_map);
-    }
-    static vector<Point> get_all_option_match_window(const Point &window)
-    {
-        std::vector<Point> l;
-        auto p = (window)*-1;
-        for (int x=0;x>p[0];--x)
-            for(int y=0;y>p[1];--y)
-                for(int z=0;z>p[2];--z)
-                    l.emplace_back(x,y,z);
-        return l;
-    }
-    void insert_keys_window_map()
-    {
-        auto p = (_window)-1;
-        for (int x=0;x<(_grid_size[0]-p[0]);++x)
-            for(int y=0;y<(_grid_size[1]-p[1]);++y)
-                for(int z=0;z<(_grid_size[2]-p[2]);++z)
-                {
-                    u_int32_t key = x*_grid_size[0]+y%_grid_size[1]+z/(_grid_size[0]*_grid_size[1]);
-                    window_map.try_emplace(key);
-                }
-    }
     static u_int32_t Point_to_key(const Point &p,const Point &grid)
     {
         u_int32_t tmp= p[0]*grid[0]+p[1]%grid[1]+p[2]/(grid[0]*grid[1]);
@@ -170,15 +168,32 @@ private:
     {
         return Point(key/grid[0],key%grid[0],key/(grid[0]*grid[1]));
     }
+    auto point_to_bounds(const Point &p)
+    {
+        Point lower = (p*_mini_gird_size);
+        Point upper = lower+_mini_gird_size*_tolerance;
+        return std::pair<Point,Point>{std::move(lower),std::move(upper)};
+    }
+    std::pair<Point,Point> key_to_bounds(u_int32_t key)
+    {
 
-//    pair<Point,Point> mini_gird_ID_to_bounds(u_int32_t grid_id)
-//    {
-//        u_int32_t x = (grid_id%(divPoint[0]*divPoint[1]))/divPoint[0];
-//        u_int32_t  y = grid_id%divPoint[0];
-//        u_int32_t  z = grid_id/(divPoint[1]*divPoint[0]);
-//
-//        return Point(x,y,z);
-//    }
+        return point_to_bounds(key_to_point(key,_grid_size));
+
+    }
+    containerFix& get_containerFix(u_int32_t key_point)
+    {
+        if(auto pos = block_info.find(key_point);pos==block_info.end())
+        {
+            return insert_containerFix(key_point);
+        } else return pos->second;
+    }
+    static bool equle_or_less(const Point &one, const Point &other) {
+        for (auto i = 0; i < one.capacity; ++i) {
+            if (one[i] >= other[i])
+                return false;
+        }
+        return true;
+    }
 };
 
 

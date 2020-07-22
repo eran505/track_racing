@@ -67,7 +67,7 @@ typedef unsigned long ulong;
 int main(int argc, char** argv) {
     GOT_HERE;
     auto dict_argv = parser(argv,argc);
-    int seed = 1594198815;
+    int seed = 1594198815;//1594198815;
 
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
     string repo = join(cut_first_appear(arrPAth,f),sep);
     auto pathCsvConfig = getConfigPath(argc,argv);
     string pathCsv;
-    pathCsv  = home + "/car_model/config/con16.csv";
+    pathCsv  = home + "/car_model/config/vcon16.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -98,7 +98,7 @@ int main(int argc, char** argv) {
         configGame conf(row,seed);
         conf.inset_data(parser(argv,argc));
         srand(conf._seed);
-        conf.initRandomNoise(); // inset random noise (-1,1) XY
+        //conf.initRandomNoise(); // inset random noise (-1,1) XY
         conf.home=home;
         cout<<"seed:\t"<<conf._seed<<endl;
         cout<<"evla_mode:\t"<<conf.eval_mode<<endl;
@@ -271,7 +271,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
 
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
-    Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share);
+    Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share,5);
     //auto* ab = new abstractionDiv(g->getPointSzie(),Point(5),tmp_pointer);
 
 
@@ -290,8 +290,13 @@ void FixAbstGame(configGame &conf, Policy* policyA,Policy *policyD, std::vector<
     vec[0]={Point(2,2,1),Point(4,4,1)};
     vec[1]={Point(2,2,1),Point(2,2,1)};
     vec[2]={Point(1,1,1),Point(1,1,1)};
-    auto sim = fixSimulation(conf, policyA,policyD, listPointAttacker, listPointDef,
-                             vec, s);
+//    vec[0]={Point(4,4,1),Point(4,4,1)};
+//    vec[1]={Point(4,4,1),Point(2,2,1)};
+//    vec[2]={Point(1,1,1),Point(1,1,1)};
+
+
+
+    auto sim = fixSimulation(conf, policyA,policyD, listPointAttacker, listPointDef,vec,s);
     sim.main_loop();
     exit(0);
 }

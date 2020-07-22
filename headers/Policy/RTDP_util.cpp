@@ -101,15 +101,21 @@ double RTDP_util::rec_h(State *s,int index, double acc_probablity)
 void RTDP_util::add_entry_map_state(keyItem key,const State *s) {
     // compute heuristic
     //10cout<<"\t--new_state--\t"<<endl;
+
     #ifdef VECTOR
     this->qTable->try_emplace(key,27);
     #endif
     this->heuristic(s,key);
     ctr_state++;
-    const auto &[it,bol] = debugDict.try_emplace(key,s->to_string_state());
+    /*const auto &[it,bol] = debugDict.try_emplace(key,s->to_string_state());
     if(!bol)
+    {
+        cout<<"Key<-"<<key<<endl;
+        cout<<"first->"<<it->first<<" second->"<<it->second<<endl;
+        cout<<"[throw] "<<s->to_string_state()<<endl;
         throw;
-
+    }
+     */
 }
 
 RTDP_util::~RTDP_util() {

@@ -69,6 +69,13 @@ bool State::is_collusion(string &id_player,string &op_player)
     else
         return false;
 }
+bool State::is_collusion_radius(const string &id_player,const string &op_player,const Point &window)
+{
+    Point dif = (this->pos_dict[id_player]-this->pos_dict[op_player]).AbsPoint();
+    if(dif<window)
+        return true;
+    return false;
+}
 list<string> State::is_collusion(string &id_player) {
     //// return all the name of the opposite team that share the same location with the given player
     list<string> list_name;

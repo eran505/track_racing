@@ -66,7 +66,7 @@ protected:
     double applyNonAction(const State *s);
 
 public:
-    double discountFactor=0.987;//0.988
+    double discountFactor=0.987;//0.987
     u_int64_t get_update_ctr() const{return this->update_counter;}
     bool isInQ(const State *s) const
     {

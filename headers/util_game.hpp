@@ -87,6 +87,14 @@ public:
         }
         return res;
     }
+    bool operator<(const Point &other)
+    {
+        for (int i = 0; i < this->capacity; ++i) {
+            if(other[i]<=this->array[i])
+                return false;
+        }
+        return true;
+    }
     int sumPoint() const
     {
         int sum=0;
@@ -360,7 +368,13 @@ public:
                 return false;
         return ok;
     }
-
+    bool is_negative()
+    {
+        for (int i = 0; i < this->capacity; ++i)
+            if (array[i]<0)
+                return true;
+        return false;
+    }
     [[nodiscard]] u_int64_t expHash()const {
         std::size_t seed = capacity;
         for(auto& i : array) {

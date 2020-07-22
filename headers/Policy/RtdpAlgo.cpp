@@ -3,6 +3,7 @@
 //
 
 #include "RtdpAlgo.hpp"
+//#define PrinT
 
 #include <utility>
 RtdpAlgo::RtdpAlgo(int maxSpeedAgent, int grid_size, vector<pair<int,int>>& max_speed_and_budget,const string &agentID,string &home,dictionary &ptrDict,short miniGrid)
@@ -24,7 +25,7 @@ void RtdpAlgo::set_mode_agent(int miniGrid)
     else if(miniGrid==5)
     {
         abstraction_expnd=[&](State *s){this->transform_abstraction_A_inplace(s);};
-        this->evaluationState = [this](State *s){return this->EvalState4(s);};
+        this->evaluationState = [this](State *s){return this->EvalState5(s);};
     }
     else this->evaluationState = [this](State *s){return this->EvalState(s);};
 
@@ -50,11 +51,9 @@ Point RtdpAlgo::get_action(State *s)
     {
         State tmp = transform_abstraction_DA(s);
         action = this->RTDP_util_object->get_argmx_action(&tmp);
-        this->transform_abstraction_D(s);
     }
-    else
-        action = this->RTDP_util_object->get_argmx_action(s);
-    //cout<<"___action:\t"<<action.to_str()<<"\t";
+    else action = this->RTDP_util_object->get_argmx_action(s);
+
     if (this->evalPolicy)
     {
         //auto actionIndx = int(this->RTDP_util_object->get_max_valueQ(s));
@@ -69,7 +68,7 @@ Point RtdpAlgo::get_action(State *s)
         return action;
     }
 
-    if(ctrInFun%400000==0) cout<<"QTable updates: "<<this->RTDP_util_object->get_update_ctr()<<endl;
+    //if(ctrInFun%400000==0) cout<<"QTable updates: "<<this->RTDP_util_object->get_update_ctr()<<endl;
     ctrInFun++;
 
 
@@ -78,6 +77,7 @@ Point RtdpAlgo::get_action(State *s)
     // set the max speed in the Z coordinate at the when taking off
     //inset to stack for backup update
     this->inset_to_stack(s,action,entry);
+
 
     if (!s->takeOff)
         if(action.hashMeAction(Point::actionMax)!=zeroIndexAction ){
@@ -115,20 +115,28 @@ Point RtdpAlgo::get_action(State *s)
 //
 
 double RtdpAlgo::bellman_update(State *s, Point &action) {
+    //_stochasticMovement=1;
     auto stateCur = new State(*s);
     // generate all possible next state with the probabilities
     vector <pair<State*,double>> state_tran_q;
+    //cout<<"stateCur:\t"<<stateCur->to_string_state()<<endl;
+    if(abstract)
+    {
+        this->transform_abstraction_D(stateCur);
+        //cout<<"[abstract] stateCur:\t"<<stateCur->to_string_state()<<endl;
+    }
 
 
     this->applyActionToState(stateCur, &action);
     if(_stochasticMovement!=1)
     {
-          state_tran_q.emplace_back(stateCur,1);
-//        auto zeroState = new State(*s);
-//        auto slideAction = s->get_speed(this->id_agent)*-1;
-//        this->applyActionToState(zeroState,&slideAction);
-//        state_tran_q.emplace_back(zeroState,1-_stochasticMovement);
-//        state_tran_q.emplace_back(stateCur,_stochasticMovement);
+        auto zeroState = new State(*s);
+        this->transform_abstraction_D(zeroState);
+        //auto slideAction = s->get_speed(this->id_agent)*-1;
+        auto slideAction=Point(0);
+        this->applyActionToState(zeroState,&slideAction);
+        state_tran_q.emplace_back(zeroState,1-_stochasticMovement);
+        state_tran_q.emplace_back(stateCur,_stochasticMovement);
 
     }else{
         state_tran_q.emplace_back(stateCur,1);
@@ -149,6 +157,7 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
             double probability = value.second;
 
             // Warning MUST del the Tran vec (options_actions)!!!
+
             auto options_actions = item_policy->TransitionAction(value.first);
             for(std::vector<double>::size_type i = 0; i != options_actions->size(); i++) {
                 // copy state
@@ -232,7 +241,7 @@ tuple<double,bool> RtdpAlgo::EvalState3(State *s) {
 
 tuple<double,bool> RtdpAlgo::EvalState4(State *s) {
 
-
+    double epsilon=0;
     if (s->g_grid->is_wall(s->get_position_ref(this->GetId()))){
         return {WallReward,true};
     }
@@ -246,12 +255,38 @@ tuple<double,bool> RtdpAlgo::EvalState4(State *s) {
         return {GoalReward, true};
     }
     if(s->isEndState(this->cashID)){
-        return {0,true};
+        return {0+epsilon,true};
     }
-    return {0,false};
+    return {0+epsilon,false};
 }
 
-const Point& RtdpAlgo::get_lastPos() const{
+tuple<double,bool> RtdpAlgo::EvalState5(State *s) {
+
+    double epsilion=-0.1;
+    if (s->g_grid->is_wall(s->get_position_ref(this->GetId()))){
+        return {WallReward,true};
+    }
+    auto res = s->is_collusion_radius(this->id_agent,this->cashID,this->window);
+    if (res){
+        if(window.sum()-3==0)
+            return {this->CollReward,true};
+        Point last = ((get_lastPos()-offset)/abs);
+        if(last==s->get_position_ref(this->id_agent))
+            return {this->CollReward,true};
+    }
+    if (s->isGoal(this->cashID)>=0) {
+        return {GoalReward, true};
+    }
+    if(s->isEndState(this->cashID)){
+        return {0+epsilion,true};
+    }
+    //passBy
+    if(!(s->get_position_ref(this->id_agent)>=s->get_position_ref(this->cashID)))
+        return {GoalReward,true};
+    return {0+epsilion,false};
+}
+
+Point RtdpAlgo::get_lastPos() const{
     return this->stackStateActionIdx.back().first.get_position_ref(this->id_agent);
 
 }
@@ -260,7 +295,11 @@ double RtdpAlgo::UpdateCalc(const vector<pair<State *, double>>& state_tran_q) {
     double res=0;
     for (auto &item:state_tran_q)
     {
+
         auto [val,isSndState] = this->evaluationState(item.first);
+        #ifdef PrinT
+        cout<<item.first->to_string_state()<<"  val:"<<val<<" emd:"<<isSndState<<" p="<<item.second<<"\t";
+        #endif
         if (!isSndState)
             val = this->RTDP_util_object->get_max_valueQ(item.first);
         res+=val*item.second*this->RTDP_util_object->discountFactor;
@@ -271,13 +310,25 @@ double RtdpAlgo::UpdateCalc(const vector<pair<State *, double>>& state_tran_q) {
 
 void RtdpAlgo::update(State *s, Point &action,u_int64_t entryMatrix)
 {
+    #ifdef PrinT
+    cout<<"action="<<action.to_str()<<" | ";
+    #endif
     auto val = this->bellman_update(s,action);
+    #ifdef PrinT
+    cout<<" ["<<entryMatrix<<", "<<action.hashMeAction(Point::actionMax)<<"]="<<val<<endl;
+    #endif
+
     this->RTDP_util_object->set_value_matrix(entryMatrix,action,val);
 }
 
 void RtdpAlgo::inset_to_stack(State *s,Point &action,u_int64_t state_entry)
 {
     stackStateActionIdx.push_back({State(*s),{state_entry,action.hashMeAction(Point::actionMax)}});
+    ctr_stack++;
+}
+void RtdpAlgo::inset_to_stack_abs(State *s,Point &action,u_int64_t state_entry)
+{
+    stackStateActionIdx.push_back({this->transform_abstraction_DA(s),{state_entry,action.hashMeAction(Point::actionMax)}});
     ctr_stack++;
 }
 

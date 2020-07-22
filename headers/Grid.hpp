@@ -38,11 +38,16 @@ private:
 
 
     public:
-
+        void insert_goal(const Point &g,double r)
+        {
+            all_goals_data.emplace_back(r,g);
+        }
         Point getPointSzie(){ return upperBound;}
-        [[nodiscard]] const auto& getAllGoalsData()const{return all_goals_data;}
+        [[nodiscard]] const vector<pair<double,Point>>& getAllGoalsData()const{return all_goals_data;}
         explicit Grid(game_params&);
         ~Grid() {cout<<"grid del\n"; }
+        Grid()= default;
+        const Point& get_lower(){return lowerBound;}
         Grid(const Point& sizeP,vector<Point> allPoint,vector<short> rewardGoal)
         {
             upperBound=sizeP;
@@ -74,6 +79,12 @@ private:
         }
         void print_vaule();
 
+        template<typename P>
+        void set_bounds(P &&lower,P &&upper)
+        {
+            this->lowerBound=std::forward<P>(lower);
+            this->upperBound=std::forward<P>(upper);
+        }
         vector<Point> get_goals() {
             return all_golas;
         }
@@ -139,6 +150,9 @@ private:
                     all_goals_data.emplace_back(vecB[i]?1:0,all_golas.operator[](i));
             }
         }
+        void set_upperBound(const Point& p ){upperBound=p;}
+        void set_lowerBound(const Point& p ){lowerBound=p;}
+
 };
 
 

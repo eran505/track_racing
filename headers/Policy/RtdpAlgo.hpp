@@ -63,7 +63,7 @@ public:
     std::tuple<double,bool> EvalState(State *s);
     tuple<double,bool> EvalState4(State *s);
         tuple<double,bool> EvalState3(State *s);
-    [[nodiscard]] const Point& get_lastPos() const;
+    [[nodiscard]] Point get_lastPos() const;
     bool stoMove();
 
     void insetRewardMap(u_int64_t hashKey, double reward){
@@ -85,12 +85,15 @@ public:
      * */
     Point offset= Point(0);
     Point abs = Point(0);
-    std::function <void(State *s)> abstraction_expnd= [&](State *s){};
+    Point window=Point(1,1,1);
+    std::function <void(State *s)> abstraction_expnd= [&](State *s){
+        transform_abstraction_A_inplace(s);
+    };
     bool abstract = false;
     void transform_abstraction_AD_inplace(State *s)
     {
         (s->pos_dict[this->cashID]-=offset)/=abs;
-        s->speed_dict[this->cashID].change_speed_max(1);
+        s->speed_dict[this->cashID].change_speed_max(0);
         (s->pos_dict[this->id_agent]-=offset)/=abs;
     }
     State transform_abstraction_DA(State *s)
@@ -98,7 +101,7 @@ public:
         auto s_tmp = State(*s);
         (s_tmp.pos_dict[this->id_agent]-=offset)/=abs;
         (s_tmp.pos_dict[this->cashID]-=offset)/=abs;
-        s_tmp.speed_dict[this->cashID].change_speed_max(1);
+        s_tmp.speed_dict[this->cashID].change_speed_max(0);
         return s_tmp;
     }
     void transform_abstraction_D(State *s)
@@ -107,9 +110,14 @@ public:
     }
     void transform_abstraction_A_inplace(State *s)
     {
-        s->speed_dict[this->cashID].change_speed_max(1);
-        (s->pos_dict[this->id_agent]-=offset)/=abs;
+        s->speed_dict[this->cashID].change_speed_max(0);
+        Point& ref_pos = s->pos_dict[this->cashID]-=offset;
+        ref_pos/=abs;
     }
+
+    tuple<double, bool> EvalState5(State *s);
+
+    void inset_to_stack_abs(State *s, Point &action, u_int64_t state_entry);
 };
 
 

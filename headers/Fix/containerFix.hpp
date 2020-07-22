@@ -14,13 +14,11 @@ class containerFix{
 
 
 public:
-    Point offset=Point(0);
-    std::unique_ptr<Grid> G = nullptr;
+    Point lower=Point(0);
+    Point upper=Point(0);
+    std::unique_ptr<Grid> G = std::make_unique<Grid>();
     qTbale_dict q = std::make_unique<unordered_map<u_int64_t ,arr>>();
-    containerFix(){cout<<"build containerFix"<<endl;}
-    containerFix(const containerFix& other) {}
-    containerFix(containerFix&& other) noexcept {}
-
+    //containerFix(){cout<<"[containerFix] constructor"<<endl;}
 };
 
 

@@ -33,7 +33,7 @@ public:
         _agnet->doAction(s);
 
         //apply action
-        apply_action_actual_state(s);
+       // apply_action_actual_state(s);
 
     }
 
@@ -66,13 +66,18 @@ public:
         update_stack();
         retrun_dict(obj);
     }
-    void change_abstrct_point(const Point& offset,const Point& abs)
+    void change_abstrct_point(const Point& offset,const Point& abs,const Point& win)
     {
-        get_RtdpAlgo()->abstract=true;
-        get_RtdpAlgo()->abs=abs;
-        get_RtdpAlgo()->offset=offset;
-
-
+        auto ptrPolicy = get_RtdpAlgo();
+        ptrPolicy->abstract=true;
+        ptrPolicy->abs=abs;
+        ptrPolicy->offset=offset;
+        ptrPolicy->window=win;
+        ptrPolicy->setStochasticMovement(1.0/abs[0]);
+    }
+    void set_offset(const Point& offset_point)
+    {
+        get_RtdpAlgo()->offset=offset_point;
     }
 private:
     RtdpAlgo* get_RtdpAlgo()
