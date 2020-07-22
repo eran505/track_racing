@@ -29,7 +29,7 @@
 
 #include "learning/ReplayBuffer/SumTree.hpp"
 #include "learning/ReplayBuffer/prioritizedExperienceReplay.hpp"
-#define GOT_HERE std::cout << "At " __FILE__ ": " << __LINE__ << std::endl
+
 const char *  getConfigPath(int argc, char** argv);
 Grid * init_grid(configGame &conf);
 MdpPlaner* init_mdp(Grid *g, configGame &conf);
@@ -56,7 +56,7 @@ void getConfigPath(int argc, char** argv,configGame &conf);
  * 5. crate trans only for one branch, its dep only on pos_speed bad agent
  *
  */
-using namespace std::chrono;
+//using namespace std::chrono;
 #include <cassert>
 #include <iostream>
 #include <string>
@@ -67,9 +67,9 @@ typedef unsigned long ulong;
 int main(int argc, char** argv) {
     GOT_HERE;
     auto dict_argv = parser(argv,argc);
-    int seed = 1594198815;//1594198815;
+    int seed = 1595423128;//1594198815;
 
-    //seed = int( time(nullptr));
+    seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
     auto arrPAth = splitStr(getExePath(),"/");
@@ -78,9 +78,8 @@ int main(int argc, char** argv) {
     home = sep+home;
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
-    auto pathCsvConfig = getConfigPath(argc,argv);
     string pathCsv;
-    pathCsv  = home + "/car_model/config/vcon16.csv";
+    pathCsv  = home + "/car_model/config/con16.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -98,7 +97,7 @@ int main(int argc, char** argv) {
         configGame conf(row,seed);
         conf.inset_data(parser(argv,argc));
         srand(conf._seed);
-        //conf.initRandomNoise(); // inset random noise (-1,1) XY
+        conf.initRandomNoise(); // inset random noise (-1,1) XY
         conf.home=home;
         cout<<"seed:\t"<<conf._seed<<endl;
         cout<<"evla_mode:\t"<<conf.eval_mode<<endl;
@@ -381,14 +380,7 @@ vector<vector<string>> readConfigFile(string &filePath){
 
     return rowsCsv;
 }
-const char *  getConfigPath(int argc, char** argv)
-{
-    return nullptr;
-    if(argc==1)
-        return nullptr;
-    else
-        return argv[1];
-}
+
 void getConfigPath(int argc, char** argv,configGame &conf)
 {
     if(argc>1)

@@ -9,7 +9,9 @@
 #include "Policy.hpp"
 #include "Agent.hpp"
 #include "fixManager.hpp"
+#include "util/saver.hpp"
 #define DEBUGING
+#define STR_HOME_DIR "/car_model/out/"
 struct Randomizer{
 public:
     std::default_random_engine generator;
@@ -34,6 +36,8 @@ namespace info{
 class fixSimulation{
 
     //Grid _g;
+    u_int64_t iterations=0;
+    u_int32_t ctr=0;
     std::vector<u_int64_t > info = vector<u_int64_t>(4);
     std::unique_ptr<Agent> _attacker;
     std::shared_ptr<Agent> _defender;
@@ -41,18 +45,21 @@ class fixSimulation{
     fixManager _manager;
     std::unique_ptr<Randomizer> random_object= nullptr;
     Grid *g= nullptr;
+    Saver<string> file_manger;
 public:
     fixSimulation(configGame &conf,Policy *policyA,Policy *policyD,std::vector<weightedPosition>& listPointAttacker
     ,std::vector<weightedPosition>& listPointDefender,std::vector<pair<Point,Point>> &levels,State *s):
     _attacker(std::make_unique<Agent>(listPointAttacker,adversary,1)),
     _defender(std::make_unique<Agent>(listPointDefender,gurd,1)),
     _state(std::make_unique<State>(*s)),random_object(std::make_unique<Randomizer>(conf._seed))
+    ,file_manger(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+".csv",10)
     {
         _attacker->setPolicy(policyA);
         _defender->setPolicy(policyD);
         g=_state->g_grid;
         _manager = fixManager(conf,std::move(levels),_defender,_state.get());
-
+        file_manger.set_header({"Collision","Wall" ,"Goal" ,"PassBy"
+                                ,"Down0","Down1","Down2","key0","key1","key2"});
     }
     void main_loop()
     {
@@ -146,7 +153,12 @@ private:
         this->reset_state();
 
     }
-    static bool is_converage() {return false;}
+    bool is_converage() const
+    {
+        if(iterations>50000)
+            return true;
+        return false;
+    }
     void reset_state(){
         auto [pPos,sSpeed] = this->_defender->get_pos(this->random_object->get_double());
         setPosSpeed(sSpeed,pPos,this->_defender->get_id());
@@ -162,12 +174,36 @@ private:
     }
     void print_info()
     {
+        iterations++;
         _manager.get_ctr_insetrtion();
         cout<<"Coll: "<<this->info[info::CollId]<<"\t";
         cout<<"Wall: "<<this->info[info::WallId]<<"\t";
         cout<<"Goal: "<<this->info[info::GoalId]<<"\t";
         cout<<"PassBy: "<<this->info[info::OpenId]<<"\t";
         cout<<endl;
+        save_data();
+
+    }
+    void save_data()
+    {
+        ctr++;
+        if(ctr%1000>0)
+            return;
+        vector<u_int32_t> x;
+        for(auto item:info)
+            x.emplace_back(item);
+        file_manger.inset_data(x);
+        file_manger.inset_data(_manager.get_info_down_ctr());
+        file_manger.inset_data(_manager.get_info_keyz());
+        file_manger.inset_endLine();
+        clear_data();
+    }
+    void clear_data()
+    {
+        for(unsigned long & j : info)j=0;
+        auto &vec = _manager.get_info_down_ctr();
+        std::for_each(vec.begin(),vec.end(),[&](auto &item){item=0;});
+
     }
 };
 

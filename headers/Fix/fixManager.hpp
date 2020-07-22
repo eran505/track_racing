@@ -23,11 +23,13 @@ class fixManager {
     agentAbs _defender;
     std::unique_ptr<State> _transform_state;
     Grid *G= nullptr;
+    std::vector<u_int32_t > down_scope_counter;
 public:
     fixManager(const configGame &conf, vector<pair<Point,Point>> &&levels,std::shared_ptr<Agent> &D,const State *s)
     : _fix_list(std::move(levels)),
     _defender(D),
-    _transform_state(std::make_unique<State>(*s))
+    _transform_state(std::make_unique<State>(*s)),
+    down_scope_counter(_fix_list.size())
     {
         #ifdef ASSERTME
         assert(assert_fix(conf.sizeGrid)); // fix can be dived the grid
@@ -35,6 +37,7 @@ public:
 
         make_levels(conf.sizeGrid,s);
         tranform_state_inital(s);
+
     }
     fixManager()= default;
     void make_levels(const Point &gridSize,const State *s) {
@@ -153,6 +156,7 @@ public:
         if(is_down)
         {
             cout<<"[down]"<<"\n";
+            down_scope_counter[_level_index-1]+=1;
         }
         sOriginal->g_grid=G;
         if(!is_down and !is_up)
@@ -230,6 +234,16 @@ public:
         }
         cout<<endl;
     }
+    std::vector<u_int32_t> get_info_keyz()
+    {
+        std::vector<u_int32_t> keyz;
+        for(size_t i=0;i<_levels.size();++i)
+        {
+            keyz.push_back(this->_levels[i].get_key());
+        }
+        return keyz;
+    }
+    std::vector<u_int32_t>& get_info_down_ctr(){return down_scope_counter;}
 };
 
 

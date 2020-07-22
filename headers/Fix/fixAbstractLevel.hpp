@@ -98,6 +98,7 @@ public:
         return obj->second;
 
     }
+    u_int32_t get_key()const{return _key;}
     bool is_collison(const Point &a,const Point &d)
     {
         Point abs_a = a/this->_mini_gird_size;

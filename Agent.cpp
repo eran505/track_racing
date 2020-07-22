@@ -53,7 +53,7 @@ void Agent::doAction(State *s) {
     this->my_Policy->applyActionToState(s, &lastAction);
 
     this->is_wall=my_Policy->is_wall;
-    //cout<<s->to_string_state()<<endl;
+
 }
 
 
