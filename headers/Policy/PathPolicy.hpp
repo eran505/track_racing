@@ -20,7 +20,7 @@ class PathPolicy:public Policy{
     vector<Point> midVec;
 
     bool dont_del=false;
-    u_int64_t getAgentSateHash(State *s);
+    //u_int64_t getAgentSateHash(const State *s);
 public:
     void set_dontDel(bool b){dont_del=b;}
     [[nodiscard]] auto get_dictPolicy_size()const{return share_dictHashAction->size();}
@@ -120,7 +120,7 @@ public:
 
     void treeTraversal(State *ptrState, string &strIdExp, const Point *ab= nullptr);
 
-    u_int64_t getAgentSateHash(const State *s);
+    u_int64_t getAgentSateHash(const State *s)const;
 };
 
 
@@ -167,7 +167,7 @@ const std::vector<double> *PathPolicy::TransitionAction(const State *s) {
 
 }
 
-u_int64_t PathPolicy::getAgentSateHash(const State *s) {
+u_int64_t PathPolicy::getAgentSateHash(const State *s)const {
     //cout<<s->to_string_state()<<endl;
     auto hSpeed = s->get_speed(this->id_agent).hashConst(Point::maxSpeed);
     auto hPos = s->get_position_ref(this->id_agent).hashConst();
