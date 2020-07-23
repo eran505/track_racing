@@ -108,7 +108,7 @@ public:
     };
     void reset_policy() override{};
     void policy_data() const override{};
-    const std::vector<double>* TransitionAction(State*) override;
+    const std::vector<double>* TransitionAction(const State*) override;
     void normalizeDict();
 
 
@@ -119,6 +119,8 @@ public:
     void policyDataAbstract(const string &strId, const Point& ab);
 
     void treeTraversal(State *ptrState, string &strIdExp, const Point *ab= nullptr);
+
+    u_int64_t getAgentSateHash(const State *s);
 };
 
 
@@ -152,7 +154,7 @@ Point PathPolicy::get_action(State *s) {
 
 }
 
-const std::vector<double> *PathPolicy::TransitionAction(State *s) {
+const std::vector<double> *PathPolicy::TransitionAction(const State *s) {
     /* first  - action
      * second - probabilitiy*/
     //cout<<s->to_string_state()<<endl;
@@ -165,7 +167,7 @@ const std::vector<double> *PathPolicy::TransitionAction(State *s) {
 
 }
 
-u_int64_t PathPolicy::getAgentSateHash(State *s) {
+u_int64_t PathPolicy::getAgentSateHash(const State *s) {
     //cout<<s->to_string_state()<<endl;
     auto hSpeed = s->get_speed(this->id_agent).hashConst(Point::maxSpeed);
     auto hPos = s->get_position_ref(this->id_agent).hashConst();

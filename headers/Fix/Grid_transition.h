@@ -173,6 +173,10 @@ private:
         get_intersection(A,D,l);
         if(l.empty())
             return -1;
+        cout<<"intersection {";
+        std::for_each(l.begin(),l.end(),[](auto x){cout<<","<<x;});
+        cout<<"}";
+        cout<<endl;
         return *std::max_element(l.begin(),l.end());
     }
     int get_min_intersection(const Point& A, const Point& D)

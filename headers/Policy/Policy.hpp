@@ -39,7 +39,7 @@ public:
         distribution = std::uniform_real_distribution<double>(0.0,1.0);
 
     }
-    const string& get_id_name(){ return id_agent;}
+    [[nodiscard]] const string& get_id_name()const{ return id_agent;}
     const string& GetId(){ return id_agent;}
     double getRandom(){return distribution(generator);}
 
@@ -60,28 +60,30 @@ public:
     virtual void learnRest(){};
     virtual void policy_data()const=0;
     virtual bool isInPolicy(const State *s)const{return true;}
-    virtual const vector<double >* TransitionAction(State *s)=0;
+    virtual const vector<double >* TransitionAction(const State *s)=0;
     void add_tran(Policy *ptr_tran)
     {
         this->tran.push_back(ptr_tran);
         if((tran).size()==1)
             cashID=tran[0]->id_agent;
     }
-    void applyActionToState(State *my_state, Point *action ){
+    void applyActionToState(State *my_state, const Point &action )const{
         // change the budget according the budget function
         this->budgetFunc(my_state, action);
 
         // append the prvoious speed to the new action
-        this->is_wall = my_state->applyAction(this->get_id_name(),*action,this->max_speed);
-
-
+        my_state->applyAction(this->get_id_name(),action,this->max_speed);
     }
-    void budgetFunc(State *state_now, Point *action){
+    void budgetFunc(State *state_now, const Point &action) const{
         //some calc
         auto new_budget = (state_now->get_budget(id_agent));
         state_now->set_budget(id_agent,new_budget);
     }
+    State* apply_action_state(State *my_state, const Point &action )const{
 
+        my_state->applyAction(this->get_id_name(),action,this->max_speed);
+        return my_state;
+    }
 };
 
 

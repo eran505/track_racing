@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
     auto dict_argv = parser(argv,argc);
     int seed = 1595423128;//1594198815;
 
-    seed = int( time(nullptr));
+    //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
     auto arrPAth = splitStr(getExePath(),"/");

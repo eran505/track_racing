@@ -56,7 +56,7 @@ public:
     RTDP_util* getUtilRTDP(){return RTDP_util_object;}
     RtdpAlgo(int maxSpeedAgent, int grid_size, vector<pair<int,int>> &max_speed_and_budget,const string &agentID,string &home,dictionary &ptrDict,short miniGrid=0);
     Point get_action(State *s) override;
-    const vector<double >* TransitionAction(State *s) override ;
+    const vector<double >* TransitionAction(const State *s) override ;
     void reset_policy() override;
     void policy_data() const override;
     std::tuple<double,bool> EvalState2(State *s);

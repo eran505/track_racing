@@ -37,7 +37,7 @@ void RtdpAlgo::reset_policy() {
 }
 
 
-const vector<double >* RtdpAlgo::TransitionAction(State *s)
+const vector<double >* RtdpAlgo::TransitionAction(const State *s)
 {
 
     return this->RTDP_util_object->get_probabilty(s);
@@ -127,14 +127,14 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
     }
 
 
-    this->applyActionToState(stateCur, &action);
+    this->applyActionToState(stateCur, action);
     if(_stochasticMovement!=1)
     {
         auto zeroState = new State(*s);
         this->transform_abstraction_D(zeroState);
         //auto slideAction = s->get_speed(this->id_agent)*-1;
         auto slideAction=Point(0);
-        this->applyActionToState(zeroState,&slideAction);
+        this->applyActionToState(zeroState,slideAction);
         state_tran_q.emplace_back(zeroState,1-_stochasticMovement);
         state_tran_q.emplace_back(stateCur,_stochasticMovement);
 
@@ -142,11 +142,6 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
         state_tran_q.emplace_back(stateCur,1);
     }
 
-    // is wall
-    if (this->is_wall == true)
-    {
-        //do something
-    }
 
     for (Policy *item_policy: tran)
     {
@@ -168,7 +163,7 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
                     throw std::invalid_argument("Action index is invalid");;
                 } else {
                     Point *actionI = pos->second;
-                    item_policy->applyActionToState(new_state,actionI);
+                    item_policy->applyActionToState(new_state,*actionI);
 
                     this->abstraction_expnd(new_state);
 
