@@ -26,7 +26,7 @@
 #include "Fix/fixSimulation.hpp"
 #include <headers/util/csvfile.hpp>
 //#include <torch/script.h> // One-stop header.
-
+#include "MultiAction/Simulator.hpp"
 #include "learning/ReplayBuffer/SumTree.hpp"
 #include "learning/ReplayBuffer/prioritizedExperienceReplay.hpp"
 
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/car_model/config/vcon16.csv";
+    pathCsv  = home + "/car_model/config/con64.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -186,10 +186,10 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 
 
     auto* pA1 = new Agent(listPointAttacker
-            ,adversary,10);
+            ,adversary,0);
 
     auto* pD2 = new Agent(listPointDefender
-            ,gurd,10);
+            ,gurd,0);
 
 
     ////////PATH POLICY///////////
@@ -279,7 +279,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     pD2->setPolicy(RTDP);
     auto *rtdp_ptr = dynamic_cast <RtdpAlgo*>(RTDP);
     rtdp_ptr->init_expder();
-    //FixAbstGame(conf,pGridPath,RTDP,listPointAttacker,listPointDefender,s->get_cur_state());
+    FixAbstGame(conf,pGridPath,RTDP,listPointAttacker,listPointDefender,s->get_cur_state());
     return s;
 }
 
@@ -296,7 +296,7 @@ void FixAbstGame(configGame &conf, Policy* policyA,Policy *policyD, std::vector<
 
 
 
-    auto sim = fixSimulation(conf, policyA,policyD, listPointAttacker, listPointDef,vec,s);
+    auto sim = SimulationGame(conf, policyA,policyD, listPointAttacker, listPointDef,s,3);
     sim.main_loop();
     exit(0);
 }

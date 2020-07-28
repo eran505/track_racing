@@ -69,15 +69,14 @@ public:
     }
     void applyActionToState(State *my_state, const Point &action )const{
         // change the budget according the budget function
-        this->budgetFunc(my_state, action);
+        //this->budgetFunc(my_state, action);
 
         // append the prvoious speed to the new action
         my_state->applyAction(this->get_id_name(),action,this->max_speed);
     }
     void budgetFunc(State *state_now, const Point &action) const{
-        //some calc
-        auto new_budget = (state_now->get_budget(id_agent));
-        state_now->set_budget(id_agent,new_budget);
+
+
     }
     State* apply_action_state(State *my_state, const Point &action )const{
 

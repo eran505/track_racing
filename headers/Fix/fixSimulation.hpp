@@ -12,26 +12,7 @@
 #include "util/saver.hpp"
 #define DEBUGING
 #define STR_HOME_DIR "/car_model/out/"
-struct Randomizer{
-public:
-    std::default_random_engine generator;
-    std::uniform_real_distribution<double> distribution;
-    explicit Randomizer(int seed):
-            generator(seed),
-            distribution(0.0,1.0)
-    {
-
-    }
-    double get_double(){return this->distribution(this->generator);}
-};
-
-namespace info{
-    enum info : short{
-        CollId=0,WallId=1,GoalId=2,OpenId=3,Size=4,
-    };
-
-
-}
+#include "MultiAction/Simulator.hpp"
 
 class fixSimulation{
 

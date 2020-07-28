@@ -30,13 +30,10 @@ class ActionExpnder{
     std::function <void(tuple_state &tuple_s,const Point &a)> stochastic_expander;
     vector<pair<State*,double>> list_state_expnaded;
 
-    Scheduler _scheduler;
-
 
 public:
     ActionExpnder(double stochasticMovement,vector<Policy*>& tran,Policy *my_poly):
     my_policy(my_poly)
-    ,_scheduler(my_poly->id_agent,my_poly->cashID,2)
     {
         set_stochasticMovement(stochasticMovement);
         this->other_policies=tran;
@@ -54,9 +51,9 @@ public:
     void set_seq_action(int num){_action_seq=num;}
     vector<pair<State*,double>>& expnad_state(const State *s,const Point &a)
     {
-
+        set_seq_action_by_state(s);
         stack.emplace_back(new State(*s), 1.0, false);
-        for(short i=_action_seq;i>0;--i)
+        for(short i=_action_seq;i>=0;--i)
         {
             std::for_each(stack.begin(),stack.end(),[&](tuple_state &item){stochastic_expander(item,a);});
             //print_stack(stack);
@@ -93,7 +90,11 @@ private:
     {
         for(auto &item:stack) item.is_end_state=condtion_game(item.state);
     }
-
+    void set_seq_action_by_state(const State *s)
+    {
+        auto seq = s->budget_dict.at(this->my_policy->id_agent);
+        this->_action_seq=seq;
+    }
     //TODO: why do i get error here?
     void expand_other()
     {

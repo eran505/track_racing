@@ -36,6 +36,7 @@ void RtdpAlgo::set_mode_agent(int miniGrid)
 
 void RtdpAlgo::reset_policy() {
     this->empty_stack_update();
+    this->evaluator->reset(this->getUtilRTDP());
     Policy::reset_policy();
 }
 
@@ -49,13 +50,7 @@ const vector<double >* RtdpAlgo::TransitionAction(const State *s)
 Point RtdpAlgo::get_action(State *s)
 {
     //return the argmax action in the given state row
-    Point action;
-    if(abstract)
-    {
-        State tmp = transform_abstraction_DA(s);
-        action = this->RTDP_util_object->get_argmx_action(&tmp);
-    }
-    else action = this->RTDP_util_object->get_argmx_action(s);
+    Point action = this->RTDP_util_object->get_argmx_action(s);
 
     if (this->evalPolicy)
     {
@@ -79,7 +74,7 @@ Point RtdpAlgo::get_action(State *s)
     //update state action
     // set the max speed in the Z coordinate at the when taking off
     //inset to stack for backup update
-    this->inset_to_stack(s,action,entry);
+    //this->inset_to_stack(s,action,entry);
 
 
     if (!s->takeOff)

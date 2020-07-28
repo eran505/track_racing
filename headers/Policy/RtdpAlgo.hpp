@@ -11,12 +11,13 @@
 #include <deque>
 #include "Update_RTDP/Reward.hpp"
 #include "Update_RTDP/ActionExpnder.hpp"
+#include "MultiAction/EvaluatorActionizer.hpp"
 typedef shared_ptr<unordered_map<string,string>> dictionary;
 typedef unordered_map<u_int64_t ,double> rewardMap ;
 class RtdpAlgo : public Policy{
 protected:
     std::unique_ptr<ActionExpnder> expnder = nullptr ;
-    std::unique_ptr<Evaluator> evaluator= nullptr;
+    std::unique_ptr<EvaluatorActionzer> evaluator= nullptr;
     Rewards R= Rewards::getRewards();
     std::unique_ptr<rewardMap>  rewardDict = std::make_unique<rewardMap>();
     u_int64_t ctrInFun=0;
@@ -72,9 +73,13 @@ public:
     void set_expder(int m){this->expnder->set_seq_action(m);}
     void init_expder(){
         expnder=std::make_unique<ActionExpnder>(_stochasticMovement,tran,this);
-        evaluator = std::make_unique<Evaluator>(this->get_id_name(),cashID,RTDP_util_object);
+        evaluator = std::make_unique<EvaluatorActionzer>(this->get_id_name(),cashID,RTDP_util_object);
         evaluator->set_stack(stackStateActionIdx);
     }
+
+    const auto get_evaluator()const{ return evaluator.get();}
+    const auto get_expnder()const{ return expnder.get();}
+
     void insetRewardMap(u_int64_t hashKey, double reward){
         auto ok = this->rewardDict->insert({hashKey,reward}).second;
         if(!ok)

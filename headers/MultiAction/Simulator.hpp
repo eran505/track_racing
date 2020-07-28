@@ -11,6 +11,8 @@
 #include "Policy.hpp"
 #include "Agent.hpp"
 #include "util/saver.hpp"
+#include "Scheduler.hpp"
+#include "Policy/RtdpAlgo.hpp"
 #define DEBUGING
 #define STR_HOME_DIR "/car_model/out/"
 struct Randomizer{
@@ -34,7 +36,7 @@ namespace info{
 
 }
 
-class fixSimulation{
+class SimulationGame{
 
     //Grid _g;
     u_int64_t iterations=0;
@@ -43,30 +45,35 @@ class fixSimulation{
     std::unique_ptr<Agent> _attacker;
     std::shared_ptr<Agent> _defender;
     std::unique_ptr<State> _state;
-
+    int last_mode=-1;
     std::unique_ptr<Randomizer> random_object= nullptr;
     Grid *g= nullptr;
     Saver<string> file_manger;
+    int seq_max_action=0;
 public:
-    fixSimulation(configGame &conf,Policy *policyA,Policy *policyD,std::vector<weightedPosition>& listPointAttacker
-            ,std::vector<weightedPosition>& listPointDefender,std::vector<pair<Point,Point>> &levels,State *s):
+    SimulationGame(configGame &conf,Policy *policyA,Policy *policyD,std::vector<weightedPosition>& listPointAttacker
+            ,std::vector<weightedPosition>& listPointDefender,State *s,int levels=3):
             _attacker(std::make_unique<Agent>(listPointAttacker,adversary,1)),
             _defender(std::make_unique<Agent>(listPointDefender,gurd,1)),
             _state(std::make_unique<State>(*s)),random_object(std::make_unique<Randomizer>(conf._seed))
             ,file_manger(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+".csv",10)
+            ,seq_max_action(levels)
     {
         _attacker->setPolicy(policyA);
         _defender->setPolicy(policyD);
         g=_state->g_grid;
         file_manger.set_header({"Collision","Wall" ,"Goal" ,"PassBy"
                                        ,"Down0","Down1","Down2","key0","key1","key2"});
+
     }
     void main_loop()
     {
-        cout<<"[real] "<<_state->to_string_state()<<endl;
+
         while(true)
         {
             reset();
+
+            cout<<"[real] "<<_state->to_string_state()<<endl;
             while(true)
             {
                 if(loop())
@@ -80,19 +87,45 @@ public:
     }
     bool loop()
     {
+        change_abstraction();
+        cout<<"[real] "<<_state->to_string_state()<<"[MultiAction: "<<last_mode<<"]"<<endl;
 
-        _defender->doAction(_state.get());
+        do_action_defender();
 
-        _attacker->doAction(_state.get());
+        bool is_end_game = attcker_do_action();
 
-        return check_condtion();
+        return is_end_game;
     }
+
 private:
+
+    void do_action_defender()
+    {
+        _defender->doAction(_state.get());
+        int ctrLocal=0;
+        while(true)
+        {
+            //cout<<"[real] "<<_state->to_string_state()<<"[MultiAction: "<<last_mode<<"]"<<endl;
+            if(last_mode <= ctrLocal)
+                break;
+            _defender->getPolicy()->apply_action_state(_state.get(),_defender->lastAction);
+            ctrLocal++;
+        }
+    }
+    bool attcker_do_action()
+    {
+        for(int i=0;i<=last_mode;++i)
+        {
+            _attacker->doAction(_state.get());
+            //cout<<"[real] "<<_state->to_string_state()<<"[MultiAction: "<<last_mode<<"]"<<endl;
+            if(check_condtion())
+                return true;
+        }
+        return false;
+    }
     inline void set_grid(){_state->g_grid=g;}
     bool check_condtion()
     {
-        cout<<"[real] "<<_state->to_string_state()<<endl;
-        set_grid();
         const Point& pos_A = this->_state->get_position_ref(this->_attacker->get_id());
         const Point& pos_D = this->_state->get_position_ref(this->_defender->get_id());
 
@@ -114,6 +147,7 @@ private:
             info[info::CollId]++;
             return true;
         }
+
         for(int i=0;i<pos_A.capacity;++i)
             if((pos_A[i]>pos_D[i]))
             {
@@ -138,16 +172,21 @@ private:
         return _state->g_grid->get_goal_reward(pos_A)>=0;
     }
 
-
+    void set_mode_abstract()
+    {
+        last_mode =  _state->get_budget(_defender->get_id());
+    }
     void reset()
     {
 
         _attacker.get()->rest();
         this->reset_state();
+        _defender->rest();
+        set_mode_abstract();
     }
     bool is_converage() const
     {
-        if(iterations>50000)
+        if(iterations>50000000)
             return true;
         return false;
     }
@@ -157,6 +196,8 @@ private:
 
         auto posSpeed = this->_attacker->get_pos(this->random_object->get_double());
         setPosSpeed(posSpeed.second,posSpeed.first,this->_attacker->get_id());
+        _state->set_budget(this->_defender->get_id(),seq_max_action-1);
+        //assert(_state->get_budget(_defender->get_id())<2);
     }
     void setPosSpeed(const Point &sSpeed,const Point &pPos,const string &id_str)
     {
@@ -185,6 +226,13 @@ private:
             x.emplace_back(item);
         file_manger.inset_data(x);
         file_manger.inset_endLine();
+    }
+    void change_abstraction()
+    {
+        RtdpAlgo *ptr = dynamic_cast<RtdpAlgo*>(_defender->getPolicyInt());
+        bool b = ptr->get_evaluator()->change_scope_(_state.get());
+        if(b)
+            set_mode_abstract();
     }
 };
 

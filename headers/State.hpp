@@ -32,7 +32,7 @@ public:
     void getAllPos(vector<Point> &vec,const Point &abstractPoint)const;
     void getAllPos(vector<Point> &vec)const;
     void set_budget(const string& name_id,int budget_m){budget_dict[name_id]=budget_m;}
-    int get_budget(const string& name_id)const { return 10;} //#TODO: change it when using budget
+    int get_budget(const string& name_id)const {return this->budget_dict.at(name_id);} //#TODO: change it when using budget
     void set_speed(const string& name_id,const Point& speed_m){speed_dict[name_id]=speed_m;}
     [[nodiscard]] Point get_speed(const string& name_id)const{return speed_dict.at( name_id);}
     void set_position(const string& name_id,const Point& pos_m){pos_dict[name_id]=pos_m;}
