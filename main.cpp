@@ -67,7 +67,7 @@ typedef unsigned long ulong;
 int main(int argc, char** argv) {
     GOT_HERE;
     auto dict_argv = parser(argv,argc);
-    int seed = 1595423128;//1594198815;
+    int seed = 1595421605;//1594198815;
 
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/car_model/config/con16.csv";
+    pathCsv  = home + "/car_model/config/vcon16.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
         configGame conf(row,seed);
         conf.inset_data(parser(argv,argc));
         srand(conf._seed);
-        conf.initRandomNoise(); // inset random noise (-1,1) XY
+        //conf.initRandomNoise(); // inset random noise (-1,1) XY
         conf.home=home;
         cout<<"seed:\t"<<conf._seed<<endl;
         cout<<"evla_mode:\t"<<conf.eval_mode<<endl;
@@ -277,8 +277,9 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);
     pD2->setPolicy(RTDP);
-
-    FixAbstGame(conf,pGridPath,RTDP,listPointAttacker,listPointDefender,s->get_cur_state());
+    auto *rtdp_ptr = dynamic_cast <RtdpAlgo*>(RTDP);
+    rtdp_ptr->init_expder();
+    //FixAbstGame(conf,pGridPath,RTDP,listPointAttacker,listPointDefender,s->get_cur_state());
     return s;
 }
 

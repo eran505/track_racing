@@ -62,9 +62,9 @@ State::State(const State &other) {
     }
     this->g_grid=other.g_grid;
 }
-bool State::is_collusion(string &id_player,string &op_player)
+bool State::is_collusion(string &id_player,string &op_player)const
 {
-    if(this->pos_dict[id_player]==this->pos_dict[op_player])
+    if(this->pos_dict.at(id_player)==this->pos_dict.at(op_player))
         return true;
     else
         return false;
@@ -115,7 +115,7 @@ set<string> State::is_collusion() {
 
 
 
-double State::isGoal(string &idStr) {
+double State::isGoal(string &idStr)const {
     const auto& pos = this->get_position_ref(idStr);
     return this->g_grid->get_goal_reward(pos);
 }

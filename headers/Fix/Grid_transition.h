@@ -5,6 +5,7 @@
 #ifndef TRACK_RACING_GRID_TRANSITION_H
 #define TRACK_RACING_GRID_TRANSITION_H
 #include "util_game.hpp"
+#include <cassert>
 
 typedef pair<u_int64_t,pair<Point,Point>> grid_info;
 class GridTransition{

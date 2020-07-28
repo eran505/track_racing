@@ -4,26 +4,29 @@
 
 #ifndef TRACK_RACING_RTDPALGO_HPP
 #define TRACK_RACING_RTDPALGO_HPP
-
+#include "Update_RTDP/Vanilla.hpp"
 #include "RTDP_util.hpp"
 #include "Policy/Policy.hpp"
+#include "Update_RTDP/Evaluator.hpp"
 #include <deque>
+#include "Update_RTDP/Reward.hpp"
+#include "Update_RTDP/ActionExpnder.hpp"
 typedef shared_ptr<unordered_map<string,string>> dictionary;
 typedef unordered_map<u_int64_t ,double> rewardMap ;
 class RtdpAlgo : public Policy{
 protected:
+    std::unique_ptr<ActionExpnder> expnder = nullptr ;
+    std::unique_ptr<Evaluator> evaluator= nullptr;
+    Rewards R= Rewards::getRewards();
     std::unique_ptr<rewardMap>  rewardDict = std::make_unique<rewardMap>();
     u_int64_t ctrInFun=0;
-    double CollReward = 1;
-    double GoalReward = -1;
-    double WallReward = -10;
     Point zero_action=Point(0);
     int ctr_stack=0;
     u_int32_t zeroIndexAction = Point(0).hashMeAction(Point::actionMax);
     double _stochasticMovement=1;
     std::unique_ptr<Point>  ZeroAction = std::make_unique<Point>(0,0,0);
     RTDP_util *RTDP_util_object;
-    vector<pair<State,pair<u_int64_t,int>>> stackStateActionIdx;
+    std::shared_ptr<vector<pair<State,pair<u_int64_t,int>>>>  stackStateActionIdx;
     std::function <std::tuple<double,bool>(State *s)> evaluationState;
     double bellman_update(State *s,Point &action);
     double UpdateCalc(const vector <pair<State*,double>>& state_tran_q);
@@ -42,11 +45,12 @@ public:
     {
         _stochasticMovement=m;
         this->RTDP_util_object->setStochasticMovement(m);
+        this->expnder->set_stochasticMovement(m);
     }
     [[nodiscard]] double getStochasticMovement() const{ return _stochasticMovement;}
-    [[nodiscard]] double getRewardColl() const{ return CollReward;}
-    [[nodiscard]] double getGoalReward() const{ return GoalReward;}
-    [[nodiscard]] double getWallReward() const{ return WallReward;}
+    [[nodiscard]] double getRewardColl() const{ return R.CollReward;}
+    [[nodiscard]] double getGoalReward() const{ return R.GoalReward;}
+    [[nodiscard]] double getWallReward() const{ return R.WallReward;}
     ~RtdpAlgo() override
     {
         cout<<"del RTDP"<<endl;
@@ -65,7 +69,12 @@ public:
         tuple<double,bool> EvalState3(State *s);
     [[nodiscard]] Point get_lastPos() const;
     bool stoMove();
-
+    void set_expder(int m){this->expnder->set_seq_action(m);}
+    void init_expder(){
+        expnder=std::make_unique<ActionExpnder>(_stochasticMovement,tran,this);
+        evaluator = std::make_unique<Evaluator>(this->get_id_name(),cashID,RTDP_util_object);
+        evaluator->set_stack(stackStateActionIdx);
+    }
     void insetRewardMap(u_int64_t hashKey, double reward){
         auto ok = this->rewardDict->insert({hashKey,reward}).second;
         if(!ok)

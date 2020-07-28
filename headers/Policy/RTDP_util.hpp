@@ -15,7 +15,7 @@
 #include <utility>
 #include "Policy.hpp"
 #define VECTOR
-
+#include "Update_RTDP/Reward.hpp"
 
 typedef u_int64_t keyItem;
 typedef double cell;
@@ -35,6 +35,7 @@ protected:
     double _stochasticMovement=1;
     u_int64_t update_counter=0;
     vector<Policy*> *lTran= nullptr;
+    Rewards R = Rewards::getRewards();
     unordered_map<keyItem,string> debugDict;
     const string home;
     std::function<u_int64_t (const State*)> HashFuction;
@@ -45,7 +46,6 @@ protected:
     int size_Q;
     int size_mapAction;
     unordered_map<int,Point*>* hashActionMap;
-    double collReward=1;double goalReward=-1;double wallReward=-10;
     void heuristic(const State *s,keyItem entry_index);
     cell compute_h(State *s);
 

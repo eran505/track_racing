@@ -24,7 +24,7 @@ public:
 
     void assignment( State &other);
     void assignment(const State &other, const string &id);
-    double isGoal(string &idStr);
+    double isGoal(string &idStr)const;
     bool isEndState(std::string &idStr);
     //Setters and Getters
 
@@ -41,7 +41,7 @@ public:
     set<string> is_collusion();
     virtual bool applyAction(const string &id, const Point &action, int max_speed);
     list<string> is_collusion(string &id_player);
-    bool is_collusion(string &id_player,string &op_player);
+    bool is_collusion(string &id_player,string &op_player)const;
     void getAllPosOpponent(vector<Point> &results,char team);
     std::ostream& operator<<(std::ostream &strm) {
         return strm <<this->to_string_state();

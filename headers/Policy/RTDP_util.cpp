@@ -25,13 +25,13 @@ RTDP_util::RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget,s
 double RTDP_util::applyNonAction(const State *s)
 {
     if(_stochasticMovement==1)
-        return collReward;
+        return R.CollReward;
     State oldState = State(*s);
     Point p(0);
     bool isWall = this->apply_action(&oldState,my_policy->id_agent,p,my_policy->max_speed);
     if(isWall)
-        return wallReward;
-    return collReward;
+        return R.WallReward;
+    return R.CollReward;
 
 }
 
@@ -53,11 +53,11 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
 
         bool isWall = this->apply_action(oldState,my_policy->id_agent,*actionCur,my_policy->max_speed);
         if (isWall)
-            val = this->wallReward*discountFactor*this->_stochasticMovement+
+            val = this->R.WallReward*discountFactor*this->_stochasticMovement+
                     zero_move_reward*(1-this->_stochasticMovement);
         else{
             //val = this->compute_h(oldState);
-            val=this->collReward*discountFactor;
+            val=this->R.CollReward*discountFactor;
 //            if (s->takeOff == false)
 //            {
 //                val=10;
@@ -141,23 +141,21 @@ void RTDP_util::arg_max(arr &arr,vector<int>& listIdxs){
 
 
 int RTDP_util::get_state_argmax(const State *s) {
-    int argMax = -1;
+    //int argMax = -1;
     keyItem key = getStateKeyValue(s);
-    auto& row = this->get_Q_entry_values(s,key);
+    auto &row = this->get_Q_entry_values(s, key);
     vector<int> argMax_list;
-    arg_max(row,argMax_list);
-    int size = argMax_list.size();
-    if (size>1)
-    {
-        int idx = int(this->my_policy->getRandom()*size)%size;
-        //ctr_random = ++ctr_random%size;
-        argMax = argMax_list[idx];
-    } else
-        argMax = argMax_list[0];
-
+    arg_max(row, argMax_list);
     this->last_entry = key;
-
-    return argMax;
+    return argMax_list.front();
+    //int size = argMax_list.size();
+//    if (size>1)
+//    {
+//        int idx = int(this->my_policy->getRandom()*size)%size;
+//        //ctr_random = ++ctr_random%size;
+//        argMax = argMax_list[idx];
+//    } else
+//        argMax = argMax_list[0];
 }
 
 vector<double>* RTDP_util::get_probabilty(const State *s) {
@@ -226,7 +224,7 @@ double RTDP_util::compute_h(State *s) {
     min=min-max_speed;
     min = std::max(0.0,min);
     //min=min/double(this->my_policy->max_speed);
-    auto res = this->collReward*pow(discountFactor,min);
+    auto res = this->R.CollReward*pow(discountFactor,min);
     //debug
     //cout<<"h(<"<<s->to_string_state()<<")="<<res<<endl;
     return res;
