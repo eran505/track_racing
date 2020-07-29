@@ -95,6 +95,14 @@ public:
         }
         return true;
     }
+    bool operator<=(const Point &other)
+    {
+        for (int i = 0; i < this->capacity; ++i) {
+            if(other[i]<this->array[i])
+                return false;
+        }
+        return true;
+    }
     int sumPoint() const
     {
         int sum=0;

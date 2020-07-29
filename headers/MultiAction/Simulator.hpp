@@ -39,6 +39,7 @@ namespace info{
 class SimulationGame{
 
     //Grid _g;
+    u_int32_t NUMBER=1000;
     u_int64_t iterations=0;
     u_int32_t ctr=0;
     std::vector<u_int64_t > info = vector<u_int64_t>(4);
@@ -49,7 +50,9 @@ class SimulationGame{
     std::unique_ptr<Randomizer> random_object= nullptr;
     Grid *g= nullptr;
     Saver<string> file_manger;
+    Saver<string> trajectory_file;
     int seq_max_action=0;
+    Converager<5,std::vector<double>> converagerr;
 public:
     SimulationGame(configGame &conf,Policy *policyA,Policy *policyD,std::vector<weightedPosition>& listPointAttacker
             ,std::vector<weightedPosition>& listPointDefender,State *s,int levels=3):
@@ -57,15 +60,17 @@ public:
             _defender(std::make_unique<Agent>(listPointDefender,gurd,1)),
             _state(std::make_unique<State>(*s)),random_object(std::make_unique<Randomizer>(conf._seed))
             ,file_manger(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+".csv",10)
+            ,trajectory_file(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_Traj.csv",10000)
             ,seq_max_action(levels)
     {
         _attacker->setPolicy(policyA);
         _defender->setPolicy(policyD);
         g=_state->g_grid;
-        file_manger.set_header({"Collision","Wall" ,"Goal" ,"PassBy"
-                                       ,"Down0","Down1","Down2","key0","key1","key2"});
-
+        file_manger.set_header({"episodes","Collision","Wall" ,"Goal" ,"PassBy"});
+        trajectory_file.set_header({""})
+        converagerr.set_comparator(comper_vectors);
     }
+
     void main_loop()
     {
 
@@ -73,22 +78,22 @@ public:
         {
             reset();
 
-            cout<<"[real] "<<_state->to_string_state()<<endl;
+            //cout<<"[real] "<<_state->to_string_state()<<endl;
             while(true)
             {
                 if(loop())
                     break;
             }
+            //cout<<"END\n";
+            print_info();
             if(is_converage())
                 break;
-            cout<<"END\n";
-            print_info();
         }
     }
     bool loop()
     {
         change_abstraction();
-        cout<<"[real] "<<_state->to_string_state()<<"[MultiAction: "<<last_mode<<"]"<<endl;
+        //cout<<"[real] "<<_state->to_string_state()<<"[MultiAction: "<<last_mode<<"]"<<endl;
 
         do_action_defender();
 
@@ -184,9 +189,11 @@ private:
         _defender->rest();
         set_mode_abstract();
     }
-    bool is_converage() const
+    bool is_converage()const
     {
         if(iterations>50000000)
+            return true;
+        if(converagerr.is_converage())
             return true;
         return false;
     }
@@ -208,24 +215,30 @@ private:
     void print_info()
     {
         iterations++;
+        if(!save_data())
+            return;
+        cout<<"iterations: "<<iterations<<"\t";
         cout<<"Coll: "<<this->info[info::CollId]<<"\t";
         cout<<"Wall: "<<this->info[info::WallId]<<"\t";
         cout<<"Goal: "<<this->info[info::GoalId]<<"\t";
         cout<<"PassBy: "<<this->info[info::OpenId]<<"\t";
         cout<<endl;
-        save_data();
-
+        clear_info();
     }
-    void save_data()
+    bool save_data()
     {
         ctr++;
-        if(ctr%1000>0)
-            return;
-        vector<u_int32_t> x;
+        if(ctr%NUMBER>0)
+            return false;
+        vector<double> x;
+        x.emplace_back(iterations);
         for(auto item:info)
-            x.emplace_back(item);
+            x.emplace_back(item/double(NUMBER));
         file_manger.inset_data(x);
         file_manger.inset_endLine();
+        x.erase(x.begin());
+        converagerr.inset_elm(std::move(x));
+        return true;
     }
     void change_abstraction()
     {
@@ -233,6 +246,14 @@ private:
         bool b = ptr->get_evaluator()->change_scope_(_state.get());
         if(b)
             set_mode_abstract();
+    }
+    void clear_info(){std::for_each(info.begin(),info.end(),[](auto &item){item=0;});}
+
+    static bool comper_vectors(std::vector<double> x1,std::vector<double> x2)
+    {
+        for(int i=0;i<x1.size();++i)
+            if(x1[i]!=x2[i]) return false;
+        return true;
     }
 };
 

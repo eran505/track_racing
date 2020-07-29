@@ -51,6 +51,7 @@ public:
     void set_seq_action(int num){_action_seq=num;}
     vector<pair<State*,double>>& expnad_state(const State *s,const Point &a)
     {
+
         set_seq_action_by_state(s);
         stack.emplace_back(new State(*s), 1.0, false);
         for(short i=_action_seq;i>=0;--i)

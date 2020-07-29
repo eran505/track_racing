@@ -12,12 +12,15 @@
 #include "Update_RTDP/Reward.hpp"
 #include "Update_RTDP/ActionExpnder.hpp"
 #include "MultiAction/EvaluatorActionizer.hpp"
+#include "MultiAction/StackAction.hpp"
 typedef shared_ptr<unordered_map<string,string>> dictionary;
 typedef unordered_map<u_int64_t ,double> rewardMap ;
+
 class RtdpAlgo : public Policy{
 protected:
     std::unique_ptr<ActionExpnder> expnder = nullptr ;
     std::unique_ptr<EvaluatorActionzer> evaluator= nullptr;
+    Actionzer::StackActionzer<Actionzer::tuple_stack> stack_backup;
     Rewards R= Rewards::getRewards();
     std::unique_ptr<rewardMap>  rewardDict = std::make_unique<rewardMap>();
     u_int64_t ctrInFun=0;
@@ -75,6 +78,7 @@ public:
         expnder=std::make_unique<ActionExpnder>(_stochasticMovement,tran,this);
         evaluator = std::make_unique<EvaluatorActionzer>(this->get_id_name(),cashID,RTDP_util_object);
         evaluator->set_stack(stackStateActionIdx);
+
     }
 
     const auto get_evaluator()const{ return evaluator.get();}

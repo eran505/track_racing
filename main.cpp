@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/car_model/config/con64.csv";
+    pathCsv  = home + "/car_model/config/con32.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -296,7 +296,8 @@ void FixAbstGame(configGame &conf, Policy* policyA,Policy *policyD, std::vector<
 
 
 
-    auto sim = SimulationGame(conf, policyA,policyD, listPointAttacker, listPointDef,s,3);
+    auto sim = SimulationGame(conf, policyA,policyD,
+            listPointAttacker, listPointDef,s,2);
     sim.main_loop();
     exit(0);
 }

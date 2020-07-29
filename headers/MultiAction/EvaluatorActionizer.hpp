@@ -25,7 +25,7 @@ public:
     ptrRTDP(ptr),
     attacker(std::move(attacker_name)),
     defender(std::move(defender_name)),
-    _scheduler(attacker,defender,3)
+    _scheduler(attacker,defender,2)
     {
         evaluationState = [&](const State *s){return EvalState2(s);};
     }

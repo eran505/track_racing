@@ -74,7 +74,7 @@ Point RtdpAlgo::get_action(State *s)
     //update state action
     // set the max speed in the Z coordinate at the when taking off
     //inset to stack for backup update
-    //this->inset_to_stack(s,action,entry);
+    this->stack_backup.inset_to_stack({State(*s),Point(action),entry});
 
 
     if (!s->takeOff)
@@ -291,8 +291,8 @@ tuple<double,bool> RtdpAlgo::EvalState5(State *s) {
 }
 
 Point RtdpAlgo::get_lastPos() const{
-    return this->stackStateActionIdx->back().first.get_position_ref(this->id_agent);
-
+    assert(false);
+    return Point(0);
 }
 
 double RtdpAlgo::UpdateCalc(const vector<pair<State *, double>>& state_tran_q) {
@@ -337,17 +337,14 @@ void RtdpAlgo::inset_to_stack_abs(State *s,Point &action,u_int64_t state_entry)
 }
 
 void RtdpAlgo::empty_stack_update() {
-    for (int i = ctr_stack-1 ; i > -1 ; --i) {
-        // update the action state
-        auto pos = this->hashActionMap->find(this->stackStateActionIdx->operator[](i).second.second);
-        if (pos==this->hashActionMap->end())
-            throw;
-        this->update(&this->stackStateActionIdx->operator[](i).first,*pos->second,
-                this->stackStateActionIdx->operator[](i).second.first);
-
+    if(this->stack_backup.is_empty()) return;
+    this->stack_backup.pop();
+    while(!this->stack_backup.is_empty()) {
+        auto& item = this->stack_backup.pop();
+        this->evaluator->change_scope_(&item.state);
+        this->update(&item.state,item.action, item.entryID);
     }
-    ctr_stack=0;
-    this->stackStateActionIdx->clear();
+    this->stack_backup.clear();
 }
 
 void RtdpAlgo::policy_data() const {

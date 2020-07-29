@@ -25,18 +25,18 @@ struct Converager{
     std::array<V,N> arr_con = std::array<V,N>();
     size_t ctr=0;
     bool full=false;
-    std::function<bool(V,V)> comparator;
+    std::function<bool(V,V)> comparator= nullptr;
 
 
     void set_comparator(std::function<bool(V,V)> fun){comparator=fun;}
 
     void inset_elm(V&& v)
     {
-        arr_con[ctr]=std::forward<V>(v);
-        ctr = ++ctr%N;
+        arr_con[++ctr%N]=std::forward<V>(v);
     }
-    bool is_converage()
+    bool is_converage()const
     {
+        if(ctr<N) return false;
         assert(this->comparator!= nullptr);
         auto size_ctr = N-1;
         while(--size_ctr>0 && comparator(arr_con[size_ctr],arr_con[0]) );

@@ -55,10 +55,11 @@ public:
                 return -1;
             }
         }
-        if(dif>_levels->operator[](idx_level).upper)
-        {
-            change_scoper(rtdp,1);
-            return 1;
+        if(idx_level<_levels->size()-1) {
+            if (!(dif < _levels->operator[](idx_level).upper)) {
+                change_scoper(rtdp, 1);
+                return 1;
+            }
         }
         return 0;
     }
