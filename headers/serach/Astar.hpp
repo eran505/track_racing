@@ -151,6 +151,18 @@ namespace AStar
         static uint zero(const StatePoint &source_, const StatePoint &target_, int maxSpeed);
 
     };
+
+    struct StateSearch{
+        Point pos;
+        Point speed;
+
+        template<typename P, //Template type checking
+                typename = typename std::enable_if<std::is_constructible<Point, P>::value>
+                >
+        StateSearch(P &&pos,P &&speed)
+        :pos(std::forward<P>(pos),std::forward<P>(speed)){}
+
+    };
 }
 
 

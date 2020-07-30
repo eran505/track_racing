@@ -14,20 +14,10 @@
 #include "Scheduler.hpp"
 #include "Policy/RtdpAlgo.hpp"
 #define DEBUGING
+#define TRAJECTORY
+//#define PRINT
 #define STR_HOME_DIR "/car_model/out/"
-struct Randomizer{
-public:
-    std::default_random_engine generator;
-    std::uniform_real_distribution<double> distribution;
-    explicit Randomizer(int seed):
-            generator(seed),
-            distribution(0.0,1.0)
-    {
-
-    }
-    double get_double(){return this->distribution(this->generator);}
-};
-
+#include "util/Rand.hpp"
 namespace info{
     enum info : short{
         CollId=0,WallId=1,GoalId=2,OpenId=3,Size=4,
@@ -40,7 +30,9 @@ class SimulationGame{
 
     //Grid _g;
     u_int32_t NUMBER=1000;
+    u_int32_t iterationsMAX=1000001;
     u_int64_t iterations=0;
+    u_int ctr_action_defender=0;
     u_int32_t ctr=0;
     std::vector<u_int64_t > info = vector<u_int64_t>(4);
     std::unique_ptr<Agent> _attacker;
@@ -52,22 +44,22 @@ class SimulationGame{
     Saver<string> file_manger;
     Saver<string> trajectory_file;
     int seq_max_action=0;
-    Converager<5,std::vector<double>> converagerr;
+    Converager<7,std::vector<double>> converagerr;
 public:
     SimulationGame(configGame &conf,Policy *policyA,Policy *policyD,std::vector<weightedPosition>& listPointAttacker
             ,std::vector<weightedPosition>& listPointDefender,State *s,int levels=3):
             _attacker(std::make_unique<Agent>(listPointAttacker,adversary,1)),
             _defender(std::make_unique<Agent>(listPointDefender,gurd,1)),
             _state(std::make_unique<State>(*s)),random_object(std::make_unique<Randomizer>(conf._seed))
-            ,file_manger(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+".csv",10)
-            ,trajectory_file(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_Traj.csv",10000)
+            ,file_manger(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_"+std::to_string(conf.levelz)+"_Eval.csv",10)
+            ,trajectory_file(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_"+std::to_string(conf.levelz)+"_Traj.csv",10000)
             ,seq_max_action(levels)
     {
         _attacker->setPolicy(policyA);
         _defender->setPolicy(policyD);
         g=_state->g_grid;
-        file_manger.set_header({"episodes","Collision","Wall" ,"Goal" ,"PassBy"});
-        trajectory_file.set_header({""})
+        file_manger.set_header({"episodes","Collision","Wall" ,"Goal" ,"PassBy","moves"});
+        trajectory_file.set_header({""});
         converagerr.set_comparator(comper_vectors);
     }
 
@@ -77,14 +69,18 @@ public:
         while(true)
         {
             reset();
-
-            //cout<<"[real] "<<_state->to_string_state()<<endl;
+            #ifdef PRINT
+            cout<<"[real] "<<_state->to_string_state()<<endl;
+            #endif
             while(true)
             {
                 if(loop())
                     break;
             }
-            //cout<<"END\n";
+            #ifdef PRINT
+            cout<<"END\n";
+            #endif
+
             print_info();
             if(is_converage())
                 break;
@@ -93,7 +89,6 @@ public:
     bool loop()
     {
         change_abstraction();
-        //cout<<"[real] "<<_state->to_string_state()<<"[MultiAction: "<<last_mode<<"]"<<endl;
 
         do_action_defender();
 
@@ -107,6 +102,9 @@ private:
     void do_action_defender()
     {
         _defender->doAction(_state.get());
+        #ifdef TRAJECTORY
+        save_trajactory(_defender->get_id());
+        #endif
         int ctrLocal=0;
         while(true)
         {
@@ -115,13 +113,21 @@ private:
                 break;
             _defender->getPolicy()->apply_action_state(_state.get(),_defender->lastAction);
             ctrLocal++;
+            #ifdef TRAJECTORY
+            save_trajactory(_defender->get_id());
+            #endif
+            ctr_action_defender++;
         }
+        ctr_action_defender++;
     }
     bool attcker_do_action()
     {
         for(int i=0;i<=last_mode;++i)
         {
             _attacker->doAction(_state.get());
+            #ifdef TRAJECTORY
+            save_trajactory(_attacker->get_id());
+            #endif
             //cout<<"[real] "<<_state->to_string_state()<<"[MultiAction: "<<last_mode<<"]"<<endl;
             if(check_condtion())
                 return true;
@@ -131,6 +137,9 @@ private:
     inline void set_grid(){_state->g_grid=g;}
     bool check_condtion()
     {
+        #ifdef PRINT
+        cout<<"[real] "<<_state->to_string_state()<<"[MultiAction: "<<last_mode<<"]"<<endl;
+        #endif
         const Point& pos_A = this->_state->get_position_ref(this->_attacker->get_id());
         const Point& pos_D = this->_state->get_position_ref(this->_defender->get_id());
 
@@ -152,13 +161,13 @@ private:
             info[info::CollId]++;
             return true;
         }
-
-        for(int i=0;i<pos_A.capacity;++i)
-            if((pos_A[i]>pos_D[i]))
-            {
-                info[info::OpenId]++;
-                return true;
-            }
+        //passBy
+//        for(int i=0;i<pos_A.capacity;++i)
+//            if((pos_A[i]>pos_D[i]))
+//            {
+//                info[info::OpenId]++;
+//                return true;
+//            }
         return false;
     }
 
@@ -183,15 +192,16 @@ private:
     }
     void reset()
     {
-
+        trajectory_file.inset_one_item_endLine("END");
         _attacker.get()->rest();
         this->reset_state();
         _defender->rest();
         set_mode_abstract();
+        ctr_action_defender=0;
     }
     bool is_converage()const
     {
-        if(iterations>50000000)
+        if(iterations>iterationsMAX)
             return true;
         if(converagerr.is_converage())
             return true;
@@ -231,9 +241,10 @@ private:
         if(ctr%NUMBER>0)
             return false;
         vector<double> x;
-        x.emplace_back(iterations);
+        x.emplace_back(double(iterations)/double(iterationsMAX));
         for(auto item:info)
             x.emplace_back(item/double(NUMBER));
+        x.emplace_back(ctr_action_defender);
         file_manger.inset_data(x);
         file_manger.inset_endLine();
         x.erase(x.begin());
@@ -254,6 +265,10 @@ private:
         for(int i=0;i<x1.size();++i)
             if(x1[i]!=x2[i]) return false;
         return true;
+    }
+    void save_trajactory(const string &agent_name)
+    {
+        trajectory_file.inset_one_item_endLine(agent_name+"@"+_state->get_position_ref(agent_name).to_str());
     }
 };
 

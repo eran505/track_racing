@@ -31,7 +31,7 @@ public:
         {
             auto &ref_item = _levels->emplace_back();
             //ref_item.upper=Point(int(pow(2,i+3)),int(pow(2,i+3)),1);
-            ref_item.upper=Point(int(pow(2,i+3)),int(pow(2,i+3)),1);
+            ref_item.upper=Point(int(pow(2,i+3)),int(pow(2,i+3)),4);
         }
         idx_level=_levels->size()-1;
     }

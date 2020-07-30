@@ -21,11 +21,11 @@ class EvaluatorActionzer{
     std::shared_ptr<vector<pair<State,pair<u_int64_t,int>>>> stack_roll_back = nullptr;
     Scheduler _scheduler;
 public:
-    EvaluatorActionzer(string defender_name,string attacker_name,RTDP_util *ptr= nullptr):
+    EvaluatorActionzer(string defender_name,string attacker_name,int lev=3,RTDP_util *ptr= nullptr):
     ptrRTDP(ptr),
     attacker(std::move(attacker_name)),
     defender(std::move(defender_name)),
-    _scheduler(attacker,defender,2)
+    _scheduler(attacker,defender,lev)
     {
         evaluationState = [&](const State *s){return EvalState2(s);};
     }
@@ -99,14 +99,14 @@ private:
         {
             return {R.WallReward,true};
         }
+        if (auto x = s->isGoal(attacker);x>=0)
+            return {R.GoalReward*x,true};
+//        if(!(s->get_position_ref(defender)>=s->get_position_ref(attacker)))
+//            return {R.GoalReward,true};
         if (s->is_collusion(defender,attacker))
         {
             return {R.CollReward,true};
         }
-        if (auto x = s->isGoal(attacker);x>=0)
-            return {R.GoalReward*x,true};
-        if(!(s->get_position_ref(defender)>=s->get_position_ref(attacker)))
-            return {R.GoalReward,true};
         return {0,false};
     }
 

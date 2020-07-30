@@ -74,9 +74,11 @@ public:
     [[nodiscard]] Point get_lastPos() const;
     bool stoMove();
     void set_expder(int m){this->expnder->set_seq_action(m);}
-    void init_expder(){
+
+    template<typename Parm>
+    void init_expder(Parm &p){
         expnder=std::make_unique<ActionExpnder>(_stochasticMovement,tran,this);
-        evaluator = std::make_unique<EvaluatorActionzer>(this->get_id_name(),cashID,RTDP_util_object);
+        evaluator = std::make_unique<EvaluatorActionzer>(this->get_id_name(),cashID,p,RTDP_util_object);
         evaluator->set_stack(stackStateActionIdx);
 
     }

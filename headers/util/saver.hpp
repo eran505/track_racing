@@ -39,6 +39,17 @@ public:
         header=vec;
         insert_header();
     }
+    template<typename V>
+    void inset_one_item(const V &item)
+    {
+        csver<<item;
+    }
+    template<typename V>
+    void inset_one_item_endLine(const V &item)
+    {
+        csver<<item;
+        inset_endLine();
+    }
 
     template<typename T>
     void inset_data(const T& vec_data)
@@ -63,6 +74,7 @@ private:
         for(auto &item:d) csver<<item;
 
     }
+
     void is_flush()
     {
         if(counter>MAX_buffer)

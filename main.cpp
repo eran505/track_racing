@@ -39,7 +39,7 @@ vector<vector<string>> readConfigFile(string &filePath);
 void toCsvString(string pathFile,vector<string>* infoArr);
 void toCSVTemp(string pathFile, vector<string> &data);
 void FixAbstGame(configGame &conf, Policy* policyA,Policy *policyD, std::vector<weightedPosition>& listPointAttacker,
-                 std::vector<weightedPosition>& listPointDef, State *s);
+                 std::vector<weightedPosition>& listPointDef, State *s,int level_num);
 void getConfigPath(int argc, char** argv,configGame &conf);
 /*
  * TODO LIST:
@@ -67,7 +67,7 @@ typedef unsigned long ulong;
 int main(int argc, char** argv) {
     GOT_HERE;
     auto dict_argv = parser(argv,argc);
-    int seed = 1595421605;//1594198815;
+    int seed = 1596117720;//1594198815;
 
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/car_model/config/con32.csv";
+    pathCsv  = home + "/car_model/config/con21.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -95,12 +95,13 @@ int main(int argc, char** argv) {
         auto row = csvRows[i];
         // size of Grid
         configGame conf(row,seed);
-        conf.inset_data(parser(argv,argc));
+        //conf.inset_data(parser(argv,argc));
         srand(conf._seed);
+        getConfigPath(argc,argv,conf);
         //conf.initRandomNoise(); // inset random noise (-1,1) XY
         conf.home=home;
         cout<<"seed:\t"<<conf._seed<<endl;
-        cout<<"evla_mode:\t"<<conf.eval_mode<<endl;
+        cout<<"levels:\t"<<conf.levelz<<endl;
         string strId=row[0];
         cout<<"ID:\t"<<strId<<endl;
 
@@ -273,23 +274,24 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share,5);
     //auto* ab = new abstractionDiv(g->getPointSzie(),Point(5),tmp_pointer);
 
+    int level_num=conf.levelz;
 
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);
     pD2->setPolicy(RTDP);
     auto *rtdp_ptr = dynamic_cast <RtdpAlgo*>(RTDP);
-    rtdp_ptr->init_expder();
-    FixAbstGame(conf,pGridPath,RTDP,listPointAttacker,listPointDefender,s->get_cur_state());
+    rtdp_ptr->init_expder(level_num);
+    FixAbstGame(conf,pGridPath,RTDP,listPointAttacker,listPointDefender,s->get_cur_state(),level_num);
     return s;
 }
 
 void FixAbstGame(configGame &conf, Policy* policyA,Policy *policyD, std::vector<weightedPosition>& listPointAttacker,
-                 std::vector<weightedPosition>& listPointDef, State *s)
+                 std::vector<weightedPosition>& listPointDef, State *s,int lev_number)
 {
-    vector<pair<Point,Point>> vec(3);
-    vec[0]={Point(2,2,1),Point(4,4,1)};
-    vec[1]={Point(2,2,1),Point(2,2,1)};
-    vec[2]={Point(1,1,1),Point(1,1,1)};
+//    vector<pair<Point,Point>> vec(lev_number);
+//    vec[0]={Point(2,2,1),Point(4,4,1)};
+//    vec[1]={Point(2,2,1),Point(2,2,1)};
+//    vec[2]={Point(1,1,1),Point(1,1,1)};
 //    vec[0]={Point(4,4,1),Point(4,4,1)};
 //    vec[1]={Point(4,4,1),Point(2,2,1)};
 //    vec[2]={Point(1,1,1),Point(1,1,1)};
@@ -297,7 +299,7 @@ void FixAbstGame(configGame &conf, Policy* policyA,Policy *policyD, std::vector<
 
 
     auto sim = SimulationGame(conf, policyA,policyD,
-            listPointAttacker, listPointDef,s,2);
+            listPointAttacker, listPointDef,s,lev_number);
     sim.main_loop();
     exit(0);
 }
@@ -387,8 +389,10 @@ void getConfigPath(int argc, char** argv,configGame &conf)
 {
     if(argc>1)
     {
-        int i = std::stoi(string(argv[1]));
-        conf.abst = Point(i,i,1);
+        u_int32_t seed = std::stoi(string(argv[1]));
+        u_int32_t  lev = std::stoi(string(argv[2]));
+        conf.levelz = lev;
+        conf._seed=seed;
     }
 
 }
