@@ -21,6 +21,7 @@ class EvaluatorActionzer{
     std::shared_ptr<vector<pair<State,pair<u_int64_t,int>>>> stack_roll_back = nullptr;
     Scheduler _scheduler;
 public:
+    const Scheduler& get_Scheduler(){return _scheduler;}
     EvaluatorActionzer(string defender_name,string attacker_name,int lev=3,RTDP_util *ptr= nullptr):
     ptrRTDP(ptr),
     attacker(std::move(attacker_name)),
@@ -60,7 +61,7 @@ public:
     {
         int delta = _scheduler.change_action_abstraction(s,this->ptrRTDP);
         //assert(s->get_budget(defender)+delta<2);
-        s->set_budget(defender,s->get_budget(defender)+delta);
+        s->set_budget(defender,_scheduler.get_steps());
         if(delta==0)
             return false;
         return true;
@@ -73,7 +74,7 @@ private:
 
     double evalute_state(const State *s,double transition_probability)
     {
-        //cout<<s->to_string_state()<<endl;
+        //cout<<"[evalute_state] "<<s->to_string_state()<<endl;
         change_scope_const(s);
         double res=0;
         auto [val,isEndState]= this->evaluationState(s);
@@ -97,14 +98,17 @@ private:
     {
         if (s->g_grid->is_wall(s->get_position_ref(defender)))
         {
+            //cout<<"[R.WallReward]"<<endl;
             return {R.WallReward,true};
         }
         if (auto x = s->isGoal(attacker);x>=0)
+        {
+            //cout<<"[R.GoalReward]"<<endl;
             return {R.GoalReward*x,true};
-//        if(!(s->get_position_ref(defender)>=s->get_position_ref(attacker)))
-//            return {R.GoalReward,true};
+        }
         if (s->is_collusion(defender,attacker))
         {
+            //cout<<"[R.CollReward]"<<endl;
             return {R.CollReward,true};
         }
         return {0,false};

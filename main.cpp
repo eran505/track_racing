@@ -25,6 +25,7 @@
 #include <random>
 #include "Fix/fixSimulation.hpp"
 #include <headers/util/csvfile.hpp>
+#include "Policy/Attacker/PathFinder.hpp"
 //#include <torch/script.h> // One-stop header.
 #include "MultiAction/Simulator.hpp"
 #include "learning/ReplayBuffer/SumTree.hpp"
@@ -68,7 +69,6 @@ int main(int argc, char** argv) {
     GOT_HERE;
     auto dict_argv = parser(argv,argc);
     int seed = 1596117720;//1594198815;
-
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -79,7 +79,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/car_model/config/con21.csv";
+    pathCsv  = home + "/car_model/config/path.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -135,7 +135,7 @@ Game* initGame(configGame &conf ){
     //g->print_vaule();
 
     auto pPlaner = init_mdp(g,conf);
-
+    return nullptr;
     pPlaner->set_grid(g);
 
     Game* my_game = new Game(pPlaner);
@@ -194,15 +194,15 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 
 
     ////////PATH POLICY///////////
-    auto* lStartingPointGoal = new std::vector<std::pair<double,Point>>();
-    auto gloz_l = g->get_goals();
-    Point p_sizer = g->getPointSzie();
-    int ctr=0;
-    for (const auto &item:gloz_l) {
-        lStartingPointGoal->push_back({conf.probGoals[ctr], item});
-        ctr++;
+    auto lStartingPointGoal = std::vector<std::pair<vector<Point>,double>>();
+    auto gloz_l = g->getAllGoalsData();
+    assert(gloz_l.size()==conf.probGoals.size());
+    for(int i=0;i<conf.probGoals.size();++i)
+    {
+        auto& ref_pos = lStartingPointGoal.emplace_back();
+        ref_pos.first.emplace_back(gloz_l[i].second);
+        ref_pos.second=conf.probGoals[i];
     }
-
 
     auto* s = new MdpPlaner(conf._seed);
     s->add_player(pA1);
@@ -211,58 +211,20 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     s->set_state();
 
     //////// PATH POLICY ////////////
-    Policy *pGridPath =new  PathPolicy("SP", maxA, lStartingPointGoal, listPointAttacker,
-                                       p_sizer, pA1->get_id()
-            , conf.midPos, conf.home, conf.rRoutes, nullptr);
-    auto *tmp_pointer = dynamic_cast <PathPolicy*>(pGridPath);
-    printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
-    std::unique_ptr<State> tmp = std::make_unique<State>(State(*s->get_cur_state()));
+//    Policy *pGridPath =new  PathPolicy("SP", maxA, lStartingPointGoal, listPointAttacker,
+//                                       p_sizer, pA1->get_id()
+//            , conf.midPos, conf.home, conf.rRoutes, nullptr);
+//    auto *tmp_pointer = dynamic_cast <PathPolicy*>(pGridPath);
+//    printf("number of state:\t %d\n",tmp_pointer->getNumberOfState());
+//    std::unique_ptr<State> tmp = std::make_unique<State>(State(*s->get_cur_state()));
+//
+//
 
+    Policy *pGridPath = new PathFinder("PathFinder",maxA,pA1->get_id(),conf.home,
+                                        gameInfo_share,lStartingPointGoal,listPointAttacker,
+                                        g->getPointSzie(),conf._seed,conf.rRoutes);
 
-    //    Point abPoint8(8,8,1);
-//    Point abPoint2 = Point(2,2,1);
-//    Point abPoint4 = Point(4,4,1);
-//    Point abPoint6 = Point(6,6,1);
-//    Point abPoint12 = Point(12,12,1);
-//    Point abPoint3 = Point(3,3,1);
-//
-//    tmp_pointer->treeTraversal(tmp.get(),conf.idNumber,&abPoint8);
-//    pA1->setPolicy(pGridPath);
-//
-//    vector<Point> absList = {abPoint4};
-//
-//
-//    for(const auto& absItem: absList)
-//    {
-//        auto* z = new AbstractCreator(tmp_pointer,conf.sizeGrid,{absItem,abPoint2},conf._seed);
-//
-//        z->factory_containerAbstract(conf,listPointDefender);
-//        auto *rl = new rtSimulation(conf.sizeGrid,pA1,s->get_cur_state(),pD2);
-//        rl->setContiner(z->get_con());
-//        rl->simulationV2();
-//        auto res = rl->getTrackingDataString();
-//        res.push_back(conf.idNumber);
-//        res.push_back(std::to_string(conf._seed));
-//        res.push_back(std::to_string(conf.rRoutes));
-//
-//        res.push_back(z->get_abstraction_tostring());
-//
-//        res.push_back(conf.sizeGrid.to_str());
-//        res.push_back(conf.gGoals.front().to_str());
-//        res.push_back(conf.posAttacker.to_str());
-//        res.push_back(conf.posDefender.to_str());
-//        for(auto j=0;j<z->get_allAbst_size();++j)
-//        {
-//            res.push_back(std::to_string(rl->sum_of_coll(j)));
-//            res.push_back(rl->collusionMiniGrid_to_string(j));
-//        }
-//        for (auto &item : z->get_lPolEval())for(auto numL: item)res.push_back(std::to_string(numL));
-//        string file_name = std::to_string(conf.eval_mode)+"__new.csv";
-//        string path = conf.home+"/car_model/out/"+file_name;
-//        toCSVTemp(path, res);
-//        delete rl;
-//        delete z;
-//    }
+    auto *tmp_pointer = dynamic_cast <PathFinder*>(pGridPath);
 
 //    //////// RTDP POLICY ////////
     /* If max speed is zero, the explict number of state is in the second place */
@@ -272,7 +234,6 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
     Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share,5);
-    //auto* ab = new abstractionDiv(g->getPointSzie(),Point(5),tmp_pointer);
 
     int level_num=conf.levelz;
 
@@ -301,7 +262,7 @@ void FixAbstGame(configGame &conf, Policy* policyA,Policy *policyD, std::vector<
     auto sim = SimulationGame(conf, policyA,policyD,
             listPointAttacker, listPointDef,s,lev_number);
     sim.main_loop();
-    exit(0);
+    //exit(0);
 }
 
 void toCSVTemp(string pathFile, vector<string> &data)

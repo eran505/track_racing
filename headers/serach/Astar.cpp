@@ -55,7 +55,7 @@ AStar::Generator::Generator(uint absMaxSpeed,Point& girdSize)
     this->absMaxSpeed=absMaxSpeed;
     this->gridSize=girdSize;
     operatorAction.reserve(size_vector);
-    setHeuristic(&Heuristic::manhattan);
+    setHeuristic(&Heuristic::manhattan2);
     //TODO: change it to rec function
     Point::getAllAction(operatorAction);
     this->dictPoly = new policyDict();
@@ -66,7 +66,7 @@ AStar::Generator::Generator(uint absMaxSpeed,Point& girdSize)
 
 void AStar::Generator::setHeuristic(HeuristicFunction heuristic_)
 {
-    heuristic = std::bind(heuristic_, _1, _2,_3);
+    heuristic = [heuristic_](auto && PH1, auto && PH2, auto && PH3) { return heuristic_(PH1, PH2, PH3); };
 }
 int  AStar::Generator::count_pathz(vector<Node*> *l ){
     int res=0;
@@ -146,6 +146,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     first->G = 0;
     first->H = 0;
     vector<Node *> res;
+    u_int MAX_PATH=1;
     openSetID.insert({first->toStr(), first});
     openSetQ.insert({first->getScore(), first});
     int ctr=0;
@@ -154,7 +155,8 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
         //expand node
         current = openSetQ.begin()->second;
 
-
+        if(res.size()>MAX_PATH)
+            break;
         //debug
         //cout<<"expand:\t"<<current->toStr()<<endl;
         if (current->coordinates->pos.operator==(target_.pos)) {
@@ -239,6 +241,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
 
                     openSetQ.insert({successor->getScore(), successor});
                 } else if (successor->G == totalCost) {
+                    continue;
                     bool appendTo = true;
                     //debug
                     //cout<<"append:\t"<<successor->toStr()<<endl;
@@ -253,7 +256,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     }
     this->allPath.clear();
     printMee(res);
-    consistentZFilter();
+    //consistentZFilter();
     //shuffle path
 #ifndef DEBUG
     std::shuffle(allPath.begin(), allPath.end(),   std::default_random_engine(rand()));
@@ -273,6 +276,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     releaseMAP(closedSet);
     return size_paths;
 }
+
 
 
 void AStar::Generator::consistentZFilter(){
@@ -516,4 +520,17 @@ AStar::uint AStar::Heuristic::zero(const StatePoint &source_, const StatePoint &
     return uint(0);
 }
 
-
+AStar::uint AStar::Heuristic::manhattan2(const StatePoint &source_, const StatePoint &target_,int maxSpeed)
+{
+    vector<int> l(source_.pos.capacity);
+    int sum=0;
+    for (int i = 0; i < source_.pos.capacity; ++i) {
+        l[i]=abs((source_.pos.array[i]-target_.pos.array[i])/maxSpeed);
+        sum+=l[i];
+    }
+    auto max_ele = *max_element(std::begin(l), std::end(l));
+    auto min_ele = *min_element(std::begin(l), std::end(l));
+    return 1*max_ele+(1-sqrt(2))*min_ele;
+    //return 1*(sum)+(1)*min_ele;
+    //return it;
+}

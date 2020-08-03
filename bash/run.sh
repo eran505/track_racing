@@ -15,8 +15,8 @@ for i in {1..1000}
 do
   echo "-->$i<--"
   cd "${PATHtoFileDir}" || exit
-  seed="$(($ConstSeed+$i))"
-  for j in {1..2}
+  seed="$(($ConstSeed+$i*10))"
+  for j in {1..7}
    do
     echo "${seed}"
     echo "${j}"

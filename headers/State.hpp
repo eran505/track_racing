@@ -69,6 +69,8 @@ public:
     void transform_state_inplace(const Point &trans);
 
     bool is_collusion_radius(const string &id_player, const string &op_player, const Point &window);
+
+    bool applyAction_SEQ(const string &id, const Point &action);
 };
 
 

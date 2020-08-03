@@ -337,7 +337,13 @@ public:
         return action_list;
     }
 
-
+    Point& operator*(int x)
+    {
+        for (int i = 0; i < capacity; ++i) {
+            this->array[i]*=x;
+        }
+        return *this;
+    }
     [[nodiscard]] u_int64_t hashConst(int offset=0)const {
 
         auto h=hashNnN(array[0]+offset,array[1]+offset);

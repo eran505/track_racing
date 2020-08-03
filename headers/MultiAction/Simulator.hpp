@@ -29,8 +29,9 @@ namespace info{
 class SimulationGame{
 
     //Grid _g;
+    bool stop=false;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=1000001;
+    u_int32_t iterationsMAX=200001;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -38,21 +39,21 @@ class SimulationGame{
     std::unique_ptr<Agent> _attacker;
     std::shared_ptr<Agent> _defender;
     std::unique_ptr<State> _state;
-    int last_mode=-1;
+    int last_mode=0;
     std::unique_ptr<Randomizer> random_object= nullptr;
     Grid *g= nullptr;
     Saver<string> file_manger;
     Saver<string> trajectory_file;
     int seq_max_action=0;
-    Converager<7,std::vector<double>> converagerr;
+    Converager<10,std::vector<double>> converagerr;
 public:
     SimulationGame(configGame &conf,Policy *policyA,Policy *policyD,std::vector<weightedPosition>& listPointAttacker
             ,std::vector<weightedPosition>& listPointDefender,State *s,int levels=3):
             _attacker(std::make_unique<Agent>(listPointAttacker,adversary,1)),
             _defender(std::make_unique<Agent>(listPointDefender,gurd,1)),
             _state(std::make_unique<State>(*s)),random_object(std::make_unique<Randomizer>(conf._seed))
-            ,file_manger(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_"+std::to_string(conf.levelz)+"_Eval.csv",10)
-            ,trajectory_file(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_"+std::to_string(conf.levelz)+"_Traj.csv",10000)
+            ,file_manger(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.levelz)+"_Eval.csv",10)
+            ,trajectory_file(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.levelz)+"_Traj.csv",10000)
             ,seq_max_action(levels)
     {
         _attacker->setPolicy(policyA);
@@ -82,16 +83,17 @@ public:
             #endif
 
             print_info();
-            if(is_converage())
+            if(is_converage() or stop)
                 break;
         }
     }
     bool loop()
     {
+        //cout<<this->_state->to_string_state()<<endl;
         change_abstraction();
-
+        //cout<<this->_state->to_string_state()<<endl;
         do_action_defender();
-
+        //cout<<this->_state->to_string_state()<<endl;
         bool is_end_game = attcker_do_action();
 
         return is_end_game;
@@ -105,7 +107,7 @@ private:
         #ifdef TRAJECTORY
         save_trajactory(_defender->get_id());
         #endif
-        int ctrLocal=0;
+        int ctrLocal=1;
         while(true)
         {
             //cout<<"[real] "<<_state->to_string_state()<<"[MultiAction: "<<last_mode<<"]"<<endl;
@@ -122,7 +124,8 @@ private:
     }
     bool attcker_do_action()
     {
-        for(int i=0;i<=last_mode;++i)
+
+        for(int i=0;i<last_mode;++i)
         {
             _attacker->doAction(_state.get());
             #ifdef TRAJECTORY
@@ -186,17 +189,17 @@ private:
         return _state->g_grid->get_goal_reward(pos_A)>=0;
     }
 
-    void set_mode_abstract()
+    void set_mode_abstract(int step)
     {
-        last_mode =  _state->get_budget(_defender->get_id());
+        last_mode = step;
     }
     void reset()
     {
         trajectory_file.inset_one_item_endLine("END");
         _attacker.get()->rest();
-        this->reset_state();
         _defender->rest();
-        set_mode_abstract();
+        this->reset_state();
+        //set_mode_abstract();
         ctr_action_defender=0;
     }
     bool is_converage()const
@@ -213,8 +216,8 @@ private:
 
         auto posSpeed = this->_attacker->get_pos(this->random_object->get_double());
         setPosSpeed(posSpeed.second,posSpeed.first,this->_attacker->get_id());
-        _state->set_budget(this->_defender->get_id(),seq_max_action-1);
-        //assert(_state->get_budget(_defender->get_id())<2);
+        //change_abstraction();
+
     }
     void setPosSpeed(const Point &sSpeed,const Point &pPos,const string &id_str)
     {
@@ -245,6 +248,8 @@ private:
         for(auto item:info)
             x.emplace_back(item/double(NUMBER));
         x.emplace_back(ctr_action_defender);
+        if(info[info::CollId]==NUMBER)
+            stop=true;
         file_manger.inset_data(x);
         file_manger.inset_endLine();
         x.erase(x.begin());
@@ -255,8 +260,10 @@ private:
     {
         RtdpAlgo *ptr = dynamic_cast<RtdpAlgo*>(_defender->getPolicyInt());
         bool b = ptr->get_evaluator()->change_scope_(_state.get());
-        if(b)
-            set_mode_abstract();
+        auto step = ptr->get_evaluator()->get_Scheduler().get_steps();
+        if(last_mode==step)
+            return;
+        set_mode_abstract(step);
     }
     void clear_info(){std::for_each(info.begin(),info.end(),[](auto &item){item=0;});}
 

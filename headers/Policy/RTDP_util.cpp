@@ -50,19 +50,14 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
         // apply action state and let the envirmont to roll and check the reward/pos
         Point *actionCur = item_action.second;
         double val;
-
-        bool isWall = this->apply_action(oldState,my_policy->id_agent,*actionCur,my_policy->max_speed);
+        bool isWall = this->apply_action_SEQ(oldState,my_policy->id_agent,*actionCur,this->my_policy->max_speed);
+        //bool isWall = this->apply_action(oldState,my_policy->id_agent,*actionCur,my_policy->max_speed);
+       // std::cout << "CPU time used: " << time_elapsed_ms << " ms\n";
         if (isWall)
             val = this->R.WallReward*discountFactor*this->_stochasticMovement+
                     zero_move_reward*(1-this->_stochasticMovement);
         else{
-            //val = this->compute_h(oldState);
             val=this->R.CollReward*discountFactor;
-//            if (s->takeOff == false)
-//            {
-//                val=10;
-//            }
-
         }
 
         //cout<<"A:"<<actionCur->to_str()<<" val="<<val<<endl;
@@ -100,22 +95,12 @@ double RTDP_util::rec_h(State *s,int index, double acc_probablity)
 
 void RTDP_util::add_entry_map_state(keyItem key,const State *s) {
     // compute heuristic
-    //10cout<<"\t--new_state--\t"<<endl;
-
     #ifdef VECTOR
     this->qTable->try_emplace(key,27);
     #endif
     this->heuristic(s,key);
     ctr_state++;
-    /*const auto &[it,bol] = debugDict.try_emplace(key,s->to_string_state());
-    if(!bol)
-    {
-        cout<<"Key<-"<<key<<endl;
-        cout<<"first->"<<it->first<<" second->"<<it->second<<endl;
-        cout<<"[throw] "<<s->to_string_state()<<endl;
-        throw;
-    }
-     */
+
 }
 
 RTDP_util::~RTDP_util() {
@@ -202,6 +187,22 @@ bool RTDP_util::apply_action(State *s,const string &id,Point &action,int max_spe
     return s->applyAction(id, action, max_speed);
 }
 
+bool RTDP_util::apply_action_SEQ(State *s,const string &id,Point &action,int max_speed)
+{
+
+    int seq = s->get_budget(this->my_policy->id_agent);
+    bool is_wall_agent=false;
+    if(true)
+    {
+        for(int i=0;i<seq and !is_wall_agent ;++i)
+            is_wall_agent = apply_action(s,id,action,max_speed);
+        return is_wall_agent;
+    }
+
+}
+
+
+
 double RTDP_util::compute_h(State *s) {
 //    cout<<s->to_string_state()<<endl;
     char team = this->my_policy->id_agent[1];
@@ -283,10 +284,6 @@ void RTDP_util::policyData() {
 
     }
     catch (const std::exception &ex){std::cout << "Exception was thrown: " << ex.what() << std::endl;}
-
-
-
-
 
 }
 

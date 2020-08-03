@@ -137,6 +137,10 @@ bool State::applyAction(const string &id, const Point &action, int max_speed) {
     return outBound;
 }
 
+
+
+
+
 void State::assignment(State &other)
 {
     for(const auto &item: other.budget_dict)

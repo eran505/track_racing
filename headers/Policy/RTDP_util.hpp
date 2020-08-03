@@ -122,6 +122,8 @@ public:
     }
     std::unique_ptr<unordered_map<keyItem ,arr>> && get_q_table()
     { return std::move(qTable);}
+
+    bool apply_action_SEQ(State *s, const string &id, Point &action, int max_speed);
 };
 
 

@@ -86,19 +86,11 @@ Point RtdpAlgo::get_action(State *s)
             //this->tmp=s->to_string_state();
         }
     //TODO: inset the state action tuple to the stack to update at the end of the episode
-
+    //std::clock_t c_start = std::clock();
     this->update(s,action,entry);
-
-
-    if(stoMove())
-    {
-        //cout<<"  "<<action.to_str()<<" => "<<"[zero]  ";
-        //int action_num = int(this->getRandom()*27)%27;
-        //return *this->hashActionMap->find(action_num)->second;
-        //return Point(0);
-        //return s->get_speed(this->id_agent)*-1;
-        //return s->get_speed(this->id_agent);
-    }
+    //std::clock_t c_end = std::clock();
+    //double time_elapsed_ms = 1000.0 * (c_end-c_start) / CLOCKS_PER_SEC;
+    //std::cout << "CPU time used: " << time_elapsed_ms << " ms\n";
     return action;
 }
 
@@ -199,9 +191,6 @@ tuple<double,bool> RtdpAlgo::EvalState2(State *s)
         return {R.GoalReward*x,true};
     return {0,false};
 }
-
-
-
 
 tuple<double,bool> RtdpAlgo::EvalState(State *s) {
 
@@ -321,7 +310,7 @@ void RtdpAlgo::update(State *s, Point &action,u_int64_t entryMatrix)
     #ifdef PrinT
     cout<<" ["<<entryMatrix<<", "<<action.hashMeAction(Point::actionMax)<<"]="<<val<<endl;
     #endif
-
+    //cout<<s->to_string_state()<<" H="<<entryMatrix<<" A="<<action.to_hash_str()<<"\tval="<<val<<endl;
     this->RTDP_util_object->set_value_matrix(entryMatrix,action,val);
 }
 
@@ -339,6 +328,7 @@ void RtdpAlgo::inset_to_stack_abs(State *s,Point &action,u_int64_t state_entry)
 void RtdpAlgo::empty_stack_update() {
     if(this->stack_backup.is_empty()) return;
     this->stack_backup.pop();
+
     while(!this->stack_backup.is_empty()) {
         auto& item = this->stack_backup.pop();
         this->evaluator->change_scope_(&item.state);

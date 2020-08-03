@@ -19,7 +19,7 @@ class Scheduler{
     string attacker_id;
     string defender_id;
     std::shared_ptr<std::vector<containerFix>> _levels;
-    u_int idx_level=0;
+    u_int idx_level=-1;
 
 public:
     Scheduler(string a,string d,int num_lev):
@@ -31,10 +31,14 @@ public:
         {
             auto &ref_item = _levels->emplace_back();
             //ref_item.upper=Point(int(pow(2,i+3)),int(pow(2,i+3)),1);
+            //ref_item.upper=Point(int(pow(2,i+3)),int(pow(2,i+3)),4);
             ref_item.upper=Point(int(pow(2,i+3)),int(pow(2,i+3)),4);
+            ref_item.step=get_step_number(pow(2,i+3));
+            //ref_item.step=i+1;
         }
         idx_level=_levels->size()-1;
     }
+    [[nodiscard]] int get_steps()const{return _levels->at(idx_level).step;}
     int get_idx(){return idx_level;}
     void change_static(int idx, RTDP_util *ptr)
     {
@@ -49,24 +53,42 @@ public:
     {
         //idx_level=s->get_budget(defender_id);
         Point dif = get_dif(s);
-        if(idx_level>0) {
-            if (dif < _levels->operator[](idx_level - 1).upper) {
-                change_scoper(rtdp, -1);
-                return -1;
+        //cout<<"dif:"<<dif.to_str()<<endl;
+        int delta=0;
+        int delta_acc;
+        //cout<<"cur:\t"<<idx_level<<" dif: "<<dif.to_str()<<"  get_step_number: "<<get_step_number(std::max(dif[0],std::max(dif[1],dif[2])))<<endl;
+//        int scope_id = get_step_number(std::max(dif[0],std::max(dif[1],dif[2])));
+//        if(idx_level==scope_id)
+//            return 0;
+//        change_scoper(rtdp,scope_id);
+//        return scope_id;
+
+        while(true)
+        {
+            delta_acc=0;
+            if(idx_level>0) {
+                if (dif < _levels->operator[](idx_level - 1).upper) {
+                    change_scoper(rtdp, -1);
+                    delta_acc+=-1;
+                }
             }
-        }
-        if(idx_level<_levels->size()-1) {
-            if (!(dif < _levels->operator[](idx_level).upper)) {
-                change_scoper(rtdp, 1);
-                return 1;
+            if(idx_level<_levels->size()-1) {
+                if (!(dif < _levels->operator[](idx_level).upper)) {
+                    change_scoper(rtdp, 1);
+                    delta_acc+=1;
+                }
             }
+            if(delta+delta_acc==delta)
+                break;
+            delta+=delta_acc;
         }
-        return 0;
+        return delta;
     }
+
     void change_scoper(RTDP_util *rtdp,int delta_chage)
     {
         return_Q_table(std::move(rtdp->get_q_table()));
-        idx_level=idx_level+delta_chage;
+        idx_level+=delta_chage;
         rtdp->set_q_table(get_Q_table());
     }
     qTbale_dict get_Q_table()
@@ -90,7 +112,13 @@ private:
     {
         return (s->get_position_ref(attacker_id)-s->get_position_ref(defender_id)).AbsPoint();
     }
-
+    static int get_step_number(int diff_dist)
+    {
+        double logme= log2(diff_dist);
+        auto x = std::floor(logme)-3;
+        int res = std::pow(2,x);
+        return res;
+    }
 
 };
 

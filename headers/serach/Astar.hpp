@@ -69,6 +69,8 @@ namespace AStar
         void releaseMAP(unordered_map <string,Node*> map_);
 
     public:
+        const vector<vector<StatePoint>>& get_deep_list_nodes_ref_const(){return this->deepListNode;}
+        auto get_deep_list_nodes(){return this->deepListNode;}
         unordered_map<u_int64_t ,std::pair<short,StatePoint>> * hashDictStates;
         unordered_map<u_int64_t, map<int,int>*> *dictPoly;
         void print_pathz(Node *l);
@@ -141,6 +143,8 @@ namespace AStar
 
 
         void addToStateDict(u_int64_t key, StatePoint *stateS);
+
+        void helper(bool toDict);
     };
 
     class Heuristic
@@ -150,6 +154,7 @@ namespace AStar
         static uint manhattan(const StatePoint &source_, const StatePoint &target_, int maxSpeed);
         static uint zero(const StatePoint &source_, const StatePoint &target_, int maxSpeed);
 
+        static uint manhattan2(const StatePoint &source_, const StatePoint &target_, int maxSpeed);
     };
 
     struct StateSearch{
@@ -159,8 +164,8 @@ namespace AStar
         template<typename P, //Template type checking
                 typename = typename std::enable_if<std::is_constructible<Point, P>::value>
                 >
-        StateSearch(P &&pos,P &&speed)
-        :pos(std::forward<P>(pos),std::forward<P>(speed)){}
+        StateSearch(P &&pos_arg,P &&speed_arg)
+        :pos(std::forward<P>(pos_arg)),speed(std::forward<P>(speed_arg)){}
 
     };
 }

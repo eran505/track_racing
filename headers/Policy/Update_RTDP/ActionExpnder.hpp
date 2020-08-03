@@ -54,7 +54,7 @@ public:
 
         set_seq_action_by_state(s);
         stack.emplace_back(new State(*s), 1.0, false);
-        for(short i=_action_seq;i>=0;--i)
+        for(short i=_action_seq;i>0;--i)
         {
             std::for_each(stack.begin(),stack.end(),[&](tuple_state &item){stochastic_expander(item,a);});
             //print_stack(stack);
@@ -62,6 +62,7 @@ public:
             if_end_states();
         }
         transform();
+        //cout<<list_state_expnaded.size()<<endl;
         return list_state_expnaded;
     }
     void set_stochasticMovement(double m)
