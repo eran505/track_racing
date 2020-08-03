@@ -206,8 +206,8 @@ private:
     {
         if(iterations>iterationsMAX)
             return true;
-        if(converagerr.is_converage())
-            return true;
+//        if(converagerr.is_converage())
+//            return true;
         return false;
     }
     void reset_state(){
