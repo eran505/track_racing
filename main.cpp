@@ -68,7 +68,7 @@ typedef unsigned long ulong;
 int main(int argc, char** argv) {
     GOT_HERE;
     auto dict_argv = parser(argv,argc);
-    int seed = 1596117720;//1594198815;
+    int seed = 1594198875;//1594198815;
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
