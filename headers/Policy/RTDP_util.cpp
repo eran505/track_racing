@@ -129,6 +129,9 @@ int RTDP_util::get_state_argmax(const State *s) {
     //int argMax = -1;
     keyItem key = getStateKeyValue(s);
     auto &row = this->get_Q_entry_values(s, key);
+//    for(int i=0;i<row.size();++i)
+//        cout<<"  ["<<i<<"]="<<row[i];
+//    cout<<endl;
     vector<int> argMax_list;
     arg_max(row, argMax_list);
     this->last_entry = key;

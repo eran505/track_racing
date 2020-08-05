@@ -15,6 +15,7 @@ class Saver{
     string file_path;
     u_int32_t MAX_buffer=-1;
     vector<H> header;
+    //vector<Data> body;
     csvfile csver;
     bool is_capacity=false;
 
@@ -74,7 +75,6 @@ private:
         for(auto &item:d) csver<<item;
 
     }
-
     void is_flush()
     {
         if(counter>MAX_buffer)

@@ -73,18 +73,15 @@ Point RtdpAlgo::get_action(State *s)
     u_int64_t entry=this->RTDP_util_object->last_entry;
     //update state action
     // set the max speed in the Z coordinate at the when taking off
+
+    //cout<<Point(0).hashMeAction(Point::actionMax)<<endl;
+    if (!s->takeOff) {
+        if (action.hashMeAction(Point::actionMax) != zeroIndexAction)
+             { s->takeOff = true; }
+    }
     //inset to stack for backup update
     this->stack_backup.inset_to_stack({State(*s),Point(action),entry});
 
-
-    if (!s->takeOff)
-        if(action.hashMeAction(Point::actionMax)!=zeroIndexAction ){
-            //s->set_speed(this->id_agent,Point(0,0,max_speed));
-            //this->inset_to_stack(s,action,entry);
-            //action.array[2]=this->max_speed;
-            s->takeOff=true;
-            //this->tmp=s->to_string_state();
-        }
     //TODO: inset the state action tuple to the stack to update at the end of the episode
     //std::clock_t c_start = std::clock();
     this->update(s,action,entry);

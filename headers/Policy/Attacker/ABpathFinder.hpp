@@ -35,7 +35,7 @@ class ABfinder{
     Randomizer randomizer_obj;
     Point GridSzie;
     double stho=0.7;
-    u_int limt=5;
+    u_int limt=4;
     u_int16_t MAX_SPEED=2;
     Point last_action;
 
@@ -75,13 +75,14 @@ private:
             bool bol=true;
             while(bol)
             {
-                //cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<endl;
+               // cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<endl;
                 get_action_to_goal(cur,B);
                 bol=!vaild_move(cur);
             }
             seq_state.emplace_back(cur);
 
         }
+        cout<<"[done]"<<endl;
     }
     void get_action_to_goal(AStar::StatePoint & cur,const AStar::StatePoint& Goal)
     {
@@ -103,6 +104,7 @@ private:
         {
             for(int i=0;i<last_action.capacity;++i)
                 last_action.array[i]=get_move_aixs_random(randomizer_obj.get_double());
+            last_action.array[2]=0;
             return true;
         }
         return false;
@@ -113,9 +115,18 @@ private:
             last_action.array[k]=get_move_aixs(k,cur,Goal);
 
     }
-    [[nodiscard]] static int get_move_aixs(int i,const AStar::StatePoint &cur,const AStar::StatePoint& Goal)
+    [[nodiscard]] int get_move_aixs(int i,const AStar::StatePoint &cur,const AStar::StatePoint& Goal)
     {
-
+        if(i==2)
+        {
+            if(cur.pos[2]==this->GridSzie[2]-1 and  cur.speed[2]>0)
+                return -1;
+            if(cur.pos[2]==this->GridSzie[2]-1 and  cur.speed[2]==0)
+                return 0;
+            if(cur.pos[2]>=1)
+                return 0;
+            return 1;
+        }
         auto m = Goal.pos[i] - (cur.pos[i]+cur.speed[i]);
         if (m>1)
             m=1;

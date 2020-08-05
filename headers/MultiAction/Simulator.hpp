@@ -31,7 +31,7 @@ class SimulationGame{
     //Grid _g;
     bool stop=false;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=200001;
+    u_int32_t iterationsMAX=500001;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -60,10 +60,18 @@ public:
         _defender->setPolicy(policyD);
         g=_state->g_grid;
         file_manger.set_header({"episodes","Collision","Wall" ,"Goal" ,"PassBy","moves"});
-        trajectory_file.set_header({""});
         converagerr.set_comparator(comper_vectors);
+        init_trajectory_file(conf);
     }
-
+    void init_trajectory_file(configGame &conf)
+    {
+        //trajectory_file.set_header({"col"});
+        trajectory_file.inset_one_item_endLine("size"+conf.sizeGrid.to_str());
+        string str_goal="goal";
+        std::for_each(conf.gGoals.begin(),conf.gGoals.end(),
+                      [&](const Point &p){str_goal+=(p.to_str()+"_");});
+        trajectory_file.inset_one_item_endLine(str_goal.substr(0, str_goal.size()-1));
+    }
     void main_loop()
     {
 
@@ -83,7 +91,7 @@ public:
             #endif
 
             print_info();
-            if(is_converage() or stop)
+            if(is_converage())
                 break;
         }
     }
@@ -206,8 +214,8 @@ private:
     {
         if(iterations>iterationsMAX)
             return true;
-//        if(converagerr.is_converage())
-//            return true;
+        if(converagerr.is_converage())
+            return true;
         return false;
     }
     void reset_state(){
@@ -217,6 +225,7 @@ private:
         auto posSpeed = this->_attacker->get_pos(this->random_object->get_double());
         setPosSpeed(posSpeed.second,posSpeed.first,this->_attacker->get_id());
         //change_abstraction();
+        _state->takeOff=false;
 
     }
     void setPosSpeed(const Point &sSpeed,const Point &pPos,const string &id_str)

@@ -11,12 +11,12 @@ fi
 
 ConstSeed=1594198815
 
-for i in {1..100}
+for i in {1..10}
 do
   echo "-->$i<--"
   cd "${PATHtoFileDir}" || exit
   seed="$(($ConstSeed+$i*10))"
-  for j in {1..3}
+  for j in {1..6}
    do
     echo "${seed}"
     echo "${j}"
