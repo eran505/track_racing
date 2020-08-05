@@ -15,8 +15,8 @@ class EvaluatorActionzer{
     string attacker;
     string defender;
     Rewards R = Rewards::getRewards();
-    double discount_factor=1.0;
-    double constant_cost=-0.1;
+    double discount_factor = 1;
+    double constant_cost= -0.005;
     std::function <std::tuple<double,bool>(const State *s)> evaluationState;
     std::shared_ptr<vector<pair<State,pair<u_int64_t,int>>>> stack_roll_back = nullptr;
     Scheduler _scheduler;
@@ -79,7 +79,7 @@ private:
         double res=0;
         auto [val,isEndState]= this->evaluationState(s);
         if(!isEndState)
-            val = this->ptrRTDP->get_max_valueQ(s)+get_constant_cost(s->takeOff);
+            val+=this->ptrRTDP->get_max_valueQ(s);
         res+=val*transition_probability*this->discount_factor;
 
         return res;
@@ -111,7 +111,7 @@ private:
             //cout<<"[R.CollReward]"<<endl;
             return {R.CollReward,true};
         }
-        return {0,false};
+        return {this->get_constant_cost(s->takeOff),false};
     }
 
 

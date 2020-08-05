@@ -69,6 +69,7 @@ int main(int argc, char** argv) {
     GOT_HERE;
     auto dict_argv = parser(argv,argc);
     int seed = 1594198875;//1594198815;
+    //seed = 1594198815;//1594198815;
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -79,7 +80,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/car_model/config/con1000.csv";
+    pathCsv  = home + "/car_model/config/size.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;

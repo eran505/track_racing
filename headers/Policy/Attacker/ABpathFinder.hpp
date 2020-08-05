@@ -75,7 +75,7 @@ private:
             bool bol=true;
             while(bol)
             {
-               // cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<endl;
+                //cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<endl;
                 get_action_to_goal(cur,B);
                 bol=!vaild_move(cur);
             }
@@ -104,7 +104,7 @@ private:
         {
             for(int i=0;i<last_action.capacity;++i)
                 last_action.array[i]=get_move_aixs_random(randomizer_obj.get_double());
-            last_action.array[2]=0;
+            last_action.array[2]=-1;
             return true;
         }
         return false;
@@ -119,12 +119,12 @@ private:
     {
         if(i==2)
         {
-            if(cur.pos[2]==this->GridSzie[2]-1 and  cur.speed[2]>0)
+            if(cur.pos[2]==this->GridSzie[2]-2 and  cur.speed[2]==0)
+                return 0;
+            if(cur.pos[2]==this->GridSzie[2]-2 and  cur.speed[2]>0)
                 return -1;
-            if(cur.pos[2]==this->GridSzie[2]-1 and  cur.speed[2]==0)
-                return 0;
-            if(cur.pos[2]>=1)
-                return 0;
+            if(cur.pos[2]==1 and  cur.speed[2]==0)
+                return 1;
             return 1;
         }
         auto m = Goal.pos[i] - (cur.pos[i]+cur.speed[i]);

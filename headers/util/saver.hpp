@@ -13,9 +13,10 @@ class Saver{
     string split=";";
     u_int32_t counter=0;
     string file_path;
+    u_int ctr_indx = 0;
     u_int32_t MAX_buffer=-1;
     vector<H> header;
-    //vector<Data> body;
+    vector<H> body;
     csvfile csver;
     bool is_capacity=false;
 
@@ -27,14 +28,32 @@ public:
     ,csver(file_path,split)
     {
         if(MAX_buffer>0)
+        {
             is_capacity=true;
+            body= std::vector<H>(MAX_buffer);
+        }
         insert_header();
     }
     explicit Saver(const string &file_name_path,u_int32_t max_buff)
     :file_path(file_name_path),MAX_buffer(max_buff),
     csver(file_name_path,split)
-    {}
+    {
+        if(MAX_buffer>0)
+        {
+            body= std::vector<H>(MAX_buffer);
+        }
+    }
+    ~Saver()
+    {
+        if(body.empty()) return;
 
+        for(auto &item:body)
+        {
+            csver<<item;
+            csver<<endrow;
+        }
+        csver.flush();
+    }
     void set_header(const vector<H> &vec)
     {
         header=vec;
@@ -51,7 +70,13 @@ public:
         csver<<item;
         inset_endLine();
     }
-
+    void save_string_body(H &&val)
+    {
+        body[ctr_indx]=val;
+        ctr_indx++;
+        if(ctr_indx>=MAX_buffer)
+            ctr_indx=0;
+    }
     template<typename T>
     void inset_data(const T& vec_data)
     {
