@@ -13,6 +13,7 @@
 #include "util/saver.hpp"
 #include "Scheduler.hpp"
 #include "Policy/RtdpAlgo.hpp"
+#include "Policy/Attacker/PathFinder.hpp"
 #define DEBUGING
 #define TRAJECTORY
 //#define PRINT
@@ -31,7 +32,7 @@ class SimulationGame{
     //Grid _g;
     bool stop=false;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=1000001;
+    u_int32_t iterationsMAX=3500000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -45,7 +46,8 @@ class SimulationGame{
     Saver<string> file_manger;
     Saver<string> trajectory_file;
     int seq_max_action=0;
-    Converager<4,std::vector<double>> converagerr;
+    Converager<5,std::vector<double>> converagerr;
+    //set<string> debuger;
 public:
     SimulationGame(configGame &conf,Policy *policyA,Policy *policyD,std::vector<weightedPosition>& listPointAttacker
             ,std::vector<weightedPosition>& listPointDefender,State *s,int levels=3):
@@ -53,25 +55,27 @@ public:
             _defender(std::make_unique<Agent>(listPointDefender,gurd,1)),
             _state(std::make_unique<State>(*s)),random_object(std::make_unique<Randomizer>(conf._seed))
             ,file_manger(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.levelz)+"_Eval.csv",10)
-            ,trajectory_file(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.levelz)+"_Traj.csv",20000)
+            ,trajectory_file(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.levelz)+"_Traj.csv",9000)
             ,seq_max_action(levels)
     {
         _attacker->setPolicy(policyA);
         _defender->setPolicy(policyD);
         g=_state->g_grid;
-        this->iterationsMAX=std::max(g->getSizeIntGrid(),200000);
-        file_manger.set_header({"episodes","Collision","Wall" ,"Goal" ,"PassBy","moves"});
+        //this->iterationsMAX=std::max(g->getSizeIntGrid(),200000);
+        file_manger.set_header_vec({"episodes","Collision","Wall" ,"Goal" ,"PassBy","moves"});
         converagerr.set_comparator(comper_vectors);
         init_trajectory_file(conf);
+        treeTraversal();
+
     }
     void init_trajectory_file(configGame &conf)
     {
         //trajectory_file.set_header({"col"});
-        trajectory_file.set_header({"size"+conf.sizeGrid.to_str()});
+        trajectory_file.set_header_vec({"size"+conf.sizeGrid.to_str()});
         string str_goal="goal";
         std::for_each(conf.gGoals.begin(),conf.gGoals.end(),
                       [&](const Point &p){str_goal+=(p.to_str()+"_");});
-        trajectory_file.set_header({str_goal.substr(0, str_goal.size()-1)});
+        trajectory_file.set_header_vec({str_goal.substr(0, str_goal.size()-1)});
     }
     void main_loop()
     {
@@ -95,6 +99,8 @@ public:
             if(is_converage())
                 break;
         }
+        reset();
+        cout<<"[Simulator] EDN"<<endl;
     }
     bool loop()
     {
@@ -216,8 +222,8 @@ private:
     {
         if(iterations>iterationsMAX)
             return true;
-//        if(converagerr.is_converage())
-//            return true;
+        if(converagerr.is_converage())
+            return true;
         return false;
     }
     void reset_state(){
@@ -287,6 +293,13 @@ private:
     void save_trajactory(const string &agent_name)
     {
         trajectory_file.save_string_body(agent_name+"@"+_state->get_position_ref(agent_name).to_str());
+    }
+    void treeTraversal()
+    {
+         PathFinder *ptr = dynamic_cast<PathFinder*>(this->_attacker->getPolicyInt());
+
+         ptr->treeTraversal(_state.get());
+
     }
 };
 

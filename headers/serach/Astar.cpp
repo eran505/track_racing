@@ -128,7 +128,7 @@ AStar::listNode AStar::Generator::findComplexPath(AStar::StatePoint &source_, Po
 
 
 
-int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bool toDict) {
+int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bool toDict,bool not_exactly) {
     cout<<"-------"<<endl;
     double epsilon = 0.000; // e>0 eliminate unnecessary movement in z-axis
     int k = 0; // finding sp+k  TODO: fix it missing paths
@@ -146,7 +146,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     first->G = 0;
     first->H = 0;
     vector<Node *> res;
-    u_int MAX_PATH=1;
+    u_int MAX_PATH=10;
     openSetID.insert({first->toStr(), first});
     openSetQ.insert({first->getScore(), first});
     int ctr=0;
@@ -160,9 +160,12 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
         //debug
         //cout<<"expand:\t"<<current->toStr()<<endl;
         if (current->coordinates->pos.operator==(target_.pos)) {
-            if (current->G - k <= optCost) {
-                optCost = current->G;
-                res.push_back(current);
+            if(not_exactly or current->coordinates->speed.operator==(target_.speed))
+            {
+                if (current->G - k <= optCost) {
+                    optCost = current->G;
+                    res.push_back(current);
+                }
             }
         }
         if (current->G - k > optCost)
@@ -241,7 +244,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
 
                     openSetQ.insert({successor->getScore(), successor});
                 } else if (successor->G == totalCost) {
-                    continue;
+                    //continue;
                     bool appendTo = true;
                     //debug
                     //cout<<"append:\t"<<successor->toStr()<<endl;
@@ -255,6 +258,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
         }
     }
     this->allPath.clear();
+    cout<<"A star find #"<<res.size()<<" paths"<<endl;
     printMee(res);
     //consistentZFilter();
     //shuffle path

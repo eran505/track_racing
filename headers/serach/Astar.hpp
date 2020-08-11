@@ -88,7 +88,7 @@ namespace AStar
         void filterPaths();
         void consistentZFilter();
         void setHeuristic(HeuristicFunction heuristic_);
-        int findPath( StatePoint& source_, const StatePoint& target,bool toDict = true);
+        int findPath( StatePoint& source_, const StatePoint& target,bool toDict = true,bool not_exactly=true);
         listNode findComplexPath(StatePoint& source_,Point& mid, const StatePoint& target_);
         int count_pathz(vector<Node*> *l );
         void changeMaxSpeed(uint speedMaxNew){this->absMaxSpeed=speedMaxNew;}

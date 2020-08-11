@@ -21,7 +21,7 @@ public:
     {}
 
     vector<vector<AStar::StatePoint>> get_paht_a_b(AStar::StatePoint& source_,const AStar::StatePoint& target_){
-        gen.findPath(source_,target_,false);
+        gen.findPath(source_,target_,false,false);
         assert(!gen.get_deep_list_nodes_ref_const().empty());
         return gen.get_deep_list_nodes();
         //assert(!list_nodes.empty()
@@ -34,11 +34,11 @@ public:
 class ABfinder{
     Randomizer randomizer_obj;
     Point GridSzie;
-    double stho=0.7;
-    u_int limt=4;
+    double stho=0.6;
+    u_int limt=10;
     u_int16_t MAX_SPEED=2;
     Point last_action;
-
+    bool is_random=false;
     vector<AStar::StatePoint> seq_state;
     Astar_util Astar_util_object;
 public:
@@ -67,6 +67,7 @@ private:
     }
     void genarte_path(const AStar::StatePoint &A,const AStar::StatePoint &B)
     {
+
         AStar::StatePoint cur = A;
         seq_state.emplace_back(cur);
         while(less_than_limit(cur,B))
@@ -75,7 +76,7 @@ private:
             bool bol=true;
             while(bol)
             {
-                //cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<endl;
+                //cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
                 get_action_to_goal(cur,B);
                 bol=!vaild_move(cur);
             }
@@ -87,24 +88,23 @@ private:
     void get_action_to_goal(AStar::StatePoint & cur,const AStar::StatePoint& Goal)
     {
 
-        if(inset_noise()) return;
         move_to_goal(cur,Goal);
-
     }
     [[nodiscard]] bool less_than_limit(const AStar::StatePoint& cur,const AStar::StatePoint& Goal)const
     {
-        if(Goal.pos[0]>cur.pos[0]+limt and Goal.pos[1]>cur.pos[1]+limt)
+        if(Goal.pos[0]>cur.pos[0]+limt or Goal.pos[1]>cur.pos[1]+limt)
             return true;
         return false;
     }
     bool inset_noise()
     {
         //cout<<"noise"<<endl;
+
         if(randomizer_obj.get_double()>stho)
         {
             for(int i=0;i<last_action.capacity;++i)
                 last_action.array[i]=get_move_aixs_random(randomizer_obj.get_double());
-            last_action.array[2]=-1;
+            last_action.array[2]=0;
             return true;
         }
         return false;
@@ -112,11 +112,27 @@ private:
     void move_to_goal(AStar::StatePoint & cur,const AStar::StatePoint& Goal)
     {
         for(int k=0;k<last_action.capacity;++k)
+        {
             last_action.array[k]=get_move_aixs(k,cur,Goal);
+        }
 
+    }
+    static int get_action_in_limt(int i,const AStar::StatePoint &cur)
+    {
+        if(cur.speed[i]>0)
+            return -1;
+        if(cur.speed[i]<0)
+            return 1;
+        else  return 0;
     }
     [[nodiscard]] int get_move_aixs(int i,const AStar::StatePoint &cur,const AStar::StatePoint& Goal)
     {
+        if(cur.pos[i]+limt>Goal.pos[i] && i<2)
+        {
+            return get_action_in_limt(i,cur);
+        }
+        if(stho<randomizer_obj.get_double()&& i<2)
+            return get_move_aixs_random(randomizer_obj.get_double());
         if(i==2)
         {
             if(cur.pos[2]==this->GridSzie[2]-2 and  cur.speed[2]==0)
@@ -125,6 +141,8 @@ private:
                 return -1;
             if(cur.pos[2]==1 and  cur.speed[2]==0)
                 return 1;
+            if(cur.speed[2]>=1)
+                return 0;
             return 1;
         }
         auto m = Goal.pos[i] - (cur.pos[i]+cur.speed[i]);
@@ -148,6 +166,11 @@ private:
             cur=cur_old;
             return false;
         }
+        if(cur.speed[0]==0 and cur.speed[1]==0 and cur.speed[2]==0)
+        {
+            cur=cur_old;
+            return false;
+        }
         return true;
     }
     [[nodiscard]] bool is_out_bound(const AStar::StatePoint &cur)const{
@@ -155,7 +178,7 @@ private:
         if(!(this->GridSzie>cur.pos)) return true;
         if(!(this->GridSzie+1>cur.pos+cur.speed)) return true;
         if((cur.pos+cur.speed).any_ngative()) return true;
-
+        if(cur.pos[2]+cur.speed[2]>=GridSzie[2]) return true;
         return false;
     }
     static int get_move_aixs_random(double d)

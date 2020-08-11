@@ -19,8 +19,10 @@ class Saver{
     vector<H> body;
     csvfile csver;
     bool is_capacity=false;
+    std::function<void (H &item)> writeData=[&](H &item){csver<<item;};
 
 public:
+    void set_write_lamda(std::function<void (H &item)> &write_data){this->writeData=write_data;}
     explicit Saver(string&& file_name_path,std::vector<H>&& header_name ,u_int write_max_buffer=-1):
     file_path(file_name_path)
     ,MAX_buffer(write_max_buffer)
@@ -46,19 +48,26 @@ public:
     ~Saver()
     {
         if(body.empty()) return;
-
+        int i=0;
+        if(ctr_indx<this->MAX_buffer/3){
+            i=MAX_buffer/3;
+            ctr_indx=MAX_buffer;
+        }
         for(auto &item:body)
         {
-            csver<<item;
+            if(i>=ctr_indx)
+                break;
+            writeData(item);
             csver<<endrow;
+            i++;
         }
         csver.flush();
     }
-    void set_header(const vector<H> &vec)
+    void set_header_vec(const vector<H> &vec)
     {
-        header=vec;
-        insert_header();
+        insert_header(vec);
     }
+
     template<typename V>
     void inset_one_item(const V &item)
     {
@@ -74,8 +83,10 @@ public:
     {
         body[ctr_indx]=val;
         ctr_indx++;
-        if(ctr_indx>=MAX_buffer)
+
+        if(ctr_indx>=MAX_buffer){
             ctr_indx=0;
+        }
     }
     template<typename T>
     void inset_data(const T& vec_data)
@@ -88,9 +99,9 @@ public:
         is_flush();
     }
 private:
-    void insert_header()
+    void insert_header(const vector<H> &vec)
     {
-        for(auto &item:header)
+        for(auto &item:vec)
             csver<<item;
         csver<<endrow;
     }

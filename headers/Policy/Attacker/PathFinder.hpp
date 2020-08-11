@@ -65,18 +65,32 @@ public:
 
     void add_path_to_dict(const std::vector<StatePoint> &A_list)
     {
+        vector<AStar::StatePoint> seq_state;
         vector<AStar::StatePoint> seq_state_all;
-        for(int k=0;k<A_list.size()-1;++k)
+        auto new_list = add_middle_point_at_random(A_list);
+        for(int k=0;k<new_list.size()-1;++k)
         {
-            vector<AStar::StatePoint> seq_state = aBFinder.get_pathz(A_list[k],A_list[k+1]);
-            std::move(seq_state.begin(), seq_state.end(), std::back_inserter(seq_state_all));
+            seq_state = aBFinder.get_pathz(new_list[k],new_list[k+1]);
+            for(const auto &x:seq_state)cout<<x.toStr()<<endl;
+            std::move(seq_state.begin(), seq_state.end()-1, std::back_inserter(seq_state_all));
         }
+        seq_state_all.push_back(seq_state[seq_state.size()-1]);
         pathsToDict(seq_state_all);
     }
 
 
-
-
+    StatePoint get_random_point()
+    {
+        Point p;
+        for(int i=0;i<p.capacity;++i)
+            p.array[i]=int(this->getRandom()*(grid_size[i]));
+        p.array[2]=2;
+        return {p,Point(0,0,0)};
+    }
+    std::vector<StatePoint> add_middle_point_at_random(const std::vector<StatePoint> &A_list)
+    {
+        return {*A_list.begin(),get_random_point(),A_list[1]};
+    }
     Point get_action(State *s) override
     {
         auto EntryIndx = get_hash_state(s);
@@ -120,9 +134,11 @@ public:
     const vector<double >* TransitionAction(const State *s) override {
         /* first  - action
          * second - probabilitiy*/
-
+        //cout<<"[debug] "<<s->to_string_state()<<endl;
         auto EntryIdx = get_hash_state(s);
         auto pos = this->policyMap->find(EntryIdx);
+//        if (pos->second->size()!=2)
+//            for(const auto &item:*pos->second) cout<<item<<endl;
         if (pos==this->policyMap->end())
             throw std::runtime_error(std::string("Error: cant find the key "));
         return this->policyMap->at(EntryIdx);
@@ -139,6 +155,7 @@ public:
         for (unsigned long i = 0; i < allPath.size()-1; ++i) {
             Point difAction = allPath[i+1].speed.operator-(allPath[i].speed);
 
+
             u_int64_t key = Point::hashNnN(allPath[i].pos.hashConst(),
                                            allPath[i].speed.hashConst(Point::maxSpeed));
             if (key<u_int64_t(0))
@@ -148,6 +165,8 @@ public:
             cout<<allPath[i+1].pos.to_str()<<endl;
 
             u_int ation_h = difAction.hashMeAction(Point::D_point::actionMax);
+            //cout<<"ation_h="<<ation_h<<" : "<<difAction.to_hash_str()<<endl;
+            //cout<<"key="<<key<<"\t"<<allPath[i].pos.to_hash_str()<<"_"<<allPath[i].speed.to_hash_str()<<endl;
             auto pos = RAW_policyMap.find(key);
             if (pos == RAW_policyMap.end()) {
                 RAW_policyMap.try_emplace(key);
@@ -163,6 +182,70 @@ public:
 
     }
 
+    void treeTraversal(State *ptrState)
+    {
+
+        std::deque<pair<State,double>> q;
+        vector<pair<double,vector<Point>>> myPaths;
+
+        q.emplace_back(*ptrState,1);
+        double probAcc=1;
+        vector <pair<State,double>> path;
+        while (!q.empty())
+        {
+            auto pairCur = q.front();
+            auto curState = std::get<0>(pairCur);
+            auto prob =std::get<1>(pairCur);
+
+            //cout<<curState.to_string_state()<<endl;
+            q.pop_front();
+            if(curState.isEndState(this->id_agent))
+            {
+                vector<Point> v;
+                path.emplace_back(curState,prob);
+                //v.push_back(std::to_string(probAcc));
+                for( auto item : path)
+                {
+                    auto posA = item.first.get_position_ref(this->id_agent);
+                    v.push_back(posA);
+                    //cout<<posA.to_str()<<",";
+                }
+                //cout<<endl;
+                auto posPair = path[path.size()-1];
+                auto p = posPair.second;
+                probAcc = probAcc/p;
+                path.pop_back();
+                myPaths.emplace_back(probAcc,std::move(v));
+                continue;
+            }
+            if (!path.empty())
+                if (curState.to_string_state() == std::get<0>( path[path.size()-1]).to_string_state())
+                {
+                    auto posPair = path[path.size()-1];
+                    auto p = posPair.second;
+                    probAcc = probAcc/p;
+                    path.pop_back();
+                    continue;
+                }
+            path.emplace_back(curState,prob);
+            auto next =nom.minizTrans(this->TransitionAction(&curState));
+            q.push_front({curState,probAcc});
+            probAcc=probAcc*prob;
+            for (int i = 0 ; i<next.size() ; ++i)
+            {
+                auto pos = this->hashActionMap->find(next.operator[](i));
+                if ( pos == this->hashActionMap->end())
+                    throw std::invalid_argument("Action index is invalid");
+                Point *actionI = pos->second;
+                State tmp(curState);
+                tmp.applyAction(this->id_agent,*actionI,this->max_speed);
+                //cout<<tmp.to_string_state()<<endl;
+                q.push_front({tmp,next[++i]});
+            }
+
+        }
+        cout<<"[treeTraversal]"<<endl;
+    }
 
 
 };

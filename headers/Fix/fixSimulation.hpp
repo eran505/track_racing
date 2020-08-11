@@ -39,7 +39,7 @@ public:
         _defender->setPolicy(policyD);
         g=_state->g_grid;
         _manager = fixManager(conf,std::move(levels),_defender,_state.get());
-        file_manger.set_header({"Collision","Wall" ,"Goal" ,"PassBy"
+        file_manger.set_header_vec({"Collision","Wall" ,"Goal" ,"PassBy"
                                 ,"Down0","Down1","Down2","key0","key1","key2"});
     }
     void main_loop()

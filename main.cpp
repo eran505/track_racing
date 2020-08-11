@@ -80,7 +80,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/car_model/config/size.csv";
+    pathCsv  = home + "/car_model/config/con64.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -95,6 +95,7 @@ int main(int argc, char** argv) {
         string curToCsvPolciy;
         auto row = csvRows[i];
         // size of Grid
+
         configGame conf(row,seed);
         //conf.inset_data(parser(argv,argc));
         srand(conf._seed);

@@ -95,5 +95,24 @@ public:
 
         }
     }
+    vector<double> minizTrans(const vector<double> *x) {
+        vector<double> newVector;
+        unordered_map<double,double> d;
+        for (int i = 0; i <x->size() ; ++i) {
+            auto keyH = x->operator[](i);
+            auto prob = x->operator[](++i);
+            auto pos = d.find(keyH);
+            if (pos==d.end())
+                d.insert({keyH,prob});
+            else
+                d[keyH]+=prob;
+        }
+        for (auto item : d) {
+            newVector.push_back(item.first);
+            newVector.push_back(item.second);
+        }
+        return newVector;
+    }
+
 };
 #endif //TRACK_RACING_NORMALIZER_H

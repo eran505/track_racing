@@ -161,7 +161,7 @@ private:
     static void print_stack(vector<tuple_state>& vec)
     {
         cout<<"----------"<<endl;
-        for(auto &item:vec) cout<<"{ "<<item.state->to_string_state()<<", "<<item.probability<<" }"<<endl;
+        for(auto &item:vec) cout<<"[stack] { "<<item.state->to_string_state()<<", "<<item.probability<<" }"<<endl;
     }
 };
 
