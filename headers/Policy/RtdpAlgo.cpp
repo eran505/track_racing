@@ -6,9 +6,9 @@
 //#define PrinT
 
 #include <utility>
-RtdpAlgo::RtdpAlgo(int maxSpeedAgent, int grid_size, vector<pair<int,int>>& max_speed_and_budget,const string &agentID,string &home,dictionary &ptrDict,short miniGrid)
+RtdpAlgo::RtdpAlgo(int maxSpeedAgent, int grid_size,const string &agentID,string &home,dictionary &ptrDict,short miniGrid)
         : Policy("RTDP", maxSpeedAgent,agentID,home,ptrDict){
-   this->RTDP_util_object = new RTDP_util(grid_size,max_speed_and_budget,home);
+   this->RTDP_util_object = new RTDP_util(grid_size,home);
     this->RTDP_util_object->set_tran(&this->tran);
     this->RTDP_util_object->MyPolicy(this);
     set_mode_agent(miniGrid);
@@ -41,7 +41,7 @@ void RtdpAlgo::reset_policy() {
 }
 
 
-const vector<double >* RtdpAlgo::TransitionAction(const State *s)
+const vector<double >* RtdpAlgo::TransitionAction(const State *s)const
 {
 
     return this->RTDP_util_object->get_probabilty(s);
@@ -276,7 +276,7 @@ tuple<double,bool> RtdpAlgo::EvalState5(State *s) {
     return {0+epsilion,false};
 }
 
-Point RtdpAlgo::get_lastPos() const{
+Point RtdpAlgo::get_lastPos() {
     assert(false);
     return Point(0);
 }

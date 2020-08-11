@@ -45,21 +45,18 @@ class SimulationGame{
     Grid *g= nullptr;
     Saver<string> file_manger;
     Saver<string> trajectory_file;
-    int seq_max_action=0;
+
     Converager<5,std::vector<double>> converagerr;
     //set<string> debuger;
 public:
-    SimulationGame(configGame &conf,Policy *policyA,Policy *policyD,std::vector<weightedPosition>& listPointAttacker
-            ,std::vector<weightedPosition>& listPointDefender,State *s,int levels=3):
-            _attacker(std::make_unique<Agent>(listPointAttacker,adversary,1)),
-            _defender(std::make_unique<Agent>(listPointDefender,gurd,1)),
+    SimulationGame(configGame &conf,std::unique_ptr<Agent> agentA,
+                   std::unique_ptr<Agent> agentD,State *s):
+            _attacker(std::move(agentA)),
+            _defender(std::move(agentD)),
             _state(std::make_unique<State>(*s)),random_object(std::make_unique<Randomizer>(conf._seed))
             ,file_manger(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.levelz)+"_Eval.csv",10)
-            ,trajectory_file(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.levelz)+"_Traj.csv",9000)
-            ,seq_max_action(levels)
-    {
-        _attacker->setPolicy(policyA);
-        _defender->setPolicy(policyD);
+            ,trajectory_file(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.levelz)+"_Traj.csv",9000){
+
         g=_state->g_grid;
         //this->iterationsMAX=std::max(g->getSizeIntGrid(),200000);
         file_manger.set_header_vec({"episodes","Collision","Wall" ,"Goal" ,"PassBy","moves"});
@@ -297,8 +294,8 @@ private:
     void treeTraversal()
     {
          PathFinder *ptr = dynamic_cast<PathFinder*>(this->_attacker->getPolicyInt());
-
-         ptr->treeTraversal(_state.get());
+         auto myPaths = std::make_unique<vector<pair<double,vector<StatePoint>>>>();
+         ptr->treeTraversal(_state.get(),myPaths.get());
 
     }
 };

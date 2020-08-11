@@ -34,7 +34,7 @@ struct Converager{
     {
         arr_con[++ctr%N]=std::forward<V>(v);
     }
-    bool is_converage()const
+    [[nodiscard]] bool is_converage()const
     {
         if(ctr<N) return false;
         assert(this->comparator!= nullptr);
@@ -206,7 +206,7 @@ public:
      * :iterationMax = number of simulations
      * **/
     void simulate(u_int32_t iterationMax){
-        bool stop=false;
+        //bool stop=false;
         #ifdef DEBUG2
         cout<<"---> gridID:"<<gridID<<endl;
         #endif
@@ -242,7 +242,7 @@ public:
             #endif
             reset_state();
             if (isConverage(agents[event::agnetIDX::defenderInt].get())){cout<<"isCon"<<endl;break;}
-            auto bol = setPolicyEval();
+            //auto bol = setPolicyEval();
             //if(bol) break;
             #ifdef DEBUG2
             if(i%1000000==0) {cout<<"Iter:\t"<<i<<endl;printMe();}

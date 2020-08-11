@@ -5,20 +5,10 @@
 
 #include "RTDP_util.hpp"
 
-RTDP_util::RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget,string &mHome):home(mHome),last_entry() {
+RTDP_util::RTDP_util(int grid_size,string &mHome):home(mHome),last_entry() {
     this->hashActionMap=Point::getDictAction();
     size_mapAction = hashActionMap->size();
     HashFuction=[](const State *s){return s->getHashValue();};
-
-    size_Q = 1;
-    for(auto &item : max_speed_and_budget)
-    {
-        auto max_speed = item.first;
-        if (max_speed==0)
-            size_Q *=(item.second);
-        else
-            size_Q *= pow(max_speed*2+1,int(Point::D))*(grid_size)*item.second;
-    }
 }
 
 

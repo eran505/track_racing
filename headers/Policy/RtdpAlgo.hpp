@@ -62,16 +62,16 @@ public:
     }
     bool isInPolicy(const State *s) const override {return this->RTDP_util_object->isInQ(s);}
     RTDP_util* getUtilRTDP(){return RTDP_util_object;}
-    RtdpAlgo(int maxSpeedAgent, int grid_size, vector<pair<int,int>> &max_speed_and_budget,const string &agentID,string &home,dictionary &ptrDict,short miniGrid=0);
+    RtdpAlgo(int maxSpeedAgent, int grid_size,const string &agentID,string &home,dictionary &ptrDict,short miniGrid=0);
     Point get_action(State *s) override;
-    const vector<double >* TransitionAction(const State *s) override ;
+    const vector<double >* TransitionAction(const State *s) const override ;
     void reset_policy() override;
     void policy_data() const override;
     std::tuple<double,bool> EvalState2(State *s);
     std::tuple<double,bool> EvalState(State *s);
     tuple<double,bool> EvalState4(State *s);
         tuple<double,bool> EvalState3(State *s);
-    [[nodiscard]] Point get_lastPos() const;
+    [[nodiscard]] static Point get_lastPos() ;
     bool stoMove();
     void set_expder(int m){this->expnder->set_seq_action(m);}
 

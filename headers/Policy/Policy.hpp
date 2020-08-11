@@ -60,7 +60,7 @@ public:
     virtual void learnRest(){};
     virtual void policy_data()const=0;
     virtual bool isInPolicy(const State *s)const{return true;}
-    virtual const vector<double >* TransitionAction(const State *s)=0;
+    virtual const vector<double >* TransitionAction(const State *s)const=0;
     void add_tran(Policy *ptr_tran)
     {
         this->tran.push_back(ptr_tran);

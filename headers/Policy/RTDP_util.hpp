@@ -96,7 +96,7 @@ public:
     static void arg_max(arr &arr,vector<int> &vec);
     ~RTDP_util();
     RTDP_util(string &mHome):home(mHome){}
-    RTDP_util(int grid_size,vector<pair<int,int>>& max_speed_and_budget,string &mHome);
+    RTDP_util(int grid_size,string &mHome);
     void add_entry_map_state(keyItem basicString, const State *s);
 
     void set_value_matrix(keyItem entryState, Point &action ,double val){

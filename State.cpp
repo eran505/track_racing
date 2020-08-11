@@ -120,7 +120,7 @@ double State::isGoal(string &idStr)const {
     return this->g_grid->get_goal_reward(pos);
 }
 
-bool State::isEndState(std::string &idStr) {
+bool State::isEndState(const std::string &idStr) const{
     const auto& pos = this->get_position_ref(idStr);
     return this->g_grid->is_at_goal(pos);
 }

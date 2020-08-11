@@ -515,7 +515,7 @@ private:
         shared_ptr<unordered_map<string,string>> gameInfo_share = std::make_shared<unordered_map<string,string>>();
         gameInfo_share->emplace("ID",conf.idNumber).first;
         listQtalbe.emplace_back(0,vecPolicy[k]->size());
-        Policy* rtdp = new RtdpAlgo(conf.maxD,GridSzie,listQtalbe,d->get_id(),conf.home,gameInfo_share, evlNum);
+        Policy* rtdp = new RtdpAlgo(conf.maxD,GridSzie,d->get_id(),conf.home,gameInfo_share, evlNum);
         auto tmp = dynamic_cast<RtdpAlgo*>(rtdp);
         tmp->setStochasticMovement(stoProb);
         if(hashOnlyPos)

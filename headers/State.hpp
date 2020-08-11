@@ -25,7 +25,7 @@ public:
     void assignment( State &other);
     void assignment(const State &other, const string &id);
     double isGoal(string &idStr)const;
-    bool isEndState(std::string &idStr);
+    bool isEndState(const std::string &idStr)const;
     //Setters and Getters
 
     std::unique_ptr<State> getAbstractionState(Point &abstractPoint);

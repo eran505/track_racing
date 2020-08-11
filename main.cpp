@@ -39,8 +39,7 @@ Game* initGame(configGame& conf);
 vector<vector<string>> readConfigFile(string &filePath);
 void toCsvString(string pathFile,vector<string>* infoArr);
 void toCSVTemp(string pathFile, vector<string> &data);
-void FixAbstGame(configGame &conf, Policy* policyA,Policy *policyD, std::vector<weightedPosition>& listPointAttacker,
-                 std::vector<weightedPosition>& listPointDef, State *s,int level_num);
+void FixAbstGame(configGame &conf, std::unique_ptr<Agent> policyA,std::unique_ptr<Agent> policyD, State *s,int lev_number);
 void getConfigPath(int argc, char** argv,configGame &conf);
 /*
  * TODO LIST:
@@ -188,10 +187,10 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     listPointDefender.emplace_back(Point(0,0,0),std::move(conf.posDefender),1.0);
 
 
-    auto* pA1 = new Agent(listPointAttacker
+    auto pA1 = std::make_unique<Agent>(listPointAttacker
             ,adversary,0);
 
-    auto* pD2 = new Agent(listPointDefender
+    auto pD2 = std::make_unique<Agent>(listPointDefender
             ,gurd,0);
 
 
@@ -207,8 +206,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     }
 
     auto* s = new MdpPlaner(conf._seed);
-    s->add_player(pA1);
-    s->add_player(pD2);
+    s->add_player(pA1.get());
+    s->add_player(pD2.get());
     s->set_grid(g);
     s->set_state();
 
@@ -226,16 +225,10 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
                                         gameInfo_share,lStartingPointGoal,listPointAttacker,
                                         g->getPointSzie(),conf._seed,conf.rRoutes);
 
-    auto *tmp_pointer = dynamic_cast <PathFinder*>(pGridPath);
 
-//    //////// RTDP POLICY ////////
-    /* If max speed is zero, the explict number of state is in the second place */
-    vector<pair<int,int>> list_Q_data;
-    list_Q_data.emplace_back(maxD,1);
-    list_Q_data.emplace_back(0,tmp_pointer->getNumberOfState());
-
+    //////// RTDP POLICY ////////
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
-    Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),list_Q_data,pD2->get_id(),conf.home,gameInfo_share,5);
+    Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),pD2->get_id(),conf.home,gameInfo_share,5);
 
     int level_num=conf.levelz;
 
@@ -244,25 +237,14 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     pD2->setPolicy(RTDP);
     auto *rtdp_ptr = dynamic_cast <RtdpAlgo*>(RTDP);
     rtdp_ptr->init_expder(level_num);
-    FixAbstGame(conf,pGridPath,RTDP,listPointAttacker,listPointDefender,s->get_cur_state(),level_num);
+    FixAbstGame(conf,std::move(pA1),std::move(pD2),s->get_cur_state(),level_num);
     return s;
 }
 
-void FixAbstGame(configGame &conf, Policy* policyA,Policy *policyD, std::vector<weightedPosition>& listPointAttacker,
-                 std::vector<weightedPosition>& listPointDef, State *s,int lev_number)
+void FixAbstGame(configGame &conf, std::unique_ptr<Agent> policyA,std::unique_ptr<Agent> policyD, State *s,int lev_number)
 {
-//    vector<pair<Point,Point>> vec(lev_number);
-//    vec[0]={Point(2,2,1),Point(4,4,1)};
-//    vec[1]={Point(2,2,1),Point(2,2,1)};
-//    vec[2]={Point(1,1,1),Point(1,1,1)};
-//    vec[0]={Point(4,4,1),Point(4,4,1)};
-//    vec[1]={Point(4,4,1),Point(2,2,1)};
-//    vec[2]={Point(1,1,1),Point(1,1,1)};
 
-
-
-    auto sim = SimulationGame(conf, policyA,policyD,
-            listPointAttacker, listPointDef,s,lev_number);
+    auto sim = SimulationGame(conf, std::move(policyA),std::move(policyD),s);
     sim.main_loop();
     //exit(0);
 }

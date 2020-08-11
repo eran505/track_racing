@@ -27,9 +27,9 @@ public:
     void set_x(int dest){this->x=dest;}
     void reset_policy() override;
     void policy_data() const override;
-    std::vector<double>* TransitionAction(const State*) override;
+    std::vector<double>* TransitionAction(const State*) const override;
 
-    Point clac_diff(int index_gaol,const Point &my_pos){
+    [[nodiscard]] Point clac_diff(int index_gaol,const Point &my_pos)const{
         auto goal_i = this->golazz[index_gaol];
         Point p(0,0);
         for (int i = 0; i < my_pos.capacity; ++i) {
@@ -84,7 +84,7 @@ Dog::Dog(string namePolicy, int speed_MAX,int x,string agentID,string &home,dict
 
 }
 
-std::vector<double> *Dog::TransitionAction(const State *s) {
+std::vector<double> *Dog::TransitionAction(const State *s)const {
 
     auto l = new std::vector<double>();
     double prob = 1/double(this->golazz.size());

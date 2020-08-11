@@ -108,7 +108,7 @@ public:
     };
     void reset_policy() override{};
     void policy_data() const override{};
-    const std::vector<double>* TransitionAction(const State*) override;
+    const std::vector<double>* TransitionAction(const State*) const override;
     void normalizeDict();
 
 
@@ -154,7 +154,7 @@ Point PathPolicy::get_action(State *s) {
 
 }
 
-const std::vector<double> *PathPolicy::TransitionAction(const State *s) {
+const std::vector<double> *PathPolicy::TransitionAction(const State *s)const {
     /* first  - action
      * second - probabilitiy*/
     //cout<<s->to_string_state()<<endl;

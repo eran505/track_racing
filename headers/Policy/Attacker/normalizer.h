@@ -95,7 +95,7 @@ public:
 
         }
     }
-    vector<double> minizTrans(const vector<double> *x) {
+    static vector<double> minizTrans(const vector<double> *x) {
         vector<double> newVector;
         unordered_map<double,double> d;
         for (int i = 0; i <x->size() ; ++i) {

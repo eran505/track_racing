@@ -28,22 +28,23 @@ protected:
 public:
     [[nodiscard]] const weightedPositionVector& getAllPositions()const{return initialPosition;}
     Point lastAction;
-
+    [[nodiscard]] weightedPositionVector getAllPositions_copy()const{return initialPosition;}
     void setID(string &_id)
     {
         this->my_id=_id;
         this->my_Policy->set_id(_id);
         this->my_team=_id[_id.size()-1];
     }
-    bool get_is_wall() const{ return is_wall;}
+    int get_max_speed()const{return this->my_Policy->max_speed;}
+    [[nodiscard]] bool get_is_wall() const{ return is_wall;}
     void rest(){is_wall= false; this->my_Policy->reset_policy();}
-    const string& get_name_id()const{ return my_id;}
+    [[nodiscard]] const string& get_name_id()const{ return my_id;}
     Agent(weightedPositionVector Startpos,string m_id , char m_team,int b_budget);
     Agent(weightedPositionVector Startpos, char m_team,int b_budget);
-    const string& get_id()const{ return my_id; }
-    char get_team() const { return my_team; }
+    [[nodiscard]] const string& get_id()const{ return my_id; }
+    [[nodiscard]] char get_team() const { return my_team; }
     string get_name();
-    const Policy* getPolicy()const{ return my_Policy;};
+    [[nodiscard]] const Policy* getPolicy()const{ return my_Policy;};
     void doAction(State *s);
     void setPolicy(Policy* pPtr){pPtr->set_id(this->my_id); this->my_Policy=pPtr;}
     ~Agent();
@@ -52,16 +53,16 @@ public:
 
     Policy* getPolicyInt(){return my_Policy;}
 
-    int get_budget() const{ return this->my_budget;}
+    [[nodiscard]] int get_budget() const{ return this->my_budget;}
 
-    bool isAttacker() const
+    [[nodiscard]] bool isAttacker() const
     {
-        return this->get_team()==Section::adversary ? true : false;
+        return this->get_team() == Section::adversary;
     }
     void print()
     {
     }
-    pair<const Point&,const Point&> get_pos(double seed){
+    [[nodiscard]] pair<const Point&,const Point&> get_pos(double seed)const{
         double acc = 0;
         u_int16_t ctr=0;
         for (auto const &item:initialPosition){
