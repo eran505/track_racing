@@ -15,7 +15,7 @@ class SinglePath{
     std::unique_ptr<Agent> _defender;
     std::unique_ptr<State> _start_state;
     std::unique_ptr<vector_p_path> all_paths = nullptr;
-
+    std::unique_ptr<Agent> _parital_attacker = nullptr;
     configGame config;
 
     SinglePath(configGame &conf, State *s,Policy *policyA,Policy *policyD,
@@ -30,6 +30,7 @@ class SinglePath{
     void main_functopn_genrator()
     {
         get_all_paths();
+        
     }
     void train_single_path(const double path_probability, const std::vector<StatePoint>& path_states)
     {
