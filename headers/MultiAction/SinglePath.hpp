@@ -9,14 +9,16 @@
 
 typedef vector<pair<double,vector<StatePoint>>> vector_p_path;
 typedef std::unique_ptr<Agent> unique_agnet;
+typedef std::vector<containerFix> QtableItem;
 class SinglePath{
 
     std::unique_ptr<Agent> _attacker;
-    std::shared_ptr<Agent> _defender;
+    std::unique_ptr<Agent> _defender;
     std::unique_ptr<State> _start_state;
     std::unique_ptr<vector_p_path> all_paths = nullptr;
     std::unique_ptr<Agent> _parital_attacker = nullptr;
     configGame config;
+    std::vector<shared_ptr<QtableItem>> list_Q;
 public:
     SinglePath(configGame &conf, State *s,unique_agnet A,unique_agnet D):
             _attacker(std::move(A)),
@@ -26,15 +28,18 @@ public:
     {
         get_all_paths();
         cout<<"Path Number: "<<all_paths->size()<<endl;
+        list_Q=std::vector<std::shared_ptr<QtableItem>>(all_paths->size());
         //train_on_all_path();
         //exit(0);
     }
 
     void main_functopn_genrator()
     {
+        //std::reverse(all_paths->begin(),all_paths->end());
+        int ctr=0;
         std::for_each(all_paths->begin(),all_paths->end(),
                       [&](const pair<double,vector<StatePoint>>& item){
-            train_single_path(item.first,item.second);
+            train_single_path(item.first,item.second,ctr);ctr++;
         });
 
         eval_all_paths();
@@ -44,29 +49,37 @@ public:
         cout<<"[eval policy]"<<endl;
         //_defender->evalPolicy();
         SimulationGame sim = SimulationGame(config,std::move(_attacker),
-                                                _defender,_start_state.get());
+                                            std::move(_defender),_start_state.get());
+
         sim.main_loop();
+
         //_defender->trainPolicy();
     }
 private:
-    void train_single_path(const double path_probability, const std::vector<StatePoint>& path_states)
+    void train_single_path(const double path_probability, const std::vector<StatePoint>& path_states,int ctr)
     {
 
         Policy *ptr = new PathFinder(_attacker->get_max_speed()
                 ,_attacker->get_id(),config.home,path_probability,path_states);
         auto naive_attacker=std::make_unique<Agent>(_attacker->getAllPositions_copy(),adversary,1);
         naive_attacker->setPolicy(ptr);
-        SimulationGame sim = SimulationGame(config,std::move(naive_attacker),
-                                            _defender,_start_state.get());
-        sim.main_loop();
-    }
 
+        get_policy_defender()->init_expder(config.levelz);
+        apply_new_dico_q(ctr);
+        SimulationGame sim = SimulationGame(config,std::move(naive_attacker),
+                                            std::move(_defender),_start_state.get());
+
+        sim.main_loop();
+
+        _defender=std::move(sim.get_agnet_D());
+        cout<<"endd"<<endl;
+    }
     void eval_all_paths()
     {
         cout<<"[eval policy]"<<endl;
         _defender->evalPolicy();
         SimulationGame sim = SimulationGame(config,std::move(_attacker),
-                                            _defender,_start_state.get());
+                                            std::move(_defender),_start_state.get());
         sim.main_loop();
         _defender->trainPolicy();
     }
@@ -81,14 +94,48 @@ private:
     {
         return dynamic_cast<const PathFinder*>(_attacker->getPolicy());
     }
-    auto get_policy_defender() -> const RtdpAlgo*
+    auto get_policy_defender() -> RtdpAlgo*
     {
-        return dynamic_cast<const RtdpAlgo*>(_defender->getPolicy());
+        return dynamic_cast<RtdpAlgo*>(_defender->getPolicyInt());
+    }
+    void set_probability_df(double p)
+    {
+        get_policy_defender()->set_discounted_factor(p);
+    }
+    void apply_new_dico_q(int j)
+    {
+        list_Q[j]= get_policy_defender()->get_evalouater()->get_q_table();
     }
 
 
 
 };
 
+class containerFixAggregator{
+public:
+
+    template <typename T,typename F>
+    static std::vector<T> agg(const std::vector<T>& a, const std::vector<T>& b,const F& func)
+    {
+        assert(a.size() == b.size());
+
+        std::vector<T> result;
+        //result.resize(a.size());
+        result.reserve(a.size());
+
+        std::transform(a.begin(), a.end(), b.begin(),
+                       std::back_inserter(result), [&](const auto& x1,const auto& x2){return func(x1,x2);});
+        return result;
+    }
+    template <typename T,typename F>
+    static void agg_inplace(std::vector<T>& a, const std::vector<T>& b,const F& func)
+    {
+        assert(a.size() == b.size());
+
+        std::for_each(a.begin(), a.end(),
+                        [&](const auto& x1,const auto& x2){return func(x1,x2);});
+    }
+
+};
 
 #endif //TRACK_RACING_SINGLEPATH_HPP

@@ -33,13 +33,13 @@ class SimulationGame{
     //Grid _g;
     bool stop=false;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=28000;
+    u_int32_t iterationsMAX=300000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
     std::vector<u_int64_t > info = vector<u_int64_t>(4);
     std::unique_ptr<Agent> _attacker;
-    std::shared_ptr<Agent> _defender;
+    std::unique_ptr<Agent> _defender;
     std::unique_ptr<State> _state;
     int last_mode=0;
     std::unique_ptr<Randomizer> random_object= nullptr;
@@ -52,7 +52,7 @@ class SimulationGame{
 public:
 
     SimulationGame(configGame &conf,std::unique_ptr<Agent> agentA,
-                   std::shared_ptr<Agent> agentD,State *s):
+                   std::unique_ptr<Agent> agentD,State *s):
             _attacker(std::move(agentA)),
             _defender(std::move(agentD)),
             _state(std::make_unique<State>(*s)),random_object(std::make_unique<Randomizer>(conf._seed))
@@ -95,7 +95,7 @@ public:
             #endif
 
             print_info();
-            if(is_converage())
+            if(is_converage() or stop)
                 break;
         }
         reset();
@@ -112,8 +112,8 @@ public:
 
         return is_end_game;
     }
-    std::shared_ptr<Agent> get_agnet_D(){return this->_defender;}
-    void get_agnet_D(const std::shared_ptr<Agent>& D){this->_defender=D;}
+    std::unique_ptr<Agent>&& get_agnet_D(){return std::move(this->_defender);}
+    void set_agnet_D(std::unique_ptr<Agent>&& D){this->_defender=std::move(D);}
 private:
 
     void do_action_defender()

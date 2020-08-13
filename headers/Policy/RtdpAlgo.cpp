@@ -6,12 +6,12 @@
 //#define PrinT
 
 #include <utility>
-RtdpAlgo::RtdpAlgo(int maxSpeedAgent, int grid_size,const string &agentID,string &home,dictionary &ptrDict,short miniGrid)
-        : Policy("RTDP", maxSpeedAgent,agentID,home,ptrDict){
+RtdpAlgo::RtdpAlgo(int maxSpeedAgent, int grid_size,const string &agentID,string &home)
+        : Policy("RTDP", maxSpeedAgent,agentID,home){
    this->RTDP_util_object = new RTDP_util(grid_size,home);
     this->RTDP_util_object->set_tran(&this->tran);
     this->RTDP_util_object->MyPolicy(this);
-    set_mode_agent(miniGrid);
+    set_mode_agent(2);
     this->stackStateActionIdx = std::make_shared<vector<pair<State,pair<u_int64_t,int>>>>();
 
 }

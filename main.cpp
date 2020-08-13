@@ -66,6 +66,17 @@ void getConfigPath(int argc, char** argv,configGame &conf);
 typedef unsigned long ulong;
 
 int main(int argc, char** argv) {
+
+
+    vector<double> l1={1,2,3,4,5,6,7,8};
+    vector<double> l2={1.1,2,3.1,4,5.1,6,7.1,8};
+    containerFixAggregator::agg_inplace(l1,l2,[&](double x,double y){return (x+y);});
+    cout<<l1<<endl;
+    exit(0);
+
+
+
+
     GOT_HERE;
     auto dict_argv = parser(argv,argc);
     int seed = 1594198875;//1594198815;
@@ -223,13 +234,13 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 //
 
     Policy *pGridPath = new PathFinder("PathFinder",maxA,pA1->get_id(),conf.home,
-                                        gameInfo_share,lStartingPointGoal,listPointAttacker,
+                                       lStartingPointGoal,listPointAttacker,
                                         g->getPointSzie(),conf._seed,conf.rRoutes);
 
 
     //////// RTDP POLICY ////////
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
-    Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),pD2->get_id(),conf.home,gameInfo_share,5);
+    Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),pD2->get_id(),conf.home);
 
     int level_num=conf.levelz;
 

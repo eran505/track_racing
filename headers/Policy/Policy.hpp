@@ -19,7 +19,6 @@ public:
     bool is_wall;
     int D=2;
     string cashID;
-    dictionary infoDict;
     bool evalPolicy;
     string home;
     string id_agent;
@@ -29,8 +28,8 @@ public:
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution;
 
-    Policy(string name_policy,int max_speed_agent,string agentID,string &_home,dictionary info,int seed=3)
-    :max_speed(max_speed_agent),evalPolicy(false),infoDict(std::move(info)),home(_home),generator(seed){
+    Policy(string name_policy,int max_speed_agent,string agentID,string &_home,int seed=3)
+    :max_speed(max_speed_agent),evalPolicy(false),home(_home),generator(seed){
         this->name=std::move(name_policy);
         this->is_wall=false;
         this->out_budget= false;

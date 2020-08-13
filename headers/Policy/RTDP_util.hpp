@@ -100,10 +100,11 @@ public:
     void add_entry_map_state(keyItem basicString, const State *s);
 
     void set_value_matrix(keyItem entryState, Point &action ,double val){
-        if(std::abs(val-this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax)))==epslion)
-            return;
-        this->update_counter++;
+        //double dif = val-this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax));
+        //if(std::abs(dif)==epslion) return;
+        //this->update_counter++;
         this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax))=val;
+        //this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax))+=dif;
     }
     vector<double>* get_probabilty(const State *s);
     void update_final_State(State *s, double val);

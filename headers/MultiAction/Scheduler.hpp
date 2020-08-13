@@ -22,6 +22,7 @@ class Scheduler{
     u_int idx_level=-1;
 
 public:
+
     Scheduler(string a,string d,int num_lev):
     attacker_id(std::move(a))
     ,defender_id(std::move(d))
@@ -107,6 +108,7 @@ public:
         assert(idx_level>=0 and idx_level<_levels->size());
         rtdp->set_q_table(get_Q_table());
     }
+    std::shared_ptr<std::vector<containerFix>> get_all_q_dict(){return _levels;}
 private:
     Point get_dif(const State *s)
     {

@@ -21,6 +21,7 @@ class EvaluatorActionzer{
     std::shared_ptr<vector<pair<State,pair<u_int64_t,int>>>> stack_roll_back = nullptr;
     Scheduler _scheduler;
 public:
+    void set_discounted_factor(double gama){this->discount_factor=gama;}
     const Scheduler& get_Scheduler(){return _scheduler;}
     EvaluatorActionzer(string defender_name,string attacker_name,int lev=3,RTDP_util *ptr= nullptr):
     ptrRTDP(ptr),
@@ -69,6 +70,9 @@ public:
     void reset(RTDP_util *ptr)
     {
         _scheduler.reset(ptr);
+    }
+    auto get_q_table(){
+        return this->_scheduler.get_all_q_dict();
     }
 private:
 

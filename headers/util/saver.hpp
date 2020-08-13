@@ -8,6 +8,7 @@
 
 #include "csvfile.hpp"
 
+
 template<typename H>
 class Saver{
     string split=";";
@@ -29,6 +30,7 @@ public:
     ,header(header_name)
     ,csver(file_path,split)
     {
+
         if(MAX_buffer>0)
         {
             is_capacity=true;

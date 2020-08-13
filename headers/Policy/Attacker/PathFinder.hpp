@@ -20,9 +20,9 @@ class PathFinder: public Policy{
     PathGenartor genartor_path;
 
 public:
-    PathFinder(string namePolicy,int speed_MAX,const string &agentID,string &home,const dictionary &ptrDict,
-            std::vector<pair<std::vector<Point>,double>> &seq_Goal,std::vector<weightedPosition> start_point,const Point &GridSize,u_int64_t seed,int num_paths,double stcho=1.0)
-    : Policy(std::move(namePolicy),speed_MAX,agentID,home, ptrDict)
+    PathFinder(string namePolicy,int speed_MAX,const string &agentID,string &home,
+            std::vector<pair<std::vector<Point>,double>> &seq_Goal,const std::vector<weightedPosition>& start_point,const Point &GridSize,u_int64_t seed,int num_paths,double stcho=1.0)
+    : Policy(std::move(namePolicy),speed_MAX,agentID,home)
     , starting_point(start_point)
     , policyMap(std::make_unique<unordered_map<u_int64_t,std::vector<double>*>>())
     , genartor_path(seed,GridSize,max_speed)
@@ -32,7 +32,7 @@ public:
     }
 
     PathFinder(int speed_MAX,const string &agentID,string &home,const double p,const vector<StatePoint> &lPath)
-    :Policy("PathFinder",speed_MAX,agentID,home, nullptr)
+    :Policy("PathFinder",speed_MAX,agentID,home)
     ,policyMap(std::make_unique<unordered_map<u_int64_t,std::vector<double>*>>())
     {
         this->genartor_path.add_path(lPath,policyMap.get());

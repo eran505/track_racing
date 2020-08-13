@@ -42,6 +42,8 @@ protected:
     //stackStateActionIdxdouble expected_reward(State *s, Point &action);
     //double expected_reward_rec(State *s,int index_policy,deque<Point> &my_stack);
 public:
+    void set_discounted_factor(double gama){evaluator->set_discount_factor(gama);}
+
     void genrateInfoPrint(){this->RTDP_util_object->printInfoGen();}
     [[nodiscard]] u_int64_t getUpdateCtr()const{return  this->RTDP_util_object->get_update_ctr();}
     void resetAlgo(){this->RTDP_util_object->resetTable();}
@@ -62,7 +64,7 @@ public:
     }
     bool isInPolicy(const State *s) const override {return this->RTDP_util_object->isInQ(s);}
     RTDP_util* getUtilRTDP(){return RTDP_util_object;}
-    RtdpAlgo(int maxSpeedAgent, int grid_size,const string &agentID,string &home,dictionary &ptrDict,short miniGrid=0);
+    RtdpAlgo(int maxSpeedAgent, int grid_size,const string &agentID,string &home);
     Point get_action(State *s) override;
     const vector<double >* TransitionAction(const State *s) const override ;
     void reset_policy() override;
@@ -138,6 +140,9 @@ public:
     tuple<double, bool> EvalState5(State *s);
 
     void inset_to_stack_abs(State *s, Point &action, u_int64_t state_entry);
+
+    auto get_evalouater(){return this->evaluator.get();}
+
 };
 
 

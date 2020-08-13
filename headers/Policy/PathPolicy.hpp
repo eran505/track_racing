@@ -35,8 +35,8 @@ public:
         return share_dictHashAction->size();
     }
     PathPolicy(string namePolicy, int maxSpeedAgent,std::vector<std::pair<double,Point>>* endPoint_, vector<weightedPosition>& startPoint_,
-               Point &gridSzie, const string &agentID,vector<Point> midVecPoints,string &home,unsigned long maxPathz=ULONG_MAX,dictionary ptrDict=nullptr) : Policy(std::move(namePolicy),
-                       maxSpeedAgent,agentID,home,std::move(ptrDict)),midVec(move(midVecPoints)) {
+               Point &gridSzie, const string &agentID,vector<Point> midVecPoints,string &home,unsigned long maxPathz=ULONG_MAX) : Policy(std::move(namePolicy),
+                       maxSpeedAgent,agentID,home),midVec(move(midVecPoints)) {
         this->goalPoint=endPoint_;
         this->startPoint=startPoint_;
         this->statesIdDict= nullptr;
@@ -45,9 +45,9 @@ public:
         printf("\ndone!\n");
     }
 
-    PathPolicy(string namePolicy, int maxSpeedAgent,const string &agentID,string &home,unordered_map<u_int64_t,vector<double>*>* d,dictionary ptrDict=nullptr)
+    PathPolicy(string namePolicy, int maxSpeedAgent,const string &agentID,string &home,unordered_map<u_int64_t,vector<double>*>* d)
     :Policy(std::move(namePolicy),maxSpeedAgent,agentID,
-            home,std::move(ptrDict)),share_dictHashAction(d),goalPoint(nullptr),
+            home),share_dictHashAction(d),goalPoint(nullptr),
             statesIdDict(nullptr),maxPathsNumber(0),startPoint(0),midVec(0)
     {
         //share_dictHashAction=std::make_shared<auto>(d);
