@@ -19,6 +19,7 @@
 //#define PRINT
 #define STR_HOME_DIR "/car_model/out/"
 #include "util/Rand.hpp"
+#include "Abstract/Simulation.hpp"
 namespace info{
     enum info : short{
         CollId=0,WallId=1,GoalId=2,OpenId=3,Size=4,
@@ -32,7 +33,7 @@ class SimulationGame{
     //Grid _g;
     bool stop=false;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=3500000;
+    u_int32_t iterationsMAX=28000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -47,10 +48,11 @@ class SimulationGame{
     Saver<string> trajectory_file;
 
     Converager<5,std::vector<double>> converagerr;
-    //set<string> debuger;
+
 public:
+
     SimulationGame(configGame &conf,std::unique_ptr<Agent> agentA,
-                   std::unique_ptr<Agent> agentD,State *s):
+                   std::shared_ptr<Agent> agentD,State *s):
             _attacker(std::move(agentA)),
             _defender(std::move(agentD)),
             _state(std::make_unique<State>(*s)),random_object(std::make_unique<Randomizer>(conf._seed))
@@ -62,7 +64,7 @@ public:
         file_manger.set_header_vec({"episodes","Collision","Wall" ,"Goal" ,"PassBy","moves"});
         converagerr.set_comparator(comper_vectors);
         init_trajectory_file(conf);
-        treeTraversal();
+        //treeTraversal();
 
     }
     void init_trajectory_file(configGame &conf)
@@ -110,7 +112,8 @@ public:
 
         return is_end_game;
     }
-
+    std::shared_ptr<Agent> get_agnet_D(){return this->_defender;}
+    void get_agnet_D(const std::shared_ptr<Agent>& D){this->_defender=D;}
 private:
 
     void do_action_defender()
@@ -219,8 +222,8 @@ private:
     {
         if(iterations>iterationsMAX)
             return true;
-        if(converagerr.is_converage())
-            return true;
+//        if(converagerr.is_converage())
+//            return true;
         return false;
     }
     void reset_state(){
@@ -293,9 +296,15 @@ private:
     }
     void treeTraversal()
     {
-         PathFinder *ptr = dynamic_cast<PathFinder*>(this->_attacker->getPolicyInt());
-         auto myPaths = std::make_unique<vector<pair<double,vector<StatePoint>>>>();
-         ptr->treeTraversal(_state.get(),myPaths.get());
+        PathFinder *ptr = dynamic_cast<PathFinder*>(this->_attacker->getPolicyInt());
+        auto myPaths = std::make_unique<vector<pair<double,vector<StatePoint>>>>();
+        ptr->treeTraversal(_state.get(),myPaths.get());
+        cout<<"[treeTraversal]"<<endl;
+        for(const auto& item:*myPaths)
+        {
+            cout<<"P: "<<item.first<<endl;
+            cout<<item.second<<endl;
+        }
 
     }
 };

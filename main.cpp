@@ -26,6 +26,7 @@
 #include "Fix/fixSimulation.hpp"
 #include <headers/util/csvfile.hpp>
 #include "Policy/Attacker/PathFinder.hpp"
+#include "MultiAction/SinglePath.hpp"
 //#include <torch/script.h> // One-stop header.
 #include "MultiAction/Simulator.hpp"
 #include "learning/ReplayBuffer/SumTree.hpp"
@@ -79,7 +80,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/car_model/config/con64.csv";
+    pathCsv  = home + "/car_model/config/con16.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -243,9 +244,10 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 
 void FixAbstGame(configGame &conf, std::unique_ptr<Agent> policyA,std::unique_ptr<Agent> policyD, State *s,int lev_number)
 {
-
-    auto sim = SimulationGame(conf, std::move(policyA),std::move(policyD),s);
-    sim.main_loop();
+    auto single = SinglePath(conf,s,std::move(policyA),std::move(policyD));
+    single.main_functopn_genrator();
+    //auto sim = SimulationGame(conf, std::move(policyA),std::move(policyD),s);
+    //sim.main_loop();
     //exit(0);
 }
 

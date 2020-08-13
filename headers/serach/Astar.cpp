@@ -146,10 +146,9 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     first->G = 0;
     first->H = 0;
     vector<Node *> res;
-    u_int MAX_PATH=10;
+    u_int MAX_PATH=1;
     openSetID.insert({first->toStr(), first});
     openSetQ.insert({first->getScore(), first});
-    int ctr=0;
     while (!openSetQ.empty()) {
 
         //expand node
@@ -263,7 +262,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     //consistentZFilter();
     //shuffle path
 #ifndef DEBUG
-    std::shuffle(allPath.begin(), allPath.end(),   std::default_random_engine(rand()));
+    //std::shuffle(allPath.begin(), allPath.end(),   std::default_random_engine(rand()));
 #endif
     int size_paths = allPath.size();
     if (!toDict)

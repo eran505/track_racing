@@ -93,7 +93,8 @@ private:
         for(int i=0;i<p.capacity;++i)
             p.array[i]=int(this->random_gen.get_double()*(grid_size[i]));
         p.array[2]=2;
-        return {p,Point(0,0,0)};
+        p=Point(8,8,1);
+        return {p,Point(1,1,0)};
     }
     std::vector<StatePoint> add_middle_point_at_random(const std::vector<StatePoint> &A_list)
     {

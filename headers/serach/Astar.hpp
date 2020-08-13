@@ -33,6 +33,11 @@ namespace AStar
             pos=Point(other.pos);
             speed=Point(other.speed);
         }
+        friend ostream& operator<<(ostream& os, const StatePoint& dt)
+        {
+            os<<"{"<<dt.pos.to_str()<<","<<dt.speed.to_str()<<"} ";
+            return os;
+        }
     };
 
     using uint = unsigned int;

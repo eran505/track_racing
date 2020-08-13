@@ -4,7 +4,6 @@
 
 #ifndef RACING_CAR_UTIL_GAME_HPP
 #define RACING_CAR_UTIL_GAME_HPP
-#define foreach(list, indexer) for(indexer = 0; indexer < list.size(); ++indexer)
 
 #include <string>
 #include <list>
@@ -38,6 +37,14 @@ enum Section{
     gurd   = (int)'D'
 };
 
+template<typename OutStream, typename T>
+OutStream& operator<<(OutStream& out, const vector<T>& v)
+{
+    for (auto const& tmp : v)
+        out << tmp << " ";
+    out << endl;
+    return out;
+}
 
 class Point{
 
