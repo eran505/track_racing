@@ -121,7 +121,14 @@ private:
         int res = std::pow(2,x);
         return res;
     }
+    //for Debug
+public:
+    void change_dict_DEBUG(RTDP_util *rtdp,int k)const
+    {
+        _levels->operator[](idx_level).q = std::move(rtdp->get_q_table());
+        rtdp->set_q_table(std::move(_levels->operator[](k).q));
 
+    }
 };
 
 

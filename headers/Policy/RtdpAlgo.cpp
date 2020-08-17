@@ -54,6 +54,7 @@ Point RtdpAlgo::get_action(State *s)
 
     if (this->evalPolicy)
     {
+        //cout<<"[action] "<<action.hashMeAction(Point::actionMax)<<" "<<action.to_hash_str()<<endl;
         //auto actionIndx = int(this->RTDP_util_object->get_max_valueQ(s));
         //action = *this->hashActionMap->find(actionIndx)->second;
         if (!s->takeOff)
@@ -335,7 +336,11 @@ void RtdpAlgo::empty_stack_update() {
 }
 
 void RtdpAlgo::policy_data() const {
-    this->RTDP_util_object->policyData();
+//    this->evaluator->get_Scheduler().change_dict_DEBUG(this->RTDP_util_object,0);
+//    this->RTDP_util_object->policyData();
+//    this->evaluator->get_Scheduler().change_dict_DEBUG(this->RTDP_util_object,1);
+//    this->RTDP_util_object->policyData();
+//    this->RTDP_util_object->plusplus();
 }
 
 bool RtdpAlgo::stoMove() {

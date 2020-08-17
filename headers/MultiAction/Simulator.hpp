@@ -47,7 +47,7 @@ class SimulationGame{
     Saver<string> file_manger;
     Saver<string> trajectory_file;
 
-    Converager<5,std::vector<double>> converagerr;
+    Converager<10,std::vector<double>> converagerr;
 
 public:
 
@@ -95,7 +95,7 @@ public:
             #endif
 
             print_info();
-            if(is_converage() or stop)
+            if(is_converage())
                 break;
         }
         reset();
@@ -222,8 +222,8 @@ private:
     {
         if(iterations>iterationsMAX)
             return true;
-//        if(converagerr.is_converage())
-//            return true;
+        if(converagerr.is_converage())
+            return true;
         return false;
     }
     void reset_state(){

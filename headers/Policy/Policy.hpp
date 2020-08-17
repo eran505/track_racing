@@ -66,6 +66,9 @@ public:
         if((tran).size()==1)
             cashID=tran[0]->id_agent;
     }
+    void clear_tran(){
+        this->tran.clear();
+    }
     void applyActionToState(State *my_state, const Point &action )const{
         // change the budget according the budget function
         //this->budgetFunc(my_state, action);

@@ -52,6 +52,8 @@ public:
     {
         double res=0;
         auto old_idx=_scheduler.get_idx();
+
+        assert(state_tran_q.size()==1);
         std::for_each(state_tran_q.begin(),state_tran_q.end(),[&](auto &item){
             res+=evalute_state(item.first,item.second);
         });
@@ -107,12 +109,12 @@ private:
         }
         if (auto x = s->isGoal(attacker);x>=0)
         {
-            //cout<<"[R.GoalReward]"<<endl;
+           // cout<<"[R.GoalReward]"<<endl;
             return {R.GoalReward*x,true};
         }
         if (s->is_collusion(defender,attacker))
         {
-            //cout<<"[R.CollReward]"<<endl;
+           // cout<<"[R.CollReward]"<<endl;
             return {R.CollReward,true};
         }
         return {this->get_constant_cost(s->takeOff),false};

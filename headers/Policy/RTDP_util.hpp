@@ -36,6 +36,7 @@ protected:
     u_int64_t update_counter=0;
     vector<Policy*> *lTran= nullptr;
     Rewards R = Rewards::getRewards();
+    short ctr_debug=-1;
     unordered_map<keyItem,string> debugDict;
     const string home;
     std::function<u_int64_t (const State*)> HashFuction;
@@ -125,6 +126,8 @@ public:
     { return std::move(qTable);}
 
     bool apply_action_SEQ(State *s, const string &id, Point &action, int max_speed);
+
+    void plusplus();
 };
 
 

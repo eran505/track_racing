@@ -84,6 +84,7 @@ double RTDP_util::rec_h(State *s,int index, double acc_probablity)
 }
 
 void RTDP_util::add_entry_map_state(keyItem key,const State *s) {
+    this->debugDict.insert({key,s->to_string_state()});
     // compute heuristic
     #ifdef VECTOR
     this->qTable->try_emplace(key,27);
@@ -118,22 +119,30 @@ void RTDP_util::arg_max(arr &arr,vector<int>& listIdxs){
 int RTDP_util::get_state_argmax(const State *s) {
     //int argMax = -1;
     keyItem key = getStateKeyValue(s);
+
     auto &row = this->get_Q_entry_values(s, key);
-//    for(int i=0;i<row.size();++i)
-//        cout<<"  ["<<i<<"]="<<row[i];
-//    cout<<endl;
+
+//    if(this->my_policy->evalPolicy ) {
+//        cout << "[state] " << s->to_string_state() << endl;
+//        for (int i = 0; i < row.size(); ++i)
+//            cout << "  [" << i << "]=" << row[i];
+//        cout << endl;
+//    }
+
     vector<int> argMax_list;
     arg_max(row, argMax_list);
     this->last_entry = key;
-    return argMax_list.front();
-    //int size = argMax_list.size();
-//    if (size>1)
+//    if(this->my_policy->evalPolicy ) {
+//        cout<<"action:\t"<<argMax_list.front()<<endl;
+//    }
+//    if(s->to_string_state()=="0A_(16, 17, 2)_(2, 2, 0)_0|0D_(20, 19, 0)_(-1, -1, 0)_1|")
 //    {
-//        int idx = int(this->my_policy->getRandom()*size)%size;
-//        //ctr_random = ++ctr_random%size;
-//        argMax = argMax_list[idx];
-//    } else
-//        argMax = argMax_list[0];
+//        cout<<key<<endl;
+//        cout<<qTable->at(key)<<endl;
+//        cout<<argMax_list<<endl;
+//    }
+    return argMax_list.front();
+
 }
 
 vector<double>* RTDP_util::get_probabilty(const State *s) {
@@ -223,10 +232,11 @@ double RTDP_util::compute_h(State *s) {
     //cout<<"h(<"<<s->to_string_state()<<")="<<res<<endl;
     return res;
 }
+void RTDP_util::plusplus(){this->ctr_debug++;}
 
 void RTDP_util::policyData() {
     //return;
-    string pathFile=this->home+"/car_model/debug/";
+    string pathFile=this->home+"/car_model/debug/"+std::to_string(ctr_debug);
 
     //csv action state-------------------------------
     try{
@@ -254,6 +264,7 @@ void RTDP_util::policyData() {
         csv<<endrow;
         for(auto &item1:*qTable)
         {
+            csv<<item1.first;
             std::for_each(item1.second.begin(),item1.second.end(),[&](auto val)
             {
                 csv<<val;
@@ -274,7 +285,7 @@ void RTDP_util::policyData() {
             csv<<item.second;
             csv<<endrow;
         }
-
+        debugDict.clear();
     }
     catch (const std::exception &ex){std::cout << "Exception was thrown: " << ex.what() << std::endl;}
 
