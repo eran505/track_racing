@@ -6,10 +6,82 @@
 #define TRACK_RACING_SINGLEPATH_HPP
 #include "Policy/Attacker/PathFinder.hpp"
 #include "Simulator.hpp"
-
 typedef vector<pair<double,vector<StatePoint>>> vector_p_path;
 typedef std::unique_ptr<Agent> unique_agnet;
 typedef std::vector<containerFix> QtableItem;
+
+
+
+class containerFixAggregator{
+public:
+
+    template <typename T,typename F>
+    static std::vector<T> agg(const std::vector<T>& a, const std::vector<T>& b,const F& func)
+    {
+        assert(a.size() == b.size());
+
+        std::vector<T> result;
+
+        result.reserve(a.size());
+
+        std::transform(a.begin(), a.end(), b.begin(),
+                       std::back_inserter(result), [&](const auto& x1,const auto& x2){return func(x1,x2);});
+
+        return result;
+    }
+    template <typename T>
+    static std::vector<T> self_agg(const std::vector<T>& a,const double p)
+    {
+        std::vector<T> result;
+
+        result.reserve(a.size());
+
+        std::transform(a.begin(), a.end(),
+                       std::back_inserter(result), [&](const auto& x2){return p*x2;});
+
+        return result;
+    }
+
+    template<typename F>
+    static std::unique_ptr<unordered_map<u_int64_t,arr>> merge_Q_tables(
+            const unordered_map<u_int64_t,arr>* left ,
+            const unordered_map<u_int64_t,arr>* right,
+            F &agg_fun)
+    {
+        if(left == nullptr or right==nullptr)
+            return nullptr;
+
+        auto res = std::make_unique<unordered_map<u_int64_t,arr>>();
+        std::for_each(right->begin(),right->end(),[&](const pair<u_int64_t,arr> &item){
+            res->try_emplace(item.first,self_agg(item.second,1));
+        });
+        std::for_each(left->begin(),left->end(),[&](const pair<u_int64_t,arr> &item){
+            if(auto pos = right->find(item.first); pos==right->end())
+                res->try_emplace(item.first,self_agg(item.second,1));
+            else
+                res->operator[](item.first)=agg(item.second,pos->second,agg_fun);
+        });
+        cout<<"L: "<<left->size()<<"+ R: "<<right->size()<<" --> res: "<<res->size()<<endl;
+        return res;
+    }
+
+    static auto vector_merge_containerFix_to_left(QtableItem* left,const QtableItem* right)
+    {
+        assert(left->size()==right->size());
+        vector<qTbale_dict> res(right->size());
+        //auto fun = [&](double x,double y)->double {return std::min(x,y);};
+        auto fun = [&](double x,double y)->double {return x*1+y*0;};
+        for(int i=0;i<left->size();++i)
+        {
+            left->operator[](i).q = merge_Q_tables(left->operator[](i).q.get()
+                    ,right->operator[](i).q.get(),fun);
+
+        }
+        return true;
+    }
+};
+
+
 class SinglePath{
 
     std::unique_ptr<Agent> _attacker;
@@ -28,6 +100,7 @@ public:
     {
         get_all_paths();
         cout<<"Path Number: "<<all_paths->size()<<endl;
+
         list_Q=std::vector<std::shared_ptr<QtableItem>>(all_paths->size());
         //train_on_all_path();
         //exit(0);
@@ -41,8 +114,13 @@ public:
                       [&](const pair<double,vector<StatePoint>>& item){
             train_single_path(item.first,item.second,ctr);ctr++;
         });
+        //cout<<this->list_Q.back()->back().q->size()<<endl;
+
+        containerFixAggregator::vector_merge_containerFix_to_left(list_Q[1].get(),list_Q[0].get());
 
         eval_all_paths();
+        cout<<endl;
+
     }
     void train_on_all_path()
     {
@@ -81,7 +159,9 @@ private:
         SimulationGame sim = SimulationGame(config,std::move(_attacker),
                                             std::move(_defender),_start_state.get());
         sim.main_loop();
+        _defender=std::move(sim.get_agnet_D());
         _defender->trainPolicy();
+        cout<<endl;
     }
     void get_all_paths()
     {
@@ -111,31 +191,5 @@ private:
 
 };
 
-class containerFixAggregator{
-public:
-
-    template <typename T,typename F>
-    static std::vector<T> agg(const std::vector<T>& a, const std::vector<T>& b,const F& func)
-    {
-        assert(a.size() == b.size());
-
-        std::vector<T> result;
-        //result.resize(a.size());
-        result.reserve(a.size());
-
-        std::transform(a.begin(), a.end(), b.begin(),
-                       std::back_inserter(result), [&](const auto& x1,const auto& x2){return func(x1,x2);});
-        return result;
-    }
-    template <typename T,typename F>
-    static void agg_inplace(std::vector<T>& a, const std::vector<T>& b,const F& func)
-    {
-        assert(a.size() == b.size());
-
-        std::for_each(a.begin(), a.end(),
-                        [&](const auto& x1,const auto& x2){return func(x1,x2);});
-    }
-
-};
 
 #endif //TRACK_RACING_SINGLEPATH_HPP

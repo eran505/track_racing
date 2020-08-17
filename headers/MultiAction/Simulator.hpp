@@ -33,7 +33,7 @@ class SimulationGame{
     //Grid _g;
     bool stop=false;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=300000;
+    u_int32_t iterationsMAX=100000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;

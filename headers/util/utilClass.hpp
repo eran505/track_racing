@@ -76,7 +76,7 @@ struct configGame{
     string config;
     Point posAttacker;
     int maxA{};
-    u_int levelz=11;
+    u_int levelz=3;
     int maxD{};
     Point posDefender;
     vector<Point> gGoals ;

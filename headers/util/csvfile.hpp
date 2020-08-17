@@ -4,13 +4,13 @@
 
 #ifndef TRACK_RACING_CSVFILE_HPP
 #define TRACK_RACING_CSVFILE_HPP
-#pragma once
+//#pragma once
 #include <string>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include "util_game.hpp"
-#include <filesystem>
+#include <experimental/filesystem>
 class csvfile;
 
 inline static csvfile& endrow(csvfile& file);
@@ -80,15 +80,15 @@ private:
     static void delete_existing_file(const string &file_path)
     {
         cout<<"in"<<endl;
-        try {
-            if (std::filesystem::remove(file_path))
-                std::cout << "file " << file_path << " deleted.\n";
-            else
-                std::cout << "file " << file_path << " not found.\n";
-        }
-        catch(const std::filesystem::filesystem_error& err) {
-            std::cout << "filesystem error: " << err.what() << '\n';
-        }
+//        try {
+//            if (std::experimental::filesystem::remove(file_path))
+//                std::cout << "file " << file_path << " deleted.\n";
+//            else
+//                std::cout << "file " << file_path << " not found.\n";
+//        }
+//        catch(const std::experimental::filesystem::filesystem_error& err) {
+//            std::cout << "filesystem error: " << err.what() << '\n';
+//        }
     }
     template<typename T>
     csvfile& write (const T& val)
