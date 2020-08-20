@@ -68,7 +68,7 @@ public:
     {
         assert(left->size()==right->size());
         vector<qTbale_dict> res(right->size());
-        //auto fun = [&](double x,double y)->double {return std::min(x,y);};
+        //auto fun = [&](double x,double y)->double {return std::max(x,y);};
         auto fun = [&](double x,double y)->double {return x+y;}; //x=0.25
         for(int i=0;i<left->size();++i)
         {
@@ -86,7 +86,7 @@ public:
         for(int i=0;i<QVec.size()-1;++i)
         {
             vector_merge_containerFix_left(QVec[last].get(),QVec[i].get(),acc,pVec[i]);
-            acc=1;
+            //acc=1;
         }
     }
 
@@ -129,7 +129,6 @@ public:
                           pVec.push_back(item.first);
 
         });
-        //cout<<this->list_Q.back()->back().q->size()<<endl;
 
         containerFixAggregator::agg_Q_tables(pVec,list_Q);
 
@@ -162,6 +161,7 @@ private:
 
         get_policy_defender()->init_expder(config.levelz);
         apply_new_dico_q(ctr);
+
         SimulationGame sim = SimulationGame(config,std::move(naive_attacker),
                                             std::move(_defender),_start_state.get());
 
@@ -169,6 +169,8 @@ private:
 
         sim.get_agnet_D()->getPolicy()->policy_data();
         _defender=std::move(sim.get_agnet_D());
+        // return the last q table
+        get_policy_defender()->returnAllQ();
         cout<<"endd"<<endl;
     }
     void eval_all_paths()
@@ -177,7 +179,7 @@ private:
         _defender->evalPolicy();
         _defender->getPolicyInt()->clear_tran();
         _defender->getPolicyInt()->add_tran(_attacker->getPolicyInt());
-
+        get_policy_defender()->get_first_Q();
         SimulationGame sim = SimulationGame(config,std::move(_attacker),
                                             std::move(_defender),_start_state.get());
         sim.main_loop();

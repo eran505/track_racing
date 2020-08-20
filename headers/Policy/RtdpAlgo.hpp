@@ -43,7 +43,8 @@ protected:
     //double expected_reward_rec(State *s,int index_policy,deque<Point> &my_stack);
 public:
     void set_discounted_factor(double gama){evaluator->set_discount_factor(gama);}
-
+    void returnAllQ(){this->evaluator->returnAll(this->RTDP_util_object);}
+    void get_first_Q(){this->evaluator->set_first_Q(this->RTDP_util_object);}
     void genrateInfoPrint(){this->RTDP_util_object->printInfoGen();}
     [[nodiscard]] u_int64_t getUpdateCtr()const{return  this->RTDP_util_object->get_update_ctr();}
     void resetAlgo(){this->RTDP_util_object->resetTable();}
@@ -79,9 +80,11 @@ public:
 
     template<typename Parm>
     void init_expder(Parm &p){
+
         expnder=std::make_unique<ActionExpnder>(_stochasticMovement,tran,this);
         evaluator = std::make_unique<EvaluatorActionzer>(this->get_id_name(),cashID,p,RTDP_util_object);
         evaluator->set_stack(stackStateActionIdx);
+        this->RTDP_util_object->isEmptyQ();
 
     }
 

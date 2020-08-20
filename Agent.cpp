@@ -24,9 +24,6 @@ Agent::Agent( weightedPositionVector Startpos, char m_team, int b_budget)
 }
 
 
-
-
-
 string Agent::get_name() {
     name = this->my_team+this->my_id;
     return name;
@@ -53,6 +50,8 @@ void Agent::doAction(State *s) {
     this->my_Policy->applyActionToState(s, lastAction);
 
     this->is_wall=my_Policy->is_wall;
+//    if(eval )
+//        cout<<"ACTION: " <<lastAction.to_str()<<" H()->"<<lastAction.hashMeAction(Point::actionMax)<<endl;
 
 }
 

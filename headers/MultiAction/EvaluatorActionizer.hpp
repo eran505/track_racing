@@ -15,19 +15,21 @@ class EvaluatorActionzer{
     string attacker;
     string defender;
     Rewards R = Rewards::getRewards();
-    double discount_factor = 1;
-    double constant_cost= -0.005;
+    double discount_factor = R.discountF;
+    double constant_cost= R.Step_reward;
     std::function <std::tuple<double,bool>(const State *s)> evaluationState;
     std::shared_ptr<vector<pair<State,pair<u_int64_t,int>>>> stack_roll_back = nullptr;
     Scheduler _scheduler;
 public:
     void set_discounted_factor(double gama){this->discount_factor=gama;}
     const Scheduler& get_Scheduler(){return _scheduler;}
+    Scheduler& get_Scheduler_ref(){return _scheduler;}
+
     EvaluatorActionzer(string defender_name,string attacker_name,int lev=3,RTDP_util *ptr= nullptr):
     ptrRTDP(ptr),
     attacker(std::move(attacker_name)),
     defender(std::move(defender_name)),
-    _scheduler(attacker,defender,lev)
+    _scheduler(attacker,defender,lev,ptrRTDP)
     {
         evaluationState = [&](const State *s){return EvalState2(s);};
     }
@@ -53,7 +55,7 @@ public:
         double res=0;
         auto old_idx=_scheduler.get_idx();
 
-        assert(state_tran_q.size()==1);
+        //assert(state_tran_q.size()==1);
         std::for_each(state_tran_q.begin(),state_tran_q.end(),[&](auto &item){
             res+=evalute_state(item.first,item.second);
         });
@@ -76,18 +78,26 @@ public:
     auto get_q_table(){
         return this->_scheduler.get_all_q_dict();
     }
+    void set_first_Q(RTDP_util *ptr)
+    {
+        ptr->set_q_table(_scheduler.get_Q_table());
+    }
+    void returnAll(RTDP_util *ptr)
+    {
+        _scheduler.return_Q_table(ptr->get_q_table());
+    }
 private:
 
     double evalute_state(const State *s,double transition_probability)
     {
-        //cout<<"[evalute_state] "<<s->to_string_state()<<endl;
+
         change_scope_const(s);
         double res=0;
         auto [val,isEndState]= this->evaluationState(s);
         if(!isEndState)
             val+=this->ptrRTDP->get_max_valueQ(s);
         res+=val*transition_probability*this->discount_factor;
-
+       // cout<<"[evalute_state] "<<s->to_string_state()<<"\tvla="<<res<<endl;
         return res;
     }
     int change_scope_const(const State *s)

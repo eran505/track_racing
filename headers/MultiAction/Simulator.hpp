@@ -33,7 +33,7 @@ class SimulationGame{
     //Grid _g;
     bool stop=false;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=100000;
+    u_int32_t iterationsMAX=10000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -47,7 +47,7 @@ class SimulationGame{
     Saver<string> file_manger;
     Saver<string> trajectory_file;
 
-    Converager<10,std::vector<double>> converagerr;
+    Converager<15,std::vector<double>> converagerr;
 
 public:
 
@@ -103,7 +103,8 @@ public:
     }
     bool loop()
     {
-        //cout<<this->_state->to_string_state()<<endl;
+//        if(this->_defender->getPolicyInt()->evalPolicy )
+//            cout<<this->_state->to_string_state()<<endl;
         change_abstraction();
         //cout<<this->_state->to_string_state()<<endl;
         do_action_defender();
@@ -160,22 +161,25 @@ private:
         #endif
         const Point& pos_A = this->_state->get_position_ref(this->_attacker->get_id());
         const Point& pos_D = this->_state->get_position_ref(this->_defender->get_id());
-
         //wall
         if(is_absolut_wall(pos_D))
         {
+            //if(this->_defender->getPolicyInt()->evalPolicy ) cout<<"[event] WallId"<<endl;
             info[info::WallId]++;
             return true;
         }
         //goal
         if(is_absolut_goal(pos_A))
         {
+            //if(this->_defender->getPolicyInt()->evalPolicy ) cout<<"[event] GoalId"<<endl;
             info[info::GoalId]++;
             return true;
         }
         //coll
         if(is_absolut_collision(pos_D,pos_A))
         {
+
+            //if(this->_defender->getPolicyInt()->evalPolicy ) cout<<"[event] CollId"<<endl;
             info[info::CollId]++;
             return true;
         }

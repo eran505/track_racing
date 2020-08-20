@@ -67,6 +67,12 @@ protected:
     double applyNonAction(const State *s);
 
 public:
+    void isEmptyQ()
+    {
+        if(qTable== nullptr)
+            qTable=std::make_unique<unordered_map<keyItem ,arr>>();
+    }
+    auto get_string_DEBUG(u_int64_t k){return debugDict.at(k);}
     double discountFactor=1;//0.987
     u_int64_t get_update_ctr() const{return this->update_counter;}
     bool isInQ(const State *s) const
@@ -114,6 +120,8 @@ public:
     cell get_max_valueQ(const State *s)
     {
         auto& ar = get_Q_entry_values(s,getStateKeyValue(s));
+//        if(s->to_string_state()=="0A_(15, 19, 1)_(2, 2, -1)_0|0D_(16, 20, 1)_(-1, 0, 1)_1|")
+//            cout<<ar<<endl;
         return *std::max_element(ar.begin(),ar.end());
     }
 

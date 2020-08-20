@@ -11,28 +11,11 @@ RtdpAlgo::RtdpAlgo(int maxSpeedAgent, int grid_size,const string &agentID,string
    this->RTDP_util_object = new RTDP_util(grid_size,home);
     this->RTDP_util_object->set_tran(&this->tran);
     this->RTDP_util_object->MyPolicy(this);
-    set_mode_agent(2);
     this->stackStateActionIdx = std::make_shared<vector<pair<State,pair<u_int64_t,int>>>>();
 
 }
 
-void RtdpAlgo::set_mode_agent(int miniGrid)
-{
-    miniGrid=2;
-    if(miniGrid==2)
-        this->evaluationState = [this](State *s){return this->EvalState2(s);};
-    else if(miniGrid==3)
-        this->evaluationState = [this](State *s){return this->EvalState3(s);};
-    else if(miniGrid==4)
-        this->evaluationState = [this](State *s){return this->EvalState4(s);};
-    else if(miniGrid==5)
-    {
-        abstraction_expnd=[&](State *s){this->transform_abstraction_A_inplace(s);};
-        this->evaluationState = [this](State *s){return this->EvalState5(s);};
-    }
-    else this->evaluationState = [this](State *s){return this->EvalState(s);};
 
-}
 
 void RtdpAlgo::reset_policy() {
     this->empty_stack_update();
@@ -175,81 +158,6 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
 
 //    return x;
 //}
-tuple<double,bool> RtdpAlgo::EvalState2(State *s)
-{
-    if (s->g_grid->is_wall(s->get_position_ref(this->id_agent)))
-    {
-        return {R.WallReward,true};
-    }
-    if (s->is_collusion(this->id_agent,this->cashID))
-    {
-        return {R.CollReward,true};
-    }
-    if (auto x = s->isGoal(this->cashID);x>=0)
-        return {R.GoalReward*x,true};
-    return {0,false};
-}
-
-tuple<double,bool> RtdpAlgo::EvalState(State *s) {
-
-    if (s->isGoal(this->cashID)>=0) {
-        return {R.GoalReward,true};
-    } else if (s->g_grid->is_wall(s->get_position_ref(this->GetId()))){
-        return {R.WallReward,true};
-    }else if(s->isEndState(this->cashID))
-    {
-        return {0,true};
-    }
-    else{
-            auto res = s->is_collusion(this->id_agent);
-            if (!res.empty())
-            {
-                return {R.CollReward,true};
-            }
-    }
-    return {0,false};
-}
-
-tuple<double,bool> RtdpAlgo::EvalState3(State *s) {
-
-
-    if (s->g_grid->is_wall(s->get_position_ref(this->GetId()))){
-        return {R.WallReward,true};
-    }
-    auto res = s->is_collusion(this->id_agent,this->cashID);
-    if (res){
-        if(get_lastPos()==s->get_position_ref(this->id_agent))
-            return {getReward(s->get_position_ref(this->id_agent)),true};
-    }
-    if (s->isGoal(this->cashID)>=0) {
-        return {R.GoalReward, true};
-    }
-    if(s->isEndState(this->cashID)){
-            return {0,true};
-    }
-    return {0,false};
-}
-
-tuple<double,bool> RtdpAlgo::EvalState4(State *s) {
-
-    double epsilon=0;
-    if (s->g_grid->is_wall(s->get_position_ref(this->GetId()))){
-        return {R.WallReward,true};
-    }
-    auto res = s->is_collusion(this->id_agent,this->cashID);
-    if (res){
-        if(get_lastPos()==s->get_position_ref(this->id_agent))
-            if(s->get_speed_ref(this->id_agent)==zero_action)
-                return {getReward(s->get_position_ref(this->id_agent)),true};
-    }
-    if (s->isGoal(this->cashID)>=0) {
-        return {R.GoalReward, true};
-    }
-    if(s->isEndState(this->cashID)){
-        return {0+epsilon,true};
-    }
-    return {0+epsilon,false};
-}
 
 tuple<double,bool> RtdpAlgo::EvalState5(State *s) {
 
@@ -326,7 +234,7 @@ void RtdpAlgo::inset_to_stack_abs(State *s,Point &action,u_int64_t state_entry)
 void RtdpAlgo::empty_stack_update() {
     if(this->stack_backup.is_empty()) return;
     this->stack_backup.pop();
-
+    //this->stack_backup.print_stak();
     while(!this->stack_backup.is_empty()) {
         auto& item = this->stack_backup.pop();
         this->evaluator->change_scope_(&item.state);
@@ -336,11 +244,13 @@ void RtdpAlgo::empty_stack_update() {
 }
 
 void RtdpAlgo::policy_data() const {
-//    this->evaluator->get_Scheduler().change_dict_DEBUG(this->RTDP_util_object,0);
-//    this->RTDP_util_object->policyData();
-//    this->evaluator->get_Scheduler().change_dict_DEBUG(this->RTDP_util_object,1);
-//    this->RTDP_util_object->policyData();
-//    this->RTDP_util_object->plusplus();
+
+    this->evaluator->get_Scheduler_ref().change_dict_DEBUG(this->RTDP_util_object,1);
+    this->RTDP_util_object->policyData();
+    this->evaluator->get_Scheduler_ref().change_dict_DEBUG(this->RTDP_util_object,0);
+    this->RTDP_util_object->policyData();
+    this->RTDP_util_object->plusplus();
+
 }
 
 bool RtdpAlgo::stoMove() {

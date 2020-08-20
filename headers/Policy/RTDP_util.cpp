@@ -44,10 +44,10 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
         //bool isWall = this->apply_action(oldState,my_policy->id_agent,*actionCur,my_policy->max_speed);
        // std::cout << "CPU time used: " << time_elapsed_ms << " ms\n";
         if (isWall)
-            val = this->R.WallReward*discountFactor*this->_stochasticMovement+
+            val = this->R.WallReward*R.discountF*this->_stochasticMovement+
                     zero_move_reward*(1-this->_stochasticMovement);
         else{
-            val=this->R.CollReward*discountFactor;
+            val=this->R.CollReward*R.discountF;
         }
 
         //cout<<"A:"<<actionCur->to_str()<<" val="<<val<<endl;
@@ -121,26 +121,23 @@ int RTDP_util::get_state_argmax(const State *s) {
     keyItem key = getStateKeyValue(s);
 
     auto &row = this->get_Q_entry_values(s, key);
-
-//    if(this->my_policy->evalPolicy ) {
+//    if(this->my_policy->evalPolicy or true ) {
 //        cout << "[state] " << s->to_string_state() << endl;
 //        for (int i = 0; i < row.size(); ++i)
-//            cout << "  [" << i << "]=" << row[i];
+//            cout << "[" << i << "]="<<row[i];
 //        cout << endl;
 //    }
-
+//
     vector<int> argMax_list;
     arg_max(row, argMax_list);
+    std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
     this->last_entry = key;
 //    if(this->my_policy->evalPolicy ) {
 //        cout<<"action:\t"<<argMax_list.front()<<endl;
 //    }
-//    if(s->to_string_state()=="0A_(16, 17, 2)_(2, 2, 0)_0|0D_(20, 19, 0)_(-1, -1, 0)_1|")
-//    {
-//        cout<<key<<endl;
-//        cout<<qTable->at(key)<<endl;
-//        cout<<argMax_list<<endl;
-//    }
+    //cout<<argMax_list<<endl;
+//    if(auto pos = std::find(argMax_list.begin(),argMax_list.end(),13);pos!=argMax_list.end())
+//        return 13;
     return argMax_list.front();
 
 }
@@ -238,21 +235,6 @@ void RTDP_util::policyData() {
     //return;
     string pathFile=this->home+"/car_model/debug/"+std::to_string(ctr_debug);
 
-    //csv action state-------------------------------
-    try{
-        string nameFileCsv="ActionMap.csv";
-        csvfile csv(std::move(pathFile+nameFileCsv),";"); // throws exceptions!
-        csv << "ID" << "Entry" << endrow;
-        for(auto &item: *this->hashActionMap)
-        {
-            csv<<item.first<<item.second->to_str()<<endrow;
-        }
-
-    }
-    catch (const std::exception &ex){std::cout << "Exception was thrown: " << ex.what() << std::endl;}
-
-
-
     //print Q table--------------------------------
     try{
         string nameFileCsv="Q.csv";
@@ -277,7 +259,7 @@ void RTDP_util::policyData() {
 
     catch (const std::exception &ex){std::cout << "Exception was thrown: " << ex.what() << std::endl;}
     try{
-        string nameFileCsv="dico.csv";
+        string nameFileCsv="map.csv";
         csvfile csv(std::move(pathFile+nameFileCsv),";"); // throws exceptions!
         for(auto &item:debugDict)
         {

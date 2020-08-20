@@ -23,7 +23,7 @@ class Scheduler{
 
 public:
 
-    Scheduler(string a,string d,int num_lev):
+    Scheduler(string a,string d,int num_lev,RTDP_util *ptr):
     attacker_id(std::move(a))
     ,defender_id(std::move(d))
     ,_levels(std::make_shared<std::vector<containerFix>>(0))
@@ -38,8 +38,10 @@ public:
             //ref_item.step=i+1;
         }
         idx_level=_levels->size()-1;
+        ptr->set_q_table(get_Q_table());
     }
     [[nodiscard]] int get_steps()const{return _levels->at(idx_level).step;}
+
     int get_idx(){return idx_level;}
     void change_static(int idx, RTDP_util *ptr)
     {
@@ -57,6 +59,7 @@ public:
         //cout<<"dif:"<<dif.to_str()<<endl;
         int delta=0;
         int delta_acc;
+
         //cout<<"cur:\t"<<idx_level<<" dif: "<<dif.to_str()<<"  get_step_number: "<<get_step_number(std::max(dif[0],std::max(dif[1],dif[2])))<<endl;
 //        int scope_id = get_step_number(std::max(dif[0],std::max(dif[1],dif[2])));
 //        if(idx_level==scope_id)
@@ -100,6 +103,9 @@ public:
     void return_Q_table(qTbale_dict table)
     {
         //cout<<"["<<idx_level<<"]<-Q"<<endl;
+        assert(table!=nullptr);
+        if(table== nullptr ) return ;
+        assert(_levels->operator[](idx_level).q== nullptr);
         _levels->operator[](idx_level).q = std::move(table);
     }
     void reset(RTDP_util *rtdp){
@@ -123,11 +129,30 @@ private:
     }
     //for Debug
 public:
-    void change_dict_DEBUG(RTDP_util *rtdp,int k)const
+    void change_dict_DEBUG(RTDP_util *rtdp,int k)
     {
-        _levels->operator[](idx_level).q = std::move(rtdp->get_q_table());
+        if(rtdp->get_q_table() != nullptr)
+            _levels->operator[](idx_level).q = std::move(rtdp->get_q_table());
+        if(k==-1)
+            return;
         rtdp->set_q_table(std::move(_levels->operator[](k).q));
+        idx_level=k;
 
+    }
+
+    [[nodiscard]] int key_in_dictz(u_int64_t k) const
+    {
+        int r = 0;
+        for(auto &item : *_levels)
+        {
+            if(item.q== nullptr) continue;
+
+            if(item.q->find(k)==item.q->end())
+                r+=0;
+            else
+                r+=1;
+        }
+        return r;
     }
 };
 

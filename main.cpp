@@ -69,7 +69,7 @@ int main(int argc, char** argv) {
 
     GOT_HERE;
     auto dict_argv = parser(argv,argc);
-    int seed = 1594198875;//1594198815;
+    int seed = 1594198815;//1594198815;
     //seed = 1594198815;//1594198815;
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/car_model/config/con24.csv";
+    pathCsv  = home + "/car_model/config/con21.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -232,8 +232,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
     Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),pD2->get_id(),conf.home);
 
+    conf.levelz=2;
     int level_num=conf.levelz;
-    level_num=2;
 
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);
