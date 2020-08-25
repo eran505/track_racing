@@ -117,7 +117,6 @@ void RTDP_util::arg_max(arr &arr,vector<int>& listIdxs){
 
 
 int RTDP_util::get_state_argmax(const State *s) {
-    //int argMax = -1;
     keyItem key = getStateKeyValue(s);
 
     auto &row = this->get_Q_entry_values(s, key);
@@ -132,12 +131,7 @@ int RTDP_util::get_state_argmax(const State *s) {
     arg_max(row, argMax_list);
     std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
     this->last_entry = key;
-//    if(this->my_policy->evalPolicy ) {
-//        cout<<"action:\t"<<argMax_list.front()<<endl;
-//    }
-    //cout<<argMax_list<<endl;
-//    if(auto pos = std::find(argMax_list.begin(),argMax_list.end(),13);pos!=argMax_list.end())
-//        return 13;
+
     return argMax_list.front();
 
 }

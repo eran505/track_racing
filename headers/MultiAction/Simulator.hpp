@@ -33,7 +33,7 @@ class SimulationGame{
     //Grid _g;
     bool stop=false;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=100000000;
+    u_int32_t iterationsMAX=200000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -47,7 +47,7 @@ class SimulationGame{
     Saver<string> file_manger;
     Saver<string> trajectory_file;
 
-    Converager<15,std::vector<double>> converagerr;
+    Converager<5,std::vector<double>> converagerr;
 
 public:
 
@@ -103,11 +103,9 @@ public:
     }
     bool loop()
     {
-//        if(this->_defender->getPolicyInt()->evalPolicy )
-//            cout<<this->_state->to_string_state()<<endl;
-        //change_abstraction();
-        last_mode=1;
-//        cout<<this->_state->to_string_state()<<endl;
+
+        change_abstraction();
+//      cout<<this->_state->to_string_state()<<endl;
         do_action_defender();
         //cout<<this->_state->to_string_state()<<endl;
         bool is_end_game = attcker_do_action();

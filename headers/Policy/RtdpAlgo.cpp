@@ -233,7 +233,7 @@ void RtdpAlgo::inset_to_stack_abs(State *s,Point &action,u_int64_t state_entry)
 
 void RtdpAlgo::empty_stack_update() {
     if(this->stack_backup.is_empty()) return;
-    this->stack_backup.pop();
+    //this->stack_backup.pop();
     //this->stack_backup.print_stak();
     while(!this->stack_backup.is_empty()) {
         auto& item = this->stack_backup.pop();
@@ -245,9 +245,11 @@ void RtdpAlgo::empty_stack_update() {
 
 void RtdpAlgo::policy_data() const {
 
+    this->evaluator->get_Scheduler_ref().change_dict_DEBUG(this->RTDP_util_object,0);
+    this->RTDP_util_object->policyData();
     this->evaluator->get_Scheduler_ref().change_dict_DEBUG(this->RTDP_util_object,1);
     this->RTDP_util_object->policyData();
-    this->evaluator->get_Scheduler_ref().change_dict_DEBUG(this->RTDP_util_object,0);
+    this->evaluator->get_Scheduler_ref().change_dict_DEBUG(this->RTDP_util_object,2);
     this->RTDP_util_object->policyData();
     this->RTDP_util_object->plusplus();
 

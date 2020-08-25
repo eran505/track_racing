@@ -10,10 +10,14 @@ typedef vector<pair<double,vector<StatePoint>>> vector_p_path;
 typedef std::unique_ptr<Agent> unique_agnet;
 typedef std::vector<containerFix> QtableItem;
 
+typedef unordered_map<u_int64_t,double> matrixP;
 
 
 class containerFixAggregator{
 public:
+
+
+
 
     template <typename T,typename F>
     static std::vector<T> agg(const std::vector<T>& a, const std::vector<T>& b,const F& func)
@@ -44,6 +48,7 @@ public:
 
     template<typename F>
     static std::unique_ptr<unordered_map<u_int64_t,arr>> merge_Q_tables(
+            matrixP& p_matrix,
             const unordered_map<u_int64_t,arr>* left ,double l,
             const unordered_map<u_int64_t,arr>* right,double r,
             F &agg_fun)
@@ -52,19 +57,29 @@ public:
             return nullptr;
 
         auto res = std::make_unique<unordered_map<u_int64_t,arr>>();
+
+        if(l != 1.0){
+            std::for_each(left->begin(),left->end(),[&](const pair<u_int64_t,arr> &item){p_matrix[item.first]+=l;
+                //res->try_emplace(item.first,self_agg(item.second,l));
+                assert(p_matrix[item.first]<=1.0);
+            });}
+        
+
         std::for_each(right->begin(),right->end(),[&](const pair<u_int64_t,arr> &item){
             res->try_emplace(item.first,self_agg(item.second,r));
+            p_matrix[item.first]+=r;
+            assert(p_matrix[item.first]<=1.0);
         });
         std::for_each(left->begin(),left->end(),[&](const pair<u_int64_t,arr> &item){
-            if(auto pos = right->find(item.first); pos==right->end())
+            if(auto pos = res->find(item.first); pos==res->end())
                 res->try_emplace(item.first,self_agg(item.second,l));
             else
-                res->operator[](item.first)=agg(self_agg(item.second,l),self_agg(pos->second,r),agg_fun);
+                res->operator[](item.first)=agg(self_agg(item.second,l),pos->second,agg_fun);
         });
         cout<<"L: "<<left->size()<<"+ R: "<<right->size()<<" --> res: "<<res->size()<<endl;
         return res;
     }
-    static auto vector_merge_containerFix_left(QtableItem* left,QtableItem* right,double pLeft,double pRight)
+    static auto vector_merge_containerFix_left(QtableItem* left,QtableItem* right,double pLeft,double pRight,std::vector<matrixP>& m)
     {
         assert(left->size()==right->size());
         vector<qTbale_dict> res(right->size());
@@ -72,7 +87,7 @@ public:
         auto fun = [&](double x,double y)->double {return x+y;}; //x=0.25
         for(int i=0;i<left->size();++i)
         {
-            left->operator[](i).q = merge_Q_tables(left->operator[](i).q.get(),pLeft
+            left->operator[](i).q = merge_Q_tables(m[i],left->operator[](i).q.get(),pLeft
                     ,right->operator[](i).q.get(),pRight,fun);
 
         }
@@ -81,14 +96,33 @@ public:
     static auto agg_Q_tables(const vector<double>& pVec,const std::vector<shared_ptr<QtableItem>>& QVec)
     {
         assert(pVec.size()==QVec.size());
+        std::vector<matrixP> vec_matrix_p(QVec.front()->size());
         size_t last=pVec.size()-1;
         double acc=pVec[last];
         for(int i=0;i<QVec.size()-1;++i)
         {
-            vector_merge_containerFix_left(QVec[last].get(),QVec[i].get(),acc,pVec[i]);
-            //acc=1;
+            vector_merge_containerFix_left(QVec[last].get(),QVec[i].get(),acc,pVec[i],vec_matrix_p);
+            acc=1;
+        }
+        simplify_p_Q(vec_matrix_p,QVec[last].get());
+        cout<<"[DONE]"<<endl;
+    }
+    static void simplify_p_Q(const std::vector<matrixP>& l_p,QtableItem* ptr_Q)
+    {
+        for (int i = 0; i < l_p.size(); ++i) {
+            std::for_each(l_p[i].begin(),l_p[i].end(),[&](const pair<u_int64_t,double> &item){
+                auto pos = ptr_Q->operator[](i).q->find(item.first);
+                assert(pos!=ptr_Q->operator[](i).q->end());
+                std::for_each(pos->second.begin(),pos->second.end(),[&](auto num){
+                    cout<<num<<"->"<<item.second<<"->";
+                    num=num*(1/item.second);
+                    cout<<num<<"\n";
+                    assert(num<=1.0);
+                });
+            });
         }
     }
+
 
 };
 
@@ -116,7 +150,7 @@ public:
 
     }
     void learn_all_path_at_once(){train_on_all_path();}
-    void main_functopn_genrator()
+    void one_path_at_a_time()
     {
         //std::reverse(all_paths->begin(),all_paths->end());
         vector<double> pVec;
@@ -143,13 +177,14 @@ public:
                                             std::move(_defender),_start_state.get());
 
         sim.main_loop();
+        sim.get_agnet_D()->getPolicy()->policy_data();
 
         //_defender->trainPolicy();
     }
 private:
     void train_single_path(const double path_probability, const std::vector<StatePoint>& path_states,int ctr)
     {
-        config.levelz=2;
+        //config.levelz=2;
         Policy *ptr = new PathFinder(_attacker->get_max_speed()
                 ,_attacker->get_id(),config.home,path_probability,path_states);
         auto naive_attacker=std::make_unique<Agent>(_attacker->getAllPositions_copy(),adversary,1);
@@ -178,10 +213,13 @@ private:
         _defender->evalPolicy();
         _defender->getPolicyInt()->clear_tran();
         _defender->getPolicyInt()->add_tran(_attacker->getPolicyInt());
+        get_policy_defender()->init_tran();
+
         get_policy_defender()->get_first_Q();
         SimulationGame sim = SimulationGame(config,std::move(_attacker),
                                             std::move(_defender),_start_state.get());
         sim.main_loop();
+        sim.get_agnet_D()->getPolicy()->policy_data();
         _defender=std::move(sim.get_agnet_D());
         _defender->trainPolicy();
         cout<<endl;

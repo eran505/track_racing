@@ -36,7 +36,7 @@ protected:
     u_int64_t update_counter=0;
     vector<Policy*> *lTran= nullptr;
     Rewards R = Rewards::getRewards();
-    short ctr_debug=-1;
+    short ctr_debug=0;
     unordered_map<keyItem,string> debugDict;
     const string home;
     std::function<u_int64_t (const State*)> HashFuction;
@@ -110,6 +110,8 @@ public:
         //double dif = val-this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax));
         //if(std::abs(dif)==epslion) return;
         //this->update_counter++;
+        //cout<<"s:"<<entryState<<" ,a:"<<action.to_str()<<" ]="<<val<<endl;
+
         this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax))=val;
         //this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax))+=dif;
     }
@@ -120,8 +122,8 @@ public:
     cell get_max_valueQ(const State *s)
     {
         auto& ar = get_Q_entry_values(s,getStateKeyValue(s));
-//        if(s->to_string_state()=="0A_(15, 19, 1)_(2, 2, -1)_0|0D_(16, 20, 1)_(-1, 0, 1)_1|")
-//            cout<<ar<<endl;
+        //if(s->to_string_state()=="0A_(15, 19, 1)_(2, 2, -1)_0|0D_(9, 9, 0)_(-1, -1, 0)_1|")
+        //    cout<<ar<<endl;
         return *std::max_element(ar.begin(),ar.end());
     }
 

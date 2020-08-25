@@ -87,7 +87,10 @@ public:
         this->RTDP_util_object->isEmptyQ();
 
     }
-
+    void init_tran()
+    {
+        expnder=std::make_unique<ActionExpnder>(_stochasticMovement,tran,this);
+    }
     const auto get_evaluator()const{ return evaluator.get();}
     const auto get_expnder()const{ return expnder.get();}
 

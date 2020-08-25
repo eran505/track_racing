@@ -519,7 +519,7 @@ private:
         auto tmp = dynamic_cast<RtdpAlgo*>(rtdp);
         tmp->setStochasticMovement(stoProb);
         if(hashOnlyPos)
-            tmp->getUtilRTDP()->setHashFuction([](const State* ptrS){return ptrS->getHashValuePosOnly();});
+            tmp->getUtilRTDP()->setHashFuction([](const State* ptrS){return ptrS->getHashValue();});
         d->setPolicy(rtdp);
     }
     void setPathPolicy(configGame &conf, Agent* a,u_int32_t k)
