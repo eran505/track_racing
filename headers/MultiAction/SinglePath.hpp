@@ -113,10 +113,9 @@ public:
         cout<<"Path Number: "<<all_paths->size()<<endl;
 
         list_Q=std::vector<std::shared_ptr<QtableItem>>(all_paths->size());
-//        train_on_all_path();
-//        exit(0);
-    }
 
+    }
+    void learn_all_path_at_once(){train_on_all_path();}
     void main_functopn_genrator()
     {
         //std::reverse(all_paths->begin(),all_paths->end());

@@ -11,7 +11,7 @@ public:
     double CollReward = 1;
     double GoalReward = 0;
     double WallReward = 0;
-    double Step_reward = -0.05;
+    double Step_reward = 0;
     double discountF=1.0;
     static Rewards getRewards()
     {

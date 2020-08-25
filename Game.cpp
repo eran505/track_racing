@@ -118,31 +118,11 @@ void Game::startGame(int numIter)
         this->loop_game();
         this->reset_game();
         ctr_round++;
-        if (ctr_round%modEval==0){
-            evalPolicy();
-            //this->print_stats();
-            vector<int> tmp(5);
-            tmp[0]=ctr_round;
-            tmp[1]=this->ctr_wall;
-            tmp[2]=this->ctr_coll;
-            tmp[3] = this->ctr_at_gal;
-            tmp[4] = this->ctr_at_open;
-            info->push_back(tmp);
-        }
         if (isConverage())
             break;
     }
-    cout<<"Collision:\t"<<ctr_coll<<endl;
-    if (ctr_round%10000>0)
-    {
-        vector<int> tmp(5);
-        tmp[0]=ctr_round;
-        tmp[1]=this->ctr_wall;
-        tmp[2]=this->ctr_coll;
-        tmp[3] = this->ctr_at_gal;
-        tmp[4] = this->ctr_at_open;
-        info->push_back(tmp);
-    }
+
+
 }
 
 void Game::loop_game() {
@@ -157,14 +137,14 @@ void Game::loop_game() {
         for (auto i : *(this->in_game_guards)){
             //cout<<i->get_name()<<endl;
             i->doAction(planer->get_cur_state());
-            addToBuffer(i->get_id()+"@"+this->planer->get_cur_state()->get_position_ref(i->get_id()).to_str());
+            //addToBuffer(i->get_id()+"@"+this->planer->get_cur_state()->get_position_ref(i->get_id()).to_str());
         }
         //cout<<this->planer->get_cur_state()->to_string_state()<<endl;
         for (auto i : *(this->in_game_adversaries)){
             //cout<<i->get_name()<<endl;
             i->doAction(planer->get_cur_state());
-            auto pos = this->planer->get_cur_state()->get_position_ref(i->get_id()).to_str();
-            addToBuffer(i->get_id()+"@"+pos);
+            //auto pos = this->planer->get_cur_state()->get_position_ref(i->get_id()).to_str();
+            //addToBuffer(i->get_id()+"@"+pos);
 
 
         }

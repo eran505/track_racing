@@ -232,7 +232,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
     Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),pD2->get_id(),conf.home);
 
-    conf.levelz=2;
+    conf.levelz=1;
     int level_num=conf.levelz;
 
     RTDP->add_tran(pGridPath);
@@ -247,7 +247,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 void FixAbstGame(configGame &conf, std::unique_ptr<Agent> policyA,std::unique_ptr<Agent> policyD, State *s,int lev_number)
 {
     auto single = SinglePath(conf,s,std::move(policyA),std::move(policyD));
-    single.main_functopn_genrator();
+    //single.main_functopn_genrator();
+    single.learn_all_path_at_once();
     //auto sim = SimulationGame(conf, std::move(policyA),std::move(policyD),s);
     //sim.main_loop();
     //exit(0);

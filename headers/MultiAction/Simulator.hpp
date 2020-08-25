@@ -33,7 +33,7 @@ class SimulationGame{
     //Grid _g;
     bool stop=false;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=10000000;
+    u_int32_t iterationsMAX=100000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -64,7 +64,7 @@ public:
         file_manger.set_header_vec({"episodes","Collision","Wall" ,"Goal" ,"PassBy","moves"});
         converagerr.set_comparator(comper_vectors);
         init_trajectory_file(conf);
-        //treeTraversal();
+        treeTraversal();
 
     }
     void init_trajectory_file(configGame &conf)
@@ -105,8 +105,9 @@ public:
     {
 //        if(this->_defender->getPolicyInt()->evalPolicy )
 //            cout<<this->_state->to_string_state()<<endl;
-        change_abstraction();
-        //cout<<this->_state->to_string_state()<<endl;
+        //change_abstraction();
+        last_mode=1;
+//        cout<<this->_state->to_string_state()<<endl;
         do_action_defender();
         //cout<<this->_state->to_string_state()<<endl;
         bool is_end_game = attcker_do_action();
@@ -238,6 +239,7 @@ private:
         setPosSpeed(posSpeed.second,posSpeed.first,this->_attacker->get_id());
         //change_abstraction();
         _state->takeOff=false;
+        _state->set_budget(_defender->get_id(),1);
 
     }
     void setPosSpeed(const Point &sSpeed,const Point &pPos,const string &id_str)
@@ -306,8 +308,10 @@ private:
         cout<<"[treeTraversal]"<<endl;
         for(const auto& item:*myPaths)
         {
-            cout<<"P: "<<item.first<<endl;
-            cout<<item.second<<endl;
+            cout<<"P:"<<item.first<<endl;
+            for(const auto &step:item.second)
+                cout<<step<<';';
+            cout<<endl;
         }
 
     }
