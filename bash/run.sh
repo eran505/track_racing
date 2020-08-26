@@ -20,6 +20,6 @@ do
    do
     echo "${seed}"
     echo "${j}"
-    ./track_racing ${seed} ${j}
+    ./track_racing #${seed} ${j}
   done
 done

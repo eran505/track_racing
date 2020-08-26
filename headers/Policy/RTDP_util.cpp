@@ -41,13 +41,16 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
         Point *actionCur = item_action.second;
         double val;
         bool isWall = this->apply_action_SEQ(oldState,my_policy->id_agent,*actionCur,this->my_policy->max_speed);
+        int step = to_closet_path_H(oldState);
+        step=1;
+
         //bool isWall = this->apply_action(oldState,my_policy->id_agent,*actionCur,my_policy->max_speed);
        // std::cout << "CPU time used: " << time_elapsed_ms << " ms\n";
         if (isWall)
             val = this->R.WallReward*R.discountF*this->_stochasticMovement+
                     zero_move_reward*(1-this->_stochasticMovement);
         else{
-            val=this->R.CollReward*R.discountF;
+            val=this->R.CollReward*std::pow(R.discountF,step);
         }
 
         //cout<<"A:"<<actionCur->to_str()<<" val="<<val<<endl;
@@ -129,7 +132,7 @@ int RTDP_util::get_state_argmax(const State *s) {
 //
     vector<int> argMax_list;
     arg_max(row, argMax_list);
-    std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
+    //std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
     this->last_entry = key;
 
     return argMax_list.front();
@@ -297,3 +300,27 @@ void RTDP_util::resetQtable() {
     qTable->clear();
 }
 
+
+int RTDP_util::to_closet_path_H(const State *s)
+{
+    const auto& pos_def = s->get_position_ref(this->my_policy->id_agent);
+    return to_closet_path_H_calc(pos_def);
+}
+
+int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos)
+{
+    int min_step=10000;
+    double min_dist=10000;
+    for(const auto& path : this->l_p_H)
+    {
+        std::for_each(path.begin(),path.end(),[&](const auto& p){
+            if(Point::distance(agnet_pos,p)<min_dist)
+            {
+                min_dist=Point::distance(agnet_pos,p);
+                min_step=Point::distance_min_step(agnet_pos,p);
+            }
+        });
+    }
+    return min_step;
+
+}

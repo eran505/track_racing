@@ -90,9 +90,25 @@ public:
         return EntryIndx;
     }
 
+    auto get_point_path_H(const State *ptrState) const
+    {
+        auto l = std::make_unique<vector<pair<double,vector<StatePoint>>>>();
+        this->treeTraversal(ptrState,l.get());
+        std::vector<std::vector<Point>> res(l->size());
+        int ctr=0;
+        for(const auto& item: *l)
+        {
 
+            for(const auto &p : item.second)
+            {
+                res[ctr].push_back(p.pos);
+            }
+            ctr++;
+        }
+        return res;
+    }
 
-    void treeTraversal(State *ptrState, vector<pair<double,vector<StatePoint>>>* myPaths= nullptr)const
+    void treeTraversal(const State *ptrState, vector<pair<double,vector<StatePoint>>>* myPaths= nullptr)const
     {
 
         std::deque<pair<State,double>> q;

@@ -20,6 +20,8 @@
 typedef u_int64_t keyItem;
 typedef double cell;
 
+
+
 class RTDP_util{
 protected:
     enum {sizeN=27};
@@ -49,7 +51,8 @@ protected:
     unordered_map<int,Point*>* hashActionMap;
     void heuristic(const State *s,keyItem entry_index);
     cell compute_h(State *s);
-
+    int to_closet_path_H_calc(const Point& agnet_pos);
+    int to_closet_path_H(const State *s);
     keyItem getStateKeyValue(const State *s) const
     {
         return HashFuction(s);
@@ -67,6 +70,7 @@ protected:
     double applyNonAction(const State *s);
 
 public:
+    std::vector<std::vector<Point>> l_p_H;
     void isEmptyQ()
     {
         if(qTable== nullptr)

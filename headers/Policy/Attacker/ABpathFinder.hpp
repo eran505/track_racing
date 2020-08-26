@@ -15,6 +15,7 @@ using AStar::StateSearch;
 class Astar_util{
 
     AStar::Generator gen;
+    int ctr=0;
 public:
     Astar_util(u_int32_t maxSpeed,Point&& grid_size)
     :gen(maxSpeed,grid_size)
@@ -26,7 +27,14 @@ public:
         return gen.get_deep_list_nodes();
         //assert(!list_nodes.empty()
     }
-
+    vector<AStar::StatePoint> get_path_a_b_Astar(AStar::StatePoint& source_,const AStar::StatePoint& target_,bool at_random=true){
+        auto l = get_paht_a_b(source_,target_);
+        int index=0;
+        if(at_random)
+            index = range_random(0,l.size()-1);
+        assert(index<l.size());
+        return l[index];
+    }
 
 };
 
@@ -34,8 +42,8 @@ public:
 class ABfinder{
     Randomizer randomizer_obj;
     Point GridSzie;
-    double stho=0.7;
-    u_int limt=8;
+    double stho=0.8;
+    u_int limt=10;
     u_int16_t MAX_SPEED=2;
     Point last_action;
     bool is_random=false;
@@ -55,7 +63,7 @@ public:
 
         genarte_path(A,B);
         auto last_state = get_last_state();
-        auto list_a_star_pathz = Astar_util_object.get_paht_a_b(last_state,B)[0];
+        auto list_a_star_pathz = Astar_util_object.get_path_a_b_Astar(last_state,B);
         for(int j=int(list_a_star_pathz.size()-2);j>=0;--j)
             this->seq_state.emplace_back(list_a_star_pathz[j]);
         return  std::move(seq_state);

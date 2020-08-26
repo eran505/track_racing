@@ -173,6 +173,7 @@ public:
     {
         cout<<"[eval policy]"<<endl;
         //_defender->evalPolicy();
+        add_H(_attacker.get(),_defender.get());
         SimulationGame sim = SimulationGame(config,std::move(_attacker),
                                             std::move(_defender),_start_state.get());
 
@@ -196,6 +197,8 @@ private:
         get_policy_defender()->init_expder(config.levelz);
         apply_new_dico_q(ctr);
 
+        add_H(naive_attacker.get(),_defender.get());
+
         SimulationGame sim = SimulationGame(config,std::move(naive_attacker),
                                             std::move(_defender),_start_state.get());
 
@@ -216,6 +219,9 @@ private:
         get_policy_defender()->init_tran();
 
         get_policy_defender()->get_first_Q();
+
+        add_H(_defender.get(),_defender.get());
+
         SimulationGame sim = SimulationGame(config,std::move(_attacker),
                                             std::move(_defender),_start_state.get());
         sim.main_loop();
@@ -248,6 +254,14 @@ private:
         list_Q[j]= get_policy_defender()->get_evalouater()->get_q_table();
     }
 
+    void add_H(Agent* a , Agent* d)
+    {
+        auto rtdp = dynamic_cast<RtdpAlgo*>(d->getPolicyInt());
+        auto pathfinder = dynamic_cast<const PathFinder*>(a->getPolicy());
+        vector<vector<Point>> l = pathfinder->get_point_path_H(this->_start_state.get());
+        rtdp->getUtilRTDP()->l_p_H=l;
+
+    }
 
 
 };

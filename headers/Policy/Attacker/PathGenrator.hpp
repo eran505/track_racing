@@ -88,18 +88,18 @@ private:
         seq_state_all.push_back(seq_state[seq_state.size()-1]);
         pathsToDict(seq_state_all);
     }
-    StatePoint get_random_point()
+    StatePoint get_random_point(const StatePoint& sP)
     {
         Point p;
         for(int i=0;i<p.capacity;++i)
-            p.array[i]=int(this->random_gen.get_double()*(grid_size[i]*0.75));
-        p.array[2]=2;
-        p=Point(8,8,1);
+            p.array[i]=int(this->random_gen.get_double()*(sP.pos[i]*0.9));
+        p.array[2]=1;
+        //p=Point(8,8,1);
         return {p,Point(1,1,0)};
     }
     std::vector<StatePoint> add_middle_point_at_random(const std::vector<StatePoint> &A_list)
     {
-        return {*A_list.begin(),get_random_point(),A_list[1]};
+        return {*A_list.begin(),get_random_point(A_list.back()),A_list[1]};
     }
     void pathsToDict(const vector<AStar::StatePoint>& allPath) {
         for (unsigned long i = 0; i < allPath.size()-1; ++i) {

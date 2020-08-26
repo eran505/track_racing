@@ -434,6 +434,23 @@ public:
 
         return ( 0.5*double( (x+y) * (x+y+1) ) + y ) ;
     }
+    static double distance(const Point &a,const Point &b){
+        double res=0;
+        for (int i = 0; i < a.capacity; ++i) {
+            auto diff = (a[i] - b[i]);
+            res+=diff*diff;
+        }
+        return std::sqrt(res);
+    }
+    static int distance_min_step(const Point &a,const Point &b){
+        double res=0;
+        for (int i = 0; i < a.capacity; ++i) {
+            auto diff = (a[i] - b[i]);
+            if(res<diff)
+                res=diff;
+        }
+        return res;
+    }
 };
 
 

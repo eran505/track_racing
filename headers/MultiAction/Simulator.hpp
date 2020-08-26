@@ -33,7 +33,7 @@ class SimulationGame{
     //Grid _g;
     bool stop=false;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=200000;
+    u_int32_t iterationsMAX=1000000;//2000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -47,7 +47,7 @@ class SimulationGame{
     Saver<string> file_manger;
     Saver<string> trajectory_file;
 
-    Converager<5,std::vector<double>> converagerr;
+    Converager<15,std::vector<double>> converagerr;
 
 public:
 
@@ -90,6 +90,7 @@ public:
                 if(loop())
                     break;
             }
+
             #ifdef PRINT
             cout<<"END\n";
             #endif
@@ -105,6 +106,7 @@ public:
     {
 
         change_abstraction();
+       // cout<<"last_mode: "<<last_mode<<"\n";
 //      cout<<this->_state->to_string_state()<<endl;
         do_action_defender();
         //cout<<this->_state->to_string_state()<<endl;
@@ -225,7 +227,7 @@ private:
     {
         if(iterations>iterationsMAX)
             return true;
-        if(converagerr.is_converage())
+        if(converagerr.is_converage() or stop)
             return true;
         return false;
     }
@@ -274,7 +276,7 @@ private:
         file_manger.inset_data(x);
         file_manger.inset_endLine();
         x.erase(x.begin());
-        converagerr.inset_elm(std::move(x));
+        //converagerr.inset_elm(std::move(x));
         return true;
     }
     void change_abstraction()
@@ -300,7 +302,7 @@ private:
     }
     void treeTraversal()
     {
-        PathFinder *ptr = dynamic_cast<PathFinder*>(this->_attacker->getPolicyInt());
+        auto *ptr = dynamic_cast<PathFinder*>(this->_attacker->getPolicyInt());
         auto myPaths = std::make_unique<vector<pair<double,vector<StatePoint>>>>();
         ptr->treeTraversal(_state.get(),myPaths.get());
         cout<<"[treeTraversal]"<<endl;
@@ -311,7 +313,7 @@ private:
                 cout<<step<<';';
             cout<<endl;
         }
-
+        cout<<"all="<<myPaths->size()<<endl;
     }
 };
 
