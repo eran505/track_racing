@@ -20,12 +20,11 @@
 #define STR_HOME_DIR "/car_model/out/"
 #include "util/Rand.hpp"
 #include "Abstract/Simulation.hpp"
-namespace info{
+namespace info
+{
     enum info : short{
         CollId=0,WallId=1,GoalId=2,OpenId=3,Size=4,
     };
-
-
 }
 
 class SimulationGame{
@@ -33,7 +32,7 @@ class SimulationGame{
     //Grid _g;
     bool stop=false;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=1000000;//2000000;
+    u_int32_t iterationsMAX=6000;//2000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -107,7 +106,7 @@ public:
 
         change_abstraction();
        // cout<<"last_mode: "<<last_mode<<"\n";
-//      cout<<this->_state->to_string_state()<<endl;
+        //cout<<this->_state->to_string_state()<<endl;
         do_action_defender();
         //cout<<this->_state->to_string_state()<<endl;
         bool is_end_game = attcker_do_action();

@@ -152,7 +152,7 @@ public:
     void learn_all_path_at_once(){train_on_all_path();}
     void one_path_at_a_time()
     {
-        //std::reverse(all_paths->begin(),all_paths->end());
+        std::reverse(all_paths->begin(),all_paths->end());
         vector<double> pVec;
         int ctr=0;
         std::for_each(all_paths->begin(),all_paths->end(),
@@ -220,7 +220,7 @@ private:
 
         get_policy_defender()->get_first_Q();
 
-        add_H(_defender.get(),_defender.get());
+        add_H(_attacker.get(),_defender.get());
 
         SimulationGame sim = SimulationGame(config,std::move(_attacker),
                                             std::move(_defender),_start_state.get());
