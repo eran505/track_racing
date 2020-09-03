@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/car_model/config/path.csv";
+    pathCsv  = home + "/car_model/config/size_2.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -232,7 +232,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
     Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),pD2->get_id(),conf.home);
 
-    conf.levelz=10;
+    conf.levelz=13;
     int level_num=conf.levelz;
 
     RTDP->add_tran(pGridPath);
