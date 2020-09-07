@@ -115,6 +115,8 @@ public:
         rtdp->set_q_table(get_Q_table());
     }
     std::shared_ptr<std::vector<containerFix>> get_all_q_dict(){return _levels;}
+    void set_all_q_dict(std::shared_ptr<std::vector<containerFix>> &&ptr){_levels=ptr;}
+
 private:
     Point get_dif(const State *s)
     {

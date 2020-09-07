@@ -43,7 +43,7 @@ class ABfinder{
     Randomizer randomizer_obj;
     Point GridSzie;
     double stho=0.8;
-    u_int limt=10;
+    u_int limt=1;
     u_int16_t MAX_SPEED=2;
     Point last_action;
     bool is_random=false;

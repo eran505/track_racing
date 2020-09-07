@@ -20,6 +20,17 @@ public:
     std::unique_ptr<Grid> G = std::make_unique<Grid>();
     qTbale_dict q = std::make_unique<unordered_map<u_int64_t ,arr>>();
     //containerFix(){cout<<"[containerFix] constructor"<<endl;}
+//    containerFix()= default;
+//    containerFix(const containerFix &other)
+//    {
+//        this->step=0;
+//        lower=other.lower;
+//        upper=other.upper;
+//        G= nullptr;
+//        q = std::make_unique<unordered_map<u_int64_t ,arr>>();
+//    }
+
+
 };
 
 

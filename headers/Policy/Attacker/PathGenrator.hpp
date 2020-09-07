@@ -77,8 +77,8 @@ private:
     {
         vector<AStar::StatePoint> seq_state;
         vector<AStar::StatePoint> seq_state_all;
-        auto new_list = add_middle_point_at_random(A_list);
-        //auto new_list=A_list;
+        //auto new_list = add_middle_point_at_random(A_list);
+        auto new_list=A_list;
         for(int k=0;k<new_list.size()-1;++k)
         {
             seq_state = aBFinder.get_pathz(new_list[k],new_list[k+1]);

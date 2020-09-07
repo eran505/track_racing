@@ -78,6 +78,10 @@ public:
     auto get_q_table(){
         return this->_scheduler.get_all_q_dict();
     }
+    void set_Q_table_all(shared_ptr<std::vector<containerFix>> &&ptr)
+    {
+        this->_scheduler.set_all_q_dict(std::move(ptr));
+    }
     void set_first_Q(RTDP_util *ptr)
     {
         ptr->set_q_table(_scheduler.get_Q_table());

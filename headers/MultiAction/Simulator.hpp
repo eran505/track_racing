@@ -30,7 +30,7 @@ namespace info
 class SimulationGame{
 
     //Grid _g;
-    bool stop=false;
+    short stop=0;
     u_int32_t NUMBER=1000;
     u_int32_t iterationsMAX=2000000;//2000000;
     u_int64_t iterations=0;
@@ -226,7 +226,7 @@ private:
     {
         if(iterations>iterationsMAX)
             return true;
-        if(converagerr.is_converage() or stop)
+        if(converagerr.is_converage() or stop>3)
             return true;
         return false;
     }
@@ -271,7 +271,7 @@ private:
             x.emplace_back(item/double(NUMBER));
         x.emplace_back(ctr_action_defender);
         if(info[info::CollId]==NUMBER)
-            stop=true;
+            stop+=1;
         file_manger.inset_data(x);
         file_manger.inset_endLine();
         x.erase(x.begin());
