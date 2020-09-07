@@ -16,7 +16,7 @@
 #include "Policy.hpp"
 #define VECTOR
 #include "Update_RTDP/Reward.hpp"
-
+#define DD
 typedef u_int64_t keyItem;
 typedef double cell;
 
@@ -39,7 +39,7 @@ protected:
     vector<Policy*> *lTran= nullptr;
     Rewards R = Rewards::getRewards();
     short ctr_debug=0;
-    unordered_map<keyItem,string> debugDict;
+    unordered_map<keyItem,std::array<int,12>> debugDict;
     const string home;
     std::function<u_int64_t (const State*)> HashFuction;
     Policy* my_policy= nullptr;
@@ -70,6 +70,7 @@ protected:
     double applyNonAction(const State *s);
 
 public:
+    unordered_map<keyItem,std::array<int,12>>& get_dict_map(){return this->debugDict;}
     std::vector<std::vector<Point>> l_p_H;
     void isEmptyQ()
     {
@@ -90,7 +91,8 @@ public:
         cout<<"SizeQ:"<<size_Q<<"\tgen: "<<qTable->size()<<endl;
     }
     void reduceMap();
-    void resetTable(){this->qTable->clear();this->debugDict.clear();}
+    void resetTable()
+    {this->qTable->clear();this->debugDict.clear();}
     void setStochasticMovement(double m){this->_stochasticMovement=m;}
     void setHashFuction(std::function<u_int64_t (const State*)> fun){
         HashFuction=std::move(fun);

@@ -451,6 +451,8 @@ public:
         }
         return res;
     }
+
+    static std::unique_ptr<unordered_map<unsigned int, Point>> getDictActionUniqie();
 };
 
 

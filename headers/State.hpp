@@ -50,7 +50,7 @@ public:
     [[nodiscard]] u_int64_t  getHashValuePosOnly()const;
 
     [[nodiscard]] string to_string_state() const;
-
+    [[nodiscard]] std::array<int,12> to_mini_string() const;
     void add_player_state(const string& name_id, Point m_pos, const Point *m_speed, int budget_b);
     void add_player_state(const string &name_id, const Point& m_pos, const Point& m_speed, int budget_b);
 

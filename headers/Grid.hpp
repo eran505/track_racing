@@ -135,13 +135,13 @@ private:
             }
             return false;
         }
-        bool is_at_goal(const Point &loc){
+        [[nodiscard]] bool is_at_goal(const Point &loc)const {
             return (std::find(all_golas.begin(),all_golas.end(),loc) != all_golas.end());
         }
-        bool is_wall(Point *ptr_point_loc){
+        bool is_wall(Point *ptr_point_loc)const {
             return ptr_point_loc->out_of_bound(this->lowerBound,this->upperBound);
         }
-        bool is_wall(const Point &loc)
+        [[nodiscard]] bool is_wall(const Point &loc)const
         {
             return loc.out_of_bound(this->lowerBound,this->upperBound);
         }

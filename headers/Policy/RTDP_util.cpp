@@ -42,7 +42,6 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
         double val;
         bool isWall = this->apply_action_SEQ(oldState,my_policy->id_agent,*actionCur,this->my_policy->max_speed);
         int step = to_closet_path_H(oldState);
-        step=1;
 
         //bool isWall = this->apply_action(oldState,my_policy->id_agent,*actionCur,my_policy->max_speed);
        // std::cout << "CPU time used: " << time_elapsed_ms << " ms\n";
@@ -87,8 +86,10 @@ double RTDP_util::rec_h(State *s,int index, double acc_probablity)
 }
 
 void RTDP_util::add_entry_map_state(keyItem key,const State *s) {
-    this->debugDict.insert({key,s->to_string_state()});
-    // compute heuristic
+    #ifdef DD
+    this->debugDict[key]=s->to_mini_string();
+    #endif
+
     #ifdef VECTOR
     this->qTable->try_emplace(key,27);
     #endif
@@ -261,7 +262,7 @@ void RTDP_util::policyData() {
         for(auto &item:debugDict)
         {
             csv<<item.first;
-            csv<<item.second;
+            for(int i=0;i<12;i++) csv<<item.second[i];
             csv<<endrow;
         }
         debugDict.clear();

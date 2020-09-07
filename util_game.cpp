@@ -43,23 +43,28 @@ Point::Point(int x, int y, int z) {
 
 
 // this function return pointer to dict hash->action
+std::unique_ptr<unordered_map<unsigned int,Point>> Point::getDictActionUniqie() {
+    auto mapAction = std::make_unique<unordered_map<unsigned int,Point>>();
+    for (int i = -1; i < 2; ++i)
+        for (int j = -1; j < 2; ++j)
+            for (int k = -1; k < 2; ++k) {
+                auto pAction = Point(i, j, k);
+                mapAction->try_emplace(pAction.hashMeAction(Point::actionMax), std::move(pAction));
+            }
+    return mapAction;
+}
+
+
+// this function return pointer to dict hash->action
 unordered_map<int,Point*>* Point::getDictAction() {
     auto *mapAction = new unordered_map<int, Point *>();
-    if (Point::D == 2) {
-        for (int i = -1; i < 2; ++i)
-            for (int j = -1; j < 2; ++j) {
-                auto *p_action = new Point(i, j);
-                mapAction->insert({p_action->hashMeAction(Point::actionMax), p_action});
+    for (int i = -1; i < 2; ++i)
+        for (int j = -1; j < 2; ++j)
+            for (int k = -1; k < 2; ++k) {
+                auto *pAction = new Point(i, j, k);
+                mapAction->insert({pAction->hashMeAction(Point::actionMax), pAction});
+                //cout<<pAction->hashMeAction(Point::actionMax)<<","<<"\""<<pAction->to_str()<<"\""<<endl;
             }
-    } else if (Point::D == 3) {
-        for (int i = -1; i < 2; ++i)
-            for (int j = -1; j < 2; ++j)
-                for (int k = -1; k < 2; ++k) {
-                    auto *pAction = new Point(i, j, k);
-                    mapAction->insert({pAction->hashMeAction(Point::actionMax), pAction});
-                    //cout<<pAction->hashMeAction(Point::actionMax)<<","<<"\""<<pAction->to_str()<<"\""<<endl;
-                }
-    }
     return mapAction;
 }
 

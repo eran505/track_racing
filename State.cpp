@@ -36,14 +36,26 @@ string State::to_string_state() const {
     return str;
 
 }
+std::array<int,12> State::to_mini_string() const
+{
+    std::array<int,12> arr{};
+    int ctr=0;
+    for(const auto &item : this->pos_dict){
+        string id_name = item.first;
+        auto pos_speed = this->speed_dict.find(id_name)->second;
+        for(int i=0;i<item.second.capacity;++i) arr[ctr+i]= item.second.array[i];
+        ctr+=item.second.capacity;
+        for(int i=0;i<pos_speed.capacity;++i) arr[ctr+i]=pos_speed.array[i];
+        ctr+=item.second.capacity;
+    }
+    return arr;
+}
 
 State::~State() {
 //    for(auto item : this->pos_dict)
 //        delete(item.second);
 //    for(auto item : this->speed_dict)
 //        delete(item.second);
-//
-
 }
 
 State::State(const State &other) {
