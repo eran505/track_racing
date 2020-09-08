@@ -9,17 +9,13 @@ if [[ $PATHtoFileDir == *"/ERANHER/"* ]]; then
   PATHtoFileDir=${HOME}"/eran/repo/track_racing/cmake-build-debug/"
 fi
 
-ConstSeed=1594198815
+ConstSeed=15941915
 
-for i in {1..10}
+for i in {1..2}
 do
   echo "-->$i<--"
   cd "${PATHtoFileDir}" || exit
-  seed="$(($ConstSeed+$i*10))"
-  for j in {1..6}
-   do
+  seed="$(($ConstSeed+$i*31))"
     echo "${seed}"
-    echo "${j}"
-    ./track_racing #${seed} ${j}
-  done
+    ./track_racing s ${seed}
 done

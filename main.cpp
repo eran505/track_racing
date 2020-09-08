@@ -68,7 +68,7 @@ typedef unsigned long ulong;
 int main(int argc, char** argv) {
 
     GOT_HERE;
-    auto dict_argv = parser(argv,argc);
+    cout<<argv<<endl;
     int seed = 1594198815;//1594198815;
     seed = 1594198815;//1594198815;
     //seed = int( time(nullptr));
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/car_model/config/con21.csv";
+    pathCsv  = home + "/car_model/config/con8.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -98,9 +98,9 @@ int main(int argc, char** argv) {
         // size of Grid
 
         configGame conf(row,seed);
-        //conf.inset_data(parser(argv,argc));
+        conf.inset_data(parser(argv,argc));
         srand(conf._seed);
-        getConfigPath(argc,argv,conf);
+        //getConfigPath(argc,argv,conf);
         //conf.initRandomNoise(); // inset random noise (-1,1) XY
         conf.home=home;
         cout<<"seed:\t"<<conf._seed<<endl;
@@ -247,8 +247,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 void FixAbstGame(configGame &conf, std::unique_ptr<Agent> policyA,std::unique_ptr<Agent> policyD, State *s,int lev_number)
 {
     auto single = SinglePath(conf,s,std::move(policyA),std::move(policyD));
-    single.learn_all_path_at_once();
-    //single.one_path_at_a_time();
+    //single.learn_all_path_at_once();
+    single.one_path_at_a_time();
     //auto sim = SimulationGame(conf, std::move(policyA),std::move(policyD),s);
     //sim.main_loop();
     //exit(0);

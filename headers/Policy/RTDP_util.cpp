@@ -133,7 +133,7 @@ int RTDP_util::get_state_argmax(const State *s) {
 //
     vector<int> argMax_list;
     arg_max(row, argMax_list);
-    //std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
+    std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
     this->last_entry = key;
 
     return argMax_list.front();
