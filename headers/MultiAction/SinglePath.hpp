@@ -171,9 +171,6 @@ public:
             }
         }
     }
-
-
-
 };
 
 
@@ -269,7 +266,7 @@ private:
     void eval_all_paths()
     {
         cout<<"[eval policy]"<<endl;
-        _defender->evalPolicy();
+        //_defender->evalPolicy();
         _defender->getPolicyInt()->clear_tran();
         _defender->getPolicyInt()->add_tran(_attacker->getPolicyInt());
         get_policy_defender()->init_tran();

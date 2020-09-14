@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
     GOT_HERE;
     cout<<argv<<endl;
     int seed = 1594198815;//1594198815;
-    seed = 1594198815;//1594198815;
+    //seed = 15945046;//1594198815;
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -81,7 +81,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/car_model/config/con10.csv";
+    pathCsv  = home + "/car_model/config/size.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -232,7 +232,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
     Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),pD2->get_id(),conf.home);
 
-    conf.levelz=13;
+    conf.levelz=10;
     int level_num=conf.levelz;
 
     RTDP->add_tran(pGridPath);
@@ -247,8 +247,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 void FixAbstGame(configGame &conf, std::unique_ptr<Agent> policyA,std::unique_ptr<Agent> policyD, State *s,int lev_number)
 {
     auto single = SinglePath(conf,s,std::move(policyA),std::move(policyD));
-    //single.learn_all_path_at_once();
-    single.one_path_at_a_time();
+    single.learn_all_path_at_once();
+    //single.one_path_at_a_time();
     //auto sim = SimulationGame(conf, std::move(policyA),std::move(policyD),s);
     //sim.main_loop();
     //exit(0);

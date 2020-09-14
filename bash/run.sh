@@ -11,7 +11,7 @@ fi
 
 ConstSeed=15941915
 
-for i in {1..20}
+for i in {1..101}
 do
   echo "-->$i<--"
   cd "${PATHtoFileDir}" || exit
