@@ -6,6 +6,7 @@
 #define TRACK_RACING_PATHFINDER_HPP
 
 #include <utility>
+#include <pstl/execution_defs.h>
 
 #include "Policy.hpp"
 #include "Policy/Attacker/ABpathFinder.hpp"
@@ -31,11 +32,21 @@ public:
         cout<<"[Attacker] END generation"<<endl;
     }
 
-    PathFinder(int speed_MAX,const string &agentID,string &home,const double p,const vector<StatePoint> &lPath)
+    PathFinder(int speed_MAX,const string &agentID,string &home,const pair< double, vector<StatePoint>> &lPath)
     :Policy("PathFinder",speed_MAX,agentID,home)
     ,policyMap(std::make_unique<unordered_map<u_int64_t,std::vector<double>*>>())
     {
-        this->genartor_path.add_path(lPath,policyMap.get());
+        this->genartor_path.add_path(lPath.second,policyMap.get());
+    }
+    PathFinder(int speed_MAX,const string &agentID,string &home,const std::vector< pair<double, vector<StatePoint>>> &lPath)
+            :Policy("PathFinder",speed_MAX,agentID,home)
+            ,policyMap(std::make_unique<unordered_map<u_int64_t,std::vector<double>*>>())
+    {
+
+        for(const auto & idx : lPath)
+        {
+            this->genartor_path.add_path(idx.second,policyMap.get(),idx.first);
+        }
     }
 
     Point get_action(State *s) override

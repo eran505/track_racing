@@ -29,6 +29,7 @@ public:
                   double w=1.0)
     {
         pathsToDict(l);
+
         nom.getDict(RAW_policyMap,mapPolicy,w);
     }
 

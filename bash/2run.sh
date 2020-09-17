@@ -3,15 +3,15 @@
 
 PATHtoFileDir=${HOME}"/eran/repo/track_racing"
 if [[ $PATHtoFileDir == *"/eranhe/"* ]]; then
-  PATHtoFileDir=${HOME}"/eran/repo/track_racing/cmake-build-debug/"
+  PATHtoFileDir=${HOME}"/eran/"
 fi
 if [[ $PATHtoFileDir == *"/ERANHER/"* ]]; then
-  PATHtoFileDir=${HOME}"/eran/repo/track_racing/cmake-build-debug/"
+  PATHtoFileDir=${HOME}"/eran/"
 fi
 
 ConstSeed=15941915
 
-for i in {1..30}
+for i in {1..100}
 do
   echo "-->$i<--"
   cd "${PATHtoFileDir}" || exit

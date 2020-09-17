@@ -235,7 +235,6 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 
     conf.levelz=3;
     int level_num=conf.levelz;
-
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);
     pD2->setPolicy(RTDP);
@@ -248,8 +247,9 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 void FixAbstGame(configGame &conf, std::unique_ptr<Agent> policyA,std::unique_ptr<Agent> policyD, State *s,int lev_number)
 {
     auto single = SinglePath(conf,s,std::move(policyA),std::move(policyD));
-    single.learn_all_path_at_once();
-    //single.one_path_at_a_time();
+    //single.learn_all_path_at_once();
+    single.one_path_at_a_time();
+    //single.learn_by_goals();
     //auto sim = SimulationGame(conf, std::move(policyA),std::move(policyD),s);
     //sim.main_loop();
     //exit(0);
