@@ -203,11 +203,10 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
             }
 
             // if change in z axis add epsilon cost to G
-            if (itemI.array[itemI.capacity - 1] != 0)
-                totalCost += epsilon;
+//            if (itemI.array[itemI.capacity - 1] != 0)
+//                totalCost += epsilon;
             Node *successor = findNodeOnList(openSetID, *newCoordinates);
-
-            //debug
+              //debug
             //cout<<"action:\t"<<itemI.to_str()<<"\t\t";
 
             if (successor == nullptr) {

@@ -55,8 +55,8 @@ public:
             _attacker(std::move(agentA)),
             _defender(std::move(agentD)),
             _state(std::make_unique<State>(*s)),random_object(std::make_unique<Randomizer>(conf._seed))
-            ,file_manger(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.levelz)+"_Eval.csv",10)
-            ,trajectory_file(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.levelz)+"_Traj.csv",9000){
+            ,file_manger(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.eval_mode)+"_Eval.csv",10)
+            ,trajectory_file(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.eval_mode)+"_Traj.csv",9000){
 
         g=_state->g_grid;
         //this->iterationsMAX=std::max(g->getSizeIntGrid(),200000);
@@ -103,7 +103,6 @@ public:
     }
     bool loop()
     {
-
         change_abstraction();
        // cout<<"last_mode: "<<last_mode<<"\n";
         //cout<<this->_state->to_string_state()<<endl;

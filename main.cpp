@@ -82,7 +82,7 @@ int main(int argc, char** argv) {
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
     pathCsv  = home + "/car_model/config/size.csv";
-    pathCsv  = home + "/eran/repo/track_racing/csv/con10.csv";
+    pathCsv  = home + "/eran/repo/track_racing/csv/con16.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -247,12 +247,14 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 void FixAbstGame(configGame &conf, std::unique_ptr<Agent> policyA,std::unique_ptr<Agent> policyD, State *s,int lev_number)
 {
     auto single = SinglePath(conf,s,std::move(policyA),std::move(policyD));
-    //single.learn_all_path_at_once();
-    single.one_path_at_a_time();
-    //single.learn_by_goals();
-    //auto sim = SimulationGame(conf, std::move(policyA),std::move(policyD),s);
-    //sim.main_loop();
-    //exit(0);
+    //conf.eval_mode=2;
+    if(conf.eval_mode==1)
+        single.learn_all_path_at_once();
+    else if(conf.eval_mode==2)
+        single.one_path_at_a_time();
+    else if(conf.eval_mode==3)
+        single.learn_by_goals();
+
 }
 
 void toCSVTemp(string pathFile, vector<string> &data)

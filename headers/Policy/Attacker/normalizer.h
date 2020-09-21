@@ -17,6 +17,8 @@ public:
 
         for(const auto &item: map)
         {
+//            if(item.first==2359856)
+//                cout<<"";
             int sumAll = accumulate( item.second.begin(), item.second.end(), 0,
                                      []( int acc, std::pair<int, int> p ) { return ( acc + p.second ); } );
 

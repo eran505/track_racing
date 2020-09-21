@@ -6,7 +6,7 @@
 #define TRACK_RACING_PATHFINDER_HPP
 
 #include <utility>
-#include <pstl/execution_defs.h>
+//#include <pstl/execution_defs.h>
 
 #include "Policy.hpp"
 #include "Policy/Attacker/ABpathFinder.hpp"
@@ -45,8 +45,9 @@ public:
 
         for(const auto & idx : lPath)
         {
-            this->genartor_path.add_path(idx.second,policyMap.get(),idx.first);
+            this->genartor_path.add_path_vec(lPath,policyMap.get());
         }
+
     }
 
     Point get_action(State *s) override

@@ -29,10 +29,18 @@ public:
                   double w=1.0)
     {
         pathsToDict(l);
-
         nom.getDict(RAW_policyMap,mapPolicy,w);
     }
-
+    void add_path_vec(const std::vector<pair<double,std::vector<StatePoint>>> &l,unordered_map<u_int64_t,std::vector<double>*>* mapPolicy)
+    {
+        for (const auto& idx_item:l)
+        {
+            RAW_policyMap.clear();
+            pathsToDict(idx_item.second);
+            nom.getDict(RAW_policyMap,mapPolicy,idx_item.first);
+        }
+        nom.normalizeDict(*mapPolicy);
+    }
 
     void geneate_path_loop(const std::vector<pair<std::vector<Point>,double>> &seq_Goal,const std::vector<weightedPosition> &start_point,u_int num_path,
                            unordered_map<u_int64_t,std::vector<double>*>* mapPolicy)
@@ -44,6 +52,7 @@ public:
                 auto seq = make_state_seq(item_end_point.first,item_start_point);
                 double w = item_start_point.weightedVal*item_end_point.second;
                 inset_path_to_dict(seq,num_path,w,mapPolicy);
+                RAW_policyMap.clear();
 
             }
         }
@@ -63,7 +72,7 @@ private:
     void inset_path_to_dict(const std::vector<StatePoint> &A_list,int num,double w,
                             unordered_map<u_int64_t,std::vector<double>*>* mapPolicy )
     {
-        int ctr=0;
+        short ctr=0;
         while (true){
             if(ctr==num)
                 break;
@@ -83,7 +92,7 @@ private:
         for(int k=0;k<new_list.size()-1;++k)
         {
             seq_state = aBFinder.get_pathz(new_list[k],new_list[k+1]);
-            for(const auto &x:seq_state)cout<<x.toStr()<<endl;
+            //for(const auto &x:seq_state)cout<<x.toStr()<<endl;
             std::move(seq_state.begin(), seq_state.end()-1, std::back_inserter(seq_state_all));
         }
         seq_state_all.push_back(seq_state[seq_state.size()-1]);
@@ -103,17 +112,17 @@ private:
         return {*A_list.begin(),get_random_point(A_list.back()),A_list[1]};
     }
     void pathsToDict(const vector<AStar::StatePoint>& allPath) {
+        //RAW_policyMap.clear();
         for (unsigned long i = 0; i < allPath.size()-1; ++i) {
             Point difAction = allPath[i+1].speed.operator-(allPath[i].speed);
 
 
             u_int64_t key = Point::hashNnN(allPath[i].pos.hashConst(),
                                            allPath[i].speed.hashConst(Point::maxSpeed));
-            if (key<u_int64_t(0))
-                cout<<endl;
-            if (i==0)
-                cout<<allPath[i].pos.to_str()<<endl;
-            cout<<allPath[i+1].pos.to_str()<<endl;
+            cout<<allPath[i].pos.to_str()<<" | "<<allPath[i].speed.to_str()<<" Ky="<<key<<endl;
+//            if (i==0)
+//                cout<<allPath[i].pos.to_str()<<endl;
+//            cout<<allPath[i+1].pos.to_str()<<endl;
 
             u_int ation_h = difAction.hashMeAction(Point::D_point::actionMax);
             //cout<<"ation_h="<<ation_h<<" : "<<difAction.to_hash_str()<<endl;
@@ -130,7 +139,7 @@ private:
                 posSec->second++;
             }
         }
-
+        cout<<allPath.back().pos.to_str()<<" | "<<allPath.back().speed.to_str()<<endl;
     }
 };
 

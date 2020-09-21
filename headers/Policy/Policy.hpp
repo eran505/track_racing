@@ -40,7 +40,7 @@ public:
     }
     [[nodiscard]] const string& get_id_name()const{ return id_agent;}
     const string& GetId(){ return id_agent;}
-    double getRandom(){return distribution(generator);}
+    double getRandom() {return distribution(generator);}
 
 
 

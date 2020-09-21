@@ -87,7 +87,7 @@ struct configGame{
     vector<Point> midPos;
     std::default_random_engine generator;
     std::uniform_int_distribution<int> distribution;
-    int eval_mode=3;
+    int eval_mode = 0;
 public:
 
     string home;
@@ -124,6 +124,8 @@ public:
         rRoutes = stoi(row[8]);
         if (!midVec.empty()) addMidPoint(midVec);
         config = "";
+        if(row.size()>10)
+            eval_mode = stoi(row[11]);
 
     };
     double getRandom(){return distribution(generator);}

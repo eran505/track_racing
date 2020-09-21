@@ -71,6 +71,7 @@ public:
         string str;
         for (int i = 0; i < this->capacity; ++i) {
             str += std::to_string(this->operator[](i));
+            str += ",";
         }
         return str;
     }

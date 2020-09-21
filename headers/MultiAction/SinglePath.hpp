@@ -5,7 +5,7 @@
 #ifndef TRACK_RACING_SINGLEPATH_HPP
 #define TRACK_RACING_SINGLEPATH_HPP
 
-#include <pstl/execution_defs.h>
+//#include <pstl/execution_defs.h>
 #include "Policy/Attacker/PathFinder.hpp"
 #include "Simulator.hpp"
 #define ASSERT
@@ -16,6 +16,7 @@ typedef std::vector<containerFix> QtableItem;
 typedef unordered_map<u_int64_t ,std::array<int,12>> map_dict;
 typedef unordered_map<int64_t ,vector<double>>* q_Table;
 typedef unordered_map<u_int64_t,double> matrixP;
+typedef pair<double,vector<StatePoint>> Apath;
 
 class heuristicContainer{
     std::vector<std::vector<Point>> lPaths;
@@ -166,11 +167,13 @@ public:
             if(auto pos = QVec[k]->operator[](abstQ).q->find(keyState);pos==QVec[k]->operator[](abstQ).q->end())
             {
                 const auto vec_i = h_con.get_heuristic_path(k,keyState);
-                posBig->second = func3(vec_i,posBig->second,pVec[k]);//
+                posBig->second = func3(vec_i,posBig->second,pVec[k]);
+
             }
             else{
                 const auto& vec_i = pos->second;
                 posBig->second = func3(vec_i,posBig->second,pVec[k]);
+
             }
         }
     }
@@ -196,19 +199,17 @@ public:
     {
         get_all_paths();
         cout<<"Path Number: "<<all_paths->size()<<endl;
-
-        list_Q=std::vector<std::shared_ptr<QtableItem>>(all_paths->size());
-
     }
     void learn_by_goals()
     {
         auto map_goals = map_path_by_goal();
+        list_Q=std::vector<std::shared_ptr<QtableItem>>(map_goals.size());
         vector<double> pVec;
         int ctr=0;
         std::for_each(map_goals.begin(),map_goals.end(),
-                      [&](const pair<u_int64_t,std::vector<pair<double,vector<StatePoint>>>>& item){
-                          train_single_path(item.second,ctr);ctr++;
-                          pVec.push_back(item.first);
+                      [&](const pair<u_int64_t,pair<double,std::vector<pair<double,vector<StatePoint>>>>>& item){
+                          train_single_path(item.second.second,ctr);ctr++;
+                          pVec.push_back(item.second.first);
                       });
 
         cout<<"[S]: "<<get_policy_defender()->getUtilRTDP()->get_dict_map().size()<<endl;
@@ -223,6 +224,7 @@ public:
     void learn_all_path_at_once(){train_on_all_path();}
     void one_path_at_a_time()
     {
+        list_Q=std::vector<std::shared_ptr<QtableItem>>(all_paths->size());
         vector<double> pVec;
         int ctr=0;
         std::for_each(all_paths->begin(),all_paths->end(),
@@ -341,20 +343,30 @@ private:
         rtdp->getUtilRTDP()->l_p_H=l;
 
     }
-    auto map_path_by_goal() -> std::map<u_int64_t,std::vector<pair<double,vector<StatePoint>>>>
+    auto map_path_by_goal() -> std::unordered_map<u_int64_t,pair<double,std::vector<Apath>>>
     {
-        typedef pair<double,vector<StatePoint>> Apath;
-        std::map<u_int64_t,std::vector<Apath>> map_goal;
+        std::unordered_map<u_int64_t,pair<double,std::vector<Apath>>> map_goal;
         std::for_each(this->all_paths->begin(),this->all_paths->end(),[&](const Apath& path_item ){
-            auto key = path_item.second.end()->pos.expHash();
+            auto key = path_item.second.back().pos.expHash();
             if(auto pos = map_goal.find(key); pos==map_goal.end()){
                 auto item =map_goal.try_emplace(key);
-                item.first->second.emplace_back(path_item);
+                item.first->second.second.emplace_back(path_item);
+                item.first->second.first+=path_item.first;
             }
             else{
-                pos->second.emplace_back(path_item);}
+                pos->second.second.emplace_back(path_item);
+                pos->second.first+=path_item.first;
+            }
         });
+        normalize_each_entry(map_goal);
         return map_goal;
+    }
+    static void normalize_each_entry(std::unordered_map<u_int64_t,pair<double,std::vector<Apath>>>& map_goal)
+    {
+        for(auto &itemPair:map_goal)
+        {
+            std::for_each(itemPair.second.second.begin(),itemPair.second.second.end(),[&](Apath& varI){varI.first=varI.first/itemPair.second.first;});
+        }
     }
 };
 

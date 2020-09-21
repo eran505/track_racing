@@ -22,7 +22,7 @@ public:
     {}
 
     vector<vector<AStar::StatePoint>> get_paht_a_b(AStar::StatePoint& source_,const AStar::StatePoint& target_){
-        gen.findPath(source_,target_,false,false);
+        gen.findPath(source_,target_,false,true);
         assert(!gen.get_deep_list_nodes_ref_const().empty());
         return gen.get_deep_list_nodes();
         //assert(!list_nodes.empty()
@@ -31,7 +31,7 @@ public:
         auto l = get_paht_a_b(source_,target_);
         int index=0;
         if(at_random)
-            index = range_random(0,l.size()-1);
+            index = range_random(0,int(l.size()-1));
         assert(index<l.size());
         return l[index];
     }
