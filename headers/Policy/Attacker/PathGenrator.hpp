@@ -87,8 +87,8 @@ private:
     {
         vector<AStar::StatePoint> seq_state;
         vector<AStar::StatePoint> seq_state_all;
-        //auto new_list = add_middle_point_at_random(A_list);
-        auto new_list=A_list;
+        auto new_list = add_middle_point_at_random(A_list);
+        //auto new_list=A_list;
         for(int k=0;k<new_list.size()-1;++k)
         {
             seq_state = aBFinder.get_pathz(new_list[k],new_list[k+1]);
@@ -101,11 +101,11 @@ private:
     StatePoint get_random_point(const StatePoint& sP)
     {
         Point p;
-        for(int i=0;i<p.capacity;++i)
+        for(int i=0;i<p.capacity-1;++i)
             p.array[i]=int(this->random_gen.get_double()*(sP.pos[i]*0.9));
-        p.array[2]=1;
-        //p=Point(8,8,1);
-        return {p,Point(1,1,0)};
+        p.array[2]=int(this->random_gen.get_double()*(3.0));
+
+        return {p,Point(0,0,0)};
     }
     std::vector<StatePoint> add_middle_point_at_random(const std::vector<StatePoint> &A_list)
     {
@@ -125,6 +125,8 @@ private:
 //            cout<<allPath[i+1].pos.to_str()<<endl;
 
             u_int ation_h = difAction.hashMeAction(Point::D_point::actionMax);
+            if(ation_h==39)
+                cout<<endl;
             //cout<<"ation_h="<<ation_h<<" : "<<difAction.to_hash_str()<<endl;
             //cout<<"key="<<key<<"\t"<<allPath[i].pos.to_hash_str()<<"_"<<allPath[i].speed.to_hash_str()<<endl;
             auto pos = RAW_policyMap.find(key);

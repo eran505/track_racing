@@ -8,6 +8,10 @@ fi
 if [[ $PATHtoFileDir == *"/ERANHER/"* ]]; then
   PATHtoFileDir=${HOME}"/eran/repo/track_racing/cmake-build-debug/"
 fi
+if [[ $PATHtoFileDir == *"/ise/"* ]]; then
+  PATHtoFileDir=${HOME}"/eran/repo/track_racing/cmake-build-debug/"
+fi
+
 
 ConstSeed=15941915
 

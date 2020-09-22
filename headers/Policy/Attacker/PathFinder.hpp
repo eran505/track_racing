@@ -165,10 +165,13 @@ public:
                 }
             path.emplace_back(curState,prob);
             auto next =Normalizer::minizTrans(this->TransitionAction(&curState));
+            //cout<<"S:"<<curState.to_string_state()<<endl;
+            //cout<<"next:\t"<<next<<endl;
             q.push_front({curState,probAcc});
             probAcc=probAcc*prob;
             for (int i = 0 ; i<next.size() ; ++i)
             {
+                //cout<<"next[i]="<<next.operator[](i)<<endl;
                 auto pos = this->hashActionMap->find(next.operator[](i));
                 if ( pos == this->hashActionMap->end())
                     throw std::invalid_argument("Action index is invalid");

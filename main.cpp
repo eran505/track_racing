@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
     GOT_HERE;
     cout<<argv<<endl;
     int seed = 1594198815;//1594198815;
-    //seed = 15945046;//1594198815;
+    seed = 15945046;//1594198815;
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -88,8 +88,8 @@ int main(int argc, char** argv) {
     int ctrId=1;
     vector<string> labels={"ctr_round","ctr_wall","ctr_coll","ctr_at_goal","ctr_open"};
 
-    const std::string exeFilePath ("/"+repo+"/track_racing/bash/clean.sh "+pathCsv);
-    try{ system(exeFilePath.c_str() );} catch (int e) {cout<<"try and catch"<<endl;}
+    //const std::string exeFilePath ("/"+repo+"/track_racing/bash/clean.sh "+pathCsv);
+    //try{ system(exeFilePath.c_str() );} catch (int e) {cout<<"try and catch"<<endl;}
 
     for (int i=1; i<csvRows.size();++i)
     {
