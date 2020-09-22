@@ -1,6 +1,6 @@
 #!/bin/bash
 
-
+SERVER=$(hostname)
 PATHtoFileDir=${HOME}"/eran/repo/track_racing"
 if [[ $PATHtoFileDir == *"/eranhe/"* ]]; then
   PATHtoFileDir=${HOME}"/eran/repo/track_racing/cmake-build-debug/"
@@ -8,12 +8,12 @@ fi
 if [[ $PATHtoFileDir == *"/ERANHER/"* ]]; then
   PATHtoFileDir=${HOME}"/eran/repo/track_racing/cmake-build-debug/"
 fi
-if [[ $PATHtoFileDir == *"/ise/"* ]]; then
+if [[ $SERVER == *"ubuntu-eranh"* ]]; then
   PATHtoFileDir=${HOME}"/eran/repo/track_racing/cmake-build-debug/"
 fi
 
 
-ConstSeed=15941915
+ConstSeed=81045917
 
 for i in {1..30}
 do
