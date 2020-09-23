@@ -233,7 +233,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
     Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),pD2->get_id(),conf.home);
 
-    conf.levelz=3;
+    conf.levelz=1;
     int level_num=conf.levelz;
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);

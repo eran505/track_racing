@@ -32,7 +32,7 @@ class SimulationGame{
     //Grid _g;
     short stop=0;
     u_int32_t NUMBER=100;
-    u_int32_t iterationsMAX=4000000;//2000000;
+    u_int32_t iterationsMAX=5000000;//2000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -306,7 +306,7 @@ private:
         cout<<"[treeTraversal]"<<endl;
         for(const auto& item:*myPaths)
         {
-            cout<<"P:"<<item.first<<endl;
+            cout<<"P:"<<item.first<<";";
             for(const auto &step:item.second)
                 cout<<step<<';';
             cout<<endl;
