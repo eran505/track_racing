@@ -91,6 +91,7 @@ int getMaxDistance(const  Point &a , const  Point &b )
     }
     return max;
 }
+
 int getMaxDistancePos(const Point &a , const  Point &b )
 {
     int max=-1;

@@ -13,9 +13,9 @@ if [[ $SERVER == *"ubuntu-eranh"* ]]; then
 fi
 
 
-ConstSeed=81045917
+ConstSeed=21045917
 
-for i in {1..30}
+for i in {1..300}
 do
   echo "-->$i<--"
   cd "${PATHtoFileDir}" || exit

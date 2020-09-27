@@ -205,6 +205,8 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     {
         auto& ref_pos = lStartingPointGoal.emplace_back();
         ref_pos.first.emplace_back(gloz_l[i].second);
+        if(conf.midPos.size()>i)
+            ref_pos.first.insert(ref_pos.first.begin(),conf.midPos[i]);
         ref_pos.second=conf.probGoals[i];
     }
 
@@ -233,7 +235,6 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
     Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),pD2->get_id(),conf.home);
 
-    conf.levelz=1;
     int level_num=conf.levelz;
     RTDP->add_tran(pGridPath);
     pA1->setPolicy(pGridPath);

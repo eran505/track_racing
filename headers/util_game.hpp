@@ -384,6 +384,14 @@ public:
         }
         return tmp;
     }
+    [[nodiscard]] int getMax() const
+    {
+        int ans = array[0];
+        for (int i = 1; i < this->capacity; ++i)
+            if (ans<this->array[i])
+                ans=this->array[i];
+        return ans;
+    }
     bool isOK(){
         bool ok = true;
         for (int i = 0; i < this->capacity; ++i)

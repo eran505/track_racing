@@ -126,6 +126,7 @@ public:
         config = "";
         if(row.size()>10)
             eval_mode = stoi(row[11]);
+        this->levelz=int(std::log2(this->sizeGrid.getMax()))+1;
 
     };
     double getRandom(){return distribution(generator);}

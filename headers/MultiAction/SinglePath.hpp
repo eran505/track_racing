@@ -202,6 +202,7 @@ public:
     }
     void learn_by_goals()
     {
+        cout<<"learn_by_goals"<<endl;
         auto map_goals = map_path_by_goal();
         list_Q=std::vector<std::shared_ptr<QtableItem>>(map_goals.size());
         vector<double> pVec;
@@ -224,6 +225,7 @@ public:
     void learn_all_path_at_once(){train_on_all_path();}
     void one_path_at_a_time()
     {
+        cout<<"one_path_at_a_time"<<endl;
         list_Q=std::vector<std::shared_ptr<QtableItem>>(all_paths->size());
         vector<double> pVec;
         int ctr=0;

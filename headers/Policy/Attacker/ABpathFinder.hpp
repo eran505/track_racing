@@ -23,7 +23,7 @@ public:
 
     vector<vector<AStar::StatePoint>> get_paht_a_b(AStar::StatePoint& source_,const AStar::StatePoint& target_){
         cout<<"source:"<<source_<<" target:"<<target_<<endl;
-        gen.findPath(source_,target_,false, true);
+        gen.findPath(source_,target_,false, false);
         assert(!gen.get_deep_list_nodes_ref_const().empty());
         return gen.get_deep_list_nodes();
         //assert(!list_nodes.empty()
@@ -44,7 +44,7 @@ class ABfinder{
     Randomizer randomizer_obj;
     Point GridSzie;
     double stho=0.7;
-    u_int limt=10;
+    u_int limt=100;
     u_int16_t MAX_SPEED=2;
     Point last_action;
     bool is_random=false;
