@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
         ctrId++;
         //Agent::ctr_object = 0;
         delete (resultsConfigI);
-
+        break;
 
     }
 
