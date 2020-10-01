@@ -47,12 +47,12 @@ public:
     {
         if(idx_level==idx)
             return;
-        return_Q_table(ptr->get_q_table());
+        //return_Q_table(ptr->get_q_table());
         idx_level=idx;
-        ptr->set_q_table(get_Q_table());
+        //ptr->set_q_table(get_Q_table());
 
     }
-    int change_action_abstraction(const State *s,RTDP_util *rtdp)
+    int change_action_abstraction(const State *s)
     {
         //idx_level=s->get_budget(defender_id);
         Point dif = get_dif(s);
@@ -72,13 +72,13 @@ public:
             delta_acc=0;
             if(idx_level>0) {
                 if (dif < _levels->operator[](idx_level - 1).upper) {
-                    change_scoper(rtdp, -1);
+                    change_scoper( -1);
                     delta_acc+=-1;
                 }
             }
             if(idx_level<_levels->size()-1) {
                 if (!(dif < _levels->operator[](idx_level).upper)) {
-                    change_scoper(rtdp, 1);
+                    change_scoper( 1);
                     delta_acc+=1;
                 }
             }
@@ -89,11 +89,11 @@ public:
         return delta;
     }
 
-    void change_scoper(RTDP_util *rtdp,int delta_chage)
+    inline void change_scoper(int delta_chage)
     {
-        return_Q_table(std::move(rtdp->get_q_table()));
+        //return_Q_table(std::move(rtdp->get_q_table()));
         idx_level+=delta_chage;
-        rtdp->set_q_table(get_Q_table());
+        //rtdp->set_q_table(get_Q_table());
     }
     qTbale_dict get_Q_table()
     {
@@ -103,16 +103,16 @@ public:
     void return_Q_table(qTbale_dict table)
     {
         //cout<<"["<<idx_level<<"]<-Q"<<endl;
-        assert(table!=nullptr);
-        if(table== nullptr ) return ;
-        assert(_levels->operator[](idx_level).q== nullptr);
-        _levels->operator[](idx_level).q = std::move(table);
+        //assert(table!=nullptr);
+        //if(table== nullptr ) return ;
+        //assert(_levels->operator[](idx_level).q== nullptr);
+        //_levels->operator[](idx_level).q = std::move(table);
     }
     void reset(RTDP_util *rtdp){
-        return_Q_table(rtdp->get_q_table());
-        idx_level=_levels->size()-1;
-        assert(idx_level>=0 and idx_level<_levels->size());
-        rtdp->set_q_table(get_Q_table());
+        //return_Q_table(rtdp->get_q_table());
+        //idx_level=_levels->size()-1;
+        //assert(idx_level>=0 and idx_level<_levels->size());
+        //rtdp->set_q_table(get_Q_table());
     }
     std::shared_ptr<std::vector<containerFix>> get_all_q_dict(){return _levels;}
     void set_all_q_dict(std::shared_ptr<std::vector<containerFix>> &&ptr){_levels=ptr;}

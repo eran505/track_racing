@@ -67,10 +67,34 @@ typedef unsigned long ulong;
 
 int main(int argc, char** argv) {
 
+    State s;
+    s.pos_dict.insert({"A",Point(0)});
+    s.pos_dict.insert({"D",Point(0)});
+    s.speed_dict.insert({"A",Point(0)});
+    s.speed_dict.insert({"D",Point(0)});
+    s.budget_dict.insert({"A",1});
+    s.budget_dict.insert({"D",1});
+
+    auto g = new Grid();
+    s.g_grid=g;
+
+    auto t1 = std::chrono::high_resolution_clock::now();
+    for (int i = 0; i < 10000; ++i) {
+        auto y = s.get_position_ref("A");
+        auto x = s.get_speed_ref("A");
+        s.set_position("D",Point(0));
+        auto z = x+y;
+    }
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
+
+    std::cout <<"time: "<< duration<<endl;
+    exit(0);
+
     GOT_HERE;
     cout<<argv<<endl;
     int seed = 1594198815;//1594198815;
-    seed = 15945046;//1594198815;
+    seed = 328875;//1594198815;
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -82,7 +106,7 @@ int main(int argc, char** argv) {
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
     pathCsv  = home + "/car_model/config/size.csv";
-    pathCsv  = home + "/eran/repo/track_racing/csv/con16.csv";
+    pathCsv  = home + "/eran/repo/track_racing/csv/con10.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -126,7 +150,7 @@ int main(int argc, char** argv) {
         ctrId++;
         //Agent::ctr_object = 0;
         delete (resultsConfigI);
-        break;
+        //break;
 
     }
 
@@ -350,3 +374,5 @@ void getConfigPath(int argc, char** argv,configGame &conf)
     }
 
 }
+
+

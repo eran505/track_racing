@@ -10,11 +10,11 @@
 #include "Simulator.hpp"
 #define ASSERT
 typedef vector<pair<double,vector<StatePoint>>> vector_p_path;
-
+typedef unordered_map<keyItem ,arr> Qtable_;
 typedef std::unique_ptr<Agent> unique_agnet;
 typedef std::vector<containerFix> QtableItem;
 typedef unordered_map<u_int64_t ,std::array<int,12>> map_dict;
-typedef unordered_map<int64_t ,vector<double>>* q_Table;
+typedef unordered_map<int64_t ,vector<double>> q_Table;
 typedef unordered_map<u_int64_t,double> matrixP;
 typedef pair<double,vector<StatePoint>> Apath;
 
@@ -118,34 +118,29 @@ public:
         return result;
     }
 
-    static void func2(QtableItem* big,const std::vector<shared_ptr<QtableItem>>& QVec,
-                      const vector<double>& pVec,const heuristicContainer& h_con,u_int indexAbs)
+    static void func2(Qtable_* big,const std::vector<std::unique_ptr<Qtable_>>& QVec,
+                      const vector<double>& pVec,const heuristicContainer& h_con)
     {
-        big->operator[](indexAbs).upper=QVec.front()->operator[](indexAbs).upper;
-        big->operator[](indexAbs).lower=QVec.front()->operator[](indexAbs).lower;
-        big->operator[](indexAbs).step=QVec.front()->operator[](indexAbs).step;
-        unordered_map<u_int64_t,vector<double>>* bigQPtr = big->operator[](indexAbs).q.get();
         for(size_t j=0;j<pVec.size();++j)
         {
-            for(const auto& item: *QVec[j]->operator[](indexAbs).q)
+
+            for(const auto& item: *QVec[j])
             {
-                if(big->operator[](indexAbs).q->find(item.first)!=big->operator[](indexAbs).q->end())
+
+                if(big->find(item.first)!=big->end())
                     continue; // if the key is already in the table
 
-                func4(bigQPtr, item.first, QVec, pVec, h_con, indexAbs);
+                func4(big, item.first, QVec, pVec, h_con);
             }
         }
     }
 
-    static auto agg_Q_tables(const vector<double>& pVec,const std::vector<shared_ptr<QtableItem>>& QVec,const heuristicContainer& h_con)
+    static auto agg_Q_tables(const vector<double>& pVec,const std::vector<std::unique_ptr<Qtable_>>& QVec,const heuristicContainer& h_con)
     {
         assert(pVec.size()==QVec.size());
         u_int size_of_abstraction = QVec.front()->size();
-        shared_ptr<std::vector<containerFix>> big = std::make_shared<std::vector<containerFix>>(size_of_abstraction);
-        for(int i=0;i<size_of_abstraction;++i)
-        {
-            func2(big.get(),QVec,pVec,h_con,i);
-        }
+        std::unique_ptr<Qtable_> big = std::make_unique<Qtable_>();
+        func2(big.get(),QVec,pVec,h_con);
         cout<<"[ DONE ]"<<endl;
         return big;
     }
@@ -154,17 +149,14 @@ public:
         const auto _vecP = self_agg(vec_i,p);
         return agg(vec_big,_vecP);
     }
-    static void func4(unordered_map<u_int64_t,vector<double>>* big, u_int64_t keyState,const std::vector<shared_ptr<QtableItem>>& QVec,
-                      const vector<double>& pVec,const heuristicContainer& h_con,int abstQ){
+    static void func4(unordered_map<u_int64_t,vector<double>>* big, u_int64_t keyState,const std::vector<std::unique_ptr<Qtable_>>& QVec,
+                      const vector<double>& pVec,const heuristicContainer& h_con){
+
+        auto posBig = big->insert({keyState,vector<double>(27)}).first;
 
         for(size_t k=0;k<QVec.size();++k)
         {
-            auto posBig = big->find(keyState);
-            if(posBig==big->end())
-            {
-                posBig = big->insert({keyState,vector<double>(27)}).first;
-            }
-            if(auto pos = QVec[k]->operator[](abstQ).q->find(keyState);pos==QVec[k]->operator[](abstQ).q->end())
+            if(auto pos = QVec[k]->find(keyState);pos==QVec[k]->end())
             {
                 const auto vec_i = h_con.get_heuristic_path(k,keyState);
                 posBig->second = func3(vec_i,posBig->second,pVec[k]);
@@ -188,7 +180,7 @@ class SinglePath{
     std::unique_ptr<vector_p_path> all_paths = nullptr;
     std::unique_ptr<Agent> _parital_attacker = nullptr;
     configGame config;
-    std::vector<shared_ptr<QtableItem>> list_Q;
+    std::vector<std::unique_ptr<Qtable_>> list_Q;
 
 public:
     SinglePath(configGame &conf, State *s,unique_agnet A,unique_agnet D):
@@ -204,7 +196,7 @@ public:
     {
         cout<<"learn_by_goals"<<endl;
         auto map_goals = map_path_by_goal();
-        list_Q=std::vector<std::shared_ptr<QtableItem>>(map_goals.size());
+        list_Q=std::vector<std::unique_ptr<Qtable_>>(map_goals.size());
         vector<double> pVec;
         int ctr=0;
         std::for_each(map_goals.begin(),map_goals.end(),
@@ -215,7 +207,7 @@ public:
 
         cout<<"[S]: "<<get_policy_defender()->getUtilRTDP()->get_dict_map().size()<<endl;
         heuristicContainer heurist_con(all_paths.get(),get_policy_defender()->getUtilRTDP()->get_dict_map(),this->_start_state->g_grid);
-        shared_ptr<std::vector<containerFix>> pytr = containerFixAggregator::agg_Q_tables(pVec,list_Q,heurist_con);
+        std::unique_ptr<Qtable_> pytr = containerFixAggregator::agg_Q_tables(pVec,this->list_Q,heurist_con);
         this->set_all_Q_tavble(std::move(pytr));
 
         eval_all_paths();
@@ -226,7 +218,7 @@ public:
     void one_path_at_a_time()
     {
         cout<<"one_path_at_a_time"<<endl;
-        list_Q=std::vector<std::shared_ptr<QtableItem>>(all_paths->size());
+        list_Q=std::vector<std::unique_ptr<Qtable_>>(all_paths->size());
         vector<double> pVec;
         int ctr=0;
         std::for_each(all_paths->begin(),all_paths->end(),
@@ -238,7 +230,7 @@ public:
 
         cout<<"[S]: "<<get_policy_defender()->getUtilRTDP()->get_dict_map().size()<<endl;
         heuristicContainer heurist_con(all_paths.get(),get_policy_defender()->getUtilRTDP()->get_dict_map(),this->_start_state->g_grid);
-        shared_ptr<std::vector<containerFix>> pytr = containerFixAggregator::agg_Q_tables(pVec,list_Q,heurist_con);
+        std::unique_ptr<Qtable_> pytr = containerFixAggregator::agg_Q_tables(pVec,list_Q,heurist_con);
         this->set_all_Q_tavble(std::move(pytr));
 
         eval_all_paths();
@@ -274,7 +266,6 @@ private:
         _defender->getPolicyInt()->add_tran(ptr);
 
         get_policy_defender()->init_expder(config.levelz);
-        apply_new_dico_q(ctr);
 
         add_H(naive_attacker.get(),_defender.get());
 
@@ -282,9 +273,9 @@ private:
                                             std::move(_defender),_start_state.get());
 
         sim.main_loop();
-
         //sim.get_agnet_D()->getPolicy()->policy_data();
         _defender=std::move(sim.get_agnet_D());
+        apply_new_dico_q(ctr);
         // return the last q table
         get_policy_defender()->returnAllQ();
         cout<<"endd"<<endl;
@@ -331,11 +322,12 @@ private:
     }
     void apply_new_dico_q(int j)
     {
-        list_Q[j]= get_policy_defender()->get_evalouater()->get_q_table();
+        //list_Q[j]=get_policy_defender()->get_evalouater()->get_q_table();
+        list_Q[j]=std::move(get_policy_defender()->getUtilRTDP()->get_q_table());
     }
-    void set_all_Q_tavble(shared_ptr<std::vector<containerFix>>&& ptr)
+    void set_all_Q_tavble(std::unique_ptr<Qtable_>&& ptr)
     {
-        get_policy_defender()->get_evalouater()->set_Q_table_all(std::move(ptr));
+        get_policy_defender()->getUtilRTDP()->set_q_table(std::move(ptr));
     }
     void add_H(Agent* a , Agent* d)
     {

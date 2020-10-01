@@ -4,7 +4,6 @@
 
 #ifndef RACING_CAR_UTIL_GAME_HPP
 #define RACING_CAR_UTIL_GAME_HPP
-
 #include <string>
 #include <list>
 #include <iostream>
@@ -52,18 +51,17 @@ public:
     enum D_point{
         D = 3, actionMax=3, maxSpeed=5
     };
-    ~Point() = default;
     Point(int x);
     Point(int x,int y);
     Point(int x,int y,int z);
     std::string to_str() const {
         std::string str_to_string;
         str_to_string+="(";
-        for ( int i = 0; i < this->capacity-1; i++) {
+        for ( int i = 0; i < this->capacity; i++) {
             str_to_string += std::to_string((this->array[i]));
             str_to_string += ", ";
         }
-        str_to_string+= std::to_string(*(array + this->capacity-1));
+        //str_to_string+= std::to_string(*(array + this->capacity-1));
         str_to_string+=')';
         return str_to_string;
     }
@@ -77,6 +75,7 @@ public:
     }
     friend bool operator>(const Point &other1,const Point &other2)
     {
+
         for (int i = 0; i <other1.capacity; ++i)
             if (other1.array[i]<=other2.array[i])
                 return false;
@@ -121,7 +120,8 @@ public:
         return sum;
     }
     int capacity=D_point::D;
-    int array[D_point::D]{};
+    std::array<int,D_point::D> array;
+    //int array[D_point::D]{};
     Point(){ //printf("POINT_EMPTY_CON\n");
     };
     Point(const Point &other):capacity(other.capacity)
@@ -307,7 +307,7 @@ public:
     }
     bool operator== (const Point &other)const;
     bool is_equal(const Point *other)const;
-    int operator[](int index)const;
+    int operator[](size_t index)const{return this->array[index];}
 
     static vector<Point> getAllAction(vector<Point> &action_list){
         action_list.clear();

@@ -64,7 +64,7 @@ public:
     }
     bool change_scope_(State *s)
     {
-        int delta = _scheduler.change_action_abstraction(s,this->ptrRTDP);
+        int delta = _scheduler.change_action_abstraction(s);
         //assert(s->get_budget(defender)+delta<2);
         s->set_budget(defender,_scheduler.get_steps());
         if(delta==0)
@@ -80,15 +80,15 @@ public:
     }
     void set_Q_table_all(shared_ptr<std::vector<containerFix>> &&ptr)
     {
-        this->_scheduler.set_all_q_dict(std::move(ptr));
+       // this->_scheduler.set_all_q_dict(std::move(ptr));
     }
     void set_first_Q(RTDP_util *ptr)
     {
-        ptr->set_q_table(_scheduler.get_Q_table());
+       // ptr->set_q_table(_scheduler.get_Q_table());
     }
     void returnAll(RTDP_util *ptr)
     {
-        _scheduler.return_Q_table(ptr->get_q_table());
+        //_scheduler.return_Q_table(ptr->get_q_table());
     }
 private:
 
@@ -106,7 +106,7 @@ private:
     }
     int change_scope_const(const State *s)
     {
-        int delta = _scheduler.change_action_abstraction(s,this->ptrRTDP);
+        int delta = _scheduler.change_action_abstraction(s);
         return delta ;
     }
     void return_back_starting_state(int idx){

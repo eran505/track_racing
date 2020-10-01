@@ -44,7 +44,7 @@ class ABfinder{
     Randomizer randomizer_obj;
     Point GridSzie;
     double stho=0.7;
-    u_int limt=100;
+    u_int limt=10;
     u_int16_t MAX_SPEED=2;
     Point last_action;
     bool is_random=false;
@@ -85,7 +85,7 @@ private:
             bool bol=true;
             while(bol)
             {
-                //cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
+                cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
                 get_action_to_goal(cur,B);
                 bol=!vaild_move(cur);
             }

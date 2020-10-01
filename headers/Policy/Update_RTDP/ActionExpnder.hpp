@@ -54,15 +54,17 @@ public:
 
         set_seq_action_by_state(s);
         stack.emplace_back(new State(*s), 1.0, false);
+        cout<<"_action_seq:"<<_action_seq<<endl;
         for(short i=_action_seq;i>0;--i)
         {
+            // defender apply action
             std::for_each(stack.begin(),stack.end(),[&](tuple_state &item){stochastic_expander(item,a);});
-            //print_stack(stack);
-            expand_other();
-            if_end_states();
+            //print_stack(stack); for DEBUG
+            expand_other(); // attacker apply action
+            if_end_states(); // remove ended states from the list
         }
         transform();
-        //cout<<list_state_expnaded.size()<<endl;
+        cout<<"Size:"<<list_state_expnaded.size()<<endl;
         return list_state_expnaded;
     }
     void set_stochasticMovement(double m)

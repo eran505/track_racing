@@ -32,7 +32,7 @@ class SimulationGame{
     //Grid _g;
     short stop=0;
     u_int32_t NUMBER=100;
-    u_int32_t iterationsMAX=5000;//2000000;
+    u_int32_t iterationsMAX=8000000;//4000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -279,7 +279,7 @@ private:
     }
     void change_abstraction()
     {
-        RtdpAlgo *ptr = dynamic_cast<RtdpAlgo*>(_defender->getPolicyInt());
+        auto *ptr = dynamic_cast<RtdpAlgo*>(_defender->getPolicyInt());
         bool b = ptr->get_evaluator()->change_scope_(_state.get());
         auto step = ptr->get_evaluator()->get_Scheduler().get_steps();
         if(last_mode==step)

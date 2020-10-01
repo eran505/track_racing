@@ -16,11 +16,12 @@ Point::Point(int x, int y){
 }
 
 bool Point::operator==(const Point &other)const {
-    for (int i = 0; i <this->capacity; ++i)
+    for (int i = 0; i < Point::D ; ++i)
         if (this->array[i]!=other.array[i])
             return false;
     return true;
 }
+
 
 bool Point::is_equal(const Point *other) const{
     for (int i = 0; i <this->capacity; ++i)
@@ -31,9 +32,7 @@ bool Point::is_equal(const Point *other) const{
 
 
 
-int Point::operator[](int index) const{
-    return this->array[index];
-}
+
 
 Point::Point(int x, int y, int z) {
     this->array[0]=x;
