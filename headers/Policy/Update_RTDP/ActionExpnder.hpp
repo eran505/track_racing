@@ -54,7 +54,6 @@ public:
 
         set_seq_action_by_state(s);
         stack.emplace_back(new State(*s), 1.0, false);
-        cout<<"_action_seq:"<<_action_seq<<endl;
         for(short i=_action_seq;i>0;--i)
         {
             // defender apply action
@@ -64,7 +63,6 @@ public:
             if_end_states(); // remove ended states from the list
         }
         transform();
-        cout<<"Size:"<<list_state_expnaded.size()<<endl;
         return list_state_expnaded;
     }
     void set_stochasticMovement(double m)
@@ -96,7 +94,7 @@ private:
     }
     void set_seq_action_by_state(const State *s)
     {
-        auto seq = s->budget_dict.at(this->my_policy->id_agent);
+        auto seq = s->get_budget(this->my_policy->id_agent);
         this->_action_seq=seq;
     }
     //TODO: why do i get error here?

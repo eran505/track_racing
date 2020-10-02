@@ -65,15 +65,15 @@ public:
     }
     bool isInPolicy(const State *s) const override {return this->RTDP_util_object->isInQ(s);}
     RTDP_util* getUtilRTDP(){return RTDP_util_object;}
-    RtdpAlgo(int maxSpeedAgent, int grid_size,const string &agentID,string &home);
+    RtdpAlgo(int maxSpeedAgent, int grid_size,State::agentEnum agentID,string &home);
     Point get_action(State *s) override;
     const vector<double >* TransitionAction(const State *s) const override ;
     void reset_policy() override;
     void policy_data() const override;
-    std::tuple<double,bool> EvalState2(State *s);
-    std::tuple<double,bool> EvalState(State *s);
-    tuple<double,bool> EvalState4(State *s);
-        tuple<double,bool> EvalState3(State *s);
+//    std::tuple<double,bool> EvalState2(State *s);
+//    std::tuple<double,bool> EvalState(State *s);
+//    tuple<double,bool> EvalState4(State *s);
+//        tuple<double,bool> EvalState3(State *s);
     [[nodiscard]] static Point get_lastPos() ;
     bool stoMove();
     void set_expder(int m){this->expnder->set_seq_action(m);}
@@ -82,7 +82,7 @@ public:
     void init_expder(Parm &p){
 
         expnder=std::make_unique<ActionExpnder>(_stochasticMovement,tran,this);
-        evaluator = std::make_unique<EvaluatorActionzer>(this->get_id_name(),cashID,p,RTDP_util_object);
+        evaluator = std::make_unique<EvaluatorActionzer>(p,RTDP_util_object);
         evaluator->set_stack(stackStateActionIdx);
         this->RTDP_util_object->isEmptyQ();
 
@@ -111,37 +111,37 @@ public:
     /**
      * Abstraction RTDP
      * */
-    Point offset= Point(0);
-    Point abs = Point(0);
-    Point window=Point(1,1,1);
-    std::function <void(State *s)> abstraction_expnd= [&](State *s){
-        transform_abstraction_A_inplace(s);
-    };
-    bool abstract = false;
-    void transform_abstraction_AD_inplace(State *s)
-    {
-        (s->pos_dict[this->cashID]-=offset)/=abs;
-        s->speed_dict[this->cashID].change_speed_max(0);
-        (s->pos_dict[this->id_agent]-=offset)/=abs;
-    }
-    State transform_abstraction_DA(State *s)
-    {
-        auto s_tmp = State(*s);
-        (s_tmp.pos_dict[this->id_agent]-=offset)/=abs;
-        (s_tmp.pos_dict[this->cashID]-=offset)/=abs;
-        s_tmp.speed_dict[this->cashID].change_speed_max(0);
-        return s_tmp;
-    }
-    void transform_abstraction_D(State *s)
-    {
-        (s->pos_dict[this->id_agent]-=offset)/=abs;
-    }
-    void transform_abstraction_A_inplace(State *s)
-    {
-        s->speed_dict[this->cashID].change_speed_max(0);
-        Point& ref_pos = s->pos_dict[this->cashID]-=offset;
-        ref_pos/=abs;
-    }
+//    Point offset= Point(0);
+//    Point abs = Point(0);
+//    Point window=Point(1,1,1);
+//    std::function <void(State *s)> abstraction_expnd= [&](State *s){
+//        transform_abstraction_A_inplace(s);
+//    };
+//    bool abstract = false;
+//    void transform_abstraction_AD_inplace(State *s)
+//    {
+//        (s->pos_dict[this->cashID]-=offset)/=abs;
+//        s->speed_dict[this->cashID].change_speed_max(0);
+//        (s->pos_dict[this->id_agent]-=offset)/=abs;
+//    }
+//    State transform_abstraction_DA(State *s)
+//    {
+//        auto s_tmp = State(*s);
+//        (s_tmp.pos_dict[this->id_agent]-=offset)/=abs;
+//        (s_tmp.pos_dict[this->cashID]-=offset)/=abs;
+//        s_tmp.speed_dict[this->cashID].change_speed_max(0);
+//        return s_tmp;
+//    }
+//    void transform_abstraction_D(State *s)
+//    {
+//        (s->pos_dict[this->id_agent]-=offset)/=abs;
+//    }
+//    void transform_abstraction_A_inplace(State *s)
+//    {
+//        s->speed_dict[this->cashID].change_speed_max(0);
+//        Point& ref_pos = s->pos_dict[this->cashID]-=offset;
+//        ref_pos/=abs;
+//    }
 
     tuple<double, bool> EvalState5(State *s);
 

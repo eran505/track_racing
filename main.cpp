@@ -34,9 +34,9 @@
 
 const char *  getConfigPath(int argc, char** argv);
 Grid * init_grid(configGame &conf);
-MdpPlaner* init_mdp(Grid *g, configGame &conf);
+void init_mdp(Grid *g, configGame &conf);
 void toCsv(string &pathFile, vector<vector<int>>* infoArr,vector<string> &labels);
-Game* initGame(configGame& conf);
+void initGame(configGame& conf);
 vector<vector<string>> readConfigFile(string &filePath);
 void toCsvString(string pathFile,vector<string>* infoArr);
 void toCSVTemp(string pathFile, vector<string> &data);
@@ -67,31 +67,7 @@ typedef unsigned long ulong;
 
 int main(int argc, char** argv) {
 
-    State s;
-    s.pos_dict.insert({"A",Point(0)});
-    s.pos_dict.insert({"D",Point(0)});
-    s.speed_dict.insert({"A",Point(0)});
-    s.speed_dict.insert({"D",Point(0)});
-    s.budget_dict.insert({"A",1});
-    s.budget_dict.insert({"D",1});
 
-    auto g = new Grid();
-    s.g_grid=g;
-
-    auto t1 = std::chrono::high_resolution_clock::now();
-    for (int i = 0; i < 10000; ++i) {
-        auto y = s.get_position_ref("A");
-        auto x = s.get_speed_ref("A");
-        s.set_position("D",Point(0));
-        auto z = x+y;
-    }
-    auto t2 = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::microseconds>( t2 - t1 ).count();
-
-    std::cout <<"time: "<< duration<<endl;
-    exit(0);
-
-    GOT_HERE;
     cout<<argv<<endl;
     int seed = 1594198815;//1594198815;
     seed = 328875;//1594198815;
@@ -141,7 +117,7 @@ int main(int argc, char** argv) {
 
 
 
-        auto resultsConfigI = initGame(conf);
+        initGame(conf);
 
 
 
@@ -149,7 +125,6 @@ int main(int argc, char** argv) {
         //toCsv(curToCsvPolciy,resultsConfigI->guardEval,labels);
         ctrId++;
         //Agent::ctr_object = 0;
-        delete (resultsConfigI);
         //break;
 
     }
@@ -158,28 +133,12 @@ int main(int argc, char** argv) {
     return 0;
 }
 
-Game* initGame(configGame &conf ){
+void initGame(configGame &conf ){
     auto g = init_grid(conf);
     //g->print_vaule();
 
-    auto pPlaner = init_mdp(g,conf);
-    return nullptr;
-    pPlaner->set_grid(g);
+    init_mdp(g,conf);
 
-    Game* my_game = new Game(pPlaner);
-    //exit(0);
-    cout<<"------LOOP GAME!!------"<<endl;
-
-    my_game->startGame(6000000);
-    string nameFile="buffer_"+conf.idNumber+".csv";
-    //toCsvString(conf.home+"/car_model/exp/buffer/"+nameFile, my_game->buffer);
-
-
-
-    //delete(my_game);
-    //delete (info);
-    cout<<"------END MAIN!!-----"<<endl;
-    return my_game;
 }
 
 Grid * init_grid(configGame& conf){
@@ -194,7 +153,7 @@ Grid * init_grid(configGame& conf){
     return g;
 
 }
-MdpPlaner* init_mdp(Grid *g, configGame &conf){
+void init_mdp(Grid *g, configGame &conf){
     int maxA=2;   //TODO:: change it to plus one !!!!!!!!!!!!!!!!!!!!!!!
     int maxD=1;
     conf.maxD=maxD;
@@ -214,10 +173,10 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     listPointDefender.emplace_back(Point(0,0,0),std::move(conf.posDefender),1.0);
 
 
-    auto pA1 = std::make_unique<Agent>(listPointAttacker
+    auto pA1 = std::make_unique<Agent>(listPointAttacker,State::agentEnum::A
             ,adversary,0);
 
-    auto pD2 = std::make_unique<Agent>(listPointDefender
+    auto pD2 = std::make_unique<Agent>(listPointDefender,State::agentEnum::D
             ,gurd,0);
 
 
@@ -234,11 +193,9 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
         ref_pos.second=conf.probGoals[i];
     }
 
-    auto* s = new MdpPlaner(conf._seed);
-    s->add_player(pA1.get());
-    s->add_player(pD2.get());
-    s->set_grid(g);
-    s->set_state();
+    auto* s = new MdpPlaner();
+    auto state0 = s->make_inital_state(pA1.get(),pD2.get(),g);
+
 
     //////// PATH POLICY ////////////
 //    Policy *pGridPath =new  PathPolicy("SP", maxA, lStartingPointGoal, listPointAttacker,
@@ -250,7 +207,7 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
 //
 //
 
-    Policy *pGridPath = new PathFinder("PathFinder",maxA,pA1->get_id(),conf.home,
+    Policy *pGridPath = new PathFinder(maxA,pA1->get_id(),conf.home,
                                        lStartingPointGoal,listPointAttacker,
                                         g->getPointSzie(),conf._seed,conf.rRoutes);
 
@@ -265,8 +222,17 @@ MdpPlaner* init_mdp(Grid *g, configGame &conf){
     pD2->setPolicy(RTDP);
     auto *rtdp_ptr = dynamic_cast <RtdpAlgo*>(RTDP);
     rtdp_ptr->init_expder(level_num);
-    FixAbstGame(conf,std::move(pA1),std::move(pD2),s->get_cur_state(),level_num);
-    return s;
+
+//    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+    FixAbstGame(conf,std::move(pA1),std::move(pD2),state0.get(),level_num);
+
+  //  std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+   // std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::seconds> (end - begin).count() << "[s]" << std::endl;
+   // std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
+   // std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
+
+
 }
 
 void FixAbstGame(configGame &conf, std::unique_ptr<Agent> policyA,std::unique_ptr<Agent> policyD, State *s,int lev_number)

@@ -259,7 +259,7 @@ private:
 
         Policy *ptr = new PathFinder(_attacker->get_max_speed()
                 ,_attacker->get_id(),config.home,path_states);
-        auto naive_attacker=std::make_unique<Agent>(_attacker->getAllPositions_copy(),adversary,1);
+        auto naive_attacker=std::make_unique<Agent>(_attacker->getAllPositions_copy(),_attacker->get_name_id(),adversary,1);
         naive_attacker->setPolicy(ptr);
 
         _defender->getPolicyInt()->clear_tran();

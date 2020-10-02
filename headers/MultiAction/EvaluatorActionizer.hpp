@@ -12,8 +12,8 @@
 #include "MultiAction/Scheduler.hpp"
 class EvaluatorActionzer{
     RTDP_util *ptrRTDP;
-    string attacker;
-    string defender;
+    State::agentEnum attacker=State::agentEnum::A;
+    State::agentEnum defender=State::agentEnum::D;
     Rewards R = Rewards::getRewards();
     double discount_factor = R.discountF;
     double constant_cost= R.Step_reward;
@@ -25,11 +25,9 @@ public:
     const Scheduler& get_Scheduler(){return _scheduler;}
     Scheduler& get_Scheduler_ref(){return _scheduler;}
 
-    EvaluatorActionzer(string defender_name,string attacker_name,int lev=3,RTDP_util *ptr= nullptr):
+    explicit EvaluatorActionzer(int lev,RTDP_util *ptr= nullptr):
     ptrRTDP(ptr),
-    attacker(std::move(attacker_name)),
-    defender(std::move(defender_name)),
-    _scheduler(attacker,defender,lev,ptrRTDP)
+    _scheduler(lev,ptrRTDP)
     {
         evaluationState = [&](const State *s){return EvalState2(s);};
     }

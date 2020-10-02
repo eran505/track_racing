@@ -99,7 +99,7 @@ public:
     }
     void policyData();
     void resetQtable();
-    bool apply_action(State *s,const string &id,Point &action,int max_speed);
+    static bool apply_action(State *s,State::agentEnum id,Point &action,int max_speed);
     void set_tran(vector<Policy*>* l){this->lTran=l;}
     void MyPolicy(Policy *my){this->my_policy=my;}
 
@@ -141,7 +141,7 @@ public:
     std::unique_ptr<unordered_map<keyItem ,arr>> && get_q_table()
     { return std::move(qTable);}
 
-    bool apply_action_SEQ(State *s, const string &id, Point &action, int max_speed);
+    bool apply_action_SEQ(State *s, State::agentEnum id, Point &action, int max_speed);
 
     void plusplus();
 };

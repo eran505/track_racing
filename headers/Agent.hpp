@@ -18,10 +18,10 @@ class Agent{
 protected:
     Policy* my_Policy= nullptr;
     weightedPositionVector initialPosition;
-    int my_budget;
+    short my_budget;
     bool is_wall;
     char my_team;
-    string my_id;
+    State::agentEnum my_id;
     string name;
     bool eval;
 
@@ -29,19 +29,13 @@ public:
     [[nodiscard]] const weightedPositionVector& getAllPositions()const{return initialPosition;}
     Point lastAction;
     [[nodiscard]] weightedPositionVector getAllPositions_copy()const{return initialPosition;}
-    void setID(string &_id)
-    {
-        this->my_id=_id;
-        this->my_Policy->set_id(_id);
-        this->my_team=_id[_id.size()-1];
-    }
+
     int get_max_speed()const{return this->my_Policy->max_speed;}
     [[nodiscard]] bool get_is_wall() const{ return is_wall;}
     void rest(){is_wall= false; this->my_Policy->reset_policy();}
-    [[nodiscard]] const string& get_name_id()const{ return my_id;}
-    Agent(weightedPositionVector Startpos,string m_id , char m_team,int b_budget);
-    Agent(weightedPositionVector Startpos, char m_team,int b_budget);
-    [[nodiscard]] const string& get_id()const{ return my_id; }
+    [[nodiscard]] const State::agentEnum& get_name_id()const{ return my_id;}
+    Agent(weightedPositionVector Startpos,State::agentEnum m_id , char m_team,int b_budget);
+    [[nodiscard]] const State::agentEnum& get_id()const{ return my_id; }
     [[nodiscard]] char get_team() const { return my_team; }
     string get_name();
     [[nodiscard]] const Policy* getPolicy()const{ return my_Policy;};
@@ -53,7 +47,7 @@ public:
 
     Policy* getPolicyInt(){return my_Policy;}
 
-    [[nodiscard]] int get_budget() const{ return this->my_budget;}
+    [[nodiscard]] short get_budget() const{ return this->my_budget;}
 
     [[nodiscard]] bool isAttacker() const
     {
@@ -77,7 +71,7 @@ public:
 
 
 
-    static int ctr_object;
+
 };
 
 

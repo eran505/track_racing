@@ -11,6 +11,8 @@
 typedef shared_ptr<unordered_map<string,string>> dictionary;
 
 class Dog: public Policy{
+    Dog(int speed_MAX, int x, short agentID, string &home);
+
     int x;
     vector<Point> golazz;
     int get_goal_point();
@@ -71,15 +73,12 @@ void Dog::policy_data() const {
     printf("Dog::No Data is available");
 }
 
-Dog::Dog( string namePolicy,int MAX_SPEED,string agentID,string &home) : Policy( std::move(namePolicy),MAX_SPEED,std::move(agentID),home) {
-    this->x=1;
-}
 
 Dog::~Dog() {
     cout<<"del DOG"<<endl;
 }
 
-Dog::Dog(string namePolicy, int speed_MAX,int x,string agentID,string &home) : Policy(std::move(namePolicy),speed_MAX,std::move(agentID),home) {
+Dog::Dog(int speed_MAX, int x, short agentID, string &home) : Policy(speed_MAX, agentID, home) {
     this->x=x;
 
 }

@@ -15,7 +15,7 @@
 #include "Policy/RtdpAlgo.hpp"
 #include "Policy/Attacker/PathFinder.hpp"
 #define DEBUGING
-#define TRAJECTORY
+//#define TRAJECTORY
 //#define PRINT
 #define STR_HOME_DIR "/car_model/out/"
 #include "util/Rand.hpp"
@@ -26,13 +26,42 @@ namespace info
         CollId=0,WallId=1,GoalId=2,OpenId=3,Size=4,
     };
 }
+template<size_t N,typename V = u_int64_t>
+struct Converager{
+    std::array<V,N> arr_con = std::array<V,N>();
+    size_t ctr=0;
+    bool full=false;
+    std::function<bool(V,V)> comparator= nullptr;
 
+
+    void set_comparator(std::function<bool(V,V)> fun){comparator=fun;}
+
+    void inset_elm(V&& v)
+    {
+        arr_con[++ctr%N]=std::forward<V>(v);
+    }
+    [[nodiscard]] bool is_converage()const
+    {
+        if(ctr<N) return false;
+        assert(this->comparator!= nullptr);
+        auto size_ctr = N-1;
+        while(--size_ctr>0 && comparator(arr_con[size_ctr],arr_con[0]) );
+        return size_ctr==0;
+    }
+    V acc(std::function<V(V&,V&)> acc)
+    {
+        std::accumulate(arr_con.begin(),arr_con.end(),0.0,acc);
+    }
+    size_t size(){return N;}
+
+
+};
 class SimulationGame{
 
     //Grid _g;
     short stop=0;
-    u_int32_t NUMBER=100;
-    u_int32_t iterationsMAX=8000000;//4000000;
+    u_int32_t NUMBER=1000;
+    u_int32_t iterationsMAX=20000;//4000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -163,14 +192,14 @@ private:
         //wall
         if(is_absolut_wall(pos_D))
         {
-            //if(this->_defender->getPolicyInt()->evalPolicy ) cout<<"[event] WallId"<<endl;
+            //cout<<"[event] WallId"<<endl;
             info[info::WallId]++;
             return true;
         }
         //goal
         if(is_absolut_goal(pos_A))
         {
-            //if(this->_defender->getPolicyInt()->evalPolicy ) cout<<"[event] GoalId"<<endl;
+            //cout<<"[event] GoalId"<<endl;
             info[info::GoalId]++;
             return true;
         }
@@ -178,17 +207,12 @@ private:
         if(is_absolut_collision(pos_D,pos_A))
         {
 
-            //if(this->_defender->getPolicyInt()->evalPolicy ) cout<<"[event] CollId"<<endl;
+            //cout<<"[event] CollId"<<endl;
+
             info[info::CollId]++;
             return true;
         }
-        //passBy
-//        for(int i=0;i<pos_A.capacity;++i)
-//            if((pos_A[i]>pos_D[i]))
-//            {
-//                info[info::OpenId]++;
-//                return true;
-//            }
+
         return false;
     }
 
@@ -240,7 +264,7 @@ private:
         _state->set_budget(_defender->get_id(),1);
 
     }
-    void setPosSpeed(const Point &sSpeed,const Point &pPos,const string &id_str)
+    void setPosSpeed(const Point &sSpeed,const Point &pPos,State::agentEnum id_str)
     {
         _state->set_position(id_str,
                              pPos);
@@ -294,7 +318,7 @@ private:
             if(x1[i]!=x2[i]) return false;
         return true;
     }
-    void save_trajactory(const string &agent_name)
+    void save_trajactory(State::agentEnum agent_name)
     {
         trajectory_file.save_string_body(agent_name+"@"+_state->get_position_ref(agent_name).to_str());
     }

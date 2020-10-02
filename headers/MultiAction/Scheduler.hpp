@@ -16,17 +16,15 @@
 #include <cassert>
 class Scheduler{
 
-    string attacker_id;
-    string defender_id;
+    State::agentEnum attacker_id=State::agentEnum::A;
+    State::agentEnum defender_id=State::agentEnum::D;
     std::shared_ptr<std::vector<containerFix>> _levels;
     u_int idx_level=-1;
 
 public:
 
-    Scheduler(string a,string d,int num_lev,RTDP_util *ptr):
-    attacker_id(std::move(a))
-    ,defender_id(std::move(d))
-    ,_levels(std::make_shared<std::vector<containerFix>>(0))
+    Scheduler(int num_lev,RTDP_util *ptr):
+    _levels(std::make_shared<std::vector<containerFix>>(0))
     {
         for(int i=0;i<num_lev;++i)
         {
@@ -40,7 +38,7 @@ public:
         idx_level=_levels->size()-1;
         ptr->set_q_table(get_Q_table());
     }
-    [[nodiscard]] int get_steps()const{return _levels->at(idx_level).step;}
+    [[nodiscard]] short get_steps()const{return _levels->at(idx_level).step;}
 
     int get_idx(){return idx_level;}
     void change_static(int idx, RTDP_util *ptr)

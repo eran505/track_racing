@@ -14,7 +14,7 @@ class containerFix{
 
 
 public:
-    int step=0;
+    short step=0;
     Point lower=Point(0);
     Point upper=Point(0);
     std::unique_ptr<Grid> G = std::make_unique<Grid>();

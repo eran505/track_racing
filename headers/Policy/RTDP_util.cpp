@@ -53,7 +53,7 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
         }
 
         //cout<<"A:"<<actionCur->to_str()<<" val="<<val<<endl;
-        oldState->assignment(*s,this->my_policy->id_agent);
+        oldState->assignment(s,this->my_policy->id_agent);
         // insert to Q table
 
         this->set_value_matrix(entry_index,*actionCur,val);
@@ -61,29 +61,29 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
     delete(oldState);
 }
 
-double RTDP_util::rec_h(State *s,int index, double acc_probablity)
-{
-    double res_h=0;
-    if (index+1==this->my_policy->tran.size()) {
-        auto fin = compute_h(s)*acc_probablity;
-//        cout<<fin<<endl;
-        return fin;
-    }
-    auto old_state = State(*s);
-    index++;
-    auto res = my_policy->tran[index]->TransitionAction(s);
-    // waring need to del the res (Pointer)
-    for (int i = 0; i < res->size(); ++i)
-    {
-        auto pos = this->hashActionMap->find(res->operator[](i));
-        auto action = pos->second;
-        this->apply_action(s,my_policy->tran[index]->id_agent
-                ,*action,my_policy->tran[index]->max_speed);
-        res_h+=this->rec_h(s,index,acc_probablity*res->operator[](++i));
-        s->assignment(old_state,my_policy->tran[index]->GetId());
-    }
-    return res_h;
-}
+//double RTDP_util::rec_h(State *s,int index, double acc_probablity)
+//{
+//    double res_h=0;
+//    if (index+1==this->my_policy->tran.size()) {
+//        auto fin = compute_h(s)*acc_probablity;
+////        cout<<fin<<endl;
+//        return fin;
+//    }
+//    auto old_state = State(*s);
+//    index++;
+//    auto res = my_policy->tran[index]->TransitionAction(s);
+//    // waring need to del the res (Pointer)
+//    for (int i = 0; i < res->size(); ++i)
+//    {
+//        auto pos = this->hashActionMap->find(res->operator[](i));
+//        auto action = pos->second;
+//        this->apply_action(s,my_policy->tran[index]->id_agent
+//                ,*action,my_policy->tran[index]->max_speed);
+//        res_h+=this->rec_h(s,index,acc_probablity*res->operator[](++i));
+//        s->assignment(old_state,my_policy->tran[index]->GetId());
+//    }
+//    return res_h;
+//}
 
 void RTDP_util::add_entry_map_state(keyItem key,const State *s) {
     #ifdef DD
@@ -179,54 +179,52 @@ Point RTDP_util::get_argmx_action(State *s) {
     return *pos->second;
 }
 
-bool RTDP_util::apply_action(State *s,const string &id,Point &action,int max_speed)
+bool RTDP_util::apply_action(State *s,State::agentEnum id,Point &action,int max_speed)
 {
     return s->applyAction(id, action, max_speed);
 }
 
-bool RTDP_util::apply_action_SEQ(State *s,const string &id,Point &action,int max_speed)
+bool RTDP_util::apply_action_SEQ(State *s,State::agentEnum id,Point &action,int max_speed)
 {
 
     int seq = s->get_budget(this->my_policy->id_agent);
     bool is_wall_agent=false;
-    if(true)
-    {
-        for(int i=0;i<seq and !is_wall_agent ;++i)
-            is_wall_agent = apply_action(s,id,action,max_speed);
-        return is_wall_agent;
-    }
+
+    for (int i = 0; i < seq and !is_wall_agent; ++i)
+        is_wall_agent = apply_action(s, id, action, max_speed);
+    return is_wall_agent;
 
 }
 
 
-
-double RTDP_util::compute_h(State *s) {
-//    cout<<s->to_string_state()<<endl;
-    char team = this->my_policy->id_agent[1];
-    auto my_pos = s->get_position_ref(this->my_policy->id_agent);
-    vector<Point> vec_pos;
-    s->getAllPosOpponent(vec_pos,team);
-    double min = s->g_grid->getSizeIntGrid();
-    double posA = -1;
-    for (auto & vec_po : vec_pos) {
-        auto res = getMaxDistance(vec_po,my_pos);
-        if (min>res)
-        {
-            min=res;
-        }
-    }
-    int max_speed=-1;
-    for (Policy* itemPolicy:*this->lTran) {
-        max_speed = itemPolicy->max_speed;
-    }
-    min=min-max_speed;
-    min = std::max(0.0,min);
-    //min=min/double(this->my_policy->max_speed);
-    auto res = this->R.CollReward*pow(discountFactor,min);
-    //debug
-    //cout<<"h(<"<<s->to_string_state()<<")="<<res<<endl;
-    return res;
-}
+//
+//double RTDP_util::compute_h(State *s) {
+////    cout<<s->to_string_state()<<endl;
+//    char team = this->my_policy->id_agent[1];
+//    auto my_pos = s->get_position_ref(this->my_policy->id_agent);
+//    vector<Point> vec_pos;
+//    s->getAllPosOpponent(vec_pos,team);
+//    double min = s->g_grid->getSizeIntGrid();
+//    double posA = -1;
+//    for (auto & vec_po : vec_pos) {
+//        auto res = getMaxDistance(vec_po,my_pos);
+//        if (min>res)
+//        {
+//            min=res;
+//        }
+//    }
+//    int max_speed=-1;
+//    for (Policy* itemPolicy:*this->lTran) {
+//        max_speed = itemPolicy->max_speed;
+//    }
+//    min=min-max_speed;
+//    min = std::max(0.0,min);
+//    //min=min/double(this->my_policy->max_speed);
+//    auto res = this->R.CollReward*pow(discountFactor,min);
+//    //debug
+//    //cout<<"h(<"<<s->to_string_state()<<")="<<res<<endl;
+//    return res;
+//}
 void RTDP_util::plusplus(){this->ctr_debug++;}
 
 void RTDP_util::policyData() {

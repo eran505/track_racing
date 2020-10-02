@@ -12,16 +12,15 @@
 #include "Reward.hpp"
 class Evaluator{
     RTDP_util *ptrRTDP;
-    string attacker;
-    string defender;
+    State::agentEnum attacker=State::agentEnum::A;
+    State::agentEnum defender=State::agentEnum::D;
     Rewards R = Rewards::getRewards();
     double discount_factor=0.987;
     double constant_cost=0;
     std::function <std::tuple<double,bool>(const State *s)> evaluationState;
     std::shared_ptr<vector<pair<State,pair<u_int64_t,int>>>> stack_roll_back = nullptr;
 public:
-    Evaluator(string attacker_name,string defender_name,RTDP_util *ptr= nullptr):ptrRTDP(ptr),
-    attacker(std::move(attacker_name)),defender(std::move(defender_name))
+    explicit Evaluator(RTDP_util *ptr=nullptr):ptrRTDP(ptr)
     {
         evaluationState = [&](const State *s){return EvalState2(s);};
     }

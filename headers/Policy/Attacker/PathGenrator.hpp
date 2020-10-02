@@ -125,10 +125,8 @@ private:
 //            cout<<allPath[i+1].pos.to_str()<<endl;
 
             u_int ation_h = difAction.hashMeAction(Point::D_point::actionMax);
-            if(ation_h==39)
-                cout<<endl;
-            //cout<<"ation_h="<<ation_h<<" : "<<difAction.to_hash_str()<<endl;
-            //cout<<"key="<<key<<"\t"<<allPath[i].pos.to_hash_str()<<"_"<<allPath[i].speed.to_hash_str()<<endl;
+            cout<<"ation_h="<<ation_h<<" : "<<difAction.to_hash_str()<<endl;
+            cout<<"key="<<key<<"\t"<<allPath[i].pos.to_hash_str()<<"_"<<allPath[i].speed.to_hash_str()<<endl;
             auto pos = RAW_policyMap.find(key);
             if (pos == RAW_policyMap.end()) {
                 RAW_policyMap.try_emplace(key);
