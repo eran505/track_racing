@@ -4,6 +4,7 @@
 
 #ifndef TRACK_RACING_RTDP_UTIL_HPP
 #define TRACK_RACING_RTDP_UTIL_HPP
+//#define OUTDATA
 #include <cmath>
 #include <functional>
 #include "../util/csvfile.hpp"
@@ -16,7 +17,7 @@
 #include "Policy.hpp"
 #define VECTOR
 #include "Update_RTDP/Reward.hpp"
-#define DD
+//#define DD
 typedef u_int64_t keyItem;
 typedef double cell;
 
@@ -50,7 +51,6 @@ protected:
     int size_mapAction;
     unordered_map<int,Point*>* hashActionMap;
     void heuristic(const State *s,keyItem entry_index);
-    cell compute_h(State *s);
     int to_closet_path_H_calc(const Point& agnet_pos);
     int to_closet_path_H(const State *s);
     keyItem getStateKeyValue(const State *s) const

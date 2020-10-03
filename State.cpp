@@ -144,18 +144,15 @@ u_int64_t  State::getHashValuePosOnly() const{
     }
     return seed;
 }
+
 u_int64_t State::getHashValue()const {
-    vector<int> vec;
+    u_int64_t  seed = 12;
     for (short x = A; x != LAST; ++x)
     {
         for (int i = 0; i < Point::D_point::D; ++i)
-            vec.push_back(this->dataPoint[x*2][i]);
+            seed ^=  (this->dataPoint[x*2][i] * 2654435761) + 2654435769 + (seed << 6) + (seed >> 2);
         for (int i = 0; i < Point::D_point::D; ++i)
-            vec.push_back(this->dataPoint[x*2+1][i]);
-    }
-    u_int64_t  seed = vec.size();
-    for(auto& i : vec) {
-        seed ^=  (i * 2654435761) + 2654435769 + (seed << 6) + (seed >> 2);
+            seed ^=  (this->dataPoint[x*2+1][i] * 2654435761) + 2654435769 + (seed << 6) + (seed >> 2);
     }
     return seed;
 }

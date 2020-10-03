@@ -82,6 +82,11 @@ public:
         my_state->applyAction(this->get_id_name(),action,this->max_speed);
         return my_state;
     }
+    State& apply_action_state(State& my_state, const Point &action )const{
+
+        my_state.applyAction(this->get_id_name(),action,this->max_speed);
+        return my_state;
+    }
 
     void set_id(State::agentEnum anEnum) {
         this->id_agent=anEnum;

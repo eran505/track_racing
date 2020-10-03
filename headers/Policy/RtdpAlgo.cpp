@@ -151,10 +151,10 @@ void RtdpAlgo::empty_stack_update() {
 }
 
 void RtdpAlgo::policy_data() const {
-
+#ifdef OUTDATA
     this->RTDP_util_object->policyData();
     this->RTDP_util_object->plusplus();
-
+#endif
 }
 
 bool RtdpAlgo::stoMove() {

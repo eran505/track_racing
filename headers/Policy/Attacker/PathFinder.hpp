@@ -132,7 +132,7 @@ public:
             auto curState = std::get<0>(pairCur);
             auto prob =std::get<1>(pairCur);
 
-            cout<<curState.to_string_state()<<endl;
+            //cout<<curState.to_string_state()<<endl;
             q.pop_front();
             if(curState.isEndState(this->id_agent))
             {
@@ -143,9 +143,9 @@ public:
                 {
                     auto posA = item.first.get_position_ref(this->id_agent);
                     v.emplace_back(posA,item.first.get_speed_ref(this->id_agent));
-                    cout<<posA.to_str()<<",";
+                    //cout<<posA.to_str()<<",";
                 }
-                cout<<endl;
+               // cout<<endl;
                 auto posPair = path[path.size()-1];
                 auto p = posPair.second;
                 probAcc = probAcc/p;
@@ -164,8 +164,8 @@ public:
                 }
             path.emplace_back(curState,prob);
             auto next =Normalizer::minizTrans(this->TransitionAction(&curState));
-            cout<<"S:"<<curState.to_string_state()<<endl;
-            cout<<"next:\t"<<next<<endl;
+            //cout<<"S:"<<curState.to_string_state()<<endl;
+            //cout<<"next:\t"<<next<<endl;
             q.push_front({curState,probAcc});
             probAcc=probAcc*prob;
             for (int i = 0 ; i<next.size() ; ++i)
@@ -177,7 +177,7 @@ public:
                 Point *actionI = pos->second;
                 State tmp(curState);
                 tmp.applyAction(this->id_agent,*actionI,this->max_speed);
-                cout<<tmp.to_string_state()<<endl;
+                //cout<<tmp.to_string_state()<<endl;
                 q.push_front({tmp,next[++i]});
             }
 

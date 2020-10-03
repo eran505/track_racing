@@ -99,7 +99,9 @@ void RTDP_util::add_entry_map_state(keyItem key,const State *s) {
 }
 
 RTDP_util::~RTDP_util() {
+    #ifdef OUTDATA
     this->policyData();
+    #endif
     cout<<"state genrated:\t"<<ctr_state<<endl;
     cout<<"size_Q:\t"<<size_Q<<endl;
     std::for_each(hashActionMap->begin(),hashActionMap->end(),[](auto &item)
@@ -109,6 +111,7 @@ RTDP_util::~RTDP_util() {
 }
 
 void RTDP_util::arg_max(arr &arr,vector<int>& listIdxs){
+
     double max = -1;
     max = *std::max_element(arr.begin(), arr.end());
     listIdxs.reserve(1);
@@ -132,9 +135,12 @@ int RTDP_util::get_state_argmax(const State *s) {
 //    }
 //
     vector<int> argMax_list;
-    arg_max(row, argMax_list);
-    //std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
     this->last_entry = key;
+    return std::distance(row.begin(),std::max_element(row.begin(), row.end()));
+
+    //arg_max(row, argMax_list);
+    //std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
+
 
     return argMax_list.front();
 

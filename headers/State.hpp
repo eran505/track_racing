@@ -54,7 +54,7 @@ public:
 //    [[nodiscard]] const Point&  get_position_ref(const string &name_id)const { return getValue(pos_dict,name_id);}
 //    [[nodiscard]] const Point&  get_speed_ref(const string &name_id)const { return getValue(speed_dict,name_id);}
     //set<string> is_collusion();
-    virtual bool applyAction(agentEnum id, const Point &action, int max_speed);
+    bool applyAction(agentEnum id, const Point &action, int max_speed);
     [[nodiscard]] bool is_collusion(agentEnum id_player,agentEnum op_player)const;
     //void getAllPosOpponent(vector<Point> &results,char team);
     std::ostream& operator<<(std::ostream &strm) const {

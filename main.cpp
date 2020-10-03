@@ -64,8 +64,8 @@ void getConfigPath(int argc, char** argv,configGame &conf);
 
 #include <string_view>
 typedef unsigned long ulong;
-
 int main(int argc, char** argv) {
+
 
 
     cout<<argv<<endl;
@@ -223,14 +223,14 @@ void init_mdp(Grid *g, configGame &conf){
     auto *rtdp_ptr = dynamic_cast <RtdpAlgo*>(RTDP);
     rtdp_ptr->init_expder(level_num);
 
-//    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
     FixAbstGame(conf,std::move(pA1),std::move(pD2),state0.get(),level_num);
 
-  //  std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-   // std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::seconds> (end - begin).count() << "[s]" << std::endl;
-   // std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
-   // std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::seconds> (end - begin).count() << "[s]" << std::endl;
+    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
+    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
 
 
 }

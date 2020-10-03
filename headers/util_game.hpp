@@ -4,6 +4,8 @@
 
 #ifndef RACING_CAR_UTIL_GAME_HPP
 #define RACING_CAR_UTIL_GAME_HPP
+#define APPEDN 13        //int append=int(pow(int(actionMax),this->capacity))/2;
+
 #include <string>
 #include <list>
 #include <iostream>
@@ -372,10 +374,9 @@ public:
     }
     unsigned int hashMeAction(int max){
         unsigned int h=0;
-        int append=int(pow(int(actionMax),this->capacity))/2;
         for (int i = 0; i < this->capacity; ++i)
             h+=this->array[capacity-1-i]*int(pow(max,i));
-        return h+append;
+        return h+APPEDN;
     }
     Point operator*(int x) const{
         Point tmp(*this);
@@ -484,6 +485,19 @@ vector<double> getTopK(int k,vector<double> &vec);
 //    for(auto&& elem : cont) print(out, elem);
 //    return out;
 //}
+
+
+inline double fastPow(double a, double b) {
+    union {
+        double d;
+        int x[2];
+    } u = { a };
+    u.x[1] = (int)(b * (u.x[1] - 1072632447) + 1072632447);
+    u.x[0] = 0;
+    return u.d;
+}
+
+
 
 template <typename T>
 

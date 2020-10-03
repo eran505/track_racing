@@ -48,7 +48,7 @@ public:
     }
 
 
-    double calculate(const std::vector<pair<State *, double>>& state_tran_q)
+    double calculate(const std::vector<pair<State, double>>& state_tran_q)
     {
         double res=0;
         auto old_idx=_scheduler.get_idx();
@@ -90,14 +90,14 @@ public:
     }
 private:
 
-    double evalute_state(const State *s,double transition_probability)
+    double evalute_state(const State &s,double transition_probability)
     {
 
-        change_scope_const(s);
+        change_scope_const(&s);
         double res=0;
-        auto [val,isEndState]= this->evaluationState(s);
+        auto [val,isEndState]= this->evaluationState(&s);
         if(!isEndState)
-            val+=this->ptrRTDP->get_max_valueQ(s);
+            val+=this->ptrRTDP->get_max_valueQ(&s);
         res+=val*transition_probability*this->discount_factor;
        // cout<<"[evalute_state] "<<s->to_string_state()<<"\tvla="<<res<<endl;
         return res;

@@ -10,10 +10,11 @@
 
 
 
-template <typename S>
+template <typename S,typename A>
 class PathMapper{
-    std::vector<std::vector<
-
+    std::vector<std::vector<S>> all_paths;
+    std::vector<std::vector<A>> all_paths_actions;
+    
 
 
 

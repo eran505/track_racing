@@ -119,14 +119,14 @@ private:
 
             u_int64_t key = Point::hashNnN(allPath[i].pos.hashConst(),
                                            allPath[i].speed.hashConst(Point::maxSpeed));
-            cout<<allPath[i].pos.to_str()<<" | "<<allPath[i].speed.to_str()<<" Ky="<<key<<endl;
+            //cout<<allPath[i].pos.to_str()<<" | "<<allPath[i].speed.to_str()<<" Ky="<<key<<endl;
 //            if (i==0)
 //                cout<<allPath[i].pos.to_str()<<endl;
 //            cout<<allPath[i+1].pos.to_str()<<endl;
 
             u_int ation_h = difAction.hashMeAction(Point::D_point::actionMax);
-            cout<<"ation_h="<<ation_h<<" : "<<difAction.to_hash_str()<<endl;
-            cout<<"key="<<key<<"\t"<<allPath[i].pos.to_hash_str()<<"_"<<allPath[i].speed.to_hash_str()<<endl;
+            //cout<<"ation_h="<<ation_h<<" : "<<difAction.to_hash_str()<<endl;
+            //cout<<"key="<<key<<"\t"<<allPath[i].pos.to_hash_str()<<"_"<<allPath[i].speed.to_hash_str()<<endl;
             auto pos = RAW_policyMap.find(key);
             if (pos == RAW_policyMap.end()) {
                 RAW_policyMap.try_emplace(key);

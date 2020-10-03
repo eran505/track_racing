@@ -42,8 +42,7 @@ void Agent::doAction(State *s) {
     this->my_Policy->applyActionToState(s, lastAction);
 
     this->is_wall=my_Policy->is_wall;
-//    if(eval )
-//        cout<<"ACTION: " <<lastAction.to_str()<<" H()->"<<lastAction.hashMeAction(Point::actionMax)<<endl;
+
 
 }
 

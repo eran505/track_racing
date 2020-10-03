@@ -16,6 +16,7 @@
 #include "Policy/Attacker/PathFinder.hpp"
 #define DEBUGING
 //#define TRAJECTORY
+#define BUFFER_TRAJECTORY 1 // need to be 9000 when saving
 //#define PRINT
 #define STR_HOME_DIR "/car_model/out/"
 #include "util/Rand.hpp"
@@ -61,7 +62,7 @@ class SimulationGame{
     //Grid _g;
     short stop=0;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=20000;//4000000;
+    u_int32_t iterationsMAX=100000;//4000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -73,8 +74,9 @@ class SimulationGame{
     std::unique_ptr<Randomizer> random_object= nullptr;
     Grid *g= nullptr;
     Saver<string> file_manger;
+#ifdef TRAJECTORY
     Saver<string> trajectory_file;
-
+#endif
     Converager<15,std::vector<double>> converagerr;
 
 public:
@@ -85,24 +87,30 @@ public:
             _defender(std::move(agentD)),
             _state(std::make_unique<State>(*s)),random_object(std::make_unique<Randomizer>(conf._seed))
             ,file_manger(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.eval_mode)+"_Eval.csv",10)
-            ,trajectory_file(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.eval_mode)+"_Traj.csv",9000){
+            #ifdef TRAJECTORY
+            ,trajectory_file(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.eval_mode)+"_Traj.csv",BUFFER_TRAJECTORY)//9000
+            #endif
+            {
 
         g=_state->g_grid;
         //this->iterationsMAX=std::max(g->getSizeIntGrid(),200000);
         file_manger.set_header_vec({"episodes","Collision","Wall" ,"Goal" ,"PassBy","moves"});
         converagerr.set_comparator(comper_vectors);
+        #ifdef TRAJECTORY
         init_trajectory_file(conf);
         treeTraversal();
-
+        #endif
     }
     void init_trajectory_file(configGame &conf)
     {
+        #ifdef TRAJECTORY
         //trajectory_file.set_header({"col"});
         trajectory_file.set_header_vec({"size"+conf.sizeGrid.to_str()});
         string str_goal="goal";
         std::for_each(conf.gGoals.begin(),conf.gGoals.end(),
                       [&](const Point &p){str_goal+=(p.to_str()+"_");});
         trajectory_file.set_header_vec({str_goal.substr(0, str_goal.size()-1)});
+        #endif
     }
     void main_loop()
     {
@@ -238,7 +246,9 @@ private:
     void reset()
     {
 
+        #ifdef TRAJECTORY
         trajectory_file.save_string_body("END");
+        #endif
         _attacker.get()->rest();
         _defender->rest();
         this->reset_state();
@@ -320,7 +330,9 @@ private:
     }
     void save_trajactory(State::agentEnum agent_name)
     {
+#ifdef TRAJECTORY
         trajectory_file.save_string_body(agent_name+"@"+_state->get_position_ref(agent_name).to_str());
+#endif
     }
     void treeTraversal()
     {

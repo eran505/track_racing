@@ -10,10 +10,10 @@
 #include "MultiAction/Scheduler.hpp"
 
 struct tuple_state{
-    State *state= nullptr;
+    State state;
     double probability=0;
     bool is_end_state=true;
-    tuple_state(State *s,double p,bool end)
+    tuple_state(State &&s,double p,bool end)
     :state(s),probability(p),is_end_state(end){}
 };
 
@@ -28,7 +28,7 @@ class ActionExpnder{
     vector<tuple_state> stack;
     unordered_map<int,Point> hashActionMap;
     std::function <void(tuple_state &tuple_s,const Point &a)> stochastic_expander;
-    vector<pair<State*,double>> list_state_expnaded;
+    vector<pair<State,double>> list_state_expnaded;
 
 
 public:
@@ -43,17 +43,17 @@ public:
     {
         for(auto &item:list_state_expnaded)
         {
-            delete (item.first);
+            //delete (item.first);
         }
         list_state_expnaded.clear();
         stack.clear();
     }
     void set_seq_action(int num){_action_seq=num;}
-    vector<pair<State*,double>>& expnad_state(const State *s,const Point &a)
+    vector<pair<State,double>>& expnad_state(const State *s,const Point &a)
     {
 
         set_seq_action_by_state(s);
-        stack.emplace_back(new State(*s), 1.0, false);
+        stack.emplace_back(State(*s), 1.0, false);
         for(short i=_action_seq;i>0;--i)
         {
             // defender apply action
@@ -77,11 +77,11 @@ public:
     }
 private:
     void expand_Movement_inplace(tuple_state &tuple_s,const Point &a,double p=1) {
-        my_policy->apply_action_state(tuple_s.state, a);
+        my_policy->apply_action_state(&tuple_s.state, a);
         tuple_s.probability*=p;
     }
     void expand_stochasticMovement_inplace(tuple_state &tuple_s,const Point &a) {
-        auto new_tuple = tuple_state(new State(*tuple_s.state),tuple_s.probability,tuple_s.is_end_state);
+        auto new_tuple = tuple_state(State(tuple_s.state),tuple_s.probability,tuple_s.is_end_state);
         expand_Movement_inplace(tuple_s,a,_stochasticMovement);
 
         expand_Movement_inplace(new_tuple,slide_action,1.0-_stochasticMovement);
@@ -90,7 +90,7 @@ private:
 
     void if_end_states()
     {
-        for(auto &item:stack) item.is_end_state=condtion_game(item.state);
+        for(auto &item:stack) item.is_end_state=condtion_game(&item.state);
     }
     void set_seq_action_by_state(const State *s)
     {
@@ -111,16 +111,17 @@ private:
                     continue;
                 }
 
-                auto options_actions=item_policy->TransitionAction(tuple_item_state.state);
+                auto options_actions=item_policy->TransitionAction(&tuple_item_state.state);
                 for(auto i = 0; i < options_actions->size(); i++)
                 {
-                    auto new_state =item_policy->apply_action_state(
-                            new State(*tuple_item_state.state),
+                    auto nState = State(tuple_item_state.state);
+                    item_policy->apply_action_state(
+                            nState,
                             id_to_action(options_actions->operator[](i)));
 
-                    tmp.emplace_back(new_state,tuple_item_state.probability*options_actions->operator[](++i),tuple_item_state.is_end_state);
+                    tmp.emplace_back(std::move(nState),tuple_item_state.probability*options_actions->operator[](++i),tuple_item_state.is_end_state);
                 }
-                delete tuple_item_state.state;
+                //delete tuple_item_state.state;
             }
             stack.clear();
             stack=std::move(tmp);
@@ -155,13 +156,13 @@ private:
     {
         for(auto &item:stack)
         {
-            list_state_expnaded.emplace_back(item.state,item.probability);
+            list_state_expnaded.emplace_back(std::move(item.state),item.probability);
         }
     }
     static void print_stack(vector<tuple_state>& vec)
     {
         cout<<"----------"<<endl;
-        for(auto &item:vec) cout<<"[stack] { "<<item.state->to_string_state()<<", "<<item.probability<<" }"<<endl;
+        for(auto &item:vec) cout<<"[stack] { "<<item.state.to_string_state()<<", "<<item.probability<<" }"<<endl;
     }
 };
 
