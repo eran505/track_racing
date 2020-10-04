@@ -122,10 +122,9 @@ public:
         return sum;
     }
     int capacity=D_point::D;
-    std::array<int,D_point::D> array;
+    std::array<int,D_point::D> array{};
     //int array[D_point::D]{};
-    Point(){ //printf("POINT_EMPTY_CON\n");
-    };
+    Point()=default;
     Point(const Point &other):capacity(other.capacity)
     {
         //printf("COPY_CON POINT\n  ");
@@ -170,7 +169,7 @@ public:
             return false;
         return true;
     }
-    int hash2D() const
+    [[nodiscard]] int hash2D() const
     {
         return  (53 + (array[0])) * 53 + (array[1]);
     }
@@ -239,7 +238,7 @@ public:
         }
         return false;
     }
-    int sum() const
+    [[nodiscard]] int sum() const
     {
         int ans = 0;
         for (int i = 0; i < this->capacity; ++i) ans+=this->array[i];
@@ -327,24 +326,16 @@ public:
 
     static vector<Point> getAllAction2(vector<Point> &action_list,int x=-1){
         action_list.clear();
-        if (Point::D==2){
-            for (int i = -1; i < 2; ++i)
-                for (int j = -1; j < 2; ++j)
-                    action_list.emplace_back(i,j);
-        }else if(Point::D==3){
-            for (int i = -1; i < 2; ++i)
-                for (int j = -1; j < 2; ++j)
-                    for (int k = -1; k < 2; ++k)
-                    {
-                        if (x==0)
-                            action_list.emplace_back(0,j,k);
-                        if (x==1)
-                            action_list.emplace_back(i,0,k);
-                        if (x==2)
-                            action_list.emplace_back(i,j,0);
-                    }
-
-                        }
+        for (int i = -1; i < 2; ++i)
+            for (int j = -1; j < 2; ++j)
+                for (int k = -1; k < 2; ++k) {
+                    if (x == 0)
+                        action_list.emplace_back(0, j, k);
+                    if (x == 1)
+                        action_list.emplace_back(i, 0, k);
+                    if (x == 2)
+                        action_list.emplace_back(i, j, 0);
+                }
         return action_list;
     }
 
@@ -358,10 +349,11 @@ public:
     [[nodiscard]] u_int64_t hashConst(int offset=0)const {
 
         auto h=hashNnN(array[0]+offset,array[1]+offset);
-        for (int i = 2; i < capacity; ++i) {
-            h=hashNnN(h,this->array[i]+offset);
-        }
-        return h;
+        return hashNnN(h,this->array[2]+offset);
+//        for (int i = 2; i < capacity; ++i) {
+//            hashNnN(h,this->array[i]+offset);
+//        }
+//        return h;
     }
     static unordered_map<int,Point*>* getDictAction();
     Point operator-(const Point &other) const
@@ -485,6 +477,8 @@ vector<double> getTopK(int k,vector<double> &vec);
 //    for(auto&& elem : cont) print(out, elem);
 //    return out;
 //}
+
+
 
 
 inline double fastPow(double a, double b) {

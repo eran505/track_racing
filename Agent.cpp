@@ -43,7 +43,6 @@ void Agent::doAction(State *s) {
 
     this->is_wall=my_Policy->is_wall;
 
-
 }
 
 

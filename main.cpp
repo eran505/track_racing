@@ -58,13 +58,48 @@ void getConfigPath(int argc, char** argv,configGame &conf);
  *
  */
 //using namespace std::chrono;
+
 #include <cassert>
 #include <iostream>
 #include <string>
 
 #include <string_view>
+#include "Policy/Update_RTDP/PathMapper.hpp"
 typedef unsigned long ulong;
 int main(int argc, char** argv) {
+
+
+    std::vector<StatePoint> l1 = {StatePoint(Point(1),Point(1)),StatePoint(Point(3),Point(3)),StatePoint(Point(5),Point(5))};
+
+    std::vector<StatePoint> l2 = {StatePoint(Point(1),Point(2)),StatePoint(Point(3),Point(3)),StatePoint(Point(4),Point(4))};
+
+    std::vector<StatePoint> l3 = {StatePoint(Point(1),Point(1)),StatePoint(Point(3),Point(3)),StatePoint(Point(4),Point(2))};
+
+
+    std::vector<vector<StatePoint>> l = {l1,l2,l3};
+    std::vector<double> lp = {0.2,0.7,0.1};
+
+    PathMapper obj(l,lp);
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+
+    //vector<pair<StatePoint,double>> ans;
+    for (auto k=0;k<1000;k++)
+        auto ans = obj.get_next_states(72221789,1);
+
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
+    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
+
+
+    //    for (const auto &item:ans)
+//        cout<<item.second<<" : "<<item.first<<endl;
+
+
+
+    exit(0);
+
+
+
 
 
 

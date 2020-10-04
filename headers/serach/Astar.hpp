@@ -14,7 +14,7 @@
 #include <cmath>
 namespace AStar
 {
-    enum D{d=2};
+//    enum D{d=2};
     struct StatePoint
     {
         Point pos;
@@ -37,6 +37,11 @@ namespace AStar
         {
             os<<"{"<<dt.pos.to_str()<<","<<dt.speed.to_str()<<"} ";
             return os;
+        }
+        [[nodiscard]] uint64_t getHashStateAttacker() const
+        {
+            return Point::hashNnN(pos.hashConst(),
+                                           speed.hashConst(Point::maxSpeed));
         }
     };
 
