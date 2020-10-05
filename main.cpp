@@ -27,6 +27,7 @@
 #include <headers/util/csvfile.hpp>
 #include "Policy/Attacker/PathFinder.hpp"
 #include "MultiAction/SinglePath.hpp"
+#include "Policy/Attacker/StaticPolicy.hpp"
 //#include <torch/script.h> // One-stop header.
 #include "MultiAction/Simulator.hpp"
 #include "learning/ReplayBuffer/SumTree.hpp"
@@ -68,35 +69,35 @@ void getConfigPath(int argc, char** argv,configGame &conf);
 typedef unsigned long ulong;
 int main(int argc, char** argv) {
 
-
-    std::vector<StatePoint> l1 = {StatePoint(Point(1),Point(1)),StatePoint(Point(3),Point(3)),StatePoint(Point(5),Point(5))};
-
-    std::vector<StatePoint> l2 = {StatePoint(Point(1),Point(2)),StatePoint(Point(3),Point(3)),StatePoint(Point(4),Point(4))};
-
-    std::vector<StatePoint> l3 = {StatePoint(Point(1),Point(1)),StatePoint(Point(3),Point(3)),StatePoint(Point(4),Point(2))};
-
-
-    std::vector<vector<StatePoint>> l = {l1,l2,l3};
-    std::vector<double> lp = {0.2,0.7,0.1};
-
-    PathMapper obj(l,lp);
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-
-    //vector<pair<StatePoint,double>> ans;
-    for (auto k=0;k<1000;k++)
-        auto ans = obj.get_next_states(72221789,1);
-
-    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
-    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
-
-
-    //    for (const auto &item:ans)
-//        cout<<item.second<<" : "<<item.first<<endl;
-
-
-
-    exit(0);
+//
+//    std::vector<StatePoint> l1 = {StatePoint(Point(1),Point(1)),StatePoint(Point(3),Point(3)),StatePoint(Point(5),Point(5))};
+//
+//    std::vector<StatePoint> l2 = {StatePoint(Point(1),Point(2)),StatePoint(Point(3),Point(3)),StatePoint(Point(4),Point(4))};
+//
+//    std::vector<StatePoint> l3 = {StatePoint(Point(1),Point(1)),StatePoint(Point(3),Point(3)),StatePoint(Point(4),Point(2))};
+//
+//
+//    std::vector<vector<StatePoint>> l = {l1,l2,l3};
+//    std::vector<double> lp = {0.2,0.7,0.1};
+//
+//    PathMapper obj(l,lp);
+//    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+//
+//    //vector<pair<StatePoint,double>> ans;
+//    for (auto k=0;k<1000;k++)
+//        auto ans = obj.get_next_states(72221789,1);
+//
+//    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+//    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
+//    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
+//
+//
+//    //    for (const auto &item:ans)
+////        cout<<item.second<<" : "<<item.first<<endl;
+//
+//
+//
+//    exit(0);
 
 
 
@@ -242,18 +243,20 @@ void init_mdp(Grid *g, configGame &conf){
 //
 //
 
-    Policy *pGridPath = new PathFinder(maxA,pA1->get_id(),conf.home,
-                                       lStartingPointGoal,listPointAttacker,
-                                        g->getPointSzie(),conf._seed,conf.rRoutes);
+//    Policy *pGridPath = new PathFinder(maxA,pA1->get_id(),conf.home,
+//                                       lStartingPointGoal,listPointAttacker,
+//                                        g->getPointSzie(),conf._seed,conf.rRoutes);
 
+    Policy *pAttcker = new StaticPolicy(conf.sizeGrid,maxA,pA1->get_id(),conf.rRoutes,conf.home
+                                        ,lStartingPointGoal,listPointAttacker);
 
     //////// RTDP POLICY ////////
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
     Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),pD2->get_id(),conf.home);
 
     int level_num=conf.levelz;
-    RTDP->add_tran(pGridPath);
-    pA1->setPolicy(pGridPath);
+    RTDP->add_tran(pAttcker);
+    pA1->setPolicy(pAttcker);
     pD2->setPolicy(RTDP);
     auto *rtdp_ptr = dynamic_cast <RtdpAlgo*>(RTDP);
     rtdp_ptr->init_expder(level_num);

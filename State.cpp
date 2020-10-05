@@ -112,7 +112,6 @@ bool State::applyAction( agentEnum id, const Point &action, int max_speed) {
 
 
 
-
 void State::assignment(State &other)
 {
     for(int i=0;i<this->budgets.size();i++)
