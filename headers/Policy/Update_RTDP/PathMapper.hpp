@@ -126,6 +126,7 @@ private:
         for(const auto& item:all_paths)
             for(int i=0;i<item.size();++i)
                 cout<<"["<<i<<"] "<<item[i]<<endl;
+            cout<<"\n\n"<<endl;
 
     }
 
