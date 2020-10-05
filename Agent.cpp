@@ -35,6 +35,11 @@ void Agent::trainPolicy(){
     my_Policy->evalPolicy= false;
 }
 
+void Agent::doAction_without_apply(State *s,int jumps)
+{
+    this->my_Policy->make_action(s,jumps);
+}
+
 void Agent::doAction(State *s) {
 
     this->lastAction = this->my_Policy->get_action(s);
