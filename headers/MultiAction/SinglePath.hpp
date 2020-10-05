@@ -7,6 +7,7 @@
 
 //#include <pstl/execution_defs.h>
 #include "Policy/Attacker/PathFinder.hpp"
+#include "Policy/Attacker/StaticPolicy.hpp"
 #include "Simulator.hpp"
 #define ASSERT
 typedef vector<pair<double,vector<StatePoint>>> vector_p_path;
@@ -171,7 +172,8 @@ public:
     }
 };
 
-
+typedef RtdpAlgo PolicyD;
+typedef StaticPolicy PolicyA;
 class SinglePath{
 
     std::unique_ptr<Agent> _attacker;
@@ -303,18 +305,18 @@ private:
     void get_all_paths()
     {
         all_paths = std::make_unique<vector<pair<double,vector<StatePoint>>>>();
-        const PathFinder *ptr = get_policy_attcker();
-        ptr->treeTraversal(_start_state.get(),all_paths.get());
+       // const PathFinder *ptr = get_policy_attcker();
+       // ptr->treeTraversal(_start_state.get(),all_paths.get());
 
     }
 
-    auto get_policy_attcker() -> const PathFinder*
+    auto get_policy_attcker() -> const PolicyA*
     {
-        return dynamic_cast<const PathFinder*>(_attacker->getPolicy());
+        return dynamic_cast<const PolicyA*>(_attacker->getPolicy());
     }
-    auto get_policy_defender() -> RtdpAlgo*
+    auto get_policy_defender() -> PolicyD*
     {
-        return dynamic_cast<RtdpAlgo*>(_defender->getPolicyInt());
+        return dynamic_cast<PolicyD*>(_defender->getPolicyInt());
     }
     void set_probability_df(double p)
     {
@@ -329,11 +331,11 @@ private:
     {
         get_policy_defender()->getUtilRTDP()->set_q_table(std::move(ptr));
     }
-    void add_H(Agent* a , Agent* d)
+    static void add_H(Agent* a , Agent* d)
     {
-        auto rtdp = dynamic_cast<RtdpAlgo*>(d->getPolicyInt());
-        auto pathfinder = dynamic_cast<const PathFinder*>(a->getPolicy());
-        vector<vector<Point>> l = pathfinder->get_point_path_H(this->_start_state.get());
+        auto rtdp = dynamic_cast<PolicyD*>(d->getPolicyInt());
+        auto pathfinder = dynamic_cast<const PolicyA*>(a->getPolicy());
+        vector<vector<Point>> l = pathfinder->list_only_pos();
         rtdp->getUtilRTDP()->l_p_H=l;
 
     }

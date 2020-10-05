@@ -17,7 +17,7 @@ class EvaluatorActionzer{
     Rewards R = Rewards::getRewards();
     double discount_factor = R.discountF;
     double constant_cost= R.Step_reward;
-    std::function <std::tuple<double,bool>(const State *s)> evaluationState;
+    std::function <std::tuple<double,bool>(const State& s)> evaluationState;
     std::shared_ptr<vector<pair<State,pair<u_int64_t,int>>>> stack_roll_back = nullptr;
     Scheduler _scheduler;
 public:
@@ -29,7 +29,7 @@ public:
     ptrRTDP(ptr),
     _scheduler(lev,ptrRTDP)
     {
-        evaluationState = [&](const State *s){return EvalState2(s);};
+        evaluationState = [&](const State &s){return EvalState2(s);};
     }
     void set_RTDPptr(RTDP_util* ptr){this->ptrRTDP=ptr;}
     void set_discount_factor(double m){discount_factor=m;}
@@ -43,21 +43,33 @@ public:
     void set_eval(int index_func)
     {
         if (index_func==1) {
-            evaluationState=[&](const State *s){return EvalState2(s);};
+            evaluationState=[&](const State &s){return EvalState2(s);};
         }
     }
 
 
+    double calculateV2_back(std::vector<pair<StatePoint,double>> &&l,State &s)
+    {
+        double expected_sum_reward=0;
+        for(auto &item:l)
+        {
+            s.set_position(this->attacker,item.first.pos);
+            s.set_speed(this->attacker,item.first.speed);
+            expected_sum_reward+=evalute_state(s,item.second);
+        }
+        return expected_sum_reward;
+    }
+
     double calculate(const std::vector<pair<State, double>>& state_tran_q)
     {
         double res=0;
-        auto old_idx=_scheduler.get_idx();
+        //auto old_idx=_scheduler.get_idx();
 
         //assert(state_tran_q.size()==1);
         std::for_each(state_tran_q.begin(),state_tran_q.end(),[&](auto &item){
             res+=evalute_state(item.first,item.second);
         });
-        return_back_starting_state(old_idx);
+        //return_back_starting_state(old_idx);
         return res;
     }
     bool change_scope_(State *s)
@@ -93,13 +105,14 @@ private:
     double evalute_state(const State &s,double transition_probability)
     {
 
-        change_scope_const(&s);
+
+        //change_scope_const(&s);
         double res=0;
-        auto [val,isEndState]= this->evaluationState(&s);
+        auto [val,isEndState]= this->evaluationState(s);
         if(!isEndState)
             val+=this->ptrRTDP->get_max_valueQ(&s);
         res+=val*transition_probability*this->discount_factor;
-       // cout<<"[evalute_state] "<<s->to_string_state()<<"\tvla="<<res<<endl;
+       // cout<<"[evalute_state] "<<s.to_string_state()<<"\tvla="<<res<<endl;
         return res;
     }
     int change_scope_const(const State *s)
@@ -112,24 +125,24 @@ private:
     }
 
 
-    tuple<double,bool> EvalState2(const State *s)
+    tuple<double,bool> EvalState2(const State &s)
     {
-        if (s->g_grid->is_wall(s->get_position_ref(defender)))
+        if (s.g_grid->is_wall(s.get_position_ref(defender)))
         {
             //cout<<"[R.WallReward]"<<endl;
             return {R.WallReward,true};
         }
-        if (auto x = s->isGoal(attacker);x>=0)
+        if (auto x = s.isGoal(attacker);x>=0)
         {
            // cout<<"[R.GoalReward]"<<endl;
             return {R.GoalReward*x,true};
         }
-        if (s->is_collusion(defender,attacker))
+        if (s.is_collusion(defender,attacker))
         {
            // cout<<"[R.CollReward]"<<endl;
             return {R.CollReward,true};
         }
-        return {this->get_constant_cost(s->takeOff),false};
+        return {this->get_constant_cost(s.takeOff),false};
     }
 
 

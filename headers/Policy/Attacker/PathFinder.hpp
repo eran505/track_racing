@@ -17,6 +17,7 @@ using AStar::StatePoint;
 class PathFinder: public Policy{
 
     vector<weightedPosition> starting_point;
+    std::unique_ptr<unordered_map<u_int64_t,std::vector<double>*>>  policyMap;
     PathGenartor genartor_path;
 
 public:
@@ -24,21 +25,28 @@ public:
             std::vector<pair<std::vector<Point>,double>> &seq_Goal,const std::vector<weightedPosition>& start_point,const Point &GridSize,u_int64_t seed,int num_paths,double stcho=1.0)
     : Policy(speed_MAX,agentID,home)
     , starting_point(start_point)
+    , policyMap(std::make_unique<unordered_map<u_int64_t,std::vector<double>*>>())
     , genartor_path(seed,GridSize,max_speed)
     {
-        auto[probabilties,pathz]=genartor_path.geneate_path_loop(seq_Goal,start_point,num_paths);
-        
+        genartor_path.geneate_path_loop(seq_Goal,start_point,num_paths,this->policyMap.get());
         cout<<"[Attacker] END generation"<<endl;
     }
 
     PathFinder(int speed_MAX,State::agentEnum agentID,string &home,const pair< double, vector<StatePoint>> &lPath)
     :Policy(speed_MAX,agentID,home)
+    ,policyMap(std::make_unique<unordered_map<u_int64_t,std::vector<double>*>>())
+    {
+        this->genartor_path.add_path(lPath.second,policyMap.get());
+    }
+    PathFinder(int speed_MAX,State::agentEnum agentID,string &home,const std::vector< pair<double, vector<StatePoint>>> &lPath)
+            :Policy(speed_MAX,agentID,home)
+            ,policyMap(std::make_unique<unordered_map<u_int64_t,std::vector<double>*>>())
     {
 
-    }
-    PathFinder(int speed_MAX,State::agentEnum agentID,string &home,const std::vector<pair<double, vector<StatePoint>>> &lPath)
-            :Policy(speed_MAX,agentID,home)
-    {
+        for(const auto & idx : lPath)
+        {
+            this->genartor_path.add_path_vec(lPath,policyMap.get());
+        }
 
     }
 

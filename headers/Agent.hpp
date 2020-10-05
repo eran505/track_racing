@@ -40,6 +40,7 @@ public:
     string get_name();
     [[nodiscard]] const Policy* getPolicy()const{ return my_Policy;};
     void doAction(State *s);
+    void doAction_without_apply(State *s,int jumps);
     void setPolicy(Policy* pPtr){pPtr->set_id(this->my_id); this->my_Policy=pPtr;}
     ~Agent();
     void evalPolicy();
@@ -70,8 +71,7 @@ public:
     }
 
 
-
-
+    void doAction_SEQ(State *s, int num);
 };
 
 

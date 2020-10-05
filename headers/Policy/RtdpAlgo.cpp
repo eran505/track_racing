@@ -90,7 +90,12 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
     return evaluator->calculate(expnder->expnad_state(s,action));
 }
 
+double RtdpAlgo::bellman_updateV2(State *s, Point &action) {
+    //expnder->clean();
 
+    do_SEQ(s,action);
+    return evaluator->calculateV2_back(expnder->expand_state_other(s),*s);
+}
 
 Point RtdpAlgo::get_lastPos() {
     assert(false);
@@ -119,7 +124,8 @@ void RtdpAlgo::update(State *s, Point &action,u_int64_t entryMatrix)
     #ifdef PrinT
     cout<<"action="<<action.to_str()<<" | ";
     #endif
-    auto val = this->bellman_update(s,action);
+    //cout<<"Q:("<<s->to_string_state()<<" , "<<action.to_str()<<")="<<endl;
+    auto val = this->bellman_updateV2(s,action);
     #ifdef PrinT
     cout<<" ["<<entryMatrix<<", "<<action.hashMeAction(Point::actionMax)<<"]="<<val<<endl;
     #endif
@@ -144,7 +150,7 @@ void RtdpAlgo::empty_stack_update() {
     //this->stack_backup.print_stak();
     while(!this->stack_backup.is_empty()) {
         auto& item = this->stack_backup.pop();
-        this->evaluator->change_scope_(&item.state);
+        //this->evaluator->change_scope_(&item.state);
         this->update(&item.state,item.action, item.entryID);
     }
     this->stack_backup.clear();
@@ -217,6 +223,11 @@ void RtdpAlgo::learnRest() {
 
     for(auto &item : *rewardDict) cout<<"{"<<item.first<<", "<<item.second<<"}\t";
     cout<<endl;
+}
+void RtdpAlgo::do_SEQ(State *s,Point& a)
+{
+    a*=int(s->get_budget(this->get_id_name()));
+    s->applyAction(this->id_agent,a,this->max_speed);
 }
 
 //double RtdpAlgo::expected_reward_rec(State *s, int index_policy, deque<Point> &my_stack) {

@@ -22,7 +22,7 @@ class ActionExpnder{
     u_int16_t _action_seq=1;
     std::vector<Policy*> other_policies;
     double _stochasticMovement=1.0;
-    string _agent_id;
+    State::agentEnum _agent_id;
     Policy* my_policy{};
     Point slide_action=Point(0);
     vector<tuple_state> stack;
@@ -51,7 +51,6 @@ public:
     void set_seq_action(int num){_action_seq=num;}
     vector<pair<State,double>>& expnad_state(const State *s,const Point &a)
     {
-
         set_seq_action_by_state(s);
         stack.emplace_back(State(*s), 1.0, false);
         for(short i=_action_seq;i>0;--i)
@@ -64,6 +63,9 @@ public:
         }
         transform();
         return list_state_expnaded;
+    }
+    vector<pair<StatePoint,double>> expand_state_other(const State *s){
+        return expander_attacker(*s,_action_seq);
     }
     void set_stochasticMovement(double m)
     {
@@ -163,6 +165,15 @@ private:
     {
         cout<<"----------"<<endl;
         for(auto &item:vec) cout<<"[stack] { "<<item.state.to_string_state()<<", "<<item.probability<<" }"<<endl;
+    }
+    bool do_action_multi_time(Point action,State& s,uint num)
+    {
+        action*=num;
+        return s.applyAction(this->_agent_id,action,this->my_policy->max_speed);
+    }
+    vector<pair<StatePoint,double>> expander_attacker(const State &s_state,int jumps)
+    {
+        return other_policies[0]->weighted_next_partial_state(s_state,jumps);
     }
 };
 

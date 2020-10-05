@@ -21,12 +21,17 @@ public:
 
     [[nodiscard]] const Point& get_speed_ref(agentEnum agent_id)const{return dataPoint[agent_id*2+1];}
     [[nodiscard]] Point get_speed(agentEnum agent_id)const{return dataPoint[agent_id*2+1];}
-    void set_speed(agentEnum agent_id,const Point& p){dataPoint[agent_id*2+1]=p;}
+    //void set_speed(agentEnum agent_id,const Point& p){dataPoint[agent_id*2+1]=p;}
 
     [[nodiscard]] const Point& get_position_ref(agentEnum agent_id)const{return dataPoint[agent_id*2];}
-    void set_position(agentEnum agent_id,const Point& p){dataPoint[agent_id*2]=p;}
+    //void set_position(agentEnum agent_id,const Point& p){dataPoint[agent_id*2]=p;}
     [[nodiscard]] Point get_position(agentEnum agent_id)const{return dataPoint[agent_id*2];}
 
+    template<typename P>
+    void set_speed(agentEnum agent_id,P&& p){dataPoint[agent_id*2+1]=std::forward<P>(p);}
+
+    template<typename P>
+    void set_position(agentEnum agent_id,P&& p){dataPoint[agent_id*2]=std::forward<P>(p);}
 
     [[nodiscard]] short get_budget(agentEnum agent_id)const{return budgets[agent_id];}
     void set_budget(agentEnum agent_id,short b){budgets[agent_id]=b;}
@@ -55,6 +60,7 @@ public:
 //    [[nodiscard]] const Point&  get_speed_ref(const string &name_id)const { return getValue(speed_dict,name_id);}
     //set<string> is_collusion();
     bool applyAction(agentEnum id, const Point &action, int max_speed);
+
     [[nodiscard]] bool is_collusion(agentEnum id_player,agentEnum op_player)const;
     //void getAllPosOpponent(vector<Point> &results,char team);
     std::ostream& operator<<(std::ostream &strm) const {

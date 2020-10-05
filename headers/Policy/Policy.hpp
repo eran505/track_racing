@@ -9,7 +9,9 @@
 
 #include "../State.hpp"
 #include "../util_game.hpp"
+#include "headers/serach/Astar.hpp"
 typedef std::shared_ptr<unordered_map<string ,string>> dictionary;
+using namespace AStar;
 class Policy{
 
 public:
@@ -50,6 +52,7 @@ public:
     }
 
     virtual Point get_action(State *s)=0;
+    virtual void make_action(State *s,int jumps){};
     virtual void reset_policy() {};
     virtual void minimization(){};
     virtual void update_final_state(State *s){};
@@ -57,6 +60,8 @@ public:
     virtual void policy_data()const=0;
     virtual bool isInPolicy(const State *s)const{return true;}
     virtual const vector<double>* TransitionAction(const State *s)const=0;
+    virtual vector<pair<StatePoint,double>> weighted_next_partial_state(const State &s,uint jumps){
+    };
     void add_tran(Policy *ptr_tran)
     {
         this->tran.push_back(ptr_tran);

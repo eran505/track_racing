@@ -62,7 +62,7 @@ class SimulationGame{
     //Grid _g;
     short stop=0;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=100000;//4000000;
+    u_int32_t iterationsMAX=10000000;//4000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -176,18 +176,16 @@ private:
     }
     bool attcker_do_action()
     {
-
-        for(int i=0;i<last_mode;++i)
-        {
-            _attacker->doAction(_state.get());
-            #ifdef TRAJECTORY
-            save_trajactory(_attacker->get_id());
-            #endif
-            //cout<<"[real] "<<_state->to_string_state()<<"[MultiAction: "<<last_mode<<"]"<<endl;
-            if(check_condtion())
-                return true;
-        }
+        _attacker->doAction_without_apply(_state.get(),last_mode);
+        //cout<<"J: "<<last_mode<<endl;
+        #ifdef TRAJECTORY
+        save_trajactory(_attacker->get_id());
+        #endif
+        if(check_condtion())
+            return true;
         return false;
+
+
     }
     inline void set_grid(){_state->g_grid=g;}
     bool check_condtion()
@@ -249,8 +247,9 @@ private:
         #ifdef TRAJECTORY
         trajectory_file.save_string_body("END");
         #endif
-        _attacker.get()->rest();
+
         _defender->rest();
+        _attacker.get()->rest();
         this->reset_state();
         //set_mode_abstract();
         ctr_action_defender=0;

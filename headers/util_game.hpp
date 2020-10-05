@@ -113,6 +113,11 @@ public:
         }
         return true;
     }
+    Point& operator*=(int number){
+        this->array[0]*=number;
+        this->array[1]*=number;
+        this->array[2]*=number;
+    }
     int sumPoint() const
     {
         int sum=0;
@@ -297,7 +302,8 @@ public:
         return false;
     }
     void change_speed_max(int absoult_max){
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < this->capacity; ++i)
+        {
             if (this->array[i]>absoult_max){
                 this->array[i]=absoult_max;
                 continue;

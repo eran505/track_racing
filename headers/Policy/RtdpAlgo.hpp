@@ -149,6 +149,9 @@ public:
 
     auto get_evalouater(){return this->evaluator.get();}
 
+    double bellman_updateV2(State *s, Point &action);
+
+    void do_SEQ(State *s, Point &a);
 };
 
 
