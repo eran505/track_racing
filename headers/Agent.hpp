@@ -71,7 +71,6 @@ public:
     }
 
 
-    void doAction_SEQ(State *s, int num);
 };
 
 

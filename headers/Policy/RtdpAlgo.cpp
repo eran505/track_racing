@@ -3,7 +3,6 @@
 //
 
 #include "RtdpAlgo.hpp"
-//#define PrinT
 
 #include <utility>
 RtdpAlgo::RtdpAlgo(int maxSpeedAgent, int grid_size,State::agentEnum agentID,string &home)
@@ -27,6 +26,7 @@ void RtdpAlgo::reset_policy() {
 const vector<double >* RtdpAlgo::TransitionAction(const State *s)const
 {
 
+    //return nullptr;
     return this->RTDP_util_object->get_probabilty(s);
 }
 
@@ -51,7 +51,7 @@ Point RtdpAlgo::get_action(State *s)
     }
 
     //if(ctrInFun%400000==0) cout<<"QTable updates: "<<this->RTDP_util_object->get_update_ctr()<<endl;
-    ctrInFun++;
+
 
 
     u_int64_t entry=this->RTDP_util_object->last_entry;
@@ -108,7 +108,7 @@ double RtdpAlgo::UpdateCalc(const vector<pair<State *, double>>& state_tran_q) {
     {
 
         auto [val,isSndState] = this->evaluationState(item.first);
-        #ifdef PrinT
+        #ifdef PRINT
         cout<<item.first->to_string_state()<<"  val:"<<val<<" emd:"<<isSndState<<" p="<<item.second<<"\t";
         #endif
         if (!isSndState)
@@ -121,15 +121,12 @@ double RtdpAlgo::UpdateCalc(const vector<pair<State *, double>>& state_tran_q) {
 
 void RtdpAlgo::update(State *s, Point &action,u_int64_t entryMatrix)
 {
-    #ifdef PrinT
-    cout<<"action="<<action.to_str()<<" | ";
-    #endif
-    //cout<<"Q:("<<s->to_string_state()<<" , "<<action.to_str()<<")="<<endl;
+
     auto val = this->bellman_updateV2(s,action);
-    #ifdef PrinT
-    cout<<" ["<<entryMatrix<<", "<<action.hashMeAction(Point::actionMax)<<"]="<<val<<endl;
+    #ifdef PRINT
+    cout<<" [update] Q["<<entryMatrix<<", "<<action.hashMeAction(Point::actionMax)<<"]="<<val<<endl;
+    cout<<s->to_string_state()<<" H="<<entryMatrix<<" A="<<action.to_hash_str()<<"\tval="<<val<<endl;
     #endif
-    //cout<<s->to_string_state()<<" H="<<entryMatrix<<" A="<<action.to_hash_str()<<"\tval="<<val<<endl;
     this->RTDP_util_object->set_value_matrix(entryMatrix,action,val);
 }
 
@@ -147,19 +144,22 @@ void RtdpAlgo::inset_to_stack(State *s,Point &action,u_int64_t state_entry)
 void RtdpAlgo::empty_stack_update() {
     if(this->stack_backup.is_empty()) return;
     //this->stack_backup.pop();
-    //this->stack_backup.print_stak();
+    #ifdef PRINT
+    this->stack_backup.print_stak();
+    #endif
     while(!this->stack_backup.is_empty()) {
         auto& item = this->stack_backup.pop();
         //this->evaluator->change_scope_(&item.state);
         this->update(&item.state,item.action, item.entryID);
     }
     this->stack_backup.clear();
+    this->getUtilRTDP()->reset_takken_stpe_ctr();
 }
 
 void RtdpAlgo::policy_data() const {
 #ifdef OUTDATA
     this->RTDP_util_object->policyData();
-    this->RTDP_util_object->plusplus();
+    //this->RTDP_util_object->plusplus();
 #endif
 }
 
@@ -224,10 +224,11 @@ void RtdpAlgo::learnRest() {
     for(auto &item : *rewardDict) cout<<"{"<<item.first<<", "<<item.second<<"}\t";
     cout<<endl;
 }
-void RtdpAlgo::do_SEQ(State *s,Point& a)
+void RtdpAlgo::do_SEQ(State *s,const Point& a)
 {
-    a*=int(s->get_budget(this->get_id_name()));
-    s->applyAction(this->id_agent,a,this->max_speed);
+    auto atmp=Point(a);
+    s->applyAction(this->id_agent,atmp,this->max_speed,int(s->get_budget(this->get_id_name())));
+
 }
 
 //double RtdpAlgo::expected_reward_rec(State *s, int index_policy, deque<Point> &my_stack) {

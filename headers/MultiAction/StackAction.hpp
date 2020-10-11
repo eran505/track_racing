@@ -59,7 +59,7 @@ namespace Actionzer {
             }
             for(int i=stack.size()-1;i>=0;--i)
             {
-                cout<<"["<<i<<"] "<<stack[i].to_string()<<"\n";
+                cout<<" [stack] ["<<i<<"] "<<stack[i].to_string()<<"\n";
             }
             cout<<endl;
         }

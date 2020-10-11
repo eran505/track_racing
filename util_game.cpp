@@ -24,7 +24,7 @@ bool Point::operator==(const Point &other)const {
 
 
 bool Point::is_equal(const Point *other) const{
-    for (int i = 0; i <this->capacity; ++i)
+    for (int i = 0; i <D; ++i)
         if (this->array[i]!=other->array[i])
             return false;
     return true;

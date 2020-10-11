@@ -1,3 +1,4 @@
+//#define _GLIBCXX_USE_CXX11_ABI 0/1
 #include <iostream>
 #include "headers/Grid.hpp"
 #include "headers/Agent.hpp"
@@ -34,7 +35,7 @@
 #include "learning/ReplayBuffer/prioritizedExperienceReplay.hpp"
 
 const char *  getConfigPath(int argc, char** argv);
-Grid * init_grid(configGame &conf);
+std::unique_ptr<Grid> init_grid(configGame &conf);
 void init_mdp(Grid *g, configGame &conf);
 void toCsv(string &pathFile, vector<vector<int>>* infoArr,vector<string> &labels);
 void initGame(configGame& conf);
@@ -69,42 +70,7 @@ void getConfigPath(int argc, char** argv,configGame &conf);
 typedef unsigned long ulong;
 int main(int argc, char** argv) {
 
-//
-//    std::vector<StatePoint> l1 = {StatePoint(Point(1),Point(1)),StatePoint(Point(3),Point(3)),StatePoint(Point(5),Point(5))};
-//
-//    std::vector<StatePoint> l2 = {StatePoint(Point(1),Point(2)),StatePoint(Point(3),Point(3)),StatePoint(Point(4),Point(4))};
-//
-//    std::vector<StatePoint> l3 = {StatePoint(Point(1),Point(1)),StatePoint(Point(3),Point(3)),StatePoint(Point(4),Point(2))};
-//
-//
-//    std::vector<vector<StatePoint>> l = {l1,l2,l3};
-//    std::vector<double> lp = {0.2,0.7,0.1};
-//
-//    PathMapper obj(l,lp);
-//    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-//
-//    //vector<pair<StatePoint,double>> ans;
-//    for (auto k=0;k<1000;k++)
-//        auto ans = obj.get_next_states(72221789,1);
-//
-//    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-//    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
-//    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
-//
-//
-//    //    for (const auto &item:ans)
-////        cout<<item.second<<" : "<<item.first<<endl;
-//
-//
-//
-//    exit(0);
 
-
-
-
-
-
-    cout<<argv<<endl;
     int seed = 1594198815;//1594198815;
     seed = 328875;//1594198815;
     //seed = int( time(nullptr));
@@ -141,9 +107,7 @@ int main(int argc, char** argv) {
         //conf.initRandomNoise(); // inset random noise (-1,1) XY
         conf.home=home;
         cout<<"seed:\t"<<conf._seed<<endl;
-        cout<<"levels:\t"<<conf.levelz<<endl;
         string strId=row[0];
-        cout<<"ID:\t"<<strId<<endl;
 
         curToCsv.append(toCsvPath);curToCsv.append("ID_");
         curToCsv.append(strId);curToCsv.append(".csv");
@@ -161,7 +125,7 @@ int main(int argc, char** argv) {
         //toCsv(curToCsvPolciy,resultsConfigI->guardEval,labels);
         ctrId++;
         //Agent::ctr_object = 0;
-        //break;
+        break;
 
     }
 
@@ -173,18 +137,18 @@ void initGame(configGame &conf ){
     auto g = init_grid(conf);
     //g->print_vaule();
 
-    init_mdp(g,conf);
+    init_mdp(g.get(),conf);
 
 }
 
-Grid * init_grid(configGame& conf){
+std::unique_ptr<Grid> init_grid(configGame& conf){
     game_params m{};
     m.size=conf.sizeGrid;
     auto listGoal =vector<Point>();
     for (auto &refGoal:conf.gGoals)
         listGoal.push_back(std::move(refGoal));
     m.list_goals=listGoal;
-    Grid *g = new Grid(m);
+    auto g = std::make_unique<Grid>(m);
     g->setTargetGoals(conf.goalTarget);
     return g;
 
@@ -229,7 +193,7 @@ void init_mdp(Grid *g, configGame &conf){
         ref_pos.second=conf.probGoals[i];
     }
 
-    auto* s = new MdpPlaner();
+    auto s = std::make_unique<MdpPlaner>();
     auto state0 = s->make_inital_state(pA1.get(),pD2.get(),g);
 
 

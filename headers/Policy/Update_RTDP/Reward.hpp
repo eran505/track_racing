@@ -8,11 +8,11 @@
 
 struct Rewards {
 public:
-    double CollReward = 1;
-    double GoalReward = 0;
-    double WallReward = 0;
+    double CollReward = 100;
+    double GoalReward = -100;
+    double WallReward = -1000;
     double Step_reward = 0;
-    double discountF=1.0;
+    double discountF=0.987;
     static Rewards getRewards()
     {
         return Rewards();

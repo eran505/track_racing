@@ -10,6 +10,7 @@
 #include "Policy/Attacker/StaticPolicy.hpp"
 #include "Simulator.hpp"
 #define ASSERT
+#define DEBUG_DATA
 typedef vector<pair<double,vector<StatePoint>>> vector_p_path;
 typedef unordered_map<keyItem ,arr> Qtable_;
 typedef std::unique_ptr<Agent> unique_agnet;
@@ -18,25 +19,17 @@ typedef unordered_map<u_int64_t ,std::array<int,12>> map_dict;
 typedef unordered_map<int64_t ,vector<double>> q_Table;
 typedef unordered_map<u_int64_t,double> matrixP;
 typedef pair<double,vector<StatePoint>> Apath;
-
+typedef vector<vector<StatePoint>> attacker_pathz;
 class heuristicContainer{
     std::vector<std::vector<Point>> lPaths;
     map_dict map_state;
     Rewards R=Rewards::getRewards();
     const Grid* G;
 public:
-    explicit heuristicContainer(const vector_p_path* ptrPathsW,map_dict& map,const Grid* g):
+    explicit heuristicContainer(const std::vector<std::vector<Point>>&& ptrPathsW,map_dict& map,const Grid* g):
             map_state(std::move(map)),G(g)
     {
-        lPaths.reserve(ptrPathsW->size());
-        std::for_each(ptrPathsW->begin(),ptrPathsW->end(),[&](const pair<double,vector<StatePoint>>& item){
-            auto &cur_path_list = lPaths.emplace_back();
-            std::transform(item.second.begin(),
-                           item.second.end(),
-                           std::back_inserter(cur_path_list),
-                           [](const StatePoint& p){return p.pos;});
-        });
-
+        lPaths=ptrPathsW;
     }
     std::vector<double> get_heuristic_path(const int index,uint64_t ky_state) const
     {
@@ -70,6 +63,7 @@ private:
     }
     int to_closet_path_H_calc(const u_int index,const Point& agnet_pos)const
     {
+        return 0;
         int min_step = 100000;
         double min_dist = 100000;
 
@@ -179,7 +173,8 @@ class SinglePath{
     std::unique_ptr<Agent> _attacker;
     std::unique_ptr<Agent> _defender;
     std::unique_ptr<State> _start_state;
-    std::unique_ptr<vector_p_path> all_paths = nullptr;
+    std::vector<std::vector<StatePoint>> all_paths ;
+    std::vector<double> prob_all_paths ;
     std::unique_ptr<Agent> _parital_attacker = nullptr;
     configGame config;
     std::vector<std::unique_ptr<Qtable_>> list_Q;
@@ -190,25 +185,24 @@ public:
             _defender(std::move(D)),
             _start_state(std::make_unique<State>(*s)),
             config(conf)
-    {
-        get_all_paths();
-        cout<<"Path Number: "<<all_paths->size()<<endl;
-    }
+    {}
     void learn_by_goals()
     {
+        get_all_paths();
         cout<<"learn_by_goals"<<endl;
         auto map_goals = map_path_by_goal();
         list_Q=std::vector<std::unique_ptr<Qtable_>>(map_goals.size());
         vector<double> pVec;
         int ctr=0;
         std::for_each(map_goals.begin(),map_goals.end(),
-                      [&](const pair<u_int64_t,pair<double,std::vector<pair<double,vector<StatePoint>>>>>& item){
-                          train_single_path(item.second.second,ctr);ctr++;
-                          pVec.push_back(item.second.first);
+                      [&](const pair<u_int64_t, pair<vector<u_int16_t>, double>>& item){
+
+                          train_single_path(get_relevant_pathz(item.second.first),get_relevant_prob(item.second.first,item.second.second),ctr);ctr++;
+                          pVec.push_back(item.second.second);
                       });
 
         cout<<"[S]: "<<get_policy_defender()->getUtilRTDP()->get_dict_map().size()<<endl;
-        heuristicContainer heurist_con(all_paths.get(),get_policy_defender()->getUtilRTDP()->get_dict_map(),this->_start_state->g_grid);
+        heuristicContainer heurist_con(get_policy_attcker()->list_only_pos(),get_policy_defender()->getUtilRTDP()->get_dict_map(),this->_start_state->g_grid);
         std::unique_ptr<Qtable_> pytr = containerFixAggregator::agg_Q_tables(pVec,this->list_Q,heurist_con);
         this->set_all_Q_tavble(std::move(pytr));
 
@@ -219,19 +213,21 @@ public:
     void learn_all_path_at_once(){train_on_all_path();}
     void one_path_at_a_time()
     {
+        get_all_paths();
         cout<<"one_path_at_a_time"<<endl;
-        list_Q=std::vector<std::unique_ptr<Qtable_>>(all_paths->size());
-        vector<double> pVec;
+        list_Q=std::vector<std::unique_ptr<Qtable_>>(all_paths.size());
+        vector<double> pVec=prob_all_paths;
         int ctr=0;
-        std::for_each(all_paths->begin(),all_paths->end(),
-                      [&](const pair<double,vector<StatePoint>>& item){
-            cout<<"P: "<<item.first<<endl;
-            train_single_path(item,ctr);ctr++;
-                          pVec.push_back(item.first);
-        });
+        for(int c=0;c<all_paths.size();++c)
+        {
+            std::vector<std::vector<StatePoint>> l;
+            l.push_back(all_paths[c]);
+            train_single_path(std::move(l),std::vector<double>(1,1),c);
+        }
 
         cout<<"[S]: "<<get_policy_defender()->getUtilRTDP()->get_dict_map().size()<<endl;
-        heuristicContainer heurist_con(all_paths.get(),get_policy_defender()->getUtilRTDP()->get_dict_map(),this->_start_state->g_grid);
+        auto& d =get_policy_defender()->getUtilRTDP()->get_dict_map();
+        heuristicContainer heurist_con(get_policy_attcker()->list_only_pos(),d,this->_start_state->g_grid);
         std::unique_ptr<Qtable_> pytr = containerFixAggregator::agg_Q_tables(pVec,list_Q,heurist_con);
         this->set_all_Q_tavble(std::move(pytr));
 
@@ -242,25 +238,25 @@ public:
     }
     void train_on_all_path()
     {
-        cout<<"[eval policy]"<<endl;
-       // _defender->evalPolicy();
+
         add_H(_attacker.get(),_defender.get());
         SimulationGame sim = SimulationGame(config,std::move(_attacker),
                                             std::move(_defender),_start_state.get());
 
         sim.main_loop();
-        sim.get_agnet_D()->getPolicy()->policy_data();
 
+        #ifdef DEBUG_DATA
+        sim.get_agents_data_policy();
+        #endif
         //_defender->trainPolicy();
     }
 private:
-    template <typename T>
-    void train_single_path(const T& path_states,int ctr)
+
+    void train_single_path(std::vector<std::vector<StatePoint>>&& path_states,std::vector<double>&& prob,int ctr)
     {
         //config.levelz=2;
 
-        Policy *ptr = new PathFinder(_attacker->get_max_speed()
-                ,_attacker->get_id(),config.home,path_states);
+        Policy *ptr = new StaticPolicy(path_states,prob,config.sizeGrid,_attacker->get_max_speed(),_attacker->get_id(),config.home,config._seed);//->,,,config.home,);
         auto naive_attacker=std::make_unique<Agent>(_attacker->getAllPositions_copy(),_attacker->get_name_id(),adversary,1);
         naive_attacker->setPolicy(ptr);
 
@@ -297,16 +293,20 @@ private:
         SimulationGame sim = SimulationGame(config,std::move(_attacker),
                                             std::move(_defender),_start_state.get());
         sim.main_loop();
-        //sim.get_agnet_D()->getPolicy()->policy_data();
+        #ifdef DEBUG_DATA
+        sim.get_agents_data_policy();
+        #endif
+
         _defender=std::move(sim.get_agnet_D());
         _defender->trainPolicy();
+
         cout<<endl;
     }
     void get_all_paths()
     {
-        all_paths = std::make_unique<vector<pair<double,vector<StatePoint>>>>();
-       // const PathFinder *ptr = get_policy_attcker();
-       // ptr->treeTraversal(_start_state.get(),all_paths.get());
+
+        all_paths = get_policy_attcker()->get_copy_pathz();
+        prob_all_paths = get_policy_attcker()->get_copy_probabilities();
 
     }
 
@@ -339,30 +339,48 @@ private:
         rtdp->getUtilRTDP()->l_p_H=l;
 
     }
-    auto map_path_by_goal() -> std::unordered_map<u_int64_t,pair<double,std::vector<Apath>>>
-    {
-        std::unordered_map<u_int64_t,pair<double,std::vector<Apath>>> map_goal;
-        std::for_each(this->all_paths->begin(),this->all_paths->end(),[&](const Apath& path_item ){
-            auto key = path_item.second.back().pos.expHash();
-            if(auto pos = map_goal.find(key); pos==map_goal.end()){
-                auto item =map_goal.try_emplace(key);
-                item.first->second.second.emplace_back(path_item);
-                item.first->second.first+=path_item.first;
+    auto map_path_by_goal() -> std::unordered_map<u_int64_t, pair<vector<u_int16_t>, double>> {
+        std::unordered_map<u_int64_t, pair<vector<u_int16_t>, double>> map_goal;
+        for (auto k = 0; k < all_paths.size(); ++k)
+        {
+            u_int64_t key = all_paths[k].back().pos.expHash();
+            if (auto pos = map_goal.find(key); pos == map_goal.end()) {
+                auto iter = map_goal.try_emplace(key);
+                iter.first->second.first.push_back(k);
+                iter.first->second.second = prob_all_paths.operator[](k);
+            } else {
+                pos->second.first.push_back(k);
+                pos->second.second += prob_all_paths[k];
             }
-            else{
-                pos->second.second.emplace_back(path_item);
-                pos->second.first+=path_item.first;
-            }
-        });
-        normalize_each_entry(map_goal);
+        }
+//        for(auto &it:map_goal){
+//            cout<<it.first<<": "<<it.second.first<<" : "<<it.second.second<<endl;
+//        }
         return map_goal;
     }
-    static void normalize_each_entry(std::unordered_map<u_int64_t,pair<double,std::vector<Apath>>>& map_goal)
+
+    template<typename K>
+    std::vector<double> get_relevant_prob(std::vector<K> l,double sum)
     {
-        for(auto &itemPair:map_goal)
+        std::vector<double> ans;
+        ans.reserve((l.size()));
+        for (auto item:l)
         {
-            std::for_each(itemPair.second.second.begin(),itemPair.second.second.end(),[&](Apath& varI){varI.first=varI.first/itemPair.second.first;});
+            double p = prob_all_paths[item];
+            ans.push_back(p/sum);
         }
+        return ans;
+    }
+    template<typename K>
+    std::vector<vector<StatePoint>> get_relevant_pathz(std::vector<K> l)
+    {
+        std::vector<vector<StatePoint>> ans;
+        ans.reserve((l.size()));
+        for (auto item:l)
+        {
+            ans.push_back(this->all_paths[item]);
+        }
+        return ans;
     }
 };
 

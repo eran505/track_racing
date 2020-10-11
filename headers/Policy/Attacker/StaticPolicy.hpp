@@ -23,10 +23,10 @@ public:
         auto [list_pathz,probablity_list] = gen.geneate_path_loopV2(goals_points,starting_points,num_of_paths);
         make_mapper(list_pathz,probablity_list);
     }
-    StaticPolicy(const std::vector<APath> &lPathz,const std::vector<double> &lProbabilites, const Point &gridSize,uint maxSpeed,State::agentEnum id,u_int16_t num_of_paths,std::string home_path,int seed=4)
+    StaticPolicy(std::vector<APath> lPathz,std::vector<double> lProbabilites, const Point &gridSize,uint maxSpeed,State::agentEnum id,std::string home_path,int seed=4)
             :Policy(maxSpeed,id,home_path,seed),gen(seed,gridSize,maxSpeed)
     {
-        make_mapper(lPathz,lProbabilites);
+        make_mapper(std::move(lPathz),std::move(lProbabilites));
     }
 
 
@@ -36,6 +36,24 @@ public:
         mapper->random_choose_path(getRandom());
     }
     void policy_data()const override{
+
+        string pathFile=this->home+"/car_model/debug/p.csv";
+
+        //print Q table--------------------------------
+        try{
+            string nameFileCsv="Q.csv";
+            int size_action = this->hashActionMap->size();
+            csvfile csv(std::move(pathFile),";"); // throws exceptions!
+            auto p_list = mapper->get_all_probabilites_ref();
+            auto pathz_list = mapper->get_all_pathz_ref();
+            for (int i = 0; i < p_list.size(); ++i) {
+                csv<<"P:"+std::to_string(p_list[i]);
+                for(const auto &item:pathz_list[i])
+                    csv<<item;
+                csv<<endrow;
+            }
+        }
+        catch (const std::exception &ex){std::cout << "Exception was thrown: " << ex.what() << std::endl;}
 
     }
     Point get_action(State *s) override

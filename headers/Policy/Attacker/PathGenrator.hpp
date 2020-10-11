@@ -61,6 +61,7 @@ public:
     pair<std::vector<std::vector<StatePoint>>,std::vector<double>> geneate_path_loopV2
     (const std::vector<pair<std::vector<Point>,double>>& seq_Goal,const std::vector<weightedPosition>& start_point,u_int num_path)
     {
+        u_int16_t num=0;
         std::vector<std::vector<StatePoint>> l;
         std::vector<double> lp;
         l.reserve(start_point.size()*seq_Goal.size()*num_path);
@@ -75,6 +76,7 @@ public:
                     std::vector<StatePoint> path = add_path_to_dictV2(seq);
                     lp.push_back(w);
                     l.push_back(path);
+                    cout<<"path #"<<num++<<endl;
                 }
             }
         }
@@ -138,15 +140,16 @@ private:
     StatePoint get_random_point(const StatePoint& sP)
     {
         Point p;
-        for(int i=0;i<p.capacity-1;++i)
-            p.array[i]=int(this->random_gen.get_double()*(sP.pos[i]*0.9));
-        p.array[2]=int(this->random_gen.get_double()*(3.0));
 
+        p.array[0]=int((sP.pos[0]*0.5));
+        p.array[1]=int(this->random_gen.get_double()*grid_size[0]*0.3+(this->grid_size[1]/3.0));
+        p.array[2]=int(this->random_gen.get_double()*(3.0));
+        cout<<p.to_str()<<endl;
         return {p,Point(0,0,0)};
     }
     std::vector<StatePoint> add_middle_point_at_random(const std::vector<StatePoint> &A_list)
     {
-        return {*A_list.begin(),get_random_point(A_list.back()),A_list[1]};
+        return {*A_list.begin(),get_random_point(A_list.back()),A_list.back()};
     }
     void pathsToDict(const vector<AStar::StatePoint>& allPath) {
         //RAW_policyMap.clear();
@@ -176,7 +179,7 @@ private:
                 posSec->second++;
             }
         }
-        cout<<allPath.back().pos.to_str()<<" | "<<allPath.back().speed.to_str()<<endl;
+        //cout<<allPath.back().pos.to_str()<<" | "<<allPath.back().speed.to_str()<<endl;
     }
 };
 

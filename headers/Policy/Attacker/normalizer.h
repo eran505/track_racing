@@ -37,7 +37,6 @@ public:
             else
             {
                 for (auto mapItem: item.second) {
-                    //cout<<"in"<<endl;
                     int tmp = mapItem.first;
                     int tmp2 = mapItem.second;
                     inset_to_vector_double(pos_tmp->second,tmp,double(tmp2)/double(sumAll)*weight);

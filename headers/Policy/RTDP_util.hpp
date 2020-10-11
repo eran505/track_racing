@@ -4,7 +4,7 @@
 
 #ifndef TRACK_RACING_RTDP_UTIL_HPP
 #define TRACK_RACING_RTDP_UTIL_HPP
-//#define OUTDATA
+#define OUTDATA
 #include <cmath>
 #include <functional>
 #include "../util/csvfile.hpp"
@@ -17,7 +17,7 @@
 #include "Policy.hpp"
 #define VECTOR
 #include "Update_RTDP/Reward.hpp"
-//#define DD
+#define DD
 typedef u_int64_t keyItem;
 typedef double cell;
 
@@ -46,13 +46,14 @@ protected:
     Policy* my_policy= nullptr;
     unsigned int ctr_state=0;
     size_t ctr_random=0;
+    uint steo_takken=0;
     double epslion=0;
     int size_Q;
     int size_mapAction;
     unordered_map<int,Point*>* hashActionMap;
     void heuristic(const State *s,keyItem entry_index);
-    int to_closet_path_H_calc(const Point& agnet_pos);
-    int to_closet_path_H(const State *s);
+    int to_closet_path_H_calc(const Point& agnet_pos,int jumps);
+    int to_closet_path_H(const State &s);
     keyItem getStateKeyValue(const State *s) const
     {
         return HashFuction(s);
@@ -70,10 +71,12 @@ protected:
     double applyNonAction(const State *s);
 
 public:
+    void reset_takken_stpe_ctr(){steo_takken=0;}
     unordered_map<keyItem,std::array<int,12>>& get_dict_map(){return this->debugDict;}
     std::vector<std::vector<Point>> l_p_H;
     void isEmptyQ()
     {
+
         if(qTable== nullptr)
             qTable=std::make_unique<unordered_map<keyItem ,arr>>();
     }
@@ -112,7 +115,7 @@ public:
     RTDP_util(int grid_size,string &mHome);
     void add_entry_map_state(keyItem basicString, const State *s);
 
-    void set_value_matrix(keyItem entryState, Point &action ,double val){
+    void set_value_matrix(keyItem entryState, const Point &action ,double val){
         //double dif = val-this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax));
         //if(std::abs(dif)==epslion) return;
         //this->update_counter++;

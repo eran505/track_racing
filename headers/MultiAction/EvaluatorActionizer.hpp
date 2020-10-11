@@ -107,12 +107,15 @@ private:
 
 
         //change_scope_const(&s);
+        auto steps = s.get_budget(defender);
         double res=0;
         auto [val,isEndState]= this->evaluationState(s);
         if(!isEndState)
             val+=this->ptrRTDP->get_max_valueQ(&s);
-        res+=val*transition_probability*this->discount_factor;
-       // cout<<"[evalute_state] "<<s.to_string_state()<<"\tvla="<<res<<endl;
+        res+=val*transition_probability*std::pow(this->discount_factor,steps);
+        #ifdef PRINT
+        cout<<"[evalute_state] "<<s.to_string_state()<<"  vla="<<res<<endl;
+        #endif
         return res;
     }
     int change_scope_const(const State *s)

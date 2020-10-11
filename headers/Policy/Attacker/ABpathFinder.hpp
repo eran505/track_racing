@@ -22,7 +22,7 @@ public:
     {}
 
     vector<vector<AStar::StatePoint>> get_paht_a_b(AStar::StatePoint& source_,const AStar::StatePoint& target_){
-        cout<<"source:"<<source_<<" target:"<<target_<<endl;
+        //cout<<"source:"<<source_<<" target:"<<target_<<endl;
         gen.findPath(source_,target_,false, false);
         assert(!gen.get_deep_list_nodes_ref_const().empty());
         return gen.get_deep_list_nodes();
@@ -43,7 +43,7 @@ public:
 class ABfinder{
     Randomizer randomizer_obj;
     Point GridSzie;
-    double stho=0.7;
+    double stho=0.85;
     u_int limt=5;
     u_int16_t MAX_SPEED=2;
     Point last_action;
@@ -60,8 +60,8 @@ public:
 
     vector<AStar::StatePoint> get_pathz(const AStar::StatePoint &A,const AStar::StatePoint &B)
     {
+        limt=this->randomizer_obj.get_double()*10+5;
         seq_state.clear();
-
         genarte_path(A,B);
         auto last_state = get_last_state();
         auto list_a_star_pathz = Astar_util_object.get_path_a_b_Astar(last_state,B);
@@ -85,14 +85,14 @@ private:
             bool bol=true;
             while(bol)
             {
-                cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
+                //cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
                 get_action_to_goal(cur,B);
                 bol=!vaild_move(cur);
             }
             seq_state.emplace_back(cur);
 
         }
-        cout<<"[done]"<<endl;
+
     }
     void get_action_to_goal(AStar::StatePoint & cur,const AStar::StatePoint& Goal)
     {
@@ -169,16 +169,19 @@ private:
     }
     bool vaild_move(AStar::StatePoint &cur)const
     {
+
         AStar::StatePoint cur_old(cur);
         apply_action_StateSearch(last_action,cur);
         if(is_out_bound(cur)){
             cur=cur_old;
             return false;
         }
+        if(cur_old.pos==cur.pos)
+            return false;
         if(cur.speed[0]==0 and cur.speed[1]==0 and cur.speed[2]==0)
         {
-            cur=cur_old;
-            return false;
+//            cur=cur_old;
+//            return false;
         }
         return true;
     }

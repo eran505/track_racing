@@ -45,7 +45,7 @@ public:
 
 
     virtual ~Policy(){
-        cout<<"~Policy"<<endl;
+        //cout<<"~Policy"<<endl;
         for (auto &item : *this->hashActionMap)
             delete(item.second);
         delete(hashActionMap);

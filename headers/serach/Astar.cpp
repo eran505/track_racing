@@ -58,8 +58,8 @@ AStar::Generator::Generator(uint absMaxSpeed,Point& girdSize)
     setHeuristic(&Heuristic::manhattan2);
     //TODO: change it to rec function
     Point::getAllAction(operatorAction);
-    this->dictPoly = new policyDict();
-    hashDictStates = new unordered_map<u_int64_t ,std::pair<short,StatePoint>>();
+//    this->dictPoly = new policyDict();
+//    hashDictStates = new unordered_map<u_int64_t ,std::pair<short,StatePoint>>();
 }
 
 
@@ -129,7 +129,7 @@ AStar::listNode AStar::Generator::findComplexPath(AStar::StatePoint &source_, Po
 
 
 int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bool toDict,bool not_exactly) {
-    cout<<"-------"<<endl;
+
     double epsilon = 0.000; // e>0 eliminate unnecessary movement in z-axis
     int k = 0; // finding sp+k  TODO: fix it missing paths
     Node *current = nullptr;
@@ -139,15 +139,15 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     int optCost = this->gridSize.multi();
     CoordinateList path;
     multimap<double, Node *> openSetQ;
-    unordered_map<string, Node *> openSetID;
-    unordered_map<string, Node *> closedSet;
+    unordered_map<u_int64_t , Node *> openSetID;
+    unordered_map<u_int64_t , Node *> closedSet;
     auto *tmp = new StatePoint(source_);
     auto *first = new Node(tmp);
     first->G = 0;
     first->H = 0;
     vector<Node *> res;
     u_int MAX_PATH=1;
-    openSetID.insert({first->toStr(), first});
+    openSetID.insert({first->getHashNode(), first});
     openSetQ.insert({first->getScore(), first});
     while (!openSetQ.empty()) {
 
@@ -171,11 +171,11 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
             break;
 
         //inset to close list
-        closedSet.insert({current->toStr(), current});
+        closedSet.insert({current->getHashNode(), current});
 
         // del elem from openList
 
-        auto pos = openSetID.find(current->toStr());
+        auto pos = openSetID.find(current->getHashNode());
         if (pos == openSetID.end())
             throw;
         openSetID.erase(pos);
@@ -219,7 +219,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
                 successor->H = heuristic(*successor->coordinates, target_, this->absMaxSpeed);
                 // insert to open list
 
-                openSetID.insert({successor->toStr(), successor});
+                openSetID.insert({successor->getHashNode(), successor});
                 openSetQ.insert({successor->getScore(), successor});
             } else {
 
@@ -256,7 +256,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
         }
     }
     this->allPath.clear();
-    cout<<"A star find #"<<res.size()<<" paths"<<endl;
+    //cout<<"A star find #"<<res.size()<<" paths"<<endl;
     printMee(res);
     //consistentZFilter();
     //shuffle path
@@ -269,7 +269,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
     auto ctr_path = this->count_pathz(&res);
     //this->getDictPolicy(res);
     // remove path if need
-    cout<<"allPath:\t"<<this->allPath.size()<<endl;
+    //cout<<"allPath:\t"<<this->allPath.size()<<endl;
 
     filterPaths();
     this->pathsToDict();
@@ -284,7 +284,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
 void AStar::Generator::consistentZFilter(){
     if (!this->consistentZ)
         return;
-    cout<<"Before Size: "<<allPath.size()<<endl;
+    //cout<<"Before Size: "<<allPath.size()<<endl;
 
     auto newList = vector<vector<StatePoint*>>();
 
@@ -319,7 +319,7 @@ void AStar::Generator::consistentZFilter(){
     this->allPath.clear();
     this->allPath=move(newList);
 
-    cout<<"After Size: "<<allPath.size()<<endl;
+    //cout<<"After Size: "<<allPath.size()<<endl;
 }
 
 void AStar::Generator::filterPaths() {
@@ -339,14 +339,14 @@ void AStar::Generator::filterPaths() {
             {cout<<"keyIn"<<endl;}
         dict[idPath].push_back(k);
     }
-    cout<<"size:\t"<<dict.size()<<endl;
-    cout<<"end"<<endl;
+    //cout<<"size:\t"<<dict.size()<<endl;
+    //cout<<"end"<<endl;
 }
 
 
-AStar::Node* AStar::Generator::findNodeOnList(const unordered_map<string,Node*>& nodes_, StatePoint &coordinates_)
+AStar::Node* AStar::Generator::findNodeOnList(const unordered_map<u_int64_t ,Node*>& nodes_, StatePoint &coordinates_)
 {
-    auto pos = nodes_.find(coordinates_.toStr());
+    auto pos = nodes_.find(coordinates_.getHashStateAttacker());
     if (pos==nodes_.end())
         return nullptr;
     return pos->second;
@@ -443,7 +443,7 @@ void AStar::Generator::getDictPolicy(const AStar::listNode &l) {
 
 }
 
-void AStar::Generator::releaseMAP(unordered_map<string, Node *> map_) {
+void AStar::Generator::releaseMAP(unordered_map<u_int64_t , Node *> map_) {
 
     for (auto &item : map_) {
         //cout<<"del:\t"<<item.second->toStr()<<endl;
@@ -473,7 +473,6 @@ void AStar::Generator::getDict(unordered_map<u_int64_t, vector<double>*>* mapSta
         else
             {
                 for (auto mapItem: *item.second) {
-                    //cout<<"in"<<endl;
                     int tmp = mapItem.first;
                     int tmp2 = mapItem.second;
                     pos_tmp->second->push_back(tmp);

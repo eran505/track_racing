@@ -14,14 +14,15 @@ RTDP_util::RTDP_util(int grid_size,string &mHome):home(mHome),last_entry() {
 
 double RTDP_util::applyNonAction(const State *s)
 {
-    if(_stochasticMovement==1)
-        return R.CollReward;
-    State oldState = State(*s);
-    Point p(0);
-    bool isWall = this->apply_action(&oldState,my_policy->id_agent,p,my_policy->max_speed);
-    if(isWall)
-        return R.WallReward;
     return R.CollReward;
+    //if(_stochasticMovement==1)
+        //return R.CollReward;
+//    State oldState = State(*s);
+//    Point p(0);
+//    bool isWall = this->apply_action(&oldState,my_policy->id_agent,p,my_policy->max_speed);
+//    if(isWall)
+//        return R.WallReward;
+//    return R.CollReward;
 
 }
 
@@ -30,7 +31,7 @@ double RTDP_util::applyNonAction(const State *s)
 void RTDP_util::heuristic(const State *s,keyItem entry_index)
 {
     vector<State*> vec_q;
-    auto oldState = new State(*s);
+    auto oldState = State(*s);
 
     // get the reward for action (0,0,0)
     double zero_move_reward = applyNonAction(s);
@@ -38,9 +39,9 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
     for (const auto &item_action : *this->hashActionMap)
     {
         // apply action state and let the envirmont to roll and check the reward/pos
-        Point *actionCur = item_action.second;
+        Point actionCur = *item_action.second;
         double val;
-        bool isWall = this->apply_action_SEQ(oldState,my_policy->id_agent,*actionCur,this->my_policy->max_speed);
+        bool isWall = this->apply_action_SEQ(&oldState,my_policy->id_agent,actionCur,this->my_policy->max_speed);
         int step = to_closet_path_H(oldState);
 
         //bool isWall = this->apply_action(oldState,my_policy->id_agent,*actionCur,my_policy->max_speed);
@@ -53,12 +54,11 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
         }
 
         //cout<<"A:"<<actionCur->to_str()<<" val="<<val<<endl;
-        oldState->assignment(s,this->my_policy->id_agent);
+        oldState.assignment(s,this->my_policy->id_agent);
         // insert to Q table
 
-        this->set_value_matrix(entry_index,*actionCur,val);
+        this->set_value_matrix(entry_index,*item_action.second,val);
     }
-    delete(oldState);
 }
 
 //double RTDP_util::rec_h(State *s,int index, double acc_probablity)
@@ -99,14 +99,12 @@ void RTDP_util::add_entry_map_state(keyItem key,const State *s) {
 }
 
 RTDP_util::~RTDP_util() {
-    #ifdef OUTDATA
-    this->policyData();
-    #endif
-    cout<<"state genrated:\t"<<ctr_state<<endl;
-    cout<<"size_Q:\t"<<size_Q<<endl;
+
+    cout<<"state genrated:\t"<<this->qTable->size()<<endl;
     std::for_each(hashActionMap->begin(),hashActionMap->end(),[](auto &item)
     {delete item.second;});
     delete(hashActionMap);
+
 
 }
 
@@ -127,14 +125,13 @@ int RTDP_util::get_state_argmax(const State *s) {
     keyItem key = getStateKeyValue(s);
 
     auto &row = this->get_Q_entry_values(s, key);
-//    if(this->my_policy->evalPolicy or true ) {
-//        cout << "[state] " << s->to_string_state() << endl;
-//        for (int i = 0; i < row.size(); ++i)
-//            cout << "[" << i << "]="<<row[i];
-//        cout << endl;
-//    }
-//
-    vector<int> argMax_list;
+
+//    cout << "[state] " << s->to_string_state() << endl;
+//    for (int i = 0; i < row.size(); ++i)
+//        cout << "[" << i << "]=" << row[i];
+//    cout << endl;
+
+    //vector<int> argMax_list;
     this->last_entry = key;
     return std::distance(row.begin(),std::max_element(row.begin(), row.end()));
 
@@ -142,12 +139,13 @@ int RTDP_util::get_state_argmax(const State *s) {
     //std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
 
 
-    return argMax_list.front();
+    //return argMax_list.front();
 
 }
 
 vector<double>* RTDP_util::get_probabilty(const State *s) {
     auto &row = this->get_Q_entry_values(s,getStateKeyValue(s));
+
     vector<int> argMax_list;
     arg_max(row,argMax_list);
     auto* l = new vector<double>();
@@ -176,6 +174,7 @@ double getMaxValueArrTmp( const double *arr, size_t sizeArr)
 
 Point RTDP_util::get_argmx_action(State *s) {
     //cout<<s->to_string_state()<<endl;
+    this->steo_takken+=s->get_budget(this->my_policy->get_id_name());
     int index_action = this->get_state_argmax(s);
 
     auto pos = this->hashActionMap->find(index_action);
@@ -185,63 +184,28 @@ Point RTDP_util::get_argmx_action(State *s) {
     return *pos->second;
 }
 
-bool RTDP_util::apply_action(State *s,State::agentEnum id,Point &action,int max_speed)
-{
-    return s->applyAction(id, action, max_speed);
-}
+
 
 bool RTDP_util::apply_action_SEQ(State *s,State::agentEnum id,Point &action,int max_speed)
 {
 
-    int seq = s->get_budget(this->my_policy->id_agent);
-    bool is_wall_agent=false;
-
-    for (int i = 0; i < seq and !is_wall_agent; ++i)
-        is_wall_agent = apply_action(s, id, action, max_speed);
-    return is_wall_agent;
-
+    //int seq = s->get_budget(this->my_policy->id_agent);
+    //bool is_wall_agent=false;
+    return s->applyAction( id, action, max_speed,s->get_budget(this->my_policy->id_agent));
 }
 
 
-//
-//double RTDP_util::compute_h(State *s) {
-////    cout<<s->to_string_state()<<endl;
-//    char team = this->my_policy->id_agent[1];
-//    auto my_pos = s->get_position_ref(this->my_policy->id_agent);
-//    vector<Point> vec_pos;
-//    s->getAllPosOpponent(vec_pos,team);
-//    double min = s->g_grid->getSizeIntGrid();
-//    double posA = -1;
-//    for (auto & vec_po : vec_pos) {
-//        auto res = getMaxDistance(vec_po,my_pos);
-//        if (min>res)
-//        {
-//            min=res;
-//        }
-//    }
-//    int max_speed=-1;
-//    for (Policy* itemPolicy:*this->lTran) {
-//        max_speed = itemPolicy->max_speed;
-//    }
-//    min=min-max_speed;
-//    min = std::max(0.0,min);
-//    //min=min/double(this->my_policy->max_speed);
-//    auto res = this->R.CollReward*pow(discountFactor,min);
-//    //debug
-//    //cout<<"h(<"<<s->to_string_state()<<")="<<res<<endl;
-//    return res;
-//}
+
 void RTDP_util::plusplus(){this->ctr_debug++;}
 
 void RTDP_util::policyData() {
     //return;
-    string pathFile=this->home+"/car_model/debug/"+std::to_string(ctr_debug);
-
-    //print Q table--------------------------------
+    string pathFile=this->home+"/car_model/debug/";
+    cout<<"[write] Qtable"<<endl;
     try{
         string nameFileCsv="Q.csv";
         int size_action = this->hashActionMap->size();
-        csvfile csv(std::move(pathFile+nameFileCsv),";"); // throws exceptions!
+        csvfile csv(pathFile+nameFileCsv,";"); // throws exceptions!
         csv<<"id";
         for (int k = 0; k <size_action; ++k)
             csv<<k;
@@ -262,7 +226,7 @@ void RTDP_util::policyData() {
     catch (const std::exception &ex){std::cout << "Exception was thrown: " << ex.what() << std::endl;}
     try{
         string nameFileCsv="map.csv";
-        csvfile csv(std::move(pathFile+nameFileCsv),";"); // throws exceptions!
+        csvfile csv(pathFile+nameFileCsv,";"); // throws exceptions!
         for(auto &item:debugDict)
         {
             csv<<item.first;
@@ -306,23 +270,27 @@ void RTDP_util::resetQtable() {
 }
 
 
-int RTDP_util::to_closet_path_H(const State *s)
+int RTDP_util::to_closet_path_H(const State &s)
 {
-    const auto& pos_def = s->get_position_ref(this->my_policy->id_agent);
-    return to_closet_path_H_calc(pos_def);
+    return 0;
+    const auto& pos_def = s.get_position_ref(this->my_policy->id_agent);
+    return to_closet_path_H_calc(pos_def,s.get_budget(this->my_policy->get_id_name()));
 }
 
-int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos)
+int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos,int jumps)
 {
     int min_step=10000;
-    double min_dist=10000;
+
     for(const auto& path : this->l_p_H)
     {
-        std::for_each(path.begin(),path.end(),[&](const auto& p){
-            if(Point::distance(agnet_pos,p)<min_dist)
+        if(steo_takken>=path.size()){
+            return 1;
+        }
+        std::for_each(path.begin()+this->steo_takken,path.end(),[&](const auto& p){
+            if(auto dif = Point::distance_min_step(agnet_pos,p)<min_step)
             {
-                min_dist=Point::distance(agnet_pos,p);
-                min_step=Point::distance_min_step(agnet_pos,p);
+                min_step=dif;
+                //min_step=Point::distance_min_step(agnet_pos,p);
             }
         });
     }

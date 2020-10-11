@@ -108,6 +108,17 @@ bool State::applyAction( agentEnum id, const Point &action, int max_speed) {
     auto outBound = this->g_grid->is_wall(this->dataPoint[id*2]);
     return outBound;
 }
+bool State::applyAction( agentEnum id,Point &action, int max_speed,int jumps) {
+    this->dataPoint[id*2+1]+=action;
+    action*=(jumps-1);
+    this->dataPoint[id*2+1].change_speed_max(max_speed);
+    this->dataPoint[id*2+1]+=action;
+    this->dataPoint[id*2]+=this->dataPoint[id*2+1];
+    this->dataPoint[id*2+1].change_speed_max(max_speed);
+    auto outBound = this->g_grid->is_wall(this->dataPoint[id*2]);
+    return outBound;
+}
+
 
 
 
@@ -144,7 +155,7 @@ u_int64_t  State::getHashValuePosOnly() const{
     return seed;
 }
 
-u_int64_t State::getHashValue()const {
+u_int64_t State::getHashValue2()const {
     u_int64_t  seed = 12;
     for (short x = A; x != LAST; ++x)
     {
@@ -155,6 +166,20 @@ u_int64_t State::getHashValue()const {
     }
     return seed;
 }
+
+u_int64_t State::getHashValue()const {
+    u_int64_t  seed = 0;
+    size_t i=0;
+    while(true)
+    {
+        seed ^=  this->dataPoint[i].array[0] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^=  this->dataPoint[i].array[1] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^=  this->dataPoint[i].array[2] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        if(i++==3) break;
+    }
+    return seed;
+}
+
 
 void State::add_player_state(agentEnum name_id, const Point& m_pos, const Point& m_speed, short budget_b) {
     this->set_budget(name_id,budget_b);

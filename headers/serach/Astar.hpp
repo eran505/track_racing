@@ -23,7 +23,7 @@ namespace AStar
         inline Point & get_speed(){return speed;}
         inline Point & get_position_ref(){return pos;}
         //~StatePoint(){delete (pos);delete (speed);}
-        string toStr() const { return pos.to_hash_str()+speed.to_hash_str();}
+        [[nodiscard]] string toStr() const { return pos.to_hash_str()+speed.to_hash_str();}
         StatePoint(const Point& p , const Point& s){
             this->pos=p;
             this->speed=s;
@@ -62,6 +62,7 @@ namespace AStar
         Node(const Node &other);
         uint getScore();
         string toStr(){ return coordinates->toStr();}
+        [[nodiscard]] u_int64_t getHashNode()const{return coordinates->getHashStateAttacker();}
         //unsigned int hash(int maxSize){ return coordinates->hash()}
     };
 
@@ -74,9 +75,9 @@ namespace AStar
     class Generator
     {
 
-        Node* findNodeOnList(const unordered_map<string,Node*>& nodes_, StatePoint &coordinates_);
+        Node* findNodeOnList(const unordered_map<u_int64_t ,Node*>& nodes_, StatePoint &coordinates_);
         void releaseNodes(NodeSet& nodes_);
-        void releaseMAP(unordered_map <string,Node*> map_);
+        void releaseMAP(unordered_map <u_int64_t ,Node*> map_);
 
     public:
         const vector<vector<StatePoint>>& get_deep_list_nodes_ref_const(){return this->deepListNode;}
@@ -90,11 +91,9 @@ namespace AStar
         void getDictPolicy(const listNode &l);
         void setConsistentZ(bool bol){this->consistentZ=bol;}
         Generator(uint absMaxSpeed, Point& girdSize);
-        ~Generator(){
-            for (auto &itemI:*this->dictPoly)
-                delete(itemI.second);
-            delete(this->dictPoly);
-        }
+        ~Generator()=default;
+
+
         void filterPaths();
         void consistentZFilter();
         void setHeuristic(HeuristicFunction heuristic_);

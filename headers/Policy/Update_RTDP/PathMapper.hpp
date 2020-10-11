@@ -9,7 +9,6 @@
 
 #include "State.hpp"
 
-
 template <typename K>
 class PathMapper{
     std::vector<std::vector<StatePoint>> all_paths;
@@ -59,18 +58,20 @@ public:
     {
         assert(step_counter>=0);
         time_t=memo[step_counter--];
-        //cout<<"step_counter:\t"<<step_counter<<endl;
         std::vector<K> indexing_arr = this->mapper_pathz.at(hash_state);
+        double sum=0;
+        std::for_each(indexing_arr.begin(),indexing_arr.end(),[&](auto &i){sum+=this->probabilities[i];});
         vector<pair<StatePoint,double>> next_states_list;
         next_states_list.reserve(indexing_arr.size());
         std::for_each(indexing_arr.begin(),indexing_arr.end(),[&](const K& index_path){
-            next_states_list.emplace_back(get_jumping_state(time_t,index_path),this->probabilities[index_path]);
+            next_states_list.emplace_back(get_jumping_state(time_t,index_path),this->probabilities[index_path]/sum);
         });
+#ifdef PRINT
         for(const auto& item:next_states_list)
         {
-            //cout<<"p:"<<item.second<<" s':"<<item.first<<"\t";
+            cout<<"p:"<<item.second<<" s':"<<item.first<<"\t";
         }
-
+#endif
         return next_states_list;
 
     }
@@ -85,7 +86,9 @@ public:
         return get_jumping_state(time_t,this->current_path);
     }
     [[nodiscard]] std::vector<std::vector<StatePoint>> get_all_pathz()const{return all_paths;}
+    [[nodiscard]] const std::vector<std::vector<StatePoint>>& get_all_pathz_ref()const{return all_paths;}
     [[nodiscard]] std::vector<double> get_all_probabilites()const{return probabilities;}
+    [[nodiscard]] const std::vector<double>& get_all_probabilites_ref()const{return probabilities;}
     [[nodiscard]] std::vector<std::vector<Point>> get_all_pos()const
     {
         std::vector<std::vector<Point>> l;
@@ -123,10 +126,15 @@ private:
                 }
             }
         }
-        for(const auto& item:all_paths)
-            for(int i=0;i<item.size();++i)
-                cout<<"["<<i<<"] "<<item[i]<<endl;
-            cout<<"\n\n"<<endl;
+        char sep=';';
+        auto iter = probabilities.begin();
+        for(const auto& item:all_paths) {
+            cout<<*(iter++)<<sep;
+            for (const auto & i : item) {
+                cout << i << sep;
+            }
+            cout<<"\n"<<endl;
+        }
 
     }
 

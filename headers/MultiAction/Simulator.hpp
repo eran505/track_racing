@@ -17,7 +17,6 @@
 #define DEBUGING
 //#define TRAJECTORY
 #define BUFFER_TRAJECTORY 1 // need to be 9000 when saving
-//#define PRINT
 #define STR_HOME_DIR "/car_model/out/"
 #include "util/Rand.hpp"
 #include "Abstract/Simulation.hpp"
@@ -62,7 +61,7 @@ class SimulationGame{
     //Grid _g;
     short stop=0;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=10000000;//4000000;
+    u_int32_t iterationsMAX=80000000;//80000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -93,7 +92,7 @@ public:
             {
 
         g=_state->g_grid;
-        //this->iterationsMAX=std::max(g->getSizeIntGrid(),200000);
+        //this->iterationsMAX=std::max(g->getSizeIntGrid(),200000000);
         file_manger.set_header_vec({"episodes","Collision","Wall" ,"Goal" ,"PassBy","moves"});
         converagerr.set_comparator(comper_vectors);
         #ifdef TRAJECTORY
@@ -141,13 +140,20 @@ public:
     bool loop()
     {
         change_abstraction();
-       // cout<<"last_mode: "<<last_mode<<"\n";
-        //cout<<this->_state->to_string_state()<<endl;
+        #ifdef PRINT
+        cout<<"last_mode: "<<last_mode<<" [real] ";
+        cout<<this->_state->to_string_state()<<" ";
+        #endif
         do_action_defender();
         //cout<<this->_state->to_string_state()<<endl;
         bool is_end_game = attcker_do_action();
 
         return is_end_game;
+    }
+    void get_agents_data_policy()const
+    {
+        this->_attacker->getPolicy()->policy_data();
+        this->_defender->getPolicy()->policy_data();
     }
     std::unique_ptr<Agent>&& get_agnet_D(){return std::move(this->_defender);}
     void set_agnet_D(std::unique_ptr<Agent>&& D){this->_defender=std::move(D);}
@@ -159,20 +165,12 @@ private:
         #ifdef TRAJECTORY
         save_trajactory(_defender->get_id());
         #endif
-        int ctrLocal=1;
-        while(true)
-        {
-            //cout<<"[real] "<<_state->to_string_state()<<"[MultiAction: "<<last_mode<<"]"<<endl;
-            if(last_mode <= ctrLocal)
-                break;
-            _defender->getPolicy()->apply_action_state(_state.get(),_defender->lastAction);
-            ctrLocal++;
-            #ifdef TRAJECTORY
-            save_trajactory(_defender->get_id());
-            #endif
-            ctr_action_defender++;
-        }
-        ctr_action_defender++;
+        #ifdef PRINT
+        cout<<"  [Action] "<<_defender->lastAction.to_str()<<"  \n";
+        #endif
+        _state->applyAction(_defender->get_name_id(),_defender->lastAction,_defender->get_max_speed(),last_mode);
+        ctr_action_defender=last_mode;
+
     }
     bool attcker_do_action()
     {
@@ -190,22 +188,26 @@ private:
     inline void set_grid(){_state->g_grid=g;}
     bool check_condtion()
     {
-        #ifdef PRINT
-        cout<<"[real] "<<_state->to_string_state()<<"[MultiAction: "<<last_mode<<"]"<<endl;
-        #endif
+
         const Point& pos_A = this->_state->get_position_ref(this->_attacker->get_id());
         const Point& pos_D = this->_state->get_position_ref(this->_defender->get_id());
         //wall
         if(is_absolut_wall(pos_D))
         {
-            //cout<<"[event] WallId"<<endl;
+            #ifdef PRINT
+            cout<<"[event] WallId => ";
+            cout<<"[real] "<<_state->to_string_state()<<"[MultiAction: "<<last_mode<<"]"<<endl;
+            #endif
             info[info::WallId]++;
             return true;
         }
         //goal
         if(is_absolut_goal(pos_A))
         {
-            //cout<<"[event] GoalId"<<endl;
+            #ifdef PRINT
+            cout<<"[event] GoalId => ";
+            cout<<"[real] "<<_state->to_string_state()<<"[MultiAction: "<<last_mode<<"]"<<endl;
+            #endif
             info[info::GoalId]++;
             return true;
         }
@@ -213,8 +215,10 @@ private:
         if(is_absolut_collision(pos_D,pos_A))
         {
 
-            //cout<<"[event] CollId"<<endl;
-
+            #ifdef PRINT
+            cout<<"[event] CollId => ";
+            cout<<"[real] "<<_state->to_string_state()<<"[MultiAction: "<<last_mode<<"]"<<endl;
+            #endif
             info[info::CollId]++;
             return true;
         }
@@ -256,10 +260,12 @@ private:
     }
     bool is_converage()const
     {
-        if(iterations>iterationsMAX)
-            return true;
-        if(converagerr.is_converage() or stop>5)
-            return true;
+        if(iterations>iterationsMAX){
+            cout<<"[iterationsMAX]"<<endl;
+            return true;}
+        if(/* converagerr.is_converage() or */  stop>5){
+            cout<<"[stop]"<<endl;
+            return true;}
         return false;
     }
     void reset_state(){
@@ -297,15 +303,17 @@ private:
         ctr++;
         if(ctr%NUMBER>0)
             return false;
+
         vector<double> x;
+        x.reserve(info.size()+2);
         x.emplace_back(double(iterations)/double(iterationsMAX));
         for(auto item:info)
             x.emplace_back(item/double(NUMBER));
         x.emplace_back(ctr_action_defender);
         if(info[info::CollId]==NUMBER)
             stop+=1;
-        file_manger.inset_data(x);
-        file_manger.inset_endLine();
+        //file_manger.inset_data(x);
+        //file_manger.inset_endLine();
         x.erase(x.begin());
         //converagerr.inset_elm(std::move(x));
         return true;
@@ -319,7 +327,7 @@ private:
             return;
         set_mode_abstract(step);
     }
-    void clear_info(){std::for_each(info.begin(),info.end(),[](auto &item){item=0;});}
+    void clear_info(){std::fill(info.begin(), info.end(), 0);}
 
     static bool comper_vectors(std::vector<double> x1,std::vector<double> x2)
     {

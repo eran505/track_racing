@@ -32,6 +32,7 @@ public:
             , escape_seq_("\"")
             , special_chars_("\"")
     {
+
         delete_existing_file(filename);
         fs_.exceptions(std::ios::failbit | std::ios::badbit);
         if (!isApp) fs_.open(filename,std::ios_base::app | ios_base::out);
@@ -79,7 +80,6 @@ public:
 private:
     static void delete_existing_file(const string &file_path)
     {
-        cout<<"in"<<endl;
 //        try {
 //            if (std::experimental::filesystem::remove(file_path))
 //                std::cout << "file " << file_path << " deleted.\n";

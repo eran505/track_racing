@@ -5,6 +5,7 @@
 #ifndef RACING_CAR_UTIL_GAME_HPP
 #define RACING_CAR_UTIL_GAME_HPP
 #define APPEDN 13        //int append=int(pow(int(actionMax),this->capacity))/2;
+//#define PRINT
 
 #include <string>
 #include <list>
@@ -59,7 +60,7 @@ public:
     std::string to_str() const {
         std::string str_to_string;
         str_to_string+="(";
-        for ( int i = 0; i < this->capacity; i++) {
+        for ( int i = 0; i < D; i++) {
             str_to_string += std::to_string((this->array[i]));
             str_to_string += ", ";
         }
@@ -69,7 +70,7 @@ public:
     }
     string to_hash_str() const {
         string str;
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             str += std::to_string(this->operator[](i));
             str += ",";
         }
@@ -92,14 +93,14 @@ public:
     }
     int multi(){
         int res=1;
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             res*=this->array[i];
         }
         return res;
     }
     bool operator<(const Point &other)
     {
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             if(other[i]<=this->array[i])
                 return false;
         }
@@ -107,7 +108,7 @@ public:
     }
     bool operator<=(const Point &other)
     {
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             if(other[i]<this->array[i])
                 return false;
         }
@@ -121,7 +122,7 @@ public:
     int sumPoint() const
     {
         int sum=0;
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             sum+=this->array[i];
         }
         return sum;
@@ -133,14 +134,14 @@ public:
     Point(const Point &other):capacity(other.capacity)
     {
         //printf("COPY_CON POINT\n  ");
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             this->array[i]=other.array[i];
         }
     }
 
     Point& operator=(const Point &other){
         //printf("operator= Point \n  ");
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             this->array[i]=other.array[i];
         }
         return *this;
@@ -148,14 +149,14 @@ public:
 
     Point operator+(const Point &other)const{
         Point ans(0);
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             ans.array[i]=this->array[i]+other.array[i];
         }
         return ans;
     }
     Point operator*(const Point &other)const{
         Point ans(0);
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D ; ++i) {
             ans.array[i]=this->array[i]*other.array[i];
         }
         return ans;
@@ -163,9 +164,19 @@ public:
 
     void operator+=(const Point &other){
 
-        for (int i = 0; i < this->capacity; ++i) {
-            this->array[i]=this->array[i]+other.array[i];
+
+        u_int8_t i=0;
+        while(true)
+        {
+            this->array[i++]+=other.array[i];
+            if(i==3) break;
         }
+
+//        auto iter = this->array.begin();
+//        auto iter_other = other.array.begin();
+//        *(iter++)+=*(iter_other++);
+//        *(iter++)+=*(iter_other++);
+//        *(iter++)+=*(iter_other++);
 
     }
     bool pairIsEqule(pair<int,int> data)
@@ -184,7 +195,7 @@ public:
 
     Point operator-(const Point* other) const{
         Point newp(0);
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             newp.array[i]=this->array[i]-other->array[i];
         }
         return newp;
@@ -193,7 +204,7 @@ public:
     Point operator%(const Point& other) const
     {
         Point p(0);
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             p.array[i]=this->array[i]%other.array[i];
         }
         return p;
@@ -201,34 +212,34 @@ public:
 
     Point& operator-=(const Point* other){
 
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             this->array[i]=this->array[i]-other->array[i];
         }
         return *this;
     }
     Point& operator-=(const Point& other){
 
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             this->array[i]=this->array[i]-other.array[i];
         }
         return *this;
     }
     bool any_bigger_equle(const Point &other){
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             if (this->array[i]<=other.array[i])
                 return true;
         }
         return false;
     }
     bool any_bigger(const Point &other){
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             if (this->array[i]>other.array[i])
                 return true;
         }
         return false;
     }
     [[nodiscard]] bool out_of_bound(const Point &boundLower,const Point &boundUpper) const{
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             if (this->array[i]>=boundUpper.array[i] or
             this->array[i]<boundLower.array[i])
                 return true;
@@ -236,7 +247,7 @@ public:
         return false;
     }
     [[nodiscard]] bool out_of_bound(const Point &bound) const{
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             if (this->array[i]>=bound.array[i] or
                 this->array[i]<0)
                 return true;
@@ -246,39 +257,39 @@ public:
     [[nodiscard]] int sum() const
     {
         int ans = 0;
-        for (int i = 0; i < this->capacity; ++i) ans+=this->array[i];
+        for (int i = 0; i < D; ++i) ans+=this->array[i];
         return ans;
     }
     vector<double>* getFeature()
     {
         auto* vectorI = new vector<double>();
-        for (int i = 0; i < this->capacity; ++i)
+        for (int i = 0; i < D; ++i)
             vectorI->push_back(this->array[i]);
 
         return vectorI;
     }
     [[nodiscard]] bool any_ngative()const {
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             if (this->array[i]<0)
                 return true;
         }
         return false;
     }
     void operator/=(const Point &x){
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             array[i]/=x[i];
         }
     }
     Point operator/(const Point &x)const{
         Point res(0);
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             res.array[i]=array[i]/x[i];
         }
         return res;
     }
     [[nodiscard]] int accMulti()const{
         int acc=1;
-        for (int i = 0; i < this->capacity; ++i) {
+        for (int i = 0; i < D; ++i) {
             acc*=this->array[i];
         }
         return acc;
@@ -287,14 +298,14 @@ public:
     [[nodiscard]] Point AbsPoint() const
     {
         Point tmp(0);
-        for (int i = 0; i < this->capacity; ++i)
+        for (int i = 0; i < D; ++i)
             tmp.array[i]=abs(this->array[i]);
         return tmp;
     }
 
     bool isBiggerAbsOne()
     {
-        for (int i = 0; i < this->capacity; ++i)
+        for (int i = 0; i < D; ++i)
         {
             if(abs(array[i])>1)
                 return true;
@@ -302,15 +313,13 @@ public:
         return false;
     }
     void change_speed_max(int absoult_max){
-        for (int i = 0; i < this->capacity; ++i)
-        {
-            if (this->array[i]>absoult_max){
-                this->array[i]=absoult_max;
-                continue;
-            }
-            if(this->array[i]*-1>absoult_max)
-                this->array[i]=absoult_max*-1;
-        }
+
+        auto iter= this->array.begin();
+
+        *(iter++)=std::clamp(*iter,-absoult_max,absoult_max);
+        *(iter++)=std::clamp(*iter,-absoult_max,absoult_max);
+        *(iter++)=std::clamp(*iter,-absoult_max,absoult_max);
+
     }
     bool operator== (const Point &other)const;
     bool is_equal(const Point *other)const;
@@ -370,9 +379,9 @@ public:
         }
         return newP;
     }
-    unsigned int hashMeAction(int max){
+    [[nodiscard]] unsigned int hashMeAction(int max)const{
         unsigned int h=0;
-        for (int i = 0; i < this->capacity; ++i)
+        for (int i = 0; i < D; ++i)
             h+=this->array[capacity-1-i]*int(pow(max,i));
         return h+APPEDN;
     }
@@ -386,21 +395,21 @@ public:
     [[nodiscard]] int getMax() const
     {
         int ans = array[0];
-        for (int i = 1; i < this->capacity; ++i)
+        for (int i = 1; i < D; ++i)
             if (ans<this->array[i])
                 ans=this->array[i];
         return ans;
     }
     bool isOK(){
         bool ok = true;
-        for (int i = 0; i < this->capacity; ++i)
+        for (int i = 0; i < D; ++i)
             if (array[i]>1 or array[i]<-1)
                 return false;
         return ok;
     }
     bool is_negative()
     {
-        for (int i = 0; i < this->capacity; ++i)
+        for (int i = 0; i < D; ++i)
             if (array[i]<0)
                 return true;
         return false;
@@ -432,7 +441,7 @@ public:
     unsigned int hashMeMAX(int max){
         unsigned int h=0;
         //int append=int(pow(int(actionMax),this->capacity))/2;
-        for (int i = 0; i < this->capacity; ++i)
+        for (int i = 0; i < D; ++i)
             h+=this->array[capacity-1-i]*int(pow(max,i));
         return h;
     }
@@ -450,15 +459,17 @@ public:
         }
         return std::sqrt(res);
     }
+
+
     static int distance_min_step(const Point &a,const Point &b){
-        double res=0;
-        for (int i = 0; i < a.capacity; ++i) {
-            auto diff = (a[i] - b[i]);
-            if(res<diff)
-                res=diff;
+        int res=0;
+        for (int i = 0; i < a.capacity; ++i)
+        {
+            if(auto diff = std::abs(a[i] - b[i]); diff>res) res=diff;
         }
         return res;
     }
+
 
     static std::unique_ptr<unordered_map<unsigned int, Point>> getDictActionUniqie();
 };

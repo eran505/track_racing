@@ -233,7 +233,7 @@
 //            this->dataTree[write]=ptrExp;
 //        }
 //
-//        //auto idx= this->write + this->capacity - 1;
+//        //auto idx= this->write + D - 1;
 //       // cout<<"P: "<<p<<endl;
 //        this->update(write,p);
 //        this->write++;
@@ -253,7 +253,7 @@
 //    **/
 //    tuple<unsigned int,unsigned int>  getElementByPartialSum(metric s){
 //        auto idxTree= this->retrieve2(0, s);
-//        auto idxData = idxTree - this->capacity + 1;
+//        auto idxData = idxTree - D + 1;
 //        return {idxTree,idxData};
 //    }
 //    /**

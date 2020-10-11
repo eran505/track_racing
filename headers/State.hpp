@@ -88,6 +88,10 @@ public:
     bool is_collusion_radius(agentEnum id_player, agentEnum op_player, const Point &window);
 
     void add_player_state(agentEnum name_id, const Point &m_pos, const Point *m_speed, int budget_b);
+
+    bool applyAction(agentEnum id,  Point &action, int max_speed, int jumps);
+
+    u_int64_t getHashValue2() const;
 };
 
 

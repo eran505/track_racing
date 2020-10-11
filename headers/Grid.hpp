@@ -45,7 +45,7 @@ private:
         Point getPointSzie(){ return upperBound;}
         [[nodiscard]] const vector<pair<double,Point>>& getAllGoalsData()const{return all_goals_data;}
         explicit Grid(game_params&);
-        ~Grid() {cout<<"grid del\n"; }
+        ~Grid()=default;
         Grid()= default;
         const Point& get_lower(){return lowerBound;}
         Grid(const Point& sizeP,vector<Point> allPoint,vector<short> rewardGoal)

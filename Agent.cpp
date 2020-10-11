@@ -44,9 +44,9 @@ void Agent::doAction(State *s) {
 
     this->lastAction = this->my_Policy->get_action(s);
 
-    this->my_Policy->applyActionToState(s, lastAction);
+    //this->my_Policy->applyActionToState(s, lastAction);
 
-    this->is_wall=my_Policy->is_wall;
+    //this->is_wall=my_Policy->is_wall;
 
 }
 
