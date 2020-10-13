@@ -18,6 +18,7 @@
 #define VECTOR
 #include "Update_RTDP/Reward.hpp"
 #define DD
+//#define D_BUG
 typedef u_int64_t keyItem;
 typedef double cell;
 
@@ -61,6 +62,11 @@ protected:
 
     arr& get_Q_entry_values(const State *s,keyItem key)
     {
+#ifdef D_BUG
+        if(start_inset)
+            if(auto poss = this->my_dict.find(key);poss==my_dict.end())
+                this->my_dict.try_emplace(key,s->to_mini_string());
+#endif
         if(auto pos = qTable->find(key);pos==qTable->end())
         {
             add_entry_map_state(key,s);
@@ -71,6 +77,11 @@ protected:
     double applyNonAction(const State *s);
 
 public:
+    #ifdef D_BUG
+    std::unordered_map<u_int64_t,std::array<int,12>> my_dict;
+    bool start_inset=false;
+
+    #endif
     void reset_takken_stpe_ctr(){steo_takken=0;}
     unordered_map<keyItem,std::array<int,12>>& get_dict_map(){return this->debugDict;}
     std::vector<std::vector<Point>> l_p_H;
@@ -126,7 +137,6 @@ public:
     }
     vector<double>* get_probabilty(const State *s);
     void update_final_State(State *s, double val);
-    cell rec_h(State *s, int index,cell acc_probablity);
 
     cell get_max_valueQ(const State *s)
     {

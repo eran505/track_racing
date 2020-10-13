@@ -263,7 +263,7 @@ private:
         if(iterations>iterationsMAX){
             cout<<"[iterationsMAX]"<<endl;
             return true;}
-        if(/* converagerr.is_converage() or */  stop>5){
+        if(/* converagerr.is_converage() or */  stop>7){
             cout<<"[stop]"<<endl;
             return true;}
         return false;
@@ -310,8 +310,11 @@ private:
         for(auto item:info)
             x.emplace_back(item/double(NUMBER));
         x.emplace_back(ctr_action_defender);
-        if(info[info::CollId]==NUMBER)
-            stop+=1;
+        if(info[info::CollId]==NUMBER) {
+            auto *ptr = dynamic_cast<RtdpAlgo*>(_defender->getPolicyInt());
+            ptr->getUtilRTDP()->start_inset=true;
+            stop += 1;
+        }
         //file_manger.inset_data(x);
         //file_manger.inset_endLine();
         x.erase(x.begin());
