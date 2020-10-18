@@ -6,7 +6,7 @@
 #define RACING_CAR_UTIL_GAME_HPP
 #define APPEDN 13        //int append=int(pow(int(actionMax),this->capacity))/2;
 //#define PRINT
-
+#include <execution>
 #include <string>
 #include <list>
 #include <iostream>
@@ -114,7 +114,7 @@ public:
         }
         return true;
     }
-    Point& operator*=(int number){
+    void operator*=(int number){
         this->array[0]*=number;
         this->array[1]*=number;
         this->array[2]*=number;

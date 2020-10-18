@@ -16,6 +16,8 @@
 #include "Policy/Attacker/PathFinder.hpp"
 #define DEBUGING
 //#define TRAJECTORY
+//#define Q_DATA
+
 #define BUFFER_TRAJECTORY 1 // need to be 9000 when saving
 #define STR_HOME_DIR "/car_model/out/"
 #include "util/Rand.hpp"
@@ -61,7 +63,7 @@ class SimulationGame{
     //Grid _g;
     short stop=0;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=80000000;//80000000;
+    u_int32_t iterationsMAX=50000000;//80000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -153,7 +155,9 @@ public:
     void get_agents_data_policy()const
     {
         this->_attacker->getPolicy()->policy_data();
+        #ifdef Q_DATA
         this->_defender->getPolicy()->policy_data();
+        #endif
     }
     std::unique_ptr<Agent>&& get_agnet_D(){return std::move(this->_defender);}
     void set_agnet_D(std::unique_ptr<Agent>&& D){this->_defender=std::move(D);}
@@ -315,8 +319,11 @@ private:
             ptr->getUtilRTDP()->start_inset=true;
             stop += 1;
         }
-        //file_manger.inset_data(x);
-        //file_manger.inset_endLine();
+        else{stop=0;}
+
+        file_manger.inset_data(x);
+        file_manger.inset_endLine();
+
         x.erase(x.begin());
         //converagerr.inset_elm(std::move(x));
         return true;

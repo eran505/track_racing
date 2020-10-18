@@ -92,7 +92,9 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
 
 double RtdpAlgo::bellman_updateV2(State *s, Point &action) {
     //expnder->clean();
-
+    #ifdef PRINT
+    cout<<"[bellman]"<<s->to_string_state()<<endl;
+    #endif
     do_SEQ(s,action);
     return evaluator->calculateV2_back(expnder->expand_state_other(s),*s);
 }

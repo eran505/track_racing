@@ -60,7 +60,8 @@ void getConfigPath(int argc, char** argv,configGame &conf);
  *
  */
 //using namespace std::chrono;
-
+#include <omp.h>
+#include <unistd.h>
 #include <cassert>
 #include <iostream>
 #include <string>
@@ -125,7 +126,7 @@ int main(int argc, char** argv) {
         //toCsv(curToCsvPolciy,resultsConfigI->guardEval,labels);
         ctrId++;
         //Agent::ctr_object = 0;
-        break;
+        //break;
 
     }
 
@@ -225,14 +226,14 @@ void init_mdp(Grid *g, configGame &conf){
     auto *rtdp_ptr = dynamic_cast <RtdpAlgo*>(RTDP);
     rtdp_ptr->init_expder(level_num);
 
-    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+//    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
     FixAbstGame(conf,std::move(pA1),std::move(pD2),state0.get(),level_num);
 
-    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::seconds> (end - begin).count() << "[s]" << std::endl;
-    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
-    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
+//    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+//    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::seconds> (end - begin).count() << "[s]" << std::endl;
+//    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
+//    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
 
 
 }
@@ -240,13 +241,8 @@ void init_mdp(Grid *g, configGame &conf){
 void FixAbstGame(configGame &conf, std::unique_ptr<Agent> policyA,std::unique_ptr<Agent> policyD, State *s,int lev_number)
 {
     auto single = SinglePath(conf,s,std::move(policyA),std::move(policyD));
-    //conf.eval_mode=2;
-    if(conf.eval_mode==1)
-        single.learn_all_path_at_once();
-    else if(conf.eval_mode==2)
-        single.one_path_at_a_time();
-    else if(conf.eval_mode==3)
-        single.learn_by_goals();
+    single.learn_all_path_at_once();
+
 
 }
 

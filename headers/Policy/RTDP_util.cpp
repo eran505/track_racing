@@ -36,10 +36,12 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
     // get the reward for action (0,0,0)
     double zero_move_reward = applyNonAction(s);
 
+    //cout<<"\t[H] S: "<<oldState.to_string_state()<<"\t[hash] "<<entry_index<<"\t";
     for (const auto &item_action : *this->hashActionMap)
     {
         // apply action state and let the envirmont to roll and check the reward/pos
         Point actionCur = *item_action.second;
+
         double val;
         bool isWall = this->apply_action_SEQ(&oldState,my_policy->id_agent,actionCur,this->my_policy->max_speed);
         int step = to_closet_path_H(oldState);
@@ -50,10 +52,9 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
             val = this->R.WallReward*R.discountF*this->_stochasticMovement+
                     zero_move_reward*(1-this->_stochasticMovement);
         else{
-            val=this->R.CollReward*std::pow(R.discountF,step);
+            val=(this->R.CollReward-0.1)*std::pow(R.discountF,step);
         }
-
-        //cout<<"A:"<<actionCur->to_str()<<" val="<<val<<endl;
+        //cout<<"A:"<<actionCur.to_str()<<"\tval="<<val<<endl;
         oldState.assignment(s,this->my_policy->id_agent);
         // insert to Q table
 
@@ -123,7 +124,7 @@ void RTDP_util::arg_max(arr &arr,vector<int>& listIdxs){
 
 int RTDP_util::get_state_argmax(const State *s) {
     keyItem key = getStateKeyValue(s);
-
+    this->last_entry = key;
     auto &row = this->get_Q_entry_values(s, key);
 
 //    cout << "[state] " << s->to_string_state() << endl;
@@ -131,12 +132,14 @@ int RTDP_util::get_state_argmax(const State *s) {
 //        cout << "[" << i << "]=" << row[i];
 //    cout << endl;
 
-    //vector<int> argMax_list;
-    this->last_entry = key;
-    return std::distance(row.begin(),std::max_element(row.begin(), row.end()));
 
+
+    //ector<int> argMax_list;
     //arg_max(row, argMax_list);
     //std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
+    //return argMax_list.front();
+    return std::distance(row.begin(),std::max_element(row.begin(), row.end()));
+
 
 
     //return argMax_list.front();

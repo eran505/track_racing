@@ -43,8 +43,8 @@ public:
 class ABfinder{
     Randomizer randomizer_obj;
     Point GridSzie;
-    double stho=0.85;
-    u_int limt=5;
+    double stho=0.8;
+    u_int limt=10;
     u_int16_t MAX_SPEED=2;
     Point last_action;
     bool is_random=false;
@@ -85,7 +85,7 @@ private:
             bool bol=true;
             while(bol)
             {
-                //cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
+                cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
                 get_action_to_goal(cur,B);
                 bol=!vaild_move(cur);
             }
@@ -101,9 +101,9 @@ private:
     }
     [[nodiscard]] bool less_than_limit(const AStar::StatePoint& cur,const AStar::StatePoint& Goal)const
     {
-        if(Goal.pos[0]>cur.pos[0]+limt or Goal.pos[1]>cur.pos[1]+limt)
-            return true;
-        return false;
+        if(Goal.pos[0]<=cur.pos[0]+limt and Goal.pos[1]<=cur.pos[1]+limt)
+            return false;
+        return true;
     }
     bool inset_noise()
     {

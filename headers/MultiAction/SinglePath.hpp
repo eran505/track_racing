@@ -20,6 +20,83 @@ typedef unordered_map<int64_t ,vector<double>> q_Table;
 typedef unordered_map<u_int64_t,double> matrixP;
 typedef pair<double,vector<StatePoint>> Apath;
 typedef vector<vector<StatePoint>> attacker_pathz;
+
+class MatchingPath{
+
+    Point world_size;
+    u_int16_t upper_thershold;
+public:
+    explicit MatchingPath(const Point &grid_size,uint16_t threshold=300):world_size(grid_size),upper_thershold(threshold ){}
+
+    std::vector<std::vector<u_int16_t>>  squarespace(std::vector<std::vector<Point>> attackerP,Point &&cube) {
+        std::vector<std::vector<u_int16_t>> similarity_array;
+        std::vector<u_int16_t> similarity_array_AVG;
+        similarity_array.reserve(1);
+        Point new_resolution = world_size / cube;
+
+        //do
+        std::for_each(attackerP[0].begin(), attackerP[0].end(), [&](Point &p) { p /= new_resolution; });
+        similarity_array.emplace_back().push_back(0);
+        bool is_in = false;
+        for (int i = 1; i < attackerP.size(); ++i) {
+            std::for_each(attackerP[i].begin(), attackerP[i].end(), [&](Point &p) { p /= new_resolution; });
+            is_in = false;
+            std::vector<u_int16_t> distance;
+            for (auto &item : similarity_array) {
+                u_int16_t min = 1000;
+                for (auto pathID: item) {
+                    auto d = matching_trajectories_differ(attackerP[pathID], attackerP[i]);
+                    if (min > d) min = d;
+                }
+                distance.push_back(min);
+
+            }
+            if (auto min_elm = std::min_element(distance.begin(),distance.end()); *min_elm > upper_thershold)
+                similarity_array.emplace_back().push_back(i);
+            else
+                similarity_array[std::distance(distance.begin(),min_elm)].push_back(i);
+
+        }
+
+        for (auto &item_:similarity_array)
+            cout << item_ << endl;
+        return similarity_array;
+    }
+    void set_upper_threshold(u_int16_t t){this->upper_thershold=t;}
+
+private:
+    static bool matching_trajectories(const std::vector<Point> &t2, const std::vector<Point> &t1)
+    {
+        cout<<matching_trajectories_differ(t2,t1)<<endl;
+        if(t1.size()>t2.size())
+            return std::equal(t2.begin(), t2.end(), t1.begin(),
+                              [](const Point &t1_p, const Point &t2_p) { return t1_p == t2_p; });
+        else
+            return std::equal(t1.begin(), t1.end(), t2.begin(),
+                              [](const Point &t1_p, const Point &t2_p) { return t1_p == t2_p; });
+    }
+
+    static u_int16_t matching_trajectories_differ(const std::vector<Point> &t2, const std::vector<Point> &t1)
+    {
+        u_int16_t number_differ=0;
+        auto max = t2;
+        auto min =t1;
+        if(t1.size()>t2.size())
+        {
+            max = t1;
+            min =t2;
+        }
+        for(int k=0;k<min.size();++k)
+        {
+            if(min[k]==max[k])
+                continue;
+            number_differ++;
+        }
+        return number_differ;
+    }
+
+};
+
 class heuristicContainer{
     std::vector<std::vector<Point>> lPaths;
     map_dict map_state;
@@ -186,21 +263,25 @@ public:
             _start_state(std::make_unique<State>(*s)),
             config(conf)
     {}
-    void learn_by_goals()
+    void learn_all_path_at_once()
     {
         get_all_paths();
-        cout<<"learn_by_goals"<<endl;
-        auto map_goals = map_path_by_goal();
-        list_Q=std::vector<std::unique_ptr<Qtable_>>(map_goals.size());
+        auto mp = MatchingPath(this->config.sizeGrid,config.eval_mode);
+        auto ids_vector = mp.squarespace(this->get_policy_attcker()->list_only_pos(),Point(10,10,1));
+        auto l_list = sort_pathz_by_ids(ids_vector);
+        if(l_list .size()==1){
+            train_on_all_path();
+            return;
+        }
+        list_Q=std::vector<std::unique_ptr<Qtable_>>(ids_vector.size());
         vector<double> pVec;
         int ctr=0;
-        std::for_each(map_goals.begin(),map_goals.end(),
-                      [&](const pair<u_int64_t, pair<vector<u_int16_t>, double>>& item){
+        std::for_each(l_list.begin(),l_list.end(),
+                      [&](const pair<vector<u_int16_t>, double>& item){
 
-                          train_single_path(get_relevant_pathz(item.second.first),get_relevant_prob(item.second.first,item.second.second),ctr);ctr++;
-                          pVec.push_back(item.second.second);
+                          train_single_path(get_relevant_pathz(item.first),get_relevant_prob(item.first,item.second),ctr);ctr++;
+                          pVec.push_back(item.second);
                       });
-
         cout<<"[S]: "<<get_policy_defender()->getUtilRTDP()->get_dict_map().size()<<endl;
         heuristicContainer heurist_con(get_policy_attcker()->list_only_pos(),get_policy_defender()->getUtilRTDP()->get_dict_map(),this->_start_state->g_grid);
         std::unique_ptr<Qtable_> pytr = containerFixAggregator::agg_Q_tables(pVec,this->list_Q,heurist_con);
@@ -209,32 +290,6 @@ public:
         eval_all_paths();
         cout<<"[S]: "<<get_policy_defender()->getUtilRTDP()->get_dict_map().size()<<endl;
         cout<<endl;
-    }
-    void learn_all_path_at_once(){train_on_all_path();}
-    void one_path_at_a_time()
-    {
-        get_all_paths();
-        cout<<"one_path_at_a_time"<<endl;
-        list_Q=std::vector<std::unique_ptr<Qtable_>>(all_paths.size());
-        vector<double> pVec=prob_all_paths;
-        int ctr=0;
-        for(int c=0;c<all_paths.size();++c)
-        {
-            std::vector<std::vector<StatePoint>> l;
-            l.push_back(all_paths[c]);
-            train_single_path(std::move(l),std::vector<double>(1,1),c);
-        }
-
-        cout<<"[S]: "<<get_policy_defender()->getUtilRTDP()->get_dict_map().size()<<endl;
-        auto& d =get_policy_defender()->getUtilRTDP()->get_dict_map();
-        heuristicContainer heurist_con(get_policy_attcker()->list_only_pos(),d,this->_start_state->g_grid);
-        std::unique_ptr<Qtable_> pytr = containerFixAggregator::agg_Q_tables(pVec,list_Q,heurist_con);
-        this->set_all_Q_tavble(std::move(pytr));
-
-        eval_all_paths();
-        cout<<"[S]: "<<get_policy_defender()->getUtilRTDP()->get_dict_map().size()<<endl;
-        cout<<endl;
-
     }
     void train_on_all_path()
     {
@@ -358,6 +413,22 @@ private:
 //        }
         return map_goal;
     }
+    std::vector<pair<vector<u_int16_t>, double>> sort_pathz_by_ids(std::vector<std::vector<u_int16_t>>& idz)
+    {
+        std::vector<pair<vector<u_int16_t>, double>> l;
+        l.reserve(idz.size());
+        double acc = 0;
+        for(auto& list_idz:idz)
+        {
+            acc=0;
+            for( auto _id : list_idz)
+            {
+                acc+=this->prob_all_paths[_id];
+            }
+            l.emplace_back(std::move(list_idz),acc);
+        }
+        return l;
+    }
 
     template<typename K>
     std::vector<double> get_relevant_prob(std::vector<K> l,double sum)
@@ -383,6 +454,7 @@ private:
         return ans;
     }
 };
+
 
 
 #endif //TRACK_RACING_SINGLEPATH_HPP
