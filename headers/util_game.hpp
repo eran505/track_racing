@@ -6,7 +6,7 @@
 #define RACING_CAR_UTIL_GAME_HPP
 #define APPEDN 13        //int append=int(pow(int(actionMax),this->capacity))/2;
 //#define PRINT
-#include <execution>
+//#include <execution>
 #include <string>
 #include <list>
 #include <iostream>

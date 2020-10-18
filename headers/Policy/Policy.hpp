@@ -25,7 +25,7 @@ public:
     State::agentEnum id_agent;
     unordered_map<int,Point*>* hashActionMap;
     vector<Policy*> tran;
-
+    string prefix_file_name="";
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution;
 
@@ -43,6 +43,8 @@ public:
     double getRandom() {return distribution(generator);}
 
 
+    void set_prefix_file_name(const string& prefix){prefix_file_name=prefix;}
+    string get_prefix_file_name(const string& prefix){ return prefix_file_name;}
 
     virtual ~Policy(){
         //cout<<"~Policy"<<endl;

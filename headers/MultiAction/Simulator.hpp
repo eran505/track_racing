@@ -63,7 +63,7 @@ class SimulationGame{
     //Grid _g;
     short stop=0;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=50000000;//80000000;
+    u_int32_t iterationsMAX=50000000;//50000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -101,6 +101,11 @@ public:
         init_trajectory_file(conf);
         treeTraversal();
         #endif
+
+        this->_attacker->getPolicyInt()->prefix_file_name=std::to_string(conf._seed);
+        this->_defender->getPolicyInt()->prefix_file_name=std::to_string(conf._seed);
+
+
     }
     void init_trajectory_file(configGame &conf)
     {
