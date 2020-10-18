@@ -240,17 +240,18 @@ void RTDP_util::policyData() {
     }
     catch (const std::exception &ex){std::cout << "Exception was thrown: " << ex.what() << std::endl;}
 
-#ifdef D_BUG
+#ifdef LAST_STATE_DEBUG
     try{
         string nameFileCsv="Last_States.csv";
         csvfile csv(pathFile+nameFileCsv,";"); // throws exceptions!
-        for(auto &item:my_dict)
+        for(auto &item:state_policy_dict)
         {
             csv<<item.first;
-            for(int i=0;i<12;i++) csv<<item.second[i];
+            for(int i=0;i<12;i++) csv<<item.second.first[i];
+            csv<<item.second.second;
             csv<<endrow;
         }
-        my_dict.clear();
+        state_policy_dict.clear();
     }
     catch (const std::exception &ex){std::cout << "Exception was thrown: " << ex.what() << std::endl;}
 #endif

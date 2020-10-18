@@ -25,6 +25,7 @@ class MatchingPath{
 
     Point world_size;
     u_int16_t upper_thershold;
+    u_int16_t differ_upper=3;
 public:
     explicit MatchingPath(const Point &grid_size,uint16_t threshold=300):world_size(grid_size),upper_thershold(threshold ){}
 
@@ -45,13 +46,13 @@ public:
             for (auto &item : similarity_array) {
                 u_int16_t min = 1000;
                 for (auto pathID: item) {
-                    auto d = matching_trajectories_differ(attackerP[pathID], attackerP[i]);
+                    auto d = matching_trajectories_differ(attackerP[pathID], attackerP[i],this->upper_thershold);
                     if (min > d) min = d;
                 }
                 distance.push_back(min);
 
             }
-            if (auto min_elm = std::min_element(distance.begin(),distance.end()); *min_elm > upper_thershold)
+            if (auto min_elm = std::min_element(distance.begin(),distance.end()); *min_elm > differ_upper)
                 similarity_array.emplace_back().push_back(i);
             else
                 similarity_array[std::distance(distance.begin(),min_elm)].push_back(i);
@@ -65,18 +66,8 @@ public:
     void set_upper_threshold(u_int16_t t){this->upper_thershold=t;}
 
 private:
-    static bool matching_trajectories(const std::vector<Point> &t2, const std::vector<Point> &t1)
-    {
-        cout<<matching_trajectories_differ(t2,t1)<<endl;
-        if(t1.size()>t2.size())
-            return std::equal(t2.begin(), t2.end(), t1.begin(),
-                              [](const Point &t1_p, const Point &t2_p) { return t1_p == t2_p; });
-        else
-            return std::equal(t1.begin(), t1.end(), t2.begin(),
-                              [](const Point &t1_p, const Point &t2_p) { return t1_p == t2_p; });
-    }
 
-    static u_int16_t matching_trajectories_differ(const std::vector<Point> &t2, const std::vector<Point> &t1)
+    static u_int16_t matching_trajectories_differ(const std::vector<Point> &t2, const std::vector<Point> &t1,u_int16_t upper)
     {
         u_int16_t number_differ=0;
         auto max = t2;
@@ -88,7 +79,7 @@ private:
         }
         for(int k=0;k<min.size();++k)
         {
-            if(min[k]==max[k])
+            if(Point::distance_min_step(min[k],max[k])<upper)
                 continue;
             number_differ++;
         }

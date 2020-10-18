@@ -110,8 +110,8 @@ private:
     {
         vector<AStar::StatePoint> seq_state;
         vector<AStar::StatePoint> seq_state_all;
-        //auto new_list = add_middle_point_at_random(A_list);
-        auto new_list=A_list;
+        auto new_list = add_middle_point_at_random(A_list);
+        //auto new_list=A_list;
         for(int k=0;k<new_list.size()-1;++k)
         {
             seq_state = aBFinder.get_pathz(new_list[k],new_list[k+1]);
@@ -126,8 +126,8 @@ private:
     {
         vector<AStar::StatePoint> seq_state;
         vector<AStar::StatePoint> seq_state_all;
-        //auto new_list = add_middle_point_at_random(A_list);
-        auto new_list=A_list;
+        auto new_list = add_middle_point_at_random(A_list);
+        //auto new_list=A_list;
         for(int k=0;k<new_list.size()-1;++k)
         {
             seq_state = aBFinder.get_pathz(new_list[k],new_list[k+1]);
@@ -141,10 +141,10 @@ private:
     {
         Point p;
 
-        p.array[0]=int((sP.pos[0]*0.5));
-        p.array[1]=int(this->random_gen.get_double()*grid_size[0]*0.3+(this->grid_size[1]/3.0));
+        p.array[0]=sP.pos[0]-int((sP.pos[0]*0.8));
+        p.array[1]=sP.pos[1]-int(this->random_gen.get_double()*sP.pos[1]*0.1);
         p.array[2]=int(this->random_gen.get_double()*(3.0));
-        cout<<p.to_str()<<endl;
+        cout<<"Random--->"<<p.to_str()<<endl;
         return {p,Point(0,0,0)};
     }
     std::vector<StatePoint> add_middle_point_at_random(const std::vector<StatePoint> &A_list)

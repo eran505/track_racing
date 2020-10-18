@@ -63,7 +63,7 @@ class SimulationGame{
     //Grid _g;
     short stop=0;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=50000000;//50000000;
+    u_int32_t iterationsMAX=80000000;//50000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -321,7 +321,9 @@ private:
         x.emplace_back(ctr_action_defender);
         if(info[info::CollId]==NUMBER) {
             auto *ptr = dynamic_cast<RtdpAlgo*>(_defender->getPolicyInt());
-            ptr->getUtilRTDP()->start_inset=true;
+
+//            ptr->getUtilRTDP()->start_inset=true;
+
             stop += 1;
         }
         else{stop=0;}

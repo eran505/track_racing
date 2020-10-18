@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
 
 
     int seed = 1594198815;//1594198815;
-    seed = 328875;//1594198815;
+    seed = 1594198815;//1594198815;
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -126,7 +126,7 @@ int main(int argc, char** argv) {
         //toCsv(curToCsvPolciy,resultsConfigI->guardEval,labels);
         ctrId++;
         //Agent::ctr_object = 0;
-        //break;
+       // break;
 
     }
 

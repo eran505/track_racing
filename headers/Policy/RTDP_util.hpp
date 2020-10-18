@@ -18,7 +18,7 @@
 #define VECTOR
 #include "Update_RTDP/Reward.hpp"
 #define DD
-#define D_BUG
+//#define LAST_STATE_DEBUG
 typedef u_int64_t keyItem;
 typedef double cell;
 
@@ -62,10 +62,12 @@ protected:
 
     arr& get_Q_entry_values(const State *s,keyItem key)
     {
-#ifdef D_BUG
+#ifdef LAST_STATE_DEBUG
         if(start_inset)
-            if(auto poss = this->my_dict.find(key);poss==my_dict.end())
-                this->my_dict.try_emplace(key,s->to_mini_string());
+            if(auto poss = this->state_policy_dict.find(key);poss==state_policy_dict.end())
+                this->state_policy_dict.try_emplace(key,s->to_mini_string(),1);
+            else poss->second.second++;
+
 #endif
         if(auto pos = qTable->find(key);pos==qTable->end())
         {
@@ -77,8 +79,8 @@ protected:
     double applyNonAction(const State *s);
 
 public:
-    #ifdef D_BUG
-    std::unordered_map<u_int64_t,std::array<int,12>> my_dict;
+    #ifdef LAST_STATE_DEBUG
+    std::unordered_map<u_int64_t,pair<std::array<int,12>,u_int64_t>> state_policy_dict;
     bool start_inset=false;
 
     #endif
