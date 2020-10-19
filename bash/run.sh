@@ -13,7 +13,7 @@ if [[ $SERVER == *"ubuntu-eranh"* ]]; then
 fi
 
 
-ConstSeed=84645337
+ConstSeed=24645337
 
 for i in {0..20}
 do
