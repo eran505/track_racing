@@ -33,6 +33,7 @@ public:
             //ref_item.upper=Point(int(pow(2,i+3)),int(pow(2,i+3)),4);
             ref_item.upper=Point(int(pow(2,i+3)),int(pow(2,i+3)),4);
             ref_item.step=get_step_number(pow(2,i+3));
+            ref_item.step=get_step_number(8);
             //ref_item.step=i+1;
         }
         idx_level=_levels->size()-1;

@@ -18,7 +18,7 @@
 #define VECTOR
 #include "Update_RTDP/Reward.hpp"
 #define DD
-//#define LAST_STATE_DEBUG
+#define LAST_STATE_DEBUG
 typedef u_int64_t keyItem;
 typedef double cell;
 
