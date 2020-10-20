@@ -52,7 +52,7 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
             val = this->R.WallReward*R.discountF*this->_stochasticMovement+
                     zero_move_reward*(1-this->_stochasticMovement);
         else{
-            val=(this->R.CollReward-0.1)*std::pow(R.discountF,step);
+            val=(this->R.CollReward)*std::pow(R.discountF,step);
         }
         //cout<<"A:"<<actionCur.to_str()<<"\tval="<<val<<endl;
         oldState.assignment(s,this->my_policy->id_agent);
@@ -134,11 +134,11 @@ int RTDP_util::get_state_argmax(const State *s) {
 
 
 
-    //ector<int> argMax_list;
-    //arg_max(row, argMax_list);
-    //std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
-    //return argMax_list.front();
-    return std::distance(row.begin(),std::max_element(row.begin(), row.end()));
+    vector<int> argMax_list;
+    arg_max(row, argMax_list);
+    std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
+    return argMax_list.front();
+    //return std::distance(row.begin(),std::max_element(row.begin(), row.end()));
 
 
 
@@ -290,7 +290,12 @@ void RTDP_util::resetQtable() {
 
 int RTDP_util::to_closet_path_H(const State &s)
 {
+#ifdef H_ZERO
     return 0;
+#endif
+    steo_takken=s.get_budget(this->my_policy->cashID);
+    //cout<<"\n[Td] "<<steo_takken<<" [Ta] "<<s.get_budget(this->my_policy->cashID)<<"\t[s] "<<s.to_string_state()<<endl;
+    //assert(steo_takken==s.get_budget(this->my_policy->cashID));
     const auto& pos_def = s.get_position_ref(this->my_policy->id_agent);
     return to_closet_path_H_calc(pos_def,s.get_budget(this->my_policy->get_id_name()));
 }
@@ -301,16 +306,16 @@ int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos,int jumps)
 
     for(const auto& path : this->l_p_H)
     {
-        if(steo_takken>=path.size()){
-            return 1;
-        }
-        std::for_each(path.begin()+this->steo_takken,path.end(),[&](const auto& p){
-            if(auto dif = Point::distance_min_step(agnet_pos,p)<min_step)
-            {
-                min_step=dif;
-                //min_step=Point::distance_min_step(agnet_pos,p);
+        if(steo_takken>=path.size())
+            return 20;
+        for(auto iter = path.begin()+steo_takken;iter!=path.end();iter++)
+        {
+            if (auto dif = Point::distance_min_step(agnet_pos, *iter);dif < min_step) {
+                min_step = dif;
+                if (min_step == 0) return 0;
             }
-        });
+        }
+
     }
     return min_step;
 

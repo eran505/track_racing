@@ -16,9 +16,11 @@
 #include <utility>
 #include "Policy.hpp"
 #define VECTOR
+#include <cassert>
 #include "Update_RTDP/Reward.hpp"
 #define DD
-#define LAST_STATE_DEBUG
+//#define LAST_STATE_DEBUG // uncomment the (line 326 Simulator.hpp)
+//#define H_ZERO
 typedef u_int64_t keyItem;
 typedef double cell;
 
@@ -41,7 +43,7 @@ protected:
     vector<Policy*> *lTran= nullptr;
     Rewards R = Rewards::getRewards();
     short ctr_debug=0;
-    unordered_map<keyItem,std::array<int,12>> debugDict;
+    unordered_map<keyItem,std::array<int,14>> debugDict;
     const string home;
     std::function<u_int64_t (const State*)> HashFuction;
     Policy* my_policy= nullptr;
@@ -85,7 +87,7 @@ public:
 
     #endif
     void reset_takken_stpe_ctr(){steo_takken=0;}
-    unordered_map<keyItem,std::array<int,12>>& get_dict_map(){return this->debugDict;}
+    unordered_map<keyItem,std::array<int,14>>& get_dict_map(){return this->debugDict;}
     std::vector<std::vector<Point>> l_p_H;
     void isEmptyQ()
     {

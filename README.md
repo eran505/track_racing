@@ -14,3 +14,6 @@ TODO:
 - Hierarchical models
 
 
+When doing multi learn paths its basically just a H 
+
+wont work with stochastic action > 0

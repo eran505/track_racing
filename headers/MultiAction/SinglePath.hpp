@@ -15,7 +15,7 @@ typedef vector<pair<double,vector<StatePoint>>> vector_p_path;
 typedef unordered_map<keyItem ,arr> Qtable_;
 typedef std::unique_ptr<Agent> unique_agnet;
 typedef std::vector<containerFix> QtableItem;
-typedef unordered_map<u_int64_t ,std::array<int,12>> map_dict;
+typedef unordered_map<u_int64_t ,std::array<int,14>> map_dict;
 typedef unordered_map<int64_t ,vector<double>> q_Table;
 typedef unordered_map<u_int64_t,double> matrixP;
 typedef pair<double,vector<StatePoint>> Apath;
@@ -102,10 +102,10 @@ public:
     std::vector<double> get_heuristic_path(const int index,uint64_t ky_state) const
     {
         auto posD = get_D_point(ky_state);
-        return fill_vector_H_value(posD,index);
+        return fill_vector_H_value(posD.first,posD.second,index);
     }
 private:
-    vector<double> fill_vector_H_value(const pair<Point,Point>& pos,int index_Qi)const {
+    vector<double> fill_vector_H_value(const pair<Point,Point>& pos,int start_p,int index_Qi)const {
         auto dicoAction = Point::getDictActionUniqie();
         std::vector<double> v(27);
         for (const auto &p: *dicoAction)
@@ -115,7 +115,7 @@ private:
                 v[p.first] = R.WallReward;
                 continue;
             }
-            auto steps = to_closet_path_H_calc(index_Qi, newPos);
+            auto steps = to_closet_path_H_calc(index_Qi, newPos,start_p);
             v[p.first] = this->R.CollReward * std::pow(R.discountF, steps);
         }
         return v;
@@ -124,21 +124,27 @@ private:
     {
         return (posD.second+a)+posD.first;
     }
-    pair<Point,Point> get_D_point(const int64_t ky) const
+    pair<pair<Point,Point>,int> get_D_point(const int64_t ky) const
     {
         auto& arr = this->map_state.find(ky)->second;
-        return {Point(arr[6],arr[7],arr[8]),Point(arr[9],arr[10],arr[11])};
+        return {{Point(arr[6],arr[7],arr[8]),Point(arr[9],arr[10],arr[11])},arr[12]};
     }
-    int to_closet_path_H_calc(const u_int index,const Point& agnet_pos)const
+    int to_closet_path_H_calc(const u_int index,const Point& agnet_pos,int start_point)const
     {
+#ifdef H_ZERO
         return 0;
+#endif
         int min_step = 100000;
-        double min_dist = 100000;
 
         for(const auto& p : this->lPaths[index]){
-            if(Point::distance(agnet_pos,p)<min_dist){
-                min_dist=Point::distance(agnet_pos,p);
-                min_step=Point::distance_min_step(agnet_pos,p);
+            if(start_point>=this->lPaths[index].size())
+                return 20;
+            for(auto iter = this->lPaths[index].begin()+start_point;iter!=this->lPaths[index].end();iter++)
+            {
+                if (auto dif = Point::distance_min_step(agnet_pos, *iter);dif < min_step) {
+                    min_step = dif;
+                    if (min_step == 0) return 0;
+                }
             }
         }
 #ifdef ASSERT

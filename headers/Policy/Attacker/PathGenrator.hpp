@@ -141,8 +141,8 @@ private:
     {
         Point p;
 
-        p.array[0]=sP.pos[0]-int((sP.pos[0]*0.8));
-        p.array[1]=sP.pos[1]-int(this->random_gen.get_double()*sP.pos[1]*0.1);
+        p.array[0]=sP.pos[0]-int((sP.pos[0]*0.75));
+        p.array[1]=sP.pos[1]-int(this->random_gen.get_double()*sP.pos[1]*0.25);
         p.array[2]=int(this->random_gen.get_double()*(3.0));
         cout<<"Random--->"<<p.to_str()<<endl;
         return {p,Point(0,0,0)};

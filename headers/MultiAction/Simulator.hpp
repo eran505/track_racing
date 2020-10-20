@@ -13,10 +13,11 @@
 #include "util/saver.hpp"
 #include "Scheduler.hpp"
 #include "Policy/RtdpAlgo.hpp"
+#include "Policy/RTDP_util.hpp"
 #include "Policy/Attacker/PathFinder.hpp"
 #define DEBUGING
 //#define TRAJECTORY
-#define Q_DATA
+//#define Q_DATA
 
 #define BUFFER_TRAJECTORY 1 // need to be 9000 when saving
 #define STR_HOME_DIR "/car_model/out/"
@@ -63,7 +64,7 @@ class SimulationGame{
     //Grid _g;
     short stop=0;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=80000000;//50000000;
+    u_int32_t iterationsMAX=10000000;//10M;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -125,7 +126,7 @@ public:
         {
             reset();
             #ifdef PRINT
-            cout<<"[real] "<<_state->to_string_state()<<endl;
+            cout<<"[S0] [real] "<<_state->to_string_state()<<endl;
             #endif
             while(true)
             {
@@ -136,7 +137,6 @@ public:
             #ifdef PRINT
             cout<<"END\n";
             #endif
-
             print_info();
             if(is_converage())
                 break;
@@ -147,6 +147,7 @@ public:
     bool loop()
     {
         change_abstraction();
+        chnage_time_step();
         #ifdef PRINT
         cout<<"last_mode: "<<last_mode<<" [real] ";
         cout<<this->_state->to_string_state()<<" ";
@@ -154,7 +155,7 @@ public:
         do_action_defender();
         //cout<<this->_state->to_string_state()<<endl;
         bool is_end_game = attcker_do_action();
-        //cout<<this->_state->to_string_state()<<"   last_mode: "<<last_mode<<endl;
+        //cout<<this->_state->to_string_state()<<"   last_mode: "<<last_mode<<"is_end = "<<is_end_game<<endl;
         return is_end_game;
     }
     void get_agents_data_policy()const
@@ -272,7 +273,7 @@ private:
         if(iterations>iterationsMAX){
             cout<<"[iterationsMAX]"<<endl;
             return true;}
-        if(/* converagerr.is_converage() or */  stop>10){
+        if(/* converagerr.is_converage() or */  stop>=2){
             cout<<"[stop]"<<endl;
             return true;}
         return false;
@@ -286,7 +287,7 @@ private:
         //change_abstraction();
         _state->takeOff=false;
         _state->set_budget(_defender->get_id(),1);
-
+        _state->set_budget(_attacker->get_id(),0);
     }
     void setPosSpeed(const Point &sSpeed,const Point &pPos,State::agentEnum id_str)
     {
@@ -322,7 +323,7 @@ private:
         if(info[info::CollId]==NUMBER) {
             auto *ptr = dynamic_cast<RtdpAlgo*>(_defender->getPolicyInt());
 
-            ptr->getUtilRTDP()->start_inset=true;
+//            ptr->getUtilRTDP()->start_inset=true;
 
             stop += 1;
         }
@@ -352,11 +353,17 @@ private:
             if(x1[i]!=x2[i]) return false;
         return true;
     }
+    void chnage_time_step()
+    {
+        _state->set_budget(_attacker->get_name_id(),_state->get_budget(_attacker->get_name_id())+last_mode);
+    }
     void save_trajactory(State::agentEnum agent_name)
     {
+
 #ifdef TRAJECTORY
         trajectory_file.save_string_body(agent_name+"@"+_state->get_position_ref(agent_name).to_str());
 #endif
+
     }
     void treeTraversal()
     {

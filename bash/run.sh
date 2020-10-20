@@ -13,9 +13,9 @@ if [[ $SERVER == *"ubuntu-eranh"* ]]; then
 fi
 
 
-ConstSeed=24645337
+ConstSeed=$RANDOM
 
-for i in {0..20}
+for i in {0..9}
 do
   echo "-->$i<--"
   cd "${PATHtoFileDir}" || exit
