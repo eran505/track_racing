@@ -126,8 +126,9 @@ private:
     {
         vector<AStar::StatePoint> seq_state;
         vector<AStar::StatePoint> seq_state_all;
-        //auto new_list = add_middle_point_at_random(A_list);
-        auto new_list=A_list;
+        auto new_list = add_middle_point_at_random(A_list);
+        //auto new_list=A_list;
+
         for(int k=0;k<new_list.size()-1;++k)
         {
             seq_state = aBFinder.get_pathz(new_list[k],new_list[k+1]);
@@ -141,8 +142,8 @@ private:
     {
         Point p;
 
-        p.array[0]=sP.pos[0]-int((sP.pos[0]*0.75));
-        p.array[1]=sP.pos[1]-int(this->random_gen.get_double()*sP.pos[1]*0.25);
+        p.array[0]=int((this->grid_size[0]*0.33));
+        p.array[1]=int(this->random_gen.get_double()*(this->grid_size[1]-1));
         p.array[2]=int(this->random_gen.get_double()*(3.0));
         cout<<"Random--->"<<p.to_str()<<endl;
         return {p,Point(0,0,0)};

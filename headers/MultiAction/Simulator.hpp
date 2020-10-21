@@ -64,7 +64,7 @@ class SimulationGame{
     //Grid _g;
     short stop=0;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=10000000;//10M;
+    u_int32_t iterationsMAX=20000000;//10M;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -147,7 +147,7 @@ public:
     bool loop()
     {
         change_abstraction();
-        chnage_time_step();
+        //chnage_time_step();
         #ifdef PRINT
         cout<<"last_mode: "<<last_mode<<" [real] ";
         cout<<this->_state->to_string_state()<<" ";

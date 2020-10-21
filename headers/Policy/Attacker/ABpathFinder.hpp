@@ -22,8 +22,9 @@ public:
     {}
 
     vector<vector<AStar::StatePoint>> get_paht_a_b(AStar::StatePoint& source_,const AStar::StatePoint& target_){
-        //cout<<"source:"<<source_<<" target:"<<target_<<endl;
+      //  cout<<"source:"<<source_<<" target:"<<target_<<endl;
         gen.findPath(source_,target_,false, false);
+       // cout<<"done A*"<<endl;
         assert(!gen.get_deep_list_nodes_ref_const().empty());
         return gen.get_deep_list_nodes();
         //assert(!list_nodes.empty()
@@ -44,7 +45,7 @@ class ABfinder{
     Randomizer randomizer_obj;
     Point GridSzie;
     double stho=0.8;
-    u_int limt=10;
+    u_int limt=5;
     u_int16_t MAX_SPEED=2;
     Point last_action;
     bool is_random=false;
@@ -52,9 +53,9 @@ class ABfinder{
     Astar_util Astar_util_object;
 public:
 
-    ABfinder(u_int64_t seed,const Point &grid_size,int max_speed):
+    ABfinder(u_int64_t seed, const Point &gridSize, int max_speed):
             randomizer_obj(seed),
-            GridSzie(grid_size),
+            GridSzie(gridSize),
             Astar_util_object(max_speed,Point(GridSzie))
     {}
 
@@ -76,7 +77,7 @@ private:
     }
     void genarte_path(const AStar::StatePoint &A,const AStar::StatePoint &B)
     {
-
+        uint ctr=0;
         AStar::StatePoint cur = A;
         seq_state.emplace_back(cur);
         while(less_than_limit(cur,B))
@@ -88,6 +89,8 @@ private:
                 //cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
                 get_action_to_goal(cur,B);
                 bol=!vaild_move(cur);
+                assert(ctr++ < 500);
+
             }
             seq_state.emplace_back(cur);
 
@@ -136,7 +139,7 @@ private:
     }
     [[nodiscard]] int get_move_aixs(int i,const AStar::StatePoint &cur,const AStar::StatePoint& Goal)
     {
-        if(cur.pos[i]+limt>Goal.pos[i] && i<2)
+        if(std::abs(cur.pos[i]- Goal.pos[i]) < limt && i<2)
         {
             return get_action_in_limt(i,cur);
         }

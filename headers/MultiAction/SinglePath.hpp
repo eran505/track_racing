@@ -34,7 +34,7 @@ public:
         std::vector<u_int16_t> similarity_array_AVG;
         similarity_array.reserve(1);
         Point new_resolution = world_size / cube;
-
+        differ_upper=attackerP.front().size()/3;
         //do
         std::for_each(attackerP[0].begin(), attackerP[0].end(), [&](Point &p) { p /= new_resolution; });
         similarity_array.emplace_back().push_back(0);
@@ -61,6 +61,7 @@ public:
 
         for (auto &item_:similarity_array)
             cout << item_ << endl;
+        exit(0);
         return similarity_array;
     }
     void set_upper_threshold(u_int16_t t){this->upper_thershold=t;}
@@ -79,7 +80,15 @@ private:
         }
         for(int k=0;k<min.size();++k)
         {
-            if(Point::distance_min_step(min[k],max[k])<upper)
+            bool is_match=false;
+            for(int j=0;j<max.size();++j)
+            {
+                if(Point::distance_min_step(min[k],max[k])<upper) {
+                    is_match = true;
+                    break;
+                }
+            }
+            if(is_match)
                 continue;
             number_differ++;
         }
@@ -192,7 +201,7 @@ public:
     {
         for(size_t j=0;j<pVec.size();++j)
         {
-
+            //cout<<"j:"<<j<<endl;
             for(const auto& item: *QVec[j])
             {
 
@@ -225,6 +234,7 @@ public:
 
         for(size_t k=0;k<QVec.size();++k)
         {
+
             if(auto pos = QVec[k]->find(keyState);pos==QVec[k]->end())
             {
                 const auto vec_i = h_con.get_heuristic_path(k,keyState);
