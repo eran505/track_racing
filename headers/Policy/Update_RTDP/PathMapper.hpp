@@ -78,6 +78,7 @@ public:
     StatePoint get_next_actual_state(u_int jump=1)
     {
         assert(jump>0);
+        
         time_t+=jump;
         step_counter++;
         //cout<<"step_counter"<<step_counter<<endl;

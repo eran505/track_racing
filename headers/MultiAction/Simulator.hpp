@@ -17,7 +17,7 @@
 #include "Policy/Attacker/PathFinder.hpp"
 #define DEBUGING
 //#define TRAJECTORY
-//#define Q_DATA
+#define Q_DATA
 
 #define BUFFER_TRAJECTORY 1 // need to be 9000 when saving
 #define STR_HOME_DIR "/car_model/out/"
@@ -152,11 +152,12 @@ public:
         cout<<"last_mode: "<<last_mode<<" [real] ";
         cout<<this->_state->to_string_state()<<" ";
         #endif
-        do_action_defender();
+
         //cout<<this->_state->to_string_state()<<endl;
-        bool is_end_game = attcker_do_action();
+        do_action_defender();
+        attcker_do_action();
         //cout<<this->_state->to_string_state()<<"   last_mode: "<<last_mode<<"is_end = "<<is_end_game<<endl;
-        return is_end_game;
+        return check_condtion();
     }
     void get_agents_data_policy()const
     {
@@ -182,16 +183,13 @@ private:
         ctr_action_defender=last_mode;
 
     }
-    bool attcker_do_action()
+    void attcker_do_action()
     {
         _attacker->doAction_without_apply(_state.get(),last_mode);
         //cout<<"J: "<<last_mode<<endl;
         #ifdef TRAJECTORY
         save_trajactory(_attacker->get_id());
         #endif
-        if(check_condtion())
-            return true;
-        return false;
 
 
     }
@@ -323,7 +321,7 @@ private:
         if(info[info::CollId]==NUMBER) {
             auto *ptr = dynamic_cast<RtdpAlgo*>(_defender->getPolicyInt());
 
-//            ptr->getUtilRTDP()->start_inset=true;
+            ptr->getUtilRTDP()->start_inset=true;
 
             stop += 1;
         }

@@ -290,8 +290,9 @@ void RTDP_util::resetQtable() {
 
 int RTDP_util::to_closet_path_H(const State &s)
 {
+    //return distance_H(s);
 #ifdef H_ZERO
-    return 0;
+    //return 0;
 #endif
     steo_takken=s.get_budget(this->my_policy->cashID);
     //cout<<"\n[Td] "<<steo_takken<<" [Ta] "<<s.get_budget(this->my_policy->cashID)<<"\t[s] "<<s.to_string_state()<<endl;
@@ -319,4 +320,10 @@ int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos,int jumps)
     }
     return min_step;
 
+}
+
+int RTDP_util::distance_H(const State &s) const {
+    auto d = Point::distance_min_step(s.get_position_ref(this->my_policy->cashID),s.get_position_ref(this->my_policy->get_id_name()));
+
+    return d/2;
 }

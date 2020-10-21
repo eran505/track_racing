@@ -61,13 +61,13 @@ public:
 
         for (auto &item_:similarity_array)
             cout << item_ << endl;
-        exit(0);
+
         return similarity_array;
     }
     void set_upper_threshold(u_int16_t t){this->upper_thershold=t;}
 
 private:
-
+    int distance_H(const State *s)const;
     static u_int16_t matching_trajectories_differ(const std::vector<Point> &t2, const std::vector<Point> &t1,u_int16_t upper)
     {
         u_int16_t number_differ=0;
@@ -96,6 +96,9 @@ private:
     }
 
 };
+
+
+
 
 class heuristicContainer{
     std::vector<std::vector<Point>> lPaths;

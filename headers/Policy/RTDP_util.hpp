@@ -19,7 +19,7 @@
 #include <cassert>
 #include "Update_RTDP/Reward.hpp"
 #define DD
-//#define LAST_STATE_DEBUG // uncomment the (line 326 Simulator.hpp)
+#define LAST_STATE_DEBUG // uncomment the (line 326 Simulator.hpp)
 #define H_ZERO
 typedef u_int64_t keyItem;
 typedef double cell;
@@ -81,10 +81,9 @@ protected:
     double applyNonAction(const State *s);
 
 public:
-    #ifdef LAST_STATE_DEBUG
-    std::unordered_map<u_int64_t,pair<std::array<int,12>,u_int64_t>> state_policy_dict;
     bool start_inset=false;
-
+    #ifdef LAST_STATE_DEBUG
+    std::unordered_map<u_int64_t,pair<std::array<int,14>,u_int64_t>> state_policy_dict;
     #endif
     void reset_takken_stpe_ctr(){steo_takken=0;}
     unordered_map<keyItem,std::array<int,14>>& get_dict_map(){return this->debugDict;}
@@ -161,6 +160,7 @@ public:
     bool apply_action_SEQ(State *s, State::agentEnum id, Point &action, int max_speed);
 
     void plusplus();
+    int distance_H(const State &s)const;
 };
 
 
