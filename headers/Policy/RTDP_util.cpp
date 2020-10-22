@@ -292,7 +292,7 @@ int RTDP_util::to_closet_path_H(const State &s)
 {
     //return distance_H(s);
 #ifdef H_ZERO
-    //return 0;
+    return 0;
 #endif
     steo_takken=s.get_budget(this->my_policy->cashID);
     //cout<<"\n[Td] "<<steo_takken<<" [Ta] "<<s.get_budget(this->my_policy->cashID)<<"\t[s] "<<s.to_string_state()<<endl;

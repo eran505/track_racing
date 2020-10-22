@@ -64,7 +64,7 @@ class SimulationGame{
     //Grid _g;
     short stop=0;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=20000000;//10M;
+    u_int32_t iterationsMAX=800000000;//10M;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -271,7 +271,7 @@ private:
         if(iterations>iterationsMAX){
             cout<<"[iterationsMAX]"<<endl;
             return true;}
-        if(/* converagerr.is_converage() or */  stop>=2){
+        if(/* converagerr.is_converage() or */  stop>=8){
             cout<<"[stop]"<<endl;
             return true;}
         return false;
@@ -319,10 +319,10 @@ private:
             x.emplace_back(item/double(NUMBER));
         x.emplace_back(ctr_action_defender);
         if(info[info::CollId]==NUMBER) {
-            auto *ptr = dynamic_cast<RtdpAlgo*>(_defender->getPolicyInt());
-
-            ptr->getUtilRTDP()->start_inset=true;
-
+            if(stop>1) {
+                auto *ptr = dynamic_cast<RtdpAlgo *>(_defender->getPolicyInt());
+                ptr->getUtilRTDP()->start_inset = true;
+            }
             stop += 1;
         }
         else{stop=0;}
