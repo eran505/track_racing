@@ -104,7 +104,7 @@ private:
     }
     [[nodiscard]] bool less_than_limit(const AStar::StatePoint& cur,const AStar::StatePoint& Goal)const
     {
-        if(Goal.pos[0]<=cur.pos[0]+limt and Goal.pos[1]<=cur.pos[1]+limt)
+        if(std::abs(Goal.pos[0]-cur.pos[0])<=limt and std::abs(Goal.pos[1]-cur.pos[1])<=limt)
             return false;
         return true;
     }
