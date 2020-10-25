@@ -17,7 +17,7 @@
 #include "Policy/Attacker/PathFinder.hpp"
 #define DEBUGING
 //#define TRAJECTORY
-#define Q_DATA
+//#define Q_DATA
 
 #define BUFFER_TRAJECTORY 1 // need to be 9000 when saving
 #define STR_HOME_DIR "/car_model/out/"
@@ -100,7 +100,7 @@ public:
         converagerr.set_comparator(comper_vectors);
         #ifdef TRAJECTORY
         init_trajectory_file(conf);
-        treeTraversal();
+        ///treeTraversal();
         #endif
 
         this->_attacker->getPolicyInt()->prefix_file_name=std::to_string(conf._seed);
@@ -153,7 +153,7 @@ public:
         cout<<this->_state->to_string_state()<<" ";
         #endif
 
-        //cout<<this->_state->to_string_state()<<endl;
+       // cout<<this->_state->to_string_state()<<endl;
         do_action_defender();
         attcker_do_action();
         //cout<<this->_state->to_string_state()<<"   last_mode: "<<last_mode<<"is_end = "<<is_end_game<<endl;
@@ -271,7 +271,7 @@ private:
         if(iterations>iterationsMAX){
             cout<<"[iterationsMAX]"<<endl;
             return true;}
-        if(/* converagerr.is_converage() or */  stop>=8){
+        if(/* converagerr.is_converage() or */  stop>=2){
             cout<<"[stop]"<<endl;
             return true;}
         return false;
@@ -357,9 +357,12 @@ private:
     }
     void save_trajactory(State::agentEnum agent_name)
     {
-
+        string name;
+        if(agent_name==State::agentEnum::D)
+             name = "D@";
+        else  name = "A@";
 #ifdef TRAJECTORY
-        trajectory_file.save_string_body(agent_name+"@"+_state->get_position_ref(agent_name).to_str());
+        trajectory_file.save_string_body(name+_state->get_position_ref(agent_name).to_str());
 #endif
 
     }

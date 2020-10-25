@@ -5,7 +5,6 @@
 #ifndef TRACK_RACING_SINGLEPATH_HPP
 #define TRACK_RACING_SINGLEPATH_HPP
 
-//#include <pstl/execution_defs.h>
 #include "Policy/Attacker/PathFinder.hpp"
 #include "Policy/Attacker/StaticPolicy.hpp"
 #include "Simulator.hpp"

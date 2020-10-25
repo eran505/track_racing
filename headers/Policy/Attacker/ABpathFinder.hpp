@@ -22,12 +22,12 @@ public:
     {}
 
     vector<vector<AStar::StatePoint>> get_paht_a_b(AStar::StatePoint& source_,const AStar::StatePoint& target_){
-      //  cout<<"source:"<<source_<<" target:"<<target_<<endl;
+        //cout<<"source:"<<source_<<" target:"<<target_<<endl;
         gen.findPath(source_,target_,false, false);
-       // cout<<"done A*"<<endl;
+        //cout<<"done A*"<<endl;
         assert(!gen.get_deep_list_nodes_ref_const().empty());
         return gen.get_deep_list_nodes();
-        //assert(!list_nodes.empty()
+        //assert(!list_nodes.empty());
     }
     vector<AStar::StatePoint> get_path_a_b_Astar(AStar::StatePoint& source_,const AStar::StatePoint& target_,bool at_random=true){
         auto l = get_paht_a_b(source_,target_);
@@ -44,8 +44,8 @@ public:
 class ABfinder{
     Randomizer randomizer_obj;
     Point GridSzie;
-    double stho=0.8;
-    u_int limt=5;
+    double stho=0.95;
+    u_int limt=8;
     u_int16_t MAX_SPEED=2;
     Point last_action;
     bool is_random=false;
@@ -86,7 +86,7 @@ private:
             bool bol=true;
             while(bol)
             {
-                //cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
+               // cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
                 get_action_to_goal(cur,B);
                 bol=!vaild_move(cur);
                 assert(ctr++ < 500);
@@ -101,6 +101,8 @@ private:
     {
 
         move_to_goal(cur,Goal);
+        inset_noise();
+
     }
     [[nodiscard]] bool less_than_limit(const AStar::StatePoint& cur,const AStar::StatePoint& Goal)const
     {
@@ -139,7 +141,7 @@ private:
     }
     [[nodiscard]] int get_move_aixs(int i,const AStar::StatePoint &cur,const AStar::StatePoint& Goal)
     {
-        if(std::abs(cur.pos[i]- Goal.pos[i]) < limt && i<2)
+        if(std::abs(cur.pos[i]- Goal.pos[i]) < limt && i<=2)
         {
             return get_action_in_limt(i,cur);
         }

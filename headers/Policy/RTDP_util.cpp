@@ -137,8 +137,8 @@ int RTDP_util::get_state_argmax(const State *s) {
     vector<int> argMax_list;
     arg_max(row, argMax_list);
     std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
-    return argMax_list.front();
-    //return std::distance(row.begin(),std::max_element(row.begin(), row.end()));
+    return argMax_list.back();
+//    return std::distance(row.begin(),std::max_element(row.begin(), row.end()));
 
 
 

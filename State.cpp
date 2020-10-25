@@ -104,6 +104,7 @@ bool State::isEndState(agentEnum idStr) const{
 }
 
 bool State::applyAction( agentEnum id, const Point &action, int max_speed) {
+
     this->dataPoint[id*2+1]+=action;
     this->dataPoint[id*2+1].change_speed_max(max_speed);
     this->dataPoint[id*2]+=this->dataPoint[id*2+1];
@@ -111,12 +112,20 @@ bool State::applyAction( agentEnum id, const Point &action, int max_speed) {
     return outBound;
 }
 bool State::applyAction( agentEnum id,Point &action, int max_speed,int jumps) {
-    this->dataPoint[id*2+1]+=action;
-    action*=(jumps-1);
-    this->dataPoint[id*2+1].change_speed_max(max_speed);
-    this->dataPoint[id*2+1]+=action;
-    this->dataPoint[id*2]+=this->dataPoint[id*2+1];
-    this->dataPoint[id*2+1].change_speed_max(max_speed);
+
+    for (int k=0;k<jumps and k < 2 ;++k)
+    {
+        this->dataPoint[id*2+1]+=action;
+        this->dataPoint[id*2+1].change_speed_max(max_speed);
+        this->dataPoint[id*2]+=this->dataPoint[id*2+1];
+
+    }
+    if(jumps-2>0)
+    {
+        this->dataPoint[id*2+1]*=(jumps-2);
+        this->dataPoint[id*2]+=this->dataPoint[id*2+1];
+        this->dataPoint[id*2+1].change_speed_max(max_speed);
+    }
     auto outBound = this->g_grid->is_wall(this->dataPoint[id*2]);
     return outBound;
 }
