@@ -142,9 +142,9 @@ private:
     {
         Point p;
 
-        p.array[0]=int((this->grid_size[0]*0.69));
+        p.array[0]=int((this->grid_size[0]*0.6));
         p.array[1]=int(this->random_gen.get_double()*(this->grid_size[1]-1));
-        p.array[2]=int(this->random_gen.get_double()*(3.0));
+        p.array[2]=2;//int(this->random_gen.get_double()*(3.0));
         cout<<"Random--->"<<p.to_str()<<endl;
         return {p,Point(0,0,0)};
     }

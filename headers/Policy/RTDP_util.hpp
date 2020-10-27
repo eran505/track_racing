@@ -49,7 +49,6 @@ protected:
     Policy* my_policy= nullptr;
     unsigned int ctr_state=0;
     size_t ctr_random=0;
-    uint steo_takken=0;
     double epslion=0;
     int size_Q;
     int size_mapAction;
@@ -81,6 +80,7 @@ protected:
     double applyNonAction(const State *s);
 
 public:
+    uint steo_takken=0;
     bool start_inset=false;
     #ifdef LAST_STATE_DEBUG
     std::unordered_map<u_int64_t,pair<std::array<int,14>,u_int64_t>> state_policy_dict;
@@ -134,7 +134,6 @@ public:
         //if(std::abs(dif)==epslion) return;
         //this->update_counter++;
         //cout<<"s:"<<entryState<<" ,a:"<<action.to_str()<<" ]="<<val<<endl;
-
         this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax))=val;
         //this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax))+=dif;
     }

@@ -35,20 +35,6 @@ Point RtdpAlgo::get_action(State *s)
     //return the argmax action in the given state row
     Point action = this->RTDP_util_object->get_argmx_action(s);
 
-    if (this->evalPolicy)
-    {
-        //cout<<"[action] "<<action.hashMeAction(Point::actionMax)<<" "<<action.to_hash_str()<<endl;
-        //auto actionIndx = int(this->RTDP_util_object->get_max_valueQ(s));
-        //action = *this->hashActionMap->find(actionIndx)->second;
-        if (!s->takeOff)
-            if(action.hashMeAction(Point::actionMax)!=13 ){
-                //s->set_speed(this->id_agent,Point(0,0,max_speed)); //#TODO: uncomment this !!!!
-                //this->inset_to_stack(s,action,entry);
-                //action.array[2]=this->max_speed;
-                s->takeOff=true;
-            }
-        return action;
-    }
 
     //if(ctrInFun%400000==0) cout<<"QTable updates: "<<this->RTDP_util_object->get_update_ctr()<<endl;
 
@@ -145,6 +131,7 @@ void RtdpAlgo::inset_to_stack(State *s,Point &action,u_int64_t state_entry)
 
 void RtdpAlgo::empty_stack_update() {
     if(this->stack_backup.is_empty()) return;
+    if(evalPolicy) return;
     //this->stack_backup.pop();
     #ifdef PRINT
     this->stack_backup.print_stak();

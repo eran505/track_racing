@@ -17,7 +17,7 @@
 #include "Policy/Attacker/PathFinder.hpp"
 #define DEBUGING
 //#define TRAJECTORY
-//#define Q_DATA
+#define Q_DATA
 
 #define BUFFER_TRAJECTORY 1 // need to be 9000 when saving
 #define STR_HOME_DIR "/car_model/out/"
@@ -64,7 +64,7 @@ class SimulationGame{
     //Grid _g;
     short stop=0;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=800000000;//10M;
+    u_int32_t iterationsMAX=800000000;//800000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -271,7 +271,7 @@ private:
         if(iterations>iterationsMAX){
             cout<<"[iterationsMAX]"<<endl;
             return true;}
-        if(/* converagerr.is_converage() or */  stop>=2){
+        if(/* converagerr.is_converage() or */  stop>=15){
             cout<<"[stop]"<<endl;
             return true;}
         return false;
@@ -319,9 +319,10 @@ private:
             x.emplace_back(item/double(NUMBER));
         x.emplace_back(ctr_action_defender);
         if(info[info::CollId]==NUMBER) {
-            if(stop>1) {
+            if(stop>10) {
                 auto *ptr = dynamic_cast<RtdpAlgo *>(_defender->getPolicyInt());
                 ptr->getUtilRTDP()->start_inset = true;
+                this->_defender->evalPolicy();
             }
             stop += 1;
         }
@@ -355,7 +356,7 @@ private:
     {
         _state->set_budget(_attacker->get_name_id(),_state->get_budget(_attacker->get_name_id())+last_mode);
     }
-    void save_trajactory(State::agentEnum agent_name)
+    static void save_trajactory(State::agentEnum agent_name)
     {
         string name;
         if(agent_name==State::agentEnum::D)

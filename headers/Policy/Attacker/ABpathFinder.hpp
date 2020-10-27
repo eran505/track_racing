@@ -101,7 +101,7 @@ private:
     {
 
         move_to_goal(cur,Goal);
-        inset_noise();
+        //inset_noise();
 
     }
     [[nodiscard]] bool less_than_limit(const AStar::StatePoint& cur,const AStar::StatePoint& Goal)const

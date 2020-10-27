@@ -39,7 +39,7 @@ public:
     PathMapper()=default;
     void random_choose_path(double seed)
     {
-        assert(step_counter==0);
+        //assert(step_counter==0);
         double acc=0;
         u_int i=0;
         while (i<(size_pathz-1))
