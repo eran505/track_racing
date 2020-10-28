@@ -63,8 +63,8 @@ class SimulationGame{
 
     //Grid _g;
     short stop=0;
-    u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=800000000;//800000000;
+    u_int32_t NUMBER=10000;
+    u_int32_t iterationsMAX=20000000;//20M;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -271,7 +271,7 @@ private:
         if(iterations>iterationsMAX){
             cout<<"[iterationsMAX]"<<endl;
             return true;}
-        if( stop>=5){
+        if( stop>=2){
             cout<<"[stop]"<<endl;
             return true;}
         return false;
