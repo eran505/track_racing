@@ -74,11 +74,9 @@ public:
     }
     bool change_scope_(State *s)
     {
-        int delta = _scheduler.change_action_abstraction(s);
+        int action_seq = _scheduler.change_action_abstraction(s);
         //assert(s->get_budget(defender)+delta<2);
-        s->set_budget(defender,_scheduler.get_steps());
-        if(delta==0)
-            return false;
+        s->set_budget(defender,short(action_seq));
         return true;
     }
     void reset(RTDP_util *ptr)

@@ -7,7 +7,7 @@
 
 #include "util_game.hpp"
 
-typedef std::vector<double> arr;
+typedef std::vector<cell> arr;
 typedef std::unique_ptr<unordered_map<u_int64_t,arr>> qTbale_dict;
 
 class containerFix{

@@ -56,7 +56,7 @@ public:
     }
     vector<pair<StatePoint,double>> get_next_states(u_int64_t hash_state,int jumps)
     {
-        assert(step_counter>=0);
+        assert(step_counter>=0 );
         time_t=memo[step_counter--];
         std::vector<K> indexing_arr = this->mapper_pathz.at(hash_state);
         double sum=0;
@@ -82,6 +82,7 @@ public:
         time_t+=jump;
         step_counter++;
         //cout<<"step_counter"<<step_counter<<endl;
+        assert(step_counter<1000);
         memo[step_counter]=time_t;
 
         return get_jumping_state(time_t,this->current_path);

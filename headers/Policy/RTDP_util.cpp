@@ -134,11 +134,11 @@ int RTDP_util::get_state_argmax(const State *s) {
 
 
 
-    vector<int> argMax_list;
-    arg_max(row, argMax_list);
-    std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
-    return argMax_list.back();
-//    return std::distance(row.begin(),std::max_element(row.begin(), row.end()));
+//    vector<int> argMax_list;
+//    arg_max(row, argMax_list);
+//    std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
+//    return argMax_list.back();
+      return std::distance(row.begin(),std::max_element(row.begin(), row.end()));
 
 
 
@@ -290,7 +290,7 @@ void RTDP_util::resetQtable() {
 
 int RTDP_util::to_closet_path_H(const State &s)
 {
-    //return distance_H(s);
+    return distance_H(s);
 #ifdef H_ZERO
     return 0;
 #endif
@@ -325,5 +325,5 @@ int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos,int jumps)
 int RTDP_util::distance_H(const State &s) const {
     auto d = Point::distance_min_step(s.get_position_ref(this->my_policy->cashID),s.get_position_ref(this->my_policy->get_id_name()));
 
-    return d/2;
+    return d/3;
 }

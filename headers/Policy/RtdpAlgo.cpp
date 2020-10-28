@@ -33,6 +33,7 @@ const vector<double >* RtdpAlgo::TransitionAction(const State *s)const
 Point RtdpAlgo::get_action(State *s)
 {
     //return the argmax action in the given state row
+
     Point action = this->RTDP_util_object->get_argmx_action(s);
 
 
@@ -131,7 +132,7 @@ void RtdpAlgo::inset_to_stack(State *s,Point &action,u_int64_t state_entry)
 
 void RtdpAlgo::empty_stack_update() {
     if(this->stack_backup.is_empty()) return;
-    if(evalPolicy) return;
+    //if(evalPolicy) return;
     //this->stack_backup.pop();
     #ifdef PRINT
     this->stack_backup.print_stak();

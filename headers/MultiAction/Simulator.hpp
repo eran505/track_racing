@@ -17,7 +17,7 @@
 #include "Policy/Attacker/PathFinder.hpp"
 #define DEBUGING
 //#define TRAJECTORY
-#define Q_DATA
+//#define Q_DATA
 
 #define BUFFER_TRAJECTORY 1 // need to be 9000 when saving
 #define STR_HOME_DIR "/car_model/out/"
@@ -79,7 +79,7 @@ class SimulationGame{
 #ifdef TRAJECTORY
     Saver<string> trajectory_file;
 #endif
-    Converager<15,std::vector<double>> converagerr;
+    //Converager<15,std::vector<double>> converagerr;
 
 public:
 
@@ -97,7 +97,6 @@ public:
         g=_state->g_grid;
         //this->iterationsMAX=std::max(g->getSizeIntGrid(),200000000);
         file_manger.set_header_vec({"episodes","Collision","Wall" ,"Goal" ,"PassBy","moves"});
-        converagerr.set_comparator(comper_vectors);
         #ifdef TRAJECTORY
         init_trajectory_file(conf);
         ///treeTraversal();
@@ -147,7 +146,8 @@ public:
     bool loop()
     {
         change_abstraction();
-        //chnage_time_step();
+        chnage_time_step();
+        //cout<<this->_state->to_string_state()<<"   last_mode: "<<last_mode<<endl;
         #ifdef PRINT
         cout<<"last_mode: "<<last_mode<<" [real] ";
         cout<<this->_state->to_string_state()<<" ";
@@ -156,7 +156,7 @@ public:
        // cout<<this->_state->to_string_state()<<endl;
         do_action_defender();
         attcker_do_action();
-        //cout<<this->_state->to_string_state()<<"   last_mode: "<<last_mode<<"is_end = "<<is_end_game<<endl;
+
         return check_condtion();
     }
     void get_agents_data_policy()const
@@ -271,7 +271,7 @@ private:
         if(iterations>iterationsMAX){
             cout<<"[iterationsMAX]"<<endl;
             return true;}
-        if(/* converagerr.is_converage() or */  stop>=15){
+        if( stop>=5){
             cout<<"[stop]"<<endl;
             return true;}
         return false;
@@ -311,7 +311,6 @@ private:
         ctr++;
         if(ctr%NUMBER>0)
             return false;
-
         vector<double> x;
         x.reserve(info.size()+2);
         x.emplace_back(double(iterations)/double(iterationsMAX));
@@ -340,9 +339,10 @@ private:
         auto *ptr = dynamic_cast<RtdpAlgo*>(_defender->getPolicyInt());
         bool b = ptr->get_evaluator()->change_scope_(_state.get());
         auto step = ptr->get_evaluator()->get_Scheduler().get_steps();
-        if(last_mode==step)
+        int seq_action = ptr->get_evaluator()->get_Scheduler_ref().get_tmp();
+        if(last_mode==seq_action)
             return;
-        set_mode_abstract(step);
+        set_mode_abstract(seq_action);
     }
     void clear_info(){std::fill(info.begin(), info.end(), 0);}
 
@@ -354,6 +354,7 @@ private:
     }
     void chnage_time_step()
     {
+        //cout<<_attacker->get_name_id()+last_mode<<endl;
         _state->set_budget(_attacker->get_name_id(),_state->get_budget(_attacker->get_name_id())+last_mode);
     }
     static void save_trajactory(State::agentEnum agent_name)

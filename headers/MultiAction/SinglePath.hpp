@@ -10,14 +10,14 @@
 #include "Simulator.hpp"
 #define ASSERT
 #define DEBUG_DATA
-typedef vector<pair<double,vector<StatePoint>>> vector_p_path;
+typedef vector<pair<cell,vector<StatePoint>>> vector_p_path;
 typedef unordered_map<keyItem ,arr> Qtable_;
 typedef std::unique_ptr<Agent> unique_agnet;
 typedef std::vector<containerFix> QtableItem;
-typedef unordered_map<u_int64_t ,std::array<int,14>> map_dict;
-typedef unordered_map<int64_t ,vector<double>> q_Table;
-typedef unordered_map<u_int64_t,double> matrixP;
-typedef pair<double,vector<StatePoint>> Apath;
+typedef unordered_map<u_int64_t ,std::array<short,13>> map_dict;
+typedef unordered_map<int64_t ,vector<cell>> q_Table;
+typedef unordered_map<u_int64_t,cell> matrixP;
+typedef pair<cell,vector<StatePoint>> Apath;
 typedef vector<vector<StatePoint>> attacker_pathz;
 
 class MatchingPath{
@@ -110,15 +110,15 @@ public:
     {
         lPaths=ptrPathsW;
     }
-    std::vector<double> get_heuristic_path(const int index,uint64_t ky_state) const
+    std::vector<cell> get_heuristic_path(const int index,uint64_t ky_state) const
     {
         auto posD = get_D_point(ky_state);
         return fill_vector_H_value(posD.first,posD.second,index);
     }
 private:
-    vector<double> fill_vector_H_value(const pair<Point,Point>& pos,int start_p,int index_Qi)const {
+    vector<cell> fill_vector_H_value(const pair<Point,Point>& pos,int start_p,int index_Qi)const {
         auto dicoAction = Point::getDictActionUniqie();
-        std::vector<double> v(27);
+        std::vector<cell> v(27);
         for (const auto &p: *dicoAction)
         {
             auto newPos = append_action(pos, p.second);
@@ -199,7 +199,7 @@ public:
     }
 
     static void func2(Qtable_* big,const std::vector<std::unique_ptr<Qtable_>>& QVec,
-                      const vector<double>& pVec,const heuristicContainer& h_con)
+                      const vector<cell>& pVec,const heuristicContainer& h_con)
     {
         for(size_t j=0;j<pVec.size();++j)
         {
@@ -215,7 +215,7 @@ public:
         }
     }
 
-    static auto agg_Q_tables(const vector<double>& pVec,const std::vector<std::unique_ptr<Qtable_>>& QVec,const heuristicContainer& h_con)
+    static auto agg_Q_tables(const vector<cell>& pVec,const std::vector<std::unique_ptr<Qtable_>>& QVec,const heuristicContainer& h_con)
     {
         assert(pVec.size()==QVec.size());
         u_int size_of_abstraction = QVec.front()->size();
@@ -229,10 +229,10 @@ public:
         const auto _vecP = self_agg(vec_i,p);
         return agg(vec_big,_vecP);
     }
-    static void func4(unordered_map<u_int64_t,vector<double>>* big, u_int64_t keyState,const std::vector<std::unique_ptr<Qtable_>>& QVec,
-                      const vector<double>& pVec,const heuristicContainer& h_con){
+    static void func4(unordered_map<u_int64_t,vector<cell>>* big, u_int64_t keyState,const std::vector<std::unique_ptr<Qtable_>>& QVec,
+                      const vector<cell>& pVec,const heuristicContainer& h_con){
 
-        auto posBig = big->insert({keyState,vector<double>(27)}).first;
+        auto posBig = big->insert({keyState,vector<cell>(27)}).first;
 
         for(size_t k=0;k<QVec.size();++k)
         {
@@ -278,12 +278,12 @@ public:
         auto mp = MatchingPath(this->config.sizeGrid,config.eval_mode);
         auto ids_vector = mp.squarespace(this->get_policy_attcker()->list_only_pos(),Point(10,10,1));
         auto l_list = sort_pathz_by_ids(ids_vector);
-        if(l_list .size()==1){
+        if(l_list.size()==1){
             train_on_all_path();
             return;
         }
         list_Q=std::vector<std::unique_ptr<Qtable_>>(ids_vector.size());
-        vector<double> pVec;
+        vector<cell> pVec;
         int ctr=0;
         std::for_each(l_list.begin(),l_list.end(),
                       [&](const pair<vector<u_int16_t>, double>& item){

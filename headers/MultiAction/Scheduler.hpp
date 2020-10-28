@@ -20,9 +20,10 @@ class Scheduler{
     State::agentEnum defender_id=State::agentEnum::D;
     std::shared_ptr<std::vector<containerFix>> _levels;
     u_int idx_level=-1;
-
+    int tmp=-1;
+    vector<int> pow_vector;
 public:
-
+    int get_tmp()const{return tmp;}
     Scheduler(int num_lev,RTDP_util *ptr):
     _levels(std::make_shared<std::vector<containerFix>>(0))
     {
@@ -35,6 +36,7 @@ public:
             ref_item.step=get_step_number(pow(2,i+3));
             //ref_item.step=get_step_number(8);
             //ref_item.step=i+1;
+            pow_vector.push_back(ref_item.step);
         }
         idx_level=_levels->size()-1;
         ptr->set_q_table(get_Q_table());
@@ -51,7 +53,7 @@ public:
         //ptr->set_q_table(get_Q_table());
 
     }
-    int change_action_abstraction(const State *s)
+    short change_action_abstraction(const State *s)
     {
         //idx_level=s->get_budget(defender_id);
         Point dif = get_dif(s);
@@ -65,27 +67,36 @@ public:
 //            return 0;
 //        change_scoper(rtdp,scope_id);
 //        return scope_id;
+        short stepz=-1;
+        int max = dif.getMax();
+        if (max > 0) {
+            //stepz = std::pow(2,std::max((int(log2(max))+1)-3,0));
+            stepz = pow_vector[std::max((int(log2(max))+1)-3,0)];
+            //assert(stepz_i==stepz);
+        }else stepz = 1;
+        tmp=stepz;
+        return stepz;
 
-        while(true)
-        {
-            delta_acc=0;
-            if(idx_level>0) {
-                if (dif < _levels->operator[](idx_level - 1).upper) {
-                    change_scoper( -1);
-                    delta_acc+=-1;
-                }
-            }
-            if(idx_level<_levels->size()-1) {
-                if (!(dif < _levels->operator[](idx_level).upper)) {
-                    change_scoper( 1);
-                    delta_acc+=1;
-                }
-            }
-            if(delta+delta_acc==delta)
-                break;
-            delta+=delta_acc;
-        }
-        return delta;
+//        while(true)
+//        {
+//            delta_acc=0;
+//            if(idx_level>0) {
+//                if (dif < _levels->operator[](idx_level - 1).upper) {
+//                    change_scoper( -1);
+//                    delta_acc+=-1;
+//                }
+//            }
+//            if(idx_level<_levels->size()-1) {
+//                if (!(dif < _levels->operator[](idx_level).upper)) {
+//                    change_scoper( 1);
+//                    delta_acc+=1;
+//                }
+//            }
+//            if(delta+delta_acc==delta)
+//                break;
+//            delta+=delta_acc;
+//        }
+//        return delta;
     }
 
     inline void change_scoper(int delta_chage)
@@ -130,31 +141,8 @@ private:
     }
     //for Debug
 public:
-    void change_dict_DEBUG(RTDP_util *rtdp,int k)
-    {
-        if(rtdp->get_q_table() != nullptr)
-            _levels->operator[](idx_level).q = std::move(rtdp->get_q_table());
-        if(k==-1)
-            return;
-        rtdp->set_q_table(std::move(_levels->operator[](k).q));
-        idx_level=k;
 
-    }
 
-    [[nodiscard]] int key_in_dictz(u_int64_t k) const
-    {
-        int r = 0;
-        for(auto &item : *_levels)
-        {
-            if(item.q== nullptr) continue;
-
-            if(item.q->find(k)==item.q->end())
-                r+=0;
-            else
-                r+=1;
-        }
-        return r;
-    }
 };
 
 

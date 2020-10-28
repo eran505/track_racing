@@ -68,7 +68,7 @@ public:
 
     }
     const vector<double>* TransitionAction(const State *s)const override{
-
+        assert(false);
         return nullptr;
     }
     vector<pair<StatePoint,double>> weighted_next_partial_state(const State &s,uint jumps) override{

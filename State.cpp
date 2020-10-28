@@ -31,9 +31,9 @@ string State::to_string_state() const {
     return str;
 
 }
-std::array<int,14> State::to_mini_string() const
+std::array<short,13> State::to_mini_string() const
 {
-    std::array<int,14> arr{};
+    std::array<short,13> arr{};
     int ctr=0;
     for(int j =0;j<this->budgets.size();++j){
         auto position = this->dataPoint[j*2];
@@ -44,7 +44,7 @@ std::array<int,14> State::to_mini_string() const
         ctr+=speed.capacity;
     }
     arr[12]=this->budgets[0];
-    arr[13]=this->budgets[1];
+    //arr[12]=this->budgets[1];
     return arr;
 }
 

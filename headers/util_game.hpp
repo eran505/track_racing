@@ -262,6 +262,7 @@ public:
     }
     vector<double>* getFeature()
     {
+        return nullptr;
         auto* vectorI = new vector<double>();
         for (int i = 0; i < D; ++i)
             vectorI->push_back(this->array[i]);

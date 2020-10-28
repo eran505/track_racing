@@ -44,8 +44,8 @@ public:
 class ABfinder{
     Randomizer randomizer_obj;
     Point GridSzie;
-    double stho=0.95;
-    u_int limt=8;
+    double stho=0.85;
+    u_int limt=10;
     u_int16_t MAX_SPEED=2;
     Point last_action;
     bool is_random=false;
@@ -141,12 +141,13 @@ private:
     }
     [[nodiscard]] int get_move_aixs(int i,const AStar::StatePoint &cur,const AStar::StatePoint& Goal)
     {
+        if(stho<randomizer_obj.get_double()&& i<2)
+            return get_move_aixs_random(randomizer_obj.get_double());
         if(std::abs(cur.pos[i]- Goal.pos[i]) < limt && i<=2)
         {
             return get_action_in_limt(i,cur);
         }
-        if(stho<randomizer_obj.get_double()&& i<2)
-            return get_move_aixs_random(randomizer_obj.get_double());
+
         if(i==2)
         {
             if(cur.pos[2]==this->GridSzie[2]-2 and  cur.speed[2]==0)
