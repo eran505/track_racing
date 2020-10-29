@@ -97,9 +97,9 @@ public:
             throw std::invalid_argument( "duplication key" );
     }
     void set_mode_agent(int mode_number);
-    void update_final_state(State *s) override {
-        auto [val,b]=this->evaluationState(s);
-        this->RTDP_util_object->update_final_State(s,val);}
+    void update_final_state(State *s) override {}
+//        auto [val,b]=this->evaluationState(s);
+//        this->RTDP_util_object->update_final_State(s,val);}
 
     double getArgMaxValueState(const State *s){ return this->RTDP_util_object->get_max_valueQ(s);}
 

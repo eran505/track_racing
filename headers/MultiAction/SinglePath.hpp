@@ -14,7 +14,7 @@ typedef vector<pair<cell,vector<StatePoint>>> vector_p_path;
 typedef unordered_map<keyItem ,arr> Qtable_;
 typedef std::unique_ptr<Agent> unique_agnet;
 typedef std::vector<containerFix> QtableItem;
-typedef unordered_map<u_int64_t ,std::array<short,13>> map_dict;
+typedef unordered_map<u_int64_t ,std::array<short,14>> map_dict;
 typedef unordered_map<int64_t ,vector<cell>> q_Table;
 typedef unordered_map<u_int64_t,cell> matrixP;
 typedef pair<cell,vector<StatePoint>> Apath;
@@ -104,29 +104,33 @@ class heuristicContainer{
     map_dict map_state;
     Rewards R=Rewards::getRewards();
     const Grid* G;
+    const short maxSpeed=1;
+    std::unique_ptr<unordered_map<unsigned int,Point>>  dicoAction = Point::getDictActionUniqie();
 public:
     explicit heuristicContainer(const std::vector<std::vector<Point>>&& ptrPathsW,map_dict& map,const Grid* g):
             map_state(std::move(map)),G(g)
     {
         lPaths=ptrPathsW;
     }
+
     std::vector<cell> get_heuristic_path(const int index,uint64_t ky_state) const
     {
+
         auto posD = get_D_point(ky_state);
-        return fill_vector_H_value(posD.first,posD.second,index);
+        auto vec =  fill_vector_H_value(posD.first,posD.second,index);
+        return vec;
     }
 private:
-    vector<cell> fill_vector_H_value(const pair<Point,Point>& pos,int start_p,int index_Qi)const {
-        auto dicoAction = Point::getDictActionUniqie();
+    vector<cell> fill_vector_H_value(pair<Point,Point>& pos,pair<short,short> info_state,int index_Qi)const {
         std::vector<cell> v(27);
         for (const auto &p: *dicoAction)
         {
-            auto newPos = append_action(pos, p.second);
+            auto newPos = apply_action_sq(pos.first,pos.second,p.second,info_state.second,maxSpeed);
             if (G->is_wall(newPos)) {
                 v[p.first] = R.WallReward;
                 continue;
             }
-            auto steps = to_closet_path_H_calc(index_Qi, newPos,start_p);
+            auto steps = to_closet_path_H_calc(index_Qi, newPos,info_state.first);
             v[p.first] = this->R.CollReward * std::pow(R.discountF, steps);
         }
         return v;
@@ -135,10 +139,10 @@ private:
     {
         return (posD.second+a)+posD.first;
     }
-    pair<pair<Point,Point>,int> get_D_point(const int64_t ky) const
+    pair<pair<Point,Point>,pair<short,short>> get_D_point(const int64_t ky) const
     {
         auto& arr = this->map_state.find(ky)->second;
-        return {{Point(arr[6],arr[7],arr[8]),Point(arr[9],arr[10],arr[11])},arr[12]};
+        return {{Point(arr[6],arr[7],arr[8]),Point(arr[9],arr[10],arr[11])},{arr[12],arr[13]}};
     }
     int to_closet_path_H_calc(const u_int index,const Point& agnet_pos,int start_point)const
     {
@@ -164,7 +168,31 @@ private:
         return min_step;
     }
 
+    static int distance_H(const Point& Ap , const Point& Dp) {
+        auto d = Point::distance_min_step(Ap,Dp);
+        return d/3;
+    }
 
+    static Point apply_action_sq(const Point& pos ,const Point &speed,const Point &action,int jumps,int max_speed)
+    {
+        jumps=1;
+        Point speed_tmp = speed;
+        Point pos_tmp = pos;
+        for (int k=0;k<jumps and k < 2 ;++k)
+        {
+            speed_tmp+=action;
+            speed_tmp.change_speed_max(max_speed);
+            pos_tmp+=speed_tmp;
+
+        }
+        if(jumps-2>0)
+        {
+            speed_tmp*=(jumps-2);
+            pos_tmp+=speed_tmp;
+            //speed.change_speed_max(max_speed);
+        }
+        return pos_tmp;
+    }
 
 };
 

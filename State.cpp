@@ -31,9 +31,9 @@ string State::to_string_state() const {
     return str;
 
 }
-std::array<short,13> State::to_mini_string() const
+std::array<short,14> State::to_mini_string() const
 {
-    std::array<short,13> arr{};
+    std::array<short,14> arr{};
     int ctr=0;
     for(int j =0;j<this->budgets.size();++j){
         auto position = this->dataPoint[j*2];
@@ -44,7 +44,7 @@ std::array<short,13> State::to_mini_string() const
         ctr+=speed.capacity;
     }
     arr[12]=this->budgets[0];
-    //arr[12]=this->budgets[1];
+    arr[13]=this->budgets[1];
     return arr;
 }
 
@@ -146,39 +146,8 @@ void State::assignment(State &other)
 }
 
 
-
-u_int64_t  State::getHashValuePosOnly() const{
-    vector<int> vec;
-    for (short x = A; x != LAST; ++x)
-    {
-        for (int i = 0; i < Point::D_point::D; ++i)
-            vec.push_back(this->dataPoint[x*2][i]);
-        if(x!=A)
-        {
-            for (int i = 0; i < Point::D_point::D; ++i)
-                vec.push_back(this->dataPoint[x*2+1][i]);
-        }
-    }
-    u_int64_t  seed = vec.size();
-    for(auto& i : vec) {
-        seed ^=  (i * 2654435761) + 2654435769 + (seed << 6) + (seed >> 2);
-    }
-    return seed;
-}
-
-u_int64_t State::getHashValue2()const {
-    u_int64_t  seed = 12;
-    for (short x = A; x != LAST; ++x)
-    {
-        for (int i = 0; i < Point::D_point::D; ++i)
-            seed ^=  (this->dataPoint[x*2][i] * 2654435761) + 2654435769 + (seed << 6) + (seed >> 2);
-        for (int i = 0; i < Point::D_point::D; ++i)
-            seed ^=  (this->dataPoint[x*2+1][i] * 2654435761) + 2654435769 + (seed << 6) + (seed >> 2);
-    }
-    return seed;
-}
-
 u_int64_t State::getHashValue()const {
+
     u_int64_t  seed = 0;
     size_t i=0;
     while(true)
@@ -188,6 +157,8 @@ u_int64_t State::getHashValue()const {
         seed ^=  this->dataPoint[i].array[2] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         if(i++==3) break;
     }
+   // seed ^=  this->budgets[1] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+   // cout<<this->to_string_state()<<" h="<<seed<<endl;
     return seed;
 }
 

@@ -37,17 +37,21 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
     double zero_move_reward = applyNonAction(s);
 
     //cout<<"\t[H] S: "<<oldState.to_string_state()<<"\t[hash] "<<entry_index<<"\t";
+   // cout<<s->to_string_state()<<endl;
     for (const auto &item_action : *this->hashActionMap)
     {
         // apply action state and let the envirmont to roll and check the reward/pos
         Point actionCur = *item_action.second;
 
         double val;
-        bool isWall = this->apply_action_SEQ(&oldState,my_policy->id_agent,actionCur,this->my_policy->max_speed);
+        //bool isWall = this->apply_action_SEQ(&oldState,my_policy->id_agent,actionCur,this->my_policy->max_speed);
+        bool isWall = oldState.applyAction(my_policy->id_agent,actionCur,this->my_policy->max_speed);
         int step = to_closet_path_H(oldState);
 
         //bool isWall = this->apply_action(oldState,my_policy->id_agent,*actionCur,my_policy->max_speed);
-       // std::cout << "CPU time used: " << time_elapsed_ms << " ms\n";
+        //if(isWall)
+        //    step=-1;
+        //std::cout << " a:" << item_action.first<<" h:" <<step;
         if (isWall)
             val = this->R.WallReward*R.discountF*this->_stochasticMovement+
                     zero_move_reward*(1-this->_stochasticMovement);
@@ -60,6 +64,7 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
 
         this->set_value_matrix(entry_index,*item_action.second,val);
     }
+    //cout<<endl;
 }
 
 //double RTDP_util::rec_h(State *s,int index, double acc_probablity)
@@ -290,7 +295,7 @@ void RTDP_util::resetQtable() {
 
 int RTDP_util::to_closet_path_H(const State &s)
 {
-    return distance_H(s);
+    //return distance_H(s);
 #ifdef H_ZERO
     return 0;
 #endif
