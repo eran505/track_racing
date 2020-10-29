@@ -66,7 +66,6 @@ public:
     void set_upper_threshold(u_int16_t t){this->upper_thershold=t;}
 
 private:
-    int distance_H(const State *s)const;
     static u_int16_t matching_trajectories_differ(const std::vector<Point> &t2, const std::vector<Point> &t1,u_int16_t upper)
     {
         u_int16_t number_differ=0;
@@ -107,12 +106,13 @@ class heuristicContainer{
     const short maxSpeed=1;
     std::unique_ptr<unordered_map<unsigned int,Point>>  dicoAction = Point::getDictActionUniqie();
 public:
-    explicit heuristicContainer(const std::vector<std::vector<Point>>&& ptrPathsW,map_dict& map,const Grid* g):
-            map_state(std::move(map)),G(g)
+    template<typename D >
+    explicit heuristicContainer(std::vector<std::vector<Point>>&& ptrPathsW, D &&map,const Grid* g):
+            map_state(std::forward<D>(map)),G(g)
     {
         lPaths=ptrPathsW;
     }
-
+    map_dict&& get_map_dict(){cout<<"remove dict states"<<endl;std::move(map_state);}
     std::vector<cell> get_heuristic_path(const int index,uint64_t ky_state) const
     {
 
@@ -123,14 +123,16 @@ public:
 private:
     vector<cell> fill_vector_H_value(pair<Point,Point>& pos,pair<short,short> info_state,int index_Qi)const {
         std::vector<cell> v(27);
+   //     cout<<"D"<<pos.first.to_str()<<"_"<<pos.second.to_str()<<"_j="<<info_state.second<<"_t="<<info_state.first<<endl;
         for (const auto &p: *dicoAction)
         {
             auto newPos = apply_action_sq(pos.first,pos.second,p.second,info_state.second,maxSpeed);
+       //     cout<<"D"<<newPos.to_str()<<"_"<<pos.second.to_str()<<"_j="<<info_state.second<<"_t="<<info_state.first<<" [a]"<<p.second.to_str()<<endl;
             if (G->is_wall(newPos)) {
                 v[p.first] = R.WallReward;
                 continue;
             }
-            auto steps = to_closet_path_H_calc(index_Qi, newPos,info_state.first);
+            auto steps = to_closet_path_H_calc(index_Qi, newPos,info_state.first+info_state.second);
             v[p.first] = this->R.CollReward * std::pow(R.discountF, steps);
         }
         return v;
@@ -142,6 +144,8 @@ private:
     pair<pair<Point,Point>,pair<short,short>> get_D_point(const int64_t ky) const
     {
         auto& arr = this->map_state.find(ky)->second;
+       // for(short i : arr) cout<<i<<" ";
+       // cout<<endl;
         return {{Point(arr[6],arr[7],arr[8]),Point(arr[9],arr[10],arr[11])},{arr[12],arr[13]}};
     }
     int to_closet_path_H_calc(const u_int index,const Point& agnet_pos,int start_point)const
@@ -175,7 +179,7 @@ private:
 
     static Point apply_action_sq(const Point& pos ,const Point &speed,const Point &action,int jumps,int max_speed)
     {
-        jumps=1;
+
         Point speed_tmp = speed;
         Point pos_tmp = pos;
         for (int k=0;k<jumps and k < 2 ;++k)
@@ -193,7 +197,10 @@ private:
         }
         return pos_tmp;
     }
-
+    void print_dict_state()
+    {
+        for (const auto& item :map_state) cout<<item.first<<endl;
+    }
 };
 
 class containerFixAggregator{
@@ -324,7 +331,10 @@ public:
         std::unique_ptr<Qtable_> pytr = containerFixAggregator::agg_Q_tables(pVec,this->list_Q,heurist_con);
         this->set_all_Q_tavble(std::move(pytr));
 
+        //get_policy_defender()->getUtilRTDP()->inset_move_dict_map(heurist_con.get_map_dict());
+        cout<<"[][][][][][]"<<endl;
         eval_all_paths();
+
         cout<<"[S]: "<<get_policy_defender()->getUtilRTDP()->get_dict_map().size()<<endl;
         cout<<endl;
     }

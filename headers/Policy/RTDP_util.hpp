@@ -20,7 +20,7 @@
 #include "Update_RTDP/Reward.hpp"
 #define DD
 //#define LAST_STATE_DEBUG // uncomment the (line 326 Simulator.hpp)
-#define H_ZERO
+//#define H_ZERO
 typedef u_int64_t keyItem;
 typedef float cell;
 
@@ -86,7 +86,8 @@ public:
     std::unordered_map<u_int64_t,pair<std::array<int,14>,u_int64_t>> state_policy_dict;
     #endif
     void reset_takken_stpe_ctr(){steo_takken=0;}
-    unordered_map<keyItem,std::array<short,14>>& get_dict_map(){return this->debugDict;}
+    unordered_map<keyItem,std::array<short,14>> get_dict_map(){return this->debugDict;}
+    void inset_move_dict_map(unordered_map<keyItem,std::array<short,14>> d){cout<<"in"<<endl;this->debugDict=std::move(d);}
     std::vector<std::vector<Point>> l_p_H;
     void isEmptyQ()
     {
@@ -108,8 +109,6 @@ public:
         cout<<"SizeQ:"<<size_Q<<"\tgen: "<<qTable->size()<<endl;
     }
     void reduceMap();
-    void resetTable()
-    {this->qTable->clear();this->debugDict.clear();}
     void setStochasticMovement(double m){this->_stochasticMovement=m;}
     void setHashFuction(std::function<u_int64_t (const State*)> fun){
         HashFuction=std::move(fun);
@@ -123,7 +122,7 @@ public:
     keyItem last_entry;
     Point get_argmx_action(State *s);
     int get_state_argmax(const State *s_state);
-    static void arg_max(arr &arr,vector<int> &vec);
+    static void arg_max(const arr &arr,vector<int> &vec);
     ~RTDP_util();
     RTDP_util(string &mHome):home(mHome){}
     RTDP_util(int grid_size,string &mHome);

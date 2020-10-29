@@ -47,7 +47,7 @@ public:
     void get_first_Q(){this->evaluator->set_first_Q(this->RTDP_util_object);}
     void genrateInfoPrint(){this->RTDP_util_object->printInfoGen();}
     [[nodiscard]] u_int64_t getUpdateCtr()const{return  this->RTDP_util_object->get_update_ctr();}
-    void resetAlgo(){this->RTDP_util_object->resetTable();}
+
     void setStochasticMovement(double m)
     {
         _stochasticMovement=m;

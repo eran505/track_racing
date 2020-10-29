@@ -12,7 +12,7 @@ public:
     double GoalReward = -500;
     double WallReward = -1000;
     double Step_reward = 0;
-    double discountF=0.987;
+    double discountF=0.987;//0.987;
     static Rewards getRewards()
     {
         return Rewards();

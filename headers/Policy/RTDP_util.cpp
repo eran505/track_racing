@@ -37,34 +37,33 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
     double zero_move_reward = applyNonAction(s);
 
     //cout<<"\t[H] S: "<<oldState.to_string_state()<<"\t[hash] "<<entry_index<<"\t";
-   // cout<<s->to_string_state()<<endl;
+    //cout<<s->to_string_state()<<endl;
     for (const auto &item_action : *this->hashActionMap)
     {
         // apply action state and let the envirmont to roll and check the reward/pos
         Point actionCur = *item_action.second;
 
         double val;
-        //bool isWall = this->apply_action_SEQ(&oldState,my_policy->id_agent,actionCur,this->my_policy->max_speed);
-        bool isWall = oldState.applyAction(my_policy->id_agent,actionCur,this->my_policy->max_speed);
+        bool isWall = this->apply_action_SEQ(&oldState,my_policy->id_agent,actionCur,this->my_policy->max_speed);
+        //bool isWall = oldState.applyAction(my_policy->id_agent,actionCur,this->my_policy->max_speed);
         int step = to_closet_path_H(oldState);
 
         //bool isWall = this->apply_action(oldState,my_policy->id_agent,*actionCur,my_policy->max_speed);
         //if(isWall)
         //    step=-1;
-        //std::cout << " a:" << item_action.first<<" h:" <<step;
         if (isWall)
             val = this->R.WallReward*R.discountF*this->_stochasticMovement+
                     zero_move_reward*(1-this->_stochasticMovement);
         else{
             val=(this->R.CollReward)*std::pow(R.discountF,step);
         }
-        //cout<<"A:"<<actionCur.to_str()<<"\tval="<<val<<endl;
+      //  cout<<"  ["<<item_action.first<<"]="<<"="<<step<<" [s]->"<<oldState.to_string_state()<<endl;
         oldState.assignment(s,this->my_policy->id_agent);
         // insert to Q table
 
         this->set_value_matrix(entry_index,*item_action.second,val);
     }
-    //cout<<endl;
+   //cout<<endl;
 }
 
 //double RTDP_util::rec_h(State *s,int index, double acc_probablity)
@@ -114,7 +113,7 @@ RTDP_util::~RTDP_util() {
 
 }
 
-void RTDP_util::arg_max(arr &arr,vector<int>& listIdxs){
+void RTDP_util::arg_max(const arr &arr,vector<int>& listIdxs){
 
     double max = -1;
     max = *std::max_element(arr.begin(), arr.end());
@@ -139,11 +138,11 @@ int RTDP_util::get_state_argmax(const State *s) {
 
 
 
-//    vector<int> argMax_list;
-//    arg_max(row, argMax_list);
-//    std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
-//    return argMax_list.back();
-      return std::distance(row.begin(),std::max_element(row.begin(), row.end()));
+    //vector<int> argMax_list;
+    //arg_max(row, argMax_list);
+    //std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
+    //return argMax_list.front();
+    return std::distance(row.begin(),std::max_element(row.begin(), row.end()));
 
 
 
@@ -238,10 +237,10 @@ void RTDP_util::policyData() {
         for(auto &item:debugDict)
         {
             csv<<item.first;
-            for(int i=0;i<12;i++) csv<<item.second[i];
+            for(int i=0;i<item.second.size();i++) csv<<item.second[i];
             csv<<endrow;
         }
-        debugDict.clear();
+        //debugDict.clear();
     }
     catch (const std::exception &ex){std::cout << "Exception was thrown: " << ex.what() << std::endl;}
 

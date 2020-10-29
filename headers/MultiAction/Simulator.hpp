@@ -17,7 +17,7 @@
 #include "Policy/Attacker/PathFinder.hpp"
 #define DEBUGING
 //#define TRAJECTORY
-//#define Q_DATA
+#define Q_DATA
 
 #define BUFFER_TRAJECTORY 1 // need to be 9000 when saving
 #define STR_HOME_DIR "/car_model/out/"
@@ -63,7 +63,7 @@ class SimulationGame{
 
     //Grid _g;
     short stop=0;
-    u_int32_t NUMBER=100;
+    u_int32_t NUMBER=1000;
     u_int32_t iterationsMAX=20000000;//20M;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
@@ -268,7 +268,7 @@ private:
     }
     bool is_converage()const
     {
-        if(iterations>iterationsMAX){
+        if(iterations>iterationsMAX ){
             cout<<"[iterationsMAX]"<<endl;
             return true;}
         if( stop>=2){
