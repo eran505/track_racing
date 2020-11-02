@@ -35,6 +35,11 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
 
     // get the reward for action (0,0,0)
     double zero_move_reward = applyNonAction(s);
+    bool isDebug=false;
+
+//    if(entry_index == 1253741093158468514ul){ isDebug=true;
+//        cout<<s->to_string_state()<<endl;
+//    }
 
     //cout<<"\t[H] S: "<<oldState.to_string_state()<<"\t[hash] "<<entry_index<<"\t";
     //cout<<s->to_string_state()<<endl;
@@ -52,12 +57,17 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
         //if(isWall)
         //    step=-1;
         if (isWall)
-            val = this->R.WallReward*R.discountF*this->_stochasticMovement+
-                    zero_move_reward*(1-this->_stochasticMovement);
+        {
+            val = (this->R.WallReward)*std::pow(R.discountF,step);
+//            val = this->R.WallReward*R.discountF*this->_stochasticMovement+
+//                    zero_move_reward*(1-this->_stochasticMovement);
+
+        }
         else{
             val=(this->R.CollReward)*std::pow(R.discountF,step);
         }
-      //  cout<<"  ["<<item_action.first<<"]="<<"="<<step<<" [s]->"<<oldState.to_string_state()<<endl;
+//        if (isDebug)
+//            cout<<"  ["<<item_action.first<<"]="<<" step: "<<step<<" [s]->"<<oldState.to_string_state()<<" val="<<val<<endl;
         oldState.assignment(s,this->my_policy->id_agent);
         // insert to Q table
 
@@ -96,7 +106,7 @@ void RTDP_util::add_entry_map_state(keyItem key,const State *s) {
     #endif
 
     #ifdef VECTOR
-    this->qTable->try_emplace(key,27);
+    auto v  = this->qTable->try_emplace(key,27,R.CollReward);
     #endif
     this->heuristic(s,key);
     ctr_state++;
@@ -104,7 +114,7 @@ void RTDP_util::add_entry_map_state(keyItem key,const State *s) {
 }
 
 RTDP_util::~RTDP_util() {
-
+    cout<<"[inconsistent] : "<<inconsistent<<endl;
     cout<<"state genrated:\t"<<this->qTable->size()<<endl;
     std::for_each(hashActionMap->begin(),hashActionMap->end(),[](auto &item)
     {delete item.second;});
@@ -137,12 +147,16 @@ int RTDP_util::get_state_argmax(const State *s) {
 //    cout << endl;
 
 
-
-    //vector<int> argMax_list;
-    //arg_max(row, argMax_list);
-    //std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
-    //return argMax_list.front();
-    return std::distance(row.begin(),std::max_element(row.begin(), row.end()));
+#ifdef PRINT
+    cout<<endl;
+    for(int i=0;i<row.size();++i) cout<<" ["<<i<<"]="<<row[i];
+    cout<<endl;
+#endif
+    vector<int> argMax_list;
+    arg_max(row, argMax_list);
+    std::shuffle(argMax_list.begin(),argMax_list.end(),this->my_policy->generator);
+    return argMax_list.front();
+    //return std::distance(row.begin(),std::max_element(row.begin(), row.end()));
 
 
 
@@ -261,7 +275,7 @@ void RTDP_util::policyData() {
 #endif
 }
 
-void RTDP_util::update_final_State(State *s, double val) {
+void RTDP_util::update_final_State(State *s, cell val) {
     auto entryIndex= this->HashFuction(s);
     #ifdef VECTOR
     qTable->try_emplace(entryIndex,27);
@@ -307,12 +321,13 @@ int RTDP_util::to_closet_path_H(const State &s)
 
 int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos,int jumps)
 {
-    int min_step=10000;
-
+    int min_step=1000;
+    steo_takken=0;
     for(const auto& path : this->l_p_H)
     {
-        if(steo_takken>=path.size())
-            return 20;
+        if(steo_takken>=path.size()){
+            continue;
+        }
         for(auto iter = path.begin()+steo_takken;iter!=path.end();iter++)
         {
             if (auto dif = Point::distance_min_step(agnet_pos, *iter);dif < min_step) {

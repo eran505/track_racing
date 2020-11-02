@@ -113,26 +113,32 @@ public:
         lPaths=ptrPathsW;
     }
     map_dict&& get_map_dict(){cout<<"remove dict states"<<endl;std::move(map_state);}
-    std::vector<cell> get_heuristic_path(const int index,uint64_t ky_state) const
+    std::vector<cell> get_heuristic_path(uint64_t ky_state) const
     {
-
+        bool debug_print=false;
+//        if(ky_state==1253741093158468514ul)
+//            debug_print=true;
         auto posD = get_D_point(ky_state);
-        auto vec =  fill_vector_H_value(posD.first,posD.second,index);
+        auto vec =  fill_vector_H_value(posD.first,posD.second,debug_print);
         return vec;
     }
 private:
-    vector<cell> fill_vector_H_value(pair<Point,Point>& pos,pair<short,short> info_state,int index_Qi)const {
-        std::vector<cell> v(27);
+    vector<cell> fill_vector_H_value(pair<Point,Point>& pos,pair<short,short> info_state,bool debug_print)const {
+        std::vector<cell> v(27,R.CollReward);
    //     cout<<"D"<<pos.first.to_str()<<"_"<<pos.second.to_str()<<"_j="<<info_state.second<<"_t="<<info_state.first<<endl;
         for (const auto &p: *dicoAction)
         {
             auto newPos = apply_action_sq(pos.first,pos.second,p.second,info_state.second,maxSpeed);
-       //     cout<<"D"<<newPos.to_str()<<"_"<<pos.second.to_str()<<"_j="<<info_state.second<<"_t="<<info_state.first<<" [a]"<<p.second.to_str()<<endl;
+
+            auto steps = to_closet_path_H_calc( newPos,info_state.first);
+            if(debug_print)
+                cout<<p.first<<"] steps: "<<steps<<" [s]-"<<newPos.to_str()<<"  "<<info_state.first<<":"<<info_state.second<<endl;
             if (G->is_wall(newPos)) {
-                v[p.first] = R.WallReward;
+                //cout<<"D"<<newPos.to_str()<<"_"<<endl;
+                v[p.first] = (this->R.WallReward)*std::pow(R.discountF,steps);
+
                 continue;
             }
-            auto steps = to_closet_path_H_calc(index_Qi, newPos,info_state.first+info_state.second);
             v[p.first] = this->R.CollReward * std::pow(R.discountF, steps);
         }
         return v;
@@ -148,17 +154,17 @@ private:
        // cout<<endl;
         return {{Point(arr[6],arr[7],arr[8]),Point(arr[9],arr[10],arr[11])},{arr[12],arr[13]}};
     }
-    int to_closet_path_H_calc(const u_int index,const Point& agnet_pos,int start_point)const
+    int to_closet_path_H_calc(const Point& agnet_pos,int start_point)const
     {
 #ifdef H_ZERO
         return 0;
 #endif
-        int min_step = 100000;
-
-        for(const auto& p : this->lPaths[index]){
-            if(start_point>=this->lPaths[index].size())
-                return 20;
-            for(auto iter = this->lPaths[index].begin()+start_point;iter!=this->lPaths[index].end();iter++)
+        int min_step = 1000;
+        for(const auto& p_path : this->lPaths){
+            if(start_point>=p_path.size()){
+                continue;
+            }
+            for(auto iter = p_path.begin()+start_point;iter!=p_path.end();iter++)
             {
                 if (auto dif = Point::distance_min_step(agnet_pos, *iter);dif < min_step) {
                     min_step = dif;
@@ -166,9 +172,6 @@ private:
                 }
             }
         }
-#ifdef ASSERT
-        assert(min_step<100000);
-#endif
         return min_step;
     }
 
@@ -247,6 +250,7 @@ public:
 
                 func4(big, item.first, QVec, pVec, h_con);
             }
+
         }
     }
 
@@ -267,23 +271,46 @@ public:
     static void func4(unordered_map<u_int64_t,vector<cell>>* big, u_int64_t keyState,const std::vector<std::unique_ptr<Qtable_>>& QVec,
                       const vector<cell>& pVec,const heuristicContainer& h_con){
 
+        int occur =0;
         auto posBig = big->insert({keyState,vector<cell>(27)}).first;
+        vector<cell> h_value = h_con.get_heuristic_path(keyState);
+
 
         for(size_t k=0;k<QVec.size();++k)
         {
 
             if(auto pos = QVec[k]->find(keyState);pos==QVec[k]->end())
             {
-                const auto vec_i = h_con.get_heuristic_path(k,keyState);
-                posBig->second = func3(vec_i,posBig->second,pVec[k]);
+                if(h_value.empty())
+                    h_value = h_con.get_heuristic_path(keyState);
+                posBig->second = func3(h_value,posBig->second,pVec[k]);
 
             }
             else{
                 const auto& vec_i = pos->second;
                 posBig->second = func3(vec_i,posBig->second,pVec[k]);
+                occur++;
 
             }
         }
+        auto b = assert_func(posBig->second,h_value,keyState,occur);
+
+    }
+    static bool assert_func(const vector<cell>& v,const vector<cell>& H_v,u_int64_t key,int occur)
+    {
+        double ep=0.000000001;
+        for (int i = 0; i < v.size(); ++i) {
+            if(v[i]<0 and H_v[i]<0) continue;
+            if(int(v[i])-int(H_v[i])>ep)
+            {
+                cout<<key<<"<-key "<<i<<" mix:"<<v[i]<<" h:"<<H_v[i]<<" diff: "<<v[i]-H_v[i]<<" occur "<<occur<<endl;
+                //return true;
+                //assert(false);
+                //return true;
+            }
+
+        }
+        return false;
     }
 };
 

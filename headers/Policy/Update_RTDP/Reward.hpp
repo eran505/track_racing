@@ -6,17 +6,20 @@
 #define TRACK_RACING_REWARD_HPP
 #include "util_game.hpp"
 
+typedef double valueType;
 struct Rewards {
 public:
-    double CollReward = 1000;
-    double GoalReward = -500;
-    double WallReward = -1000;
-    double Step_reward = 0;
-    double discountF=0.987;//0.987;
+    valueType CollReward = 1000;
+    valueType GoalReward = -500;
+    valueType WallReward = -1000;
+    valueType Step_reward = 0;
+    valueType discountF=0.99;//0.987;
     static Rewards getRewards()
     {
         return Rewards();
     }
+
+
 
 };
 

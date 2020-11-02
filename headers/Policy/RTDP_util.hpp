@@ -22,7 +22,7 @@
 //#define LAST_STATE_DEBUG // uncomment the (line 326 Simulator.hpp)
 //#define H_ZERO
 typedef u_int64_t keyItem;
-typedef float cell;
+typedef double cell;
 
 
 
@@ -80,6 +80,7 @@ protected:
     double applyNonAction(const State *s);
 
 public:
+    u_int32_t inconsistent=0;
     uint steo_takken=0;
     bool start_inset=false;
     #ifdef LAST_STATE_DEBUG
@@ -128,8 +129,16 @@ public:
     RTDP_util(int grid_size,string &mHome);
     void add_entry_map_state(keyItem basicString, const State *s);
 
-    void set_value_matrix(keyItem entryState, const Point &action ,double val){
-        //double dif = val-this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax));
+    void set_value_matrix(keyItem entryState, const Point &action ,cell val){
+
+        auto& vec = this->qTable->at(entryState);
+        auto old = vec[action.hashMeAction(Point::actionMax)];
+        if(int(old)-int(val)<0)
+        {
+            cout<<val<<":"<<old<<endl;
+            //assert(false);
+            inconsistent++;
+        }
         //if(std::abs(dif)==epslion) return;
         //this->update_counter++;
         //cout<<"s:"<<entryState<<" ,a:"<<action.to_str()<<" ]="<<val<<endl;
@@ -137,7 +146,7 @@ public:
         //this->qTable->operator[](entryState).operator[](action.hashMeAction(Point::actionMax))+=dif;
     }
     vector<double>* get_probabilty(const State *s);
-    void update_final_State(State *s, double val);
+    void update_final_State(State *s, cell val);
 
     cell get_max_valueQ(const State *s)
     {

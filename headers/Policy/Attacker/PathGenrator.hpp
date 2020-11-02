@@ -51,7 +51,7 @@ public:
             {
                 auto seq = make_state_seq(item_end_point.first,item_start_point);
                 double w = item_start_point.weightedVal*item_end_point.second;
-                inset_path_to_dict(seq,num_path,w,mapPolicy);
+               // inset_path_to_dict(seq,num_path,w,mapPolicy);
                 RAW_policyMap.clear();
 
             }
@@ -92,36 +92,9 @@ private:
         return seq;
 
     }
-    void inset_path_to_dict(const std::vector<StatePoint> &A_list,int num,double w,
-                            unordered_map<u_int64_t,std::vector<double>*>* mapPolicy )
-    {
-        short ctr=0;
-        while (true){
-            if(ctr==num)
-                break;
-            add_path_to_dict(A_list);
-            ctr++;
-        }
-        nom.getDict(RAW_policyMap,mapPolicy,w);
 
-    }
 
-    void add_path_to_dict(const std::vector<StatePoint> &A_list)
-    {
-        vector<AStar::StatePoint> seq_state;
-        vector<AStar::StatePoint> seq_state_all;
-        auto new_list = add_middle_point_at_random(A_list);
-        //auto new_list=A_list;
-        for(int k=0;k<new_list.size()-1;++k)
-        {
-            seq_state = aBFinder.get_pathz(new_list[k],new_list[k+1]);
-            //for(const auto &x:seq_state)cout<<x.toStr()<<endl;
-            std::move(seq_state.begin(), seq_state.end()-1, std::back_inserter(seq_state_all));
-        }
-        seq_state_all.push_back(seq_state[seq_state.size()-1]);
-        pathsToDict(seq_state_all);
 
-    }
     std::vector<StatePoint> add_path_to_dictV2(const std::vector<StatePoint> &A_list)
     {
         vector<AStar::StatePoint> seq_state;

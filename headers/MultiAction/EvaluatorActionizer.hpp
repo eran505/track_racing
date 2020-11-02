@@ -48,14 +48,15 @@ public:
     }
 
 
-    double calculateV2_back(std::vector<pair<StatePoint,double>> &&l,State &s)
+    cell calculateV2_back(std::vector<tuple<StatePoint,int,double>> &&l,State &s)
     {
-        double expected_sum_reward=0;
+        cell expected_sum_reward=0;
         for(auto &item:l)
         {
-            s.set_position(this->attacker,item.first.pos);
-            s.set_speed(this->attacker,item.first.speed);
-            expected_sum_reward+=evalute_state(s,item.second);
+            s.set_position(this->attacker,std::get<0>(item).pos);
+            s.set_speed(this->attacker,std::get<0>(item).speed);
+            s.set_budget(this->attacker,std::get<1>(item));
+            expected_sum_reward+=evalute_state(s,std::get<2>(item));
         }
         return expected_sum_reward;
     }
@@ -100,7 +101,7 @@ public:
     }
 private:
 
-    double evalute_state(const State &s,double transition_probability)
+    cell evalute_state(const State &s,double transition_probability)
     {
 
 

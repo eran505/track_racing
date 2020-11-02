@@ -17,7 +17,7 @@
 #include "Policy/Attacker/PathFinder.hpp"
 #define DEBUGING
 //#define TRAJECTORY
-#define Q_DATA
+//#define Q_DATA
 
 #define BUFFER_TRAJECTORY 1 // need to be 9000 when saving
 #define STR_HOME_DIR "/car_model/out/"
@@ -64,7 +64,7 @@ class SimulationGame{
     //Grid _g;
     short stop=0;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=20000000;//20M;
+    u_int32_t iterationsMAX=100000000;//20M;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -146,17 +146,16 @@ public:
     bool loop()
     {
         change_abstraction();
-        chnage_time_step();
         //cout<<this->_state->to_string_state()<<"   last_mode: "<<last_mode<<endl;
         #ifdef PRINT
         cout<<"last_mode: "<<last_mode<<" [real] ";
         cout<<this->_state->to_string_state()<<" ";
         #endif
-
        // cout<<this->_state->to_string_state()<<endl;
         do_action_defender();
         attcker_do_action();
 
+        chnage_time_step();
         return check_condtion();
     }
     void get_agents_data_policy()const
@@ -265,13 +264,14 @@ private:
         this->reset_state();
         //set_mode_abstract();
         ctr_action_defender=0;
+
     }
     bool is_converage()const
     {
         if(iterations>iterationsMAX ){
             cout<<"[iterationsMAX]"<<endl;
             return true;}
-        if( stop>=2){
+        if( stop>=5){
             cout<<"[stop]"<<endl;
             return true;}
         return false;
@@ -318,10 +318,10 @@ private:
             x.emplace_back(item/double(NUMBER));
         x.emplace_back(ctr_action_defender);
         if(info[info::CollId]==NUMBER) {
-            if(stop>10) {
+            if(stop>2) {
                 auto *ptr = dynamic_cast<RtdpAlgo *>(_defender->getPolicyInt());
                 ptr->getUtilRTDP()->start_inset = true;
-                this->_defender->evalPolicy();
+                this->info[info::OpenId]=ptr->getUtilRTDP()->inconsistent;
             }
             stop += 1;
         }
@@ -332,6 +332,7 @@ private:
 
         x.erase(x.begin());
         //converagerr.inset_elm(std::move(x));
+
         return true;
     }
     void change_abstraction()

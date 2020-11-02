@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/eran/repo/track_racing/csv/con512.csv";
+    pathCsv  = home + "/eran/repo/track_racing/csv/con500.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -125,7 +125,7 @@ int main(int argc, char** argv) {
         //toCsv(curToCsvPolciy,resultsConfigI->guardEval,labels);
         ctrId++;
         //Agent::ctr_object = 0;
-        break;
+       // break;
 
     }
 

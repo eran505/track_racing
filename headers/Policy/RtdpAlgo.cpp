@@ -77,7 +77,7 @@ double RtdpAlgo::bellman_update(State *s, Point &action) {
     return evaluator->calculate(expnder->expnad_state(s,action));
 }
 
-double RtdpAlgo::bellman_updateV2(State *s, Point &action) {
+cell RtdpAlgo::bellman_updateV2(State *s, Point &action) {
     //expnder->clean();
     #ifdef PRINT
     cout<<"[bellman]"<<s->to_string_state()<<endl;
@@ -110,7 +110,8 @@ double RtdpAlgo::UpdateCalc(const vector<pair<State *, double>>& state_tran_q) {
 
 void RtdpAlgo::update(State *s, Point &action,u_int64_t entryMatrix)
 {
-
+    if(entryMatrix==1253741093158468514ul)
+        cout<<"";
     auto val = this->bellman_updateV2(s,action);
     #ifdef PRINT
     cout<<" [update] Q["<<entryMatrix<<", "<<action.hashMeAction(Point::actionMax)<<"]="<<val<<endl;

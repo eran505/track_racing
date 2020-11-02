@@ -54,23 +54,23 @@ public:
         step_counter=0;
         this->memo[step_counter]=time_t;
     }
-    vector<pair<StatePoint,double>> get_next_states(u_int64_t hash_state,int jumps)
+    vector<tuple<StatePoint,int,double>> get_next_states(u_int64_t hash_state,int jumps)
     {
         assert(step_counter>=0 );
         time_t=memo[step_counter--];
         std::vector<K> indexing_arr = this->mapper_pathz.at(hash_state);
         double sum=0;
         std::for_each(indexing_arr.begin(),indexing_arr.end(),[&](auto &i){sum+=this->probabilities[i];});
-        vector<pair<StatePoint,double>> next_states_list;
+        vector<tuple<StatePoint,int,double>> next_states_list;
         next_states_list.reserve(indexing_arr.size());
         std::for_each(indexing_arr.begin(),indexing_arr.end(),[&](const K& index_path){
-            next_states_list.emplace_back(get_jumping_state(time_t,index_path),this->probabilities[index_path]/sum);
+            next_states_list.emplace_back(get_jumping_state(time_t,index_path),time_t,this->probabilities[index_path]/sum);
         });
 #ifdef PRINT
-        for(const auto& item:next_states_list)
-        {
-            cout<<"p:"<<item.second<<" s':"<<item.first<<"\t";
-        }
+//        for(const auto& item:next_states_list)
+//        {
+//            cout<<"p:"<<item.second<<" s':"<<item.first<<"\t";
+//        }
 #endif
         return next_states_list;
 
@@ -115,6 +115,7 @@ private:
         std::unordered_map<uint64_t,vector<K>> mapper;
         for(int i=0;i<size_pathz;++i)
         {
+            u_int8_t time_t=0;
             for (const auto &item:all_paths[i])
             {
                 u_int64_t h= item.getHashStateAttacker();
@@ -126,6 +127,7 @@ private:
                 else{
                     pos->second.push_back(i);
                 }
+                time_t++;
             }
         }
         char sep=';';

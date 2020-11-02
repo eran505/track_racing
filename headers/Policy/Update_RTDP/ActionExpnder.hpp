@@ -64,7 +64,7 @@ public:
         transform();
         return list_state_expnaded;
     }
-    vector<pair<StatePoint,double>> expand_state_other(const State *s){
+    vector<tuple<StatePoint,int,double>> expand_state_other(const State *s){
         return expander_attacker(*s,_action_seq);
     }
     void set_stochasticMovement(double m)
@@ -171,7 +171,7 @@ private:
         action*=num;
         return s.applyAction(this->_agent_id,action,this->my_policy->max_speed);
     }
-    vector<pair<StatePoint,double>> expander_attacker(const State &s_state,int jumps)
+    vector<tuple<StatePoint,int,double>> expander_attacker(const State &s_state,int jumps)
     {
         return other_policies[0]->weighted_next_partial_state(s_state,jumps);
     }

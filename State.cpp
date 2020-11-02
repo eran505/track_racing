@@ -148,7 +148,8 @@ void State::assignment(State &other)
 
 u_int64_t State::getHashValue()const {
 
-    u_int64_t  seed = 0;
+    u_int64_t  seed = this->budgets[0];
+    //u_int64_t  seed = 0 ;
     size_t i=0;
     while(true)
     {
@@ -157,8 +158,7 @@ u_int64_t State::getHashValue()const {
         seed ^=  this->dataPoint[i].array[2] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         if(i++==3) break;
     }
-   // seed ^=  this->budgets[1] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-   // cout<<this->to_string_state()<<" h="<<seed<<endl;
+    //seed ^=  this->budgets[0] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     return seed;
 }
 

@@ -475,7 +475,6 @@ public:
     static std::unique_ptr<unordered_map<unsigned int, Point>> getDictActionUniqie();
 };
 
-
 int getMaxDistance(const Point &a , const  Point &b );
 int getMaxDistancePos(const Point &a , const  Point &b );
 int range_random(int min, int max); //range : [min, max)
@@ -495,8 +494,6 @@ vector<double> getTopK(int k,vector<double> &vec);
 //    for(auto&& elem : cont) print(out, elem);
 //    return out;
 //}
-
-
 
 
 inline double fastPow(double a, double b) {

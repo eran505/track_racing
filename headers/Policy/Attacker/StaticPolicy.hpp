@@ -71,7 +71,7 @@ public:
         assert(false);
         return nullptr;
     }
-    vector<pair<StatePoint,double>> weighted_next_partial_state(const State &s,uint jumps) override{
+    vector<tuple<StatePoint,int,double>> weighted_next_partial_state(const State &s,uint jumps) override{
         //cout<<"s: "<<s.to_string_state()<<"]  ";
         return mapper->get_next_states(get_hash_state(s),jumps);
     }

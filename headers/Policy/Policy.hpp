@@ -62,7 +62,7 @@ public:
     virtual void policy_data()const=0;
     virtual bool isInPolicy(const State *s)const{return true;}
     virtual const vector<double>* TransitionAction(const State *s)const=0;
-    virtual vector<pair<StatePoint,double>> weighted_next_partial_state(const State &s,uint jumps){
+    virtual vector<tuple<StatePoint,int,double>> weighted_next_partial_state(const State &s,uint jumps){
     };
     void add_tran(Policy *ptr_tran)
     {
