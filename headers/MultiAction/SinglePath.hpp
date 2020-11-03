@@ -14,7 +14,7 @@ typedef vector<pair<cell,vector<StatePoint>>> vector_p_path;
 typedef unordered_map<keyItem ,arr> Qtable_;
 typedef std::unique_ptr<Agent> unique_agnet;
 typedef std::vector<containerFix> QtableItem;
-typedef unordered_map<u_int64_t ,std::array<short,14>> map_dict;
+typedef unordered_map<u_int64_t ,std::array<int,14>> map_dict;
 typedef unordered_map<int64_t ,vector<cell>> q_Table;
 typedef unordered_map<u_int64_t,cell> matrixP;
 typedef pair<cell,vector<StatePoint>> Apath;
@@ -130,7 +130,7 @@ private:
         {
             auto newPos = apply_action_sq(pos.first,pos.second,p.second,info_state.second,maxSpeed);
 
-            auto steps = to_closet_path_H_calc( newPos,info_state.first);
+            auto steps = to_closet_path_H_calc( newPos,info_state.first+info_state.second);
             if(debug_print)
                 cout<<p.first<<"] steps: "<<steps<<" [s]-"<<newPos.to_str()<<"  "<<info_state.first<<":"<<info_state.second<<endl;
             if (G->is_wall(newPos)) {
@@ -161,18 +161,17 @@ private:
 #endif
         int min_step = 1000;
         for(const auto& p_path : this->lPaths){
-            if(start_point>=p_path.size()){
+            if(start_point+1>=p_path.size()){
                 continue;
             }
-            for(auto iter = p_path.begin();iter!=p_path.end();iter++)
+            for(auto iter = p_path.begin()+1+start_point;iter!=p_path.begin()+2+start_point;iter++)
             {
                 if (auto dif = Point::distance_min_step(agnet_pos, *iter);dif < min_step) {
                     min_step = dif;
-                    if (min_step == 0) return 0;
                 }
             }
         }
-        return std::max(min_step-4,0);
+        return min_step/3;
     }
 
     static int distance_H(const Point& Ap , const Point& Dp) {

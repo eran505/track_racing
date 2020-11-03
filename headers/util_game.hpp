@@ -293,10 +293,10 @@ public:
         }
         return res;
     }
-    [[nodiscard]] int accMulti()const{
+    [[nodiscard]] int accMulti(int append=0)const{
         int acc=1;
         for (int i = 0; i < D; ++i) {
-            acc*=this->array[i];
+            acc*=this->array[i]+append;
         }
         return acc;
     }
@@ -484,6 +484,7 @@ int getMaxDistance(const Point &a , const  Point &b );
 int getMaxDistancePos(const Point &a , const  Point &b );
 int range_random(int min, int max); //range : [min, max)
 vector<double> getTopK(int k,vector<double> &vec);
+
 //template<typename T>
 //std::ostream& print(std::ostream &out, T const &val) {
 //    return (out << val << " ");

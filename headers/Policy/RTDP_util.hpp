@@ -43,7 +43,7 @@ protected:
     vector<Policy*> *lTran= nullptr;
     Rewards R = Rewards::getRewards();
     short ctr_debug=0;
-    unordered_map<keyItem,std::array<short,14>> debugDict;
+    unordered_map<keyItem,std::array<int,14>> debugDict;
     const string home;
     std::function<u_int64_t (const State*)> HashFuction;
     Policy* my_policy= nullptr;
@@ -70,24 +70,36 @@ protected:
             else poss->second.second++;
 
 #endif
+
         auto pos = qTable->find(key);
         if(pos==qTable->end())
         {
             add_entry_map_state(key,s);
             return qTable->operator[](key);
         }
-        if(this->debugDict.find(key)->second[12]!=s->get_budget(this->my_policy->cashID))
-        if(this->debugDict.find(key)->second[13]!=s->get_budget(this->my_policy->get_id_name()))
-        {
-
-            cout<<"BUGBUG"<<endl;
-            cout<<s->to_string_state()<<endl;
-            for(auto item:this->debugDict.find(key)->second)
-                cout<<item<<", ";
-            cout<<endl;
-            cout<<"--------"<<endl;
-            //assert(false);
-        }
+        //if(this->debugDict.find(key)->second[12]!=s->get_budget(this->my_policy->cashID))
+//        bool flag=false;
+//        auto a1 = s->to_mini_string();
+//        auto a2 = this->debugDict.find(key)->second;
+//        for(int i=0;i<14;++i)
+//        {
+//            if(a1[i]!=a2[i])
+//                flag=true;
+//        }
+//        if(flag)
+//        {
+//            cout<<"key:"<<key<<endl;
+//            auto a = this->debugDict.find(key)->second;
+//            cout<<"BUGBUG"<<endl;
+//            cout<<s->to_string_state()<<" H:";
+//            cout<<s->getHashValue()<<endl;
+//            cout<<State::make_state_from_array(a).to_string_state()<<" H:";
+//            cout<<State::make_state_from_array(a).getHashValue()<<endl;
+//
+//            cout<<"--------"<<endl;
+//
+//           // assert(false);
+//        }
         return pos->second;
     }
     double applyNonAction(const State *s);
@@ -100,8 +112,8 @@ public:
     std::unordered_map<u_int64_t,pair<std::array<int,14>,u_int64_t>> state_policy_dict;
     #endif
     void reset_takken_stpe_ctr(){steo_takken=0;}
-    unordered_map<keyItem,std::array<short,14>> get_dict_map(){return this->debugDict;}
-    void inset_move_dict_map(unordered_map<keyItem,std::array<short,14>> d){cout<<"in"<<endl;this->debugDict=std::move(d);}
+    unordered_map<keyItem,std::array<int,14>> get_dict_map(){return this->debugDict;}
+    void inset_move_dict_map(unordered_map<keyItem,std::array<int,14>> d){cout<<"in"<<endl;this->debugDict=std::move(d);}
     std::vector<std::vector<Point>> l_p_H;
     void isEmptyQ()
     {
@@ -149,8 +161,8 @@ public:
         if(int(old)>0 and int(val)>0)
         if(int(old)-int(val)<0)
         {
-            //cout<<old<<":->"<<val;
-            //cout<<"  S_ID:"<<entryState<<" actionID:"<<action.hashMeAction(Point::actionMax)<<endl;
+            cout<<old<<":->"<<val;
+            cout<<"  S_ID:"<<entryState<<" actionID:"<<action.hashMeAction(Point::actionMax)<<endl;
             //assert(false);
             inconsistent++;
         }

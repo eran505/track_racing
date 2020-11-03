@@ -41,8 +41,8 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
 //        cout<<s->to_string_state()<<endl;
 //    }
 
-    //cout<<"\t[H] S: "<<oldState.to_string_state()<<"\t[hash] "<<entry_index<<"\t";
-    //cout<<s->to_string_state()<<endl;
+   // cout<<"\t[H] S: "<<oldState.to_string_state()<<"\t[hash] "<<entry_index<<"\t";
+   // cout<<s->to_string_state()<<endl;
     for (const auto &item_action : *this->hashActionMap)
     {
         // apply action state and let the envirmont to roll and check the reward/pos
@@ -328,11 +328,11 @@ int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos,int jumps)
     int max_step_attacker =-1;
     for(const auto& path : this->l_p_H)
     {
-        if(steo_takken+jumps>=path.size()){
+        if(steo_takken+jumps+1>=path.size()){
             continue;
         }
         attacker_step=0;
-        for(auto iter = path.begin()+steo_takken+jumps;iter!=path.begin()+steo_takken+jumps+1;iter++)
+        for(auto iter = path.begin()+steo_takken+jumps+1;iter!=path.begin()+steo_takken+jumps+2;iter++)
         {
             if (auto dif = Point::distance_min_step(agnet_pos, *iter);dif < min_step) {
                 min_step = dif;
@@ -340,7 +340,7 @@ int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos,int jumps)
         }
 
     }
-    return min_step;
+    return min_step/3 ;
 
 }
 

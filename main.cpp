@@ -33,7 +33,7 @@
 #include "MultiAction/Simulator.hpp"
 #include "learning/ReplayBuffer/SumTree.hpp"
 #include "learning/ReplayBuffer/prioritizedExperienceReplay.hpp"
-
+u_int64_t H_me(std::vector<int> v);
 const char *  getConfigPath(int argc, char** argv);
 std::unique_ptr<Grid> init_grid(configGame &conf);
 void init_mdp(Grid *g, configGame &conf);
@@ -71,6 +71,13 @@ void getConfigPath(int argc, char** argv,configGame &conf);
 typedef unsigned long ulong;
 int main(int argc, char** argv) {
 
+    std::vector v1 = {22, 5, 0, 1, 1, 0, 6, 9, 2, -1, -1, 1, 16};
+    std::vector v2 = {22, 5, 0, 1, 1, 0, 10, 4, 2, -1, -1, 1, 16};
+    cout<<"v2:"<<H_me(v2)<<endl;
+    cout<<"v1:"<<H_me(v1)<<endl;
+    if(H_me(v1)==H_me(v2)) cout<<"yes"<<endl;
+
+    //exit(0);
 
     int seed = 1594198815;//1594198815;
     seed = 1594198815;//1594198815;
@@ -125,7 +132,7 @@ int main(int argc, char** argv) {
         //toCsv(curToCsvPolciy,resultsConfigI->guardEval,labels);
         ctrId++;
         //Agent::ctr_object = 0;
-        break;
+        //break;
 
     }
 
@@ -336,6 +343,16 @@ void getConfigPath(int argc, char** argv,configGame &conf)
         conf._seed=seed;
     }
 
+}
+u_int64_t H_me(std::vector<int> v)
+{
+
+    u_int64_t seed=v.back();
+    for(int k=0;k<v.size()-1;++k)
+    {
+        seed ^= v[k] + 0x9e3779b9 + (seed << 6u) + (seed >> 2u);
+    }
+    return seed;
 }
 
 

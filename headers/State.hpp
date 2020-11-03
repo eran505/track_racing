@@ -15,7 +15,7 @@ public:
     enum agentEnum :short{A=0,D=1,LAST=2};
 
     std::array<Point,4> dataPoint; // [A_POS,A_SPEED,D_POS,D_SPEED]
-    std::array<short,2> budgets{};
+    std::array<int,2> budgets{};
     Grid *g_grid = nullptr;
     bool takeOff = false;
 
@@ -67,10 +67,9 @@ public:
         return strm <<this->to_string_state();
     }
     [[nodiscard]] u_int64_t  getHashValue()const;
-    [[nodiscard]] u_int64_t  getHashValuePosOnly()const;
 
     [[nodiscard]] string to_string_state() const;
-    [[nodiscard]] std::array<short,14> to_mini_string() const;
+    [[nodiscard]] std::array<int,14> to_mini_string() const;
     void add_player_state(agentEnum name_id, const Point& m_pos, const Point& m_speed, short budget_b);
 
 
@@ -90,8 +89,7 @@ public:
     void add_player_state(agentEnum name_id, const Point &m_pos, const Point *m_speed, int budget_b);
 
     bool applyAction(agentEnum id,  Point &action, int max_speed, int jumps);
-
-    u_int64_t getHashValue2() const;
+    static State make_state_from_array(std::array<int,14> a);
 };
 
 

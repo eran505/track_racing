@@ -31,9 +31,9 @@ string State::to_string_state() const {
     return str;
 
 }
-std::array<short,14> State::to_mini_string() const
+std::array<int,14> State::to_mini_string() const
 {
-    std::array<short,14> arr{};
+    std::array<int,14> arr{};
     int ctr=0;
     for(int j =0;j<this->budgets.size();++j){
         auto position = this->dataPoint[j*2];
@@ -153,12 +153,12 @@ u_int64_t State::getHashValue()const {
     size_t i=0;
     while(true)
     {
-        seed ^=  this->dataPoint[i].array[0] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^=  this->dataPoint[i].array[1] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^=  this->dataPoint[i].array[2] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= this->dataPoint[i].array[0] + 0x9e3779b9 + (seed << 7u) + (seed >> 2u);
+        seed ^= this->dataPoint[i].array[1] + 0x9e3779b9 + (seed << 7u) + (seed >> 2u);
+        seed ^= this->dataPoint[i].array[2] + 0x9e3779b9 + (seed << 7u) + (seed >> 2u);
         if(i++==3) break;
     }
-    //seed ^=  this->budgets[0] + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^=  this->dataPoint[2].accMulti(1) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     return seed;
 }
 
@@ -178,6 +178,26 @@ void State::assignment(const State *other, State::agentEnum idname) {
     this->dataPoint[idname*2+1]=other->dataPoint[idname*2+1];
     this->dataPoint[idname*2]=other->dataPoint[idname*2];
     this->budgets[idname]=other->budgets[idname];
+}
+
+State State::make_state_from_array(std::array<int, 14> a) {
+    State s;
+    int acc=0;
+    for(int k=0;k<3;k++)
+        s.dataPoint[0].array[k]=a[acc+k];
+    acc+=3;
+    for(int k=0;k<3;k++)
+        s.dataPoint[1].array[k]=a[acc+k];
+    acc+=3;
+    for(int k=0;k<3;k++)
+        s.dataPoint[2].array[k]=a[acc+k];
+    acc+=3;
+    for(int k=0;k<3;k++)
+        s.dataPoint[3].array[k]=a[acc+k];
+    s.budgets[0]=a[12];
+    s.budgets[1]=a[13];
+    return s;
+
 }
 
 
