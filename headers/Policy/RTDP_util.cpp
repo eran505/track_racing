@@ -37,7 +37,7 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
     double zero_move_reward = applyNonAction(s);
     bool isDebug=false;
 
-//    if(entry_index == 1253741093158468514ul){ isDebug=true;
+//    if(entry_index == 9739533163006043276ul){ isDebug=true;
 //        cout<<s->to_string_state()<<endl;
 //    }
 
@@ -51,6 +51,7 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
         double val;
         bool isWall = this->apply_action_SEQ(&oldState,my_policy->id_agent,actionCur,this->my_policy->max_speed);
         //bool isWall = oldState.applyAction(my_policy->id_agent,actionCur,this->my_policy->max_speed);
+        //cout<<item_action.first<<endl;
         int step = to_closet_path_H(oldState);
 
         //bool isWall = this->apply_action(oldState,my_policy->id_agent,*actionCur,my_policy->max_speed);
@@ -58,16 +59,15 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
         //    step=-1;
         if (isWall)
         {
-            val = (this->R.WallReward)*std::pow(R.discountF,step);
+            val = (this->R.WallReward)*std::pow(R.discountF,s->get_budget(this->my_policy->get_id_name()));
 //            val = this->R.WallReward*R.discountF*this->_stochasticMovement+
 //                    zero_move_reward*(1-this->_stochasticMovement);
-
         }
         else{
             val=(this->R.CollReward)*std::pow(R.discountF,step);
         }
-//        if (isDebug)
-//            cout<<"  ["<<item_action.first<<"]="<<" step: "<<step<<" [s]->"<<oldState.to_string_state()<<" val="<<val<<endl;
+        if (isDebug)
+            cout<<"  ["<<item_action.first<<"]="<<" step: "<<step<<" [s]->"<<oldState.to_string_state()<<" val="<<val<<endl;
         oldState.assignment(s,this->my_policy->id_agent);
         // insert to Q table
 
@@ -316,28 +316,31 @@ int RTDP_util::to_closet_path_H(const State &s)
     //cout<<"\n[Td] "<<steo_takken<<" [Ta] "<<s.get_budget(this->my_policy->cashID)<<"\t[s] "<<s.to_string_state()<<endl;
     //assert(steo_takken==s.get_budget(this->my_policy->cashID));
     const auto& pos_def = s.get_position_ref(this->my_policy->id_agent);
-    return to_closet_path_H_calc(pos_def,s.get_budget(this->my_policy->get_id_name()));
+    auto seq_action_jump =s.get_budget(this->my_policy->get_id_name());
+    auto res = to_closet_path_H_calc(pos_def,seq_action_jump);
+    return res;
 }
 
 int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos,int jumps)
 {
     int min_step=1000;
-    //steo_takken+=jumps;
+    int attacker_step=0;
+    int max_step_attacker =-1;
     for(const auto& path : this->l_p_H)
     {
-        if(steo_takken>=path.size()){
+        if(steo_takken+jumps>=path.size()){
             continue;
         }
-        for(auto iter = path.begin();iter!=path.end();iter++)
+        attacker_step=0;
+        for(auto iter = path.begin()+steo_takken+jumps;iter!=path.begin()+steo_takken+jumps+1;iter++)
         {
             if (auto dif = Point::distance_min_step(agnet_pos, *iter);dif < min_step) {
                 min_step = dif;
-                if (min_step == 0) return 0;
             }
         }
 
     }
-    return std::max(min_step-4,0);
+    return min_step;
 
 }
 

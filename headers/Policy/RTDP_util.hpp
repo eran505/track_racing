@@ -70,12 +70,25 @@ protected:
             else poss->second.second++;
 
 #endif
-        if(auto pos = qTable->find(key);pos==qTable->end())
+        auto pos = qTable->find(key);
+        if(pos==qTable->end())
         {
             add_entry_map_state(key,s);
             return qTable->operator[](key);
         }
-        else return pos->second;
+        if(this->debugDict.find(key)->second[12]!=s->get_budget(this->my_policy->cashID))
+        if(this->debugDict.find(key)->second[13]!=s->get_budget(this->my_policy->get_id_name()))
+        {
+
+            cout<<"BUGBUG"<<endl;
+            cout<<s->to_string_state()<<endl;
+            for(auto item:this->debugDict.find(key)->second)
+                cout<<item<<", ";
+            cout<<endl;
+            cout<<"--------"<<endl;
+            //assert(false);
+        }
+        return pos->second;
     }
     double applyNonAction(const State *s);
 
@@ -136,7 +149,8 @@ public:
         if(int(old)>0 and int(val)>0)
         if(int(old)-int(val)<0)
         {
-            cout<<val<<":"<<old<<endl;
+            //cout<<old<<":->"<<val;
+            //cout<<"  S_ID:"<<entryState<<" actionID:"<<action.hashMeAction(Point::actionMax)<<endl;
             //assert(false);
             inconsistent++;
         }

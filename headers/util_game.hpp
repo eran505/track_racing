@@ -246,6 +246,11 @@ public:
         }
         return false;
     }
+    static uint min_diff(const Point &small,const Point &big) {
+        uint dif = small.array[0]-big.array[0];
+        dif = small.array[1]-big.array[1]>dif?small.array[1]-big.array[1]:dif;
+        return small.array[2]-big.array[2]>dif?small.array[1]-big.array[1]:dif;
+    }
     [[nodiscard]] bool out_of_bound(const Point &bound) const{
         for (int i = 0; i < D; ++i) {
             if (this->array[i]>=bound.array[i] or

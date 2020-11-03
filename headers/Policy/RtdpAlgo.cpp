@@ -110,8 +110,7 @@ double RtdpAlgo::UpdateCalc(const vector<pair<State *, double>>& state_tran_q) {
 
 void RtdpAlgo::update(State *s, Point &action,u_int64_t entryMatrix)
 {
-    if(entryMatrix==1253741093158468514ul)
-        cout<<"";
+
     auto val = this->bellman_updateV2(s,action);
     #ifdef PRINT
     cout<<" [update] Q["<<entryMatrix<<", "<<action.hashMeAction(Point::actionMax)<<"]="<<val<<endl;
