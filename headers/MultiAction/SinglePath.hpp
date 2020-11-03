@@ -164,7 +164,7 @@ private:
             if(start_point>=p_path.size()){
                 continue;
             }
-            for(auto iter = p_path.begin()+start_point;iter!=p_path.end();iter++)
+            for(auto iter = p_path.begin();iter!=p_path.end();iter++)
             {
                 if (auto dif = Point::distance_min_step(agnet_pos, *iter);dif < min_step) {
                     min_step = dif;
@@ -172,7 +172,7 @@ private:
                 }
             }
         }
-        return min_step;
+        return std::max(min_step-4,0);
     }
 
     static int distance_H(const Point& Ap , const Point& Dp) {

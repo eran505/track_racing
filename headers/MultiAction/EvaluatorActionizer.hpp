@@ -56,6 +56,7 @@ public:
             s.set_position(this->attacker,std::get<0>(item).pos);
             s.set_speed(this->attacker,std::get<0>(item).speed);
             s.set_budget(this->attacker,std::get<1>(item));
+           // s.set_budget(this->defender,3);this->_scheduler->
             expected_sum_reward+=evalute_state(s,std::get<2>(item));
         }
         return expected_sum_reward;

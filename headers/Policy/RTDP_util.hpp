@@ -20,7 +20,7 @@
 #include "Update_RTDP/Reward.hpp"
 #define DD
 //#define LAST_STATE_DEBUG // uncomment the (line 326 Simulator.hpp)
-#define H_ZERO
+//#define H_ZERO
 typedef u_int64_t keyItem;
 typedef double cell;
 
@@ -133,6 +133,7 @@ public:
 
         auto& vec = this->qTable->at(entryState);
         auto old = vec[action.hashMeAction(Point::actionMax)];
+        if(int(old)>0 and int(val)>0)
         if(int(old)-int(val)<0)
         {
             cout<<val<<":"<<old<<endl;
