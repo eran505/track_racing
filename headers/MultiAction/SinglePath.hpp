@@ -125,6 +125,9 @@ public:
 private:
     vector<cell> fill_vector_H_value(pair<Point,Point>& pos,pair<short,short> info_state,bool debug_print)const {
         std::vector<cell> v(27,R.CollReward);
+        #ifndef HEURISTOC
+        return v;
+        #endif
    //     cout<<"D"<<pos.first.to_str()<<"_"<<pos.second.to_str()<<"_j="<<info_state.second<<"_t="<<info_state.first<<endl;
         for (const auto &p: *dicoAction)
         {
@@ -160,15 +163,19 @@ private:
         return 0;
 #endif
         int min_step = 1000;
-        for(const auto& p_path : this->lPaths){
-            if(start_point+1>=p_path.size()){
+        for(const auto& path : this->lPaths){
+            if(start_point+1>=path.size()){
                 continue;
             }
-            for(auto iter = p_path.begin()+1+start_point;iter!=p_path.begin()+2+start_point;iter++)
+            auto end = path.begin()+start_point+2;
+//            auto end = path.end();
+            //int ctr=0;
+            for(auto iter = path.begin()+1+start_point;iter!=path.begin()+2+start_point;iter++)
             {
                 if (auto dif = Point::distance_min_step(agnet_pos, *iter);dif < min_step) {
                     min_step = dif;
                 }
+                //ctr+=2;
             }
         }
         return min_step/3;

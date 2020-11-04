@@ -108,7 +108,9 @@ void RTDP_util::add_entry_map_state(keyItem key,const State *s) {
     #ifdef VECTOR
     auto v  = this->qTable->try_emplace(key,27,R.CollReward);
     #endif
+#ifdef HEURISTOC
     this->heuristic(s,key);
+#endif HEURISTOC
     ctr_state++;
 
 }
@@ -332,15 +334,20 @@ int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos,int jumps)
             continue;
         }
         attacker_step=0;
-        for(auto iter = path.begin()+steo_takken+jumps+1;iter!=path.begin()+steo_takken+jumps+2;iter++)
+        //
+        auto end = path.begin()+steo_takken+jumps+2;
+        //auto end = path.end();
+       // int ctr=0;
+        for(auto iter = path.begin()+steo_takken+jumps+1;iter!=end;iter++)
         {
             if (auto dif = Point::distance_min_step(agnet_pos, *iter);dif < min_step) {
                 min_step = dif;
             }
+            //ctr+=2;
         }
 
     }
-    return min_step/3 ;
+    return min_step/2 ;
 
 }
 

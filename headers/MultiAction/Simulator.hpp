@@ -311,12 +311,7 @@ private:
         ctr++;
         if(ctr%NUMBER>0)
             return false;
-        vector<double> x;
-        x.reserve(info.size()+2);
-        x.emplace_back(double(iterations)/double(iterationsMAX));
-        for(auto item:info)
-            x.emplace_back(item/double(NUMBER));
-        x.emplace_back(ctr_action_defender);
+
         if(info[info::CollId]==NUMBER) {
             if(stop>2) {
                 auto *ptr = dynamic_cast<RtdpAlgo *>(_defender->getPolicyInt());
@@ -326,6 +321,14 @@ private:
             stop += 1;
         }
         else{stop=0;}
+
+        vector<double> x;
+        x.reserve(info.size()+2);
+        x.emplace_back(double(iterations)/double(iterationsMAX));
+        for(auto item:info)
+            x.emplace_back(item/double(NUMBER));
+        x.emplace_back(ctr_action_defender);
+
 
         file_manger.inset_data(x);
         file_manger.inset_endLine();

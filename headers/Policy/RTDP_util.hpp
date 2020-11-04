@@ -21,6 +21,7 @@
 #define DD
 //#define LAST_STATE_DEBUG // uncomment the (line 326 Simulator.hpp)
 //#define H_ZERO
+//#define HEURISTOC
 typedef u_int64_t keyItem;
 typedef double cell;
 
@@ -77,29 +78,29 @@ protected:
             add_entry_map_state(key,s);
             return qTable->operator[](key);
         }
-        //if(this->debugDict.find(key)->second[12]!=s->get_budget(this->my_policy->cashID))
-//        bool flag=false;
-//        auto a1 = s->to_mini_string();
-//        auto a2 = this->debugDict.find(key)->second;
-//        for(int i=0;i<14;++i)
-//        {
-//            if(a1[i]!=a2[i])
-//                flag=true;
-//        }
-//        if(flag)
-//        {
-//            cout<<"key:"<<key<<endl;
-//            auto a = this->debugDict.find(key)->second;
-//            cout<<"BUGBUG"<<endl;
-//            cout<<s->to_string_state()<<" H:";
-//            cout<<s->getHashValue()<<endl;
-//            cout<<State::make_state_from_array(a).to_string_state()<<" H:";
-//            cout<<State::make_state_from_array(a).getHashValue()<<endl;
-//
-//            cout<<"--------"<<endl;
-//
-//           // assert(false);
-//        }
+        if(this->debugDict.find(key)->second[12]!=s->get_budget(this->my_policy->cashID)){
+        bool flag=false;
+        auto a1 = s->to_mini_string();
+        auto a2 = this->debugDict.find(key)->second;
+        for(int i=0;i<14;++i)
+        {
+            if(a1[i]!=a2[i])
+                flag=true;
+        }
+        if(flag)
+        {
+            cout<<"key:"<<key<<endl;
+            auto a = this->debugDict.find(key)->second;
+            cout<<"BUGBUG"<<endl;
+            cout<<s->to_string_state()<<" H:";
+            cout<<s->getHashValue()<<endl;
+            cout<<State::make_state_from_array(a).to_string_state()<<" H:";
+            cout<<State::make_state_from_array(a).getHashValue()<<endl;
+
+            cout<<"--------"<<endl;
+
+           // assert(false);
+        }}
         return pos->second;
     }
     double applyNonAction(const State *s);
