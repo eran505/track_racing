@@ -20,8 +20,8 @@
 #include "Update_RTDP/Reward.hpp"
 #define DD
 //#define LAST_STATE_DEBUG // uncomment the (line 326 Simulator.hpp)
-//#define H_ZERO
-//#define HEURISTOC
+#define H_ZERO
+#define HEURISTOC
 typedef u_int64_t keyItem;
 typedef double cell;
 
@@ -48,7 +48,7 @@ protected:
     const string home;
     std::function<u_int64_t (const State*)> HashFuction;
     Policy* my_policy= nullptr;
-    unsigned int ctr_state=0;
+    u_int64_t ctr_state=0;
     size_t ctr_random=0;
     double epslion=0;
     int size_Q;
@@ -78,34 +78,36 @@ protected:
             add_entry_map_state(key,s);
             return qTable->operator[](key);
         }
-        if(this->debugDict.find(key)->second[12]!=s->get_budget(this->my_policy->cashID)){
-        bool flag=false;
-        auto a1 = s->to_mini_string();
-        auto a2 = this->debugDict.find(key)->second;
-        for(int i=0;i<14;++i)
-        {
-            if(a1[i]!=a2[i])
-                flag=true;
-        }
-        if(flag)
-        {
-            cout<<"key:"<<key<<endl;
-            auto a = this->debugDict.find(key)->second;
-            cout<<"BUGBUG"<<endl;
-            cout<<s->to_string_state()<<" H:";
-            cout<<s->getHashValue()<<endl;
-            cout<<State::make_state_from_array(a).to_string_state()<<" H:";
-            cout<<State::make_state_from_array(a).getHashValue()<<endl;
-
-            cout<<"--------"<<endl;
-
-           // assert(false);
-        }}
+//        if(this->debugDict.find(key)->second[12]!=s->get_budget(this->my_policy->cashID)){
+//        bool flag=false;
+//        auto a1 = s->to_mini_string();
+//        auto a2 = this->debugDict.find(key)->second;
+//        for(int i=0;i<14;++i)
+//        {
+//            if(a1[i]!=a2[i])
+//                flag=true;
+//        }
+//        if(flag)
+//        {
+//            cout<<"key:"<<key<<endl;
+//            auto a = this->debugDict.find(key)->second;
+//            cout<<"BUGBUG"<<endl;
+//            cout<<s->to_string_state()<<" H:";
+//            cout<<s->getHashValue()<<endl;
+//            cout<<State::make_state_from_array(a).to_string_state()<<" H:";
+//            cout<<State::make_state_from_array(a).getHashValue()<<endl;
+//
+//            cout<<"--------"<<endl;
+//
+//           // assert(false);
+//        }}
         return pos->second;
     }
     double applyNonAction(const State *s);
 
 public:
+    unsigned int get_ctr_state() const{return ctr_state;}
+    void ctr_state_reset(){ctr_state=0;}
     u_int32_t inconsistent=0;
     uint steo_takken=0;
     bool start_inset=false;

@@ -66,6 +66,7 @@ public:
     };
     void add_tran(Policy *ptr_tran)
     {
+
         this->tran.push_back(ptr_tran);
         if((tran).size()==1)
             cashID=tran[0]->id_agent;

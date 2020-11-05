@@ -472,6 +472,7 @@ private:
         auto pathfinder = dynamic_cast<const PolicyA*>(a->getPolicy());
         vector<vector<Point>> l = pathfinder->list_only_pos();
         rtdp->getUtilRTDP()->l_p_H=l;
+        rtdp->getUtilRTDP()->ctr_state_reset();
 
     }
     auto map_path_by_goal() -> std::unordered_map<u_int64_t, pair<vector<u_int16_t>, double>> {

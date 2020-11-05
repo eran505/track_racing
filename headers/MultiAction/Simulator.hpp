@@ -96,7 +96,7 @@ public:
 
         g=_state->g_grid;
         //this->iterationsMAX=std::max(g->getSizeIntGrid(),200000000);
-        file_manger.set_header_vec({"episodes","Collision","Wall" ,"Goal" ,"PassBy","moves"});
+        file_manger.set_header_vec({"episodes","Collision","Wall" ,"Goal" ,"Inconsistent","States"});
         #ifdef TRAJECTORY
         init_trajectory_file(conf);
         ///treeTraversal();
@@ -311,12 +311,15 @@ private:
         ctr++;
         if(ctr%NUMBER>0)
             return false;
-
+        u_int64_t ctr_states=0;
         if(info[info::CollId]==NUMBER) {
             if(stop>2) {
                 auto *ptr = dynamic_cast<RtdpAlgo *>(_defender->getPolicyInt());
                 ptr->getUtilRTDP()->start_inset = true;
                 this->info[info::OpenId]=ptr->getUtilRTDP()->inconsistent;
+                this->info[info::Size]=ptr->getUtilRTDP()->inconsistent;
+                ctr_states = ptr->getUtilRTDP()->get_ctr_state();
+
             }
             stop += 1;
         }
@@ -327,7 +330,8 @@ private:
         x.emplace_back(double(iterations)/double(iterationsMAX));
         for(auto item:info)
             x.emplace_back(item/double(NUMBER));
-        x.emplace_back(ctr_action_defender);
+        //x.emplace_back(ctr_action_defender);
+        x.emplace_back(ctr_states);
 
 
         file_manger.inset_data(x);
