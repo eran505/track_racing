@@ -148,8 +148,8 @@ void State::assignment(State &other)
 
 u_int64_t State::getHashValue()const {
 
-    u_int64_t  seed = this->budgets[0];//+1000*this->budgets[0];
-    //u_int64_t  seed = 0 ;
+    //u_int64_t  seed = this->budgets[0];//+1000*this->budgets[0];
+    u_int64_t  seed = 0 ;
     size_t i=0;
     while(true)
     {

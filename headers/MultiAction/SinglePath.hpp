@@ -138,7 +138,7 @@ private:
                 cout<<p.first<<"] steps: "<<steps<<" [s]-"<<newPos.to_str()<<"  "<<info_state.first<<":"<<info_state.second<<endl;
             if (G->is_wall(newPos)) {
                 //cout<<"D"<<newPos.to_str()<<"_"<<endl;
-                v[p.first] = (this->R.WallReward)*std::pow(R.discountF,steps);
+                v[p.first] = (this->R.WallReward)*std::pow(R.discountF,info_state.second);
 
                 continue;
             }

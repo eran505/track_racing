@@ -101,7 +101,16 @@ private:
         vector<AStar::StatePoint> seq_state_all;
         auto new_list = add_middle_point_at_random(A_list);
         //auto new_list=A_list;
+        if(new_list.size()==3)
+        {
+            seq_state = aBFinder.get_pathz(new_list[0],new_list[1]);
+            //for(const auto &x:seq_state)cout<<x.toStr()<<endl;
+            std::move(seq_state.begin(), seq_state.end()-1, std::back_inserter(seq_state_all));
+            seq_state = aBFinder.get_pathz(seq_state_all.back(),new_list[2]);
+            std::move(seq_state.begin()+1, seq_state.end(), std::back_inserter(seq_state_all));
+            return seq_state_all;
 
+        }
         for(int k=0;k<new_list.size()-1;++k)
         {
             seq_state = aBFinder.get_pathz(new_list[k],new_list[k+1]);
@@ -120,11 +129,22 @@ private:
         p.array[1]=int(this->random_gen.get_double()*(sP.pos[1]-1))*0.2+sP.pos[1]*0.80;
         p.array[2]=2;//int(this->random_gen.get_double()*(3.0));
         cout<<"Random--->"<<p.to_str()<<endl;
-        return {p,Point(0,0,0)};
+        return {p,Point(1,1,0)};
+    }
+    StatePoint get_random_pointV1(const StatePoint& sP)
+    {
+        Point p;
+
+        p.array[0]=int((this->grid_size[0]*0.5));
+        p.array[1]=int(this->random_gen.get_double()*this->grid_size[1]*0.3+(this->grid_size[1]-1)*0.3);
+        //p.array[1]=int(this->random_gen.get_double()*(sP.pos[1]-1))*0.2+sP.pos[1]*0.80;
+        p.array[2]=2;
+        cout<<"Random--->"<<p.to_str()<<endl;
+        return {p,Point(1,1,0)};
     }
     std::vector<StatePoint> add_middle_point_at_random(const std::vector<StatePoint> &A_list)
     {
-        return {*A_list.begin(),get_random_point(A_list.back()),A_list.back()};
+        return {*A_list.begin(),get_random_pointV1(A_list.back()),A_list.back()};
     }
     void pathsToDict(const vector<AStar::StatePoint>& allPath) {
         //RAW_policyMap.clear();

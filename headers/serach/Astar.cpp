@@ -157,7 +157,7 @@ int AStar::Generator::findPath( StatePoint& source_,const StatePoint& target_,bo
         if(res.size()>MAX_PATH)
             break;
         //debug
-        //cout<<"expand:\t"<<current->toStr()<<endl;
+//        cout<<"expand:\t"<<current->toStr()<<endl;
         if (current->coordinates->pos.operator==(target_.pos)) {
             if(not_exactly or current->coordinates->speed.operator==(target_.speed))
             {
@@ -531,7 +531,8 @@ AStar::uint AStar::Heuristic::manhattan2(const StatePoint &source_, const StateP
     }
     auto max_ele = *max_element(std::begin(l), std::end(l));
     auto min_ele = *min_element(std::begin(l), std::end(l));
-    return 1*max_ele+(1-sqrt(2))*min_ele;
+    //return max_ele-1;
+    return (1*max_ele+(1-sqrt(2))*min_ele);
     //return 1*(sum)+(1)*min_ele;
     //return it;
 }

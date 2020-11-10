@@ -71,11 +71,11 @@ void getConfigPath(int argc, char** argv,configGame &conf);
 typedef unsigned long ulong;
 int main(int argc, char** argv) {
 
-    std::vector v1 = {22, 5, 0, 1, 1, 0, 6, 9, 2, -1, -1, 1, 16};
-    std::vector v2 = {22, 5, 0, 1, 1, 0, 10, 4, 2, -1, -1, 1, 16};
-    cout<<"v2:"<<H_me(v2)<<endl;
-    cout<<"v1:"<<H_me(v1)<<endl;
-    if(H_me(v1)==H_me(v2)) cout<<"yes"<<endl;
+//    std::vector v1 = {22, 5, 0, 1, 1, 0, 6, 9, 2, -1, -1, 1, 16};
+//    std::vector v2 = {22, 5, 0, 1, 1, 0, 10, 4, 2, -1, -1, 1, 16};
+//    cout<<"v2:"<<H_me(v2)<<endl;
+//    cout<<"v1:"<<H_me(v1)<<endl;
+//    if(H_me(v1)==H_me(v2)) cout<<"yes"<<endl;
 
     //exit(0);
 
@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/eran/repo/track_racing/csv/con500.csv";
+    pathCsv  = home + "/eran/repo/track_racing/csv/con512.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;

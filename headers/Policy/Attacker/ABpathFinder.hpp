@@ -22,9 +22,9 @@ public:
     {}
 
     vector<vector<AStar::StatePoint>> get_paht_a_b(AStar::StatePoint& source_,const AStar::StatePoint& target_){
-        //cout<<"source:"<<source_<<" target:"<<target_<<endl;
-        gen.findPath(source_,target_,false, false);
-        //cout<<"done A*"<<endl;
+        cout<<"source:"<<source_<<" target:"<<target_<<endl;
+        gen.findPath(source_,target_,false, true);
+        cout<<"done A*"<<endl;
         assert(!gen.get_deep_list_nodes_ref_const().empty());
         return gen.get_deep_list_nodes();
         //assert(!list_nodes.empty());
@@ -44,7 +44,7 @@ public:
 class ABfinder{
     Randomizer randomizer_obj;
     Point GridSzie;
-    double stho=0.90;
+    double stho=0.6;
     u_int limt=10;
     u_int16_t MAX_SPEED=2;
     Point last_action;
@@ -61,7 +61,7 @@ public:
 
     vector<AStar::StatePoint> get_pathz(const AStar::StatePoint &A,const AStar::StatePoint &B)
     {
-        limt=this->randomizer_obj.get_double()*10+5;
+
         seq_state.clear();
         genarte_path(A,B);
         auto last_state = get_last_state();
@@ -86,10 +86,10 @@ private:
             bool bol=true;
             while(bol)
             {
-               // cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
+                cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
                 get_action_to_goal(cur,B);
                 bol=!vaild_move(cur);
-                assert(ctr++ < 500);
+                assert(ctr++ < 10000);
 
             }
             seq_state.emplace_back(cur);
@@ -101,7 +101,7 @@ private:
     {
 
         move_to_goal(cur,Goal);
-        //inset_noise();
+        inset_noise();
 
     }
     [[nodiscard]] bool less_than_limit(const AStar::StatePoint& cur,const AStar::StatePoint& Goal)const
@@ -131,8 +131,9 @@ private:
         }
 
     }
-    static int get_action_in_limt(int i,const AStar::StatePoint &cur)
+    static int get_action_in_limt(int i,const AStar::StatePoint &cur,const AStar::StatePoint& Goal)
     {
+
         if(cur.speed[i]>0)
             return -1;
         if(cur.speed[i]<0)
@@ -141,13 +142,13 @@ private:
     }
     [[nodiscard]] int get_move_aixs(int i,const AStar::StatePoint &cur,const AStar::StatePoint& Goal)
     {
-        if(stho<randomizer_obj.get_double()&& i<2)
-            return get_move_aixs_random(randomizer_obj.get_double());
-        if(std::abs(cur.pos[i]- Goal.pos[i]) < limt && i<=2)
+        //if(cur.pos[i]+limt > Goal.pos[i]) return -1;
+        if(std::abs(cur.pos[i]- Goal.pos[i]) < limt && i<2)
         {
-            return get_action_in_limt(i,cur);
+            return get_action_in_limt(i,cur,Goal);
         }
-
+//        if(stho<randomizer_obj.get_double()&& i<2)
+//            return get_move_aixs_random(randomizer_obj.get_double());
         if(i==2)
         {
             if(cur.pos[2]==this->GridSzie[2]-2 and  cur.speed[2]==0)

@@ -336,7 +336,7 @@ int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos,int jumps)
         attacker_step=0;
         //
         auto end = path.begin()+steo_takken+jumps+2;
-        //auto end = path.end();
+        //end = path.end();
        // int ctr=0;
         for(auto iter = path.begin()+steo_takken+jumps+1;iter!=end;iter++)
         {
@@ -347,7 +347,7 @@ int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos,int jumps)
         }
 
     }
-    return min_step/2 ;
+    return min_step/3 ;
 
 }
 
