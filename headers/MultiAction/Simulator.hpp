@@ -18,9 +18,10 @@
 #define DEBUGING
 //#define TRAJECTORY
 //#define Q_DATA
+//#define A_DATA
 
 #define BUFFER_TRAJECTORY 1 // need to be 9000 when saving
-#define STR_HOME_DIR "/car_model/out/"
+#define STR_HOME_DIR "/car_model/out/out0/"
 #include "util/Rand.hpp"
 #include "Abstract/Simulation.hpp"
 namespace info
@@ -64,7 +65,7 @@ class SimulationGame{
     //Grid _g;
     short stop=0;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=100000000;//100000000;
+    u_int32_t iterationsMAX=80000000;//50M//100M;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -160,7 +161,9 @@ public:
     }
     void get_agents_data_policy()const
     {
+        #ifdef A_DATA
         this->_attacker->getPolicy()->policy_data();
+        #endif
         #ifdef Q_DATA
         this->_defender->getPolicy()->policy_data();
         #endif
@@ -271,7 +274,7 @@ private:
         if(iterations>iterationsMAX ){
             cout<<"[iterationsMAX]"<<endl;
             return true;}
-        if( stop>=5){
+        if( stop>=3){
             cout<<"[stop]"<<endl;
             return true;}
         return false;
@@ -313,7 +316,7 @@ private:
             return false;
         u_int64_t ctr_states=0;
         if(info[info::CollId]==NUMBER) {
-            if(stop>2) {
+            if(stop>1) {
                 auto *ptr = dynamic_cast<RtdpAlgo *>(_defender->getPolicyInt());
                 ptr->getUtilRTDP()->start_inset = true;
                 this->info[info::OpenId]=ptr->getUtilRTDP()->inconsistent;

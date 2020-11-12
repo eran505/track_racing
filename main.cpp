@@ -71,16 +71,8 @@ void getConfigPath(int argc, char** argv,configGame &conf);
 typedef unsigned long ulong;
 int main(int argc, char** argv) {
 
-//    std::vector v1 = {22, 5, 0, 1, 1, 0, 6, 9, 2, -1, -1, 1, 16};
-//    std::vector v2 = {22, 5, 0, 1, 1, 0, 10, 4, 2, -1, -1, 1, 16};
-//    cout<<"v2:"<<H_me(v2)<<endl;
-//    cout<<"v1:"<<H_me(v1)<<endl;
-//    if(H_me(v1)==H_me(v2)) cout<<"yes"<<endl;
-
-    //exit(0);
-
     int seed = 1594198815;//1594198815;
-    seed = 1594198815;//1594198815;
+    seed = 1594133815;//1594198815;
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -132,7 +124,7 @@ int main(int argc, char** argv) {
         //toCsv(curToCsvPolciy,resultsConfigI->guardEval,labels);
         ctrId++;
         //Agent::ctr_object = 0;
-        //break;
+//        if(i==) break;
 
     }
 

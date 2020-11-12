@@ -86,7 +86,7 @@ private:
             bool bol=true;
             while(bol)
             {
-                cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
+                //cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
                 get_action_to_goal(cur,B);
                 bol=!vaild_move(cur);
                 assert(ctr++ < 10000);
@@ -143,7 +143,7 @@ private:
     [[nodiscard]] int get_move_aixs(int i,const AStar::StatePoint &cur,const AStar::StatePoint& Goal)
     {
         //if(cur.pos[i]+limt > Goal.pos[i]) return -1;
-        if(std::abs(cur.pos[i]- Goal.pos[i]) < limt && i<2)
+        if((std::abs(cur.pos[i]- Goal.pos[i]) < limt && i<2) or (i==2 and cur.pos[i]==3))
         {
             return get_action_in_limt(i,cur,Goal);
         }

@@ -21,5 +21,5 @@ do
   cd "${PATHtoFileDir}" || exit
   seed="$(($ConstSeed+$i*31))"
     echo "${seed}"
-    ./track_racing s ${seed}
+    ./track_racing4 s ${seed}
 done

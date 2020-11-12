@@ -123,10 +123,9 @@ private:
     StatePoint get_random_point(const StatePoint& sP)
     {
         Point p;
-
-        p.array[0]=int((this->grid_size[0]*0.1));
-        p.array[1]=int(this->random_gen.get_double()*(this->grid_size[1]-1));
-        p.array[1]=int(this->random_gen.get_double()*(sP.pos[1]-1))*0.2+sP.pos[1]*0.80;
+        p.array[0]=int((this->grid_size[0]*0.0));
+        p.array[1]=int(this->random_gen.get_double()*(this->grid_size[1]*0.95));
+        //p.array[1]=int(this->random_gen.get_double()*(sP.pos[1]))*0.8+(sP.pos[1])*0.2;
         p.array[2]=2;//int(this->random_gen.get_double()*(3.0));
         cout<<"Random--->"<<p.to_str()<<endl;
         return {p,Point(1,1,0)};
@@ -135,8 +134,8 @@ private:
     {
         Point p;
 
-        p.array[0]=int((this->grid_size[0]*0.5));
-        p.array[1]=int(this->random_gen.get_double()*this->grid_size[1]*0.3+(this->grid_size[1]-1)*0.3);
+        p.array[0]=int((this->grid_size[0]*0.0));
+        p.array[1]=int(this->random_gen.get_double()*this->grid_size[1]*0.5+(this->grid_size[1]-1)*0.22);
         //p.array[1]=int(this->random_gen.get_double()*(sP.pos[1]-1))*0.2+sP.pos[1]*0.80;
         p.array[2]=2;
         cout<<"Random--->"<<p.to_str()<<endl;
@@ -144,7 +143,7 @@ private:
     }
     std::vector<StatePoint> add_middle_point_at_random(const std::vector<StatePoint> &A_list)
     {
-        return {*A_list.begin(),get_random_pointV1(A_list.back()),A_list.back()};
+        return {*A_list.begin(),get_random_point(A_list.back()),A_list.back()};
     }
     void pathsToDict(const vector<AStar::StatePoint>& allPath) {
         //RAW_policyMap.clear();
