@@ -86,10 +86,10 @@ private:
             bool bol=true;
             while(bol)
             {
-                //cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
+                cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
                 get_action_to_goal(cur,B);
                 bol=!vaild_move(cur);
-                assert(ctr++ < 10000);
+                assert(ctr++ < 1000);
 
             }
             seq_state.emplace_back(cur);
@@ -196,7 +196,7 @@ private:
         if(cur.pos.any_ngative()) return true;
         if(!(this->GridSzie>cur.pos)) return true;
         if(!(this->GridSzie+1>cur.pos+cur.speed)) return true;
-        if((cur.pos+cur.speed).any_ngative()) return true;
+        if((cur.pos+cur.speed+1).any_ngative()) return true;
         if(cur.pos[2]+cur.speed[2]>=GridSzie[2]) return true;
         return false;
     }
