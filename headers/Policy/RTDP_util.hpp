@@ -20,7 +20,7 @@
 #include "Update_RTDP/Reward.hpp"
 #define DD
 //#define LAST_STATE_DEBUG // uncomment the (line 326 Simulator.hpp)
-//#define H_ZERO
+#define H_ZERO
 #define HEURISTOC
 typedef u_int64_t keyItem;
 typedef double cell;

@@ -80,6 +80,7 @@ int main(int argc, char** argv) {
     string f = "eran"; string sep = "/";
     string home = join(cut_first_appear(arrPAth,f),sep);
     home = sep+home;
+    if(home == "/home/lab2") home = "/home/lab2/eranher";
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;

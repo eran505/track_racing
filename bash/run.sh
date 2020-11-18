@@ -11,7 +11,9 @@ fi
 if [[ $SERVER == *"ubuntu-eranh"* ]]; then
   PATHtoFileDir=${HOME}"/eran/repo/track_racing/cmake-build-debug/"
 fi
-
+if [[ ${HOME} == *"/home/lab2"* ]]; then
+  PATHtoFileDir=${HOME}"/eranher/repo/track_racing"
+fi
 
 ConstSeed=$RANDOM
 
