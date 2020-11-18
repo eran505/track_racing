@@ -99,8 +99,8 @@ private:
     {
         vector<AStar::StatePoint> seq_state;
         vector<AStar::StatePoint> seq_state_all;
-        auto new_list = add_middle_point_at_random(A_list);
-        //auto new_list=A_list;
+        //auto new_list = add_middle_point_at_random(A_list);
+        auto new_list=A_list;
         if(new_list.size()==3)
         {
             seq_state = aBFinder.get_pathz(new_list[0],new_list[1]);
@@ -115,7 +115,7 @@ private:
         {
             seq_state = aBFinder.get_pathz(new_list[k],new_list[k+1]);
             //for(const auto &x:seq_state)cout<<x.toStr()<<endl;
-            std::move(seq_state.begin(), seq_state.end()-1, std::back_inserter(seq_state_all));
+            std::move(seq_state.begin(), seq_state.end(), std::back_inserter(seq_state_all));
         }
         return seq_state_all;
 

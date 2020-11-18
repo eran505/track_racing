@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/eran/repo/track_racing/csv/con512.csv";
+    pathCsv  = home + "/eran/repo/track_racing/csv/con500.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -124,6 +124,7 @@ int main(int argc, char** argv) {
         //toCsv(curToCsv,resultsConfigI->info,labels);
         //toCsv(curToCsvPolciy,resultsConfigI->guardEval,labels);
         ctrId++;
+
         //Agent::ctr_object = 0;
 //        if(i==) break;
 
@@ -169,9 +170,13 @@ void init_mdp(Grid *g, configGame &conf){
 
     std::vector<weightedPosition> listPointAttacker;
     std::vector<weightedPosition> listPointDefender;
-    listPointAttacker.emplace_back(Point(0,0,0),std::move(conf.posAttacker),1.0);
-    listPointDefender.emplace_back(Point(0,0,0),std::move(conf.posDefender),1.0);
 
+    int size_inital_state_A = conf.posAttacker.size();
+    for(auto &p:conf.posAttacker) listPointAttacker.emplace_back(Point(0,0,0),std::move(p),1.0);
+
+
+    int size_pos_D = conf.posDefender.size();
+    for(auto &p: conf.posDefender) listPointDefender.emplace_back(Point(0,0,0),std::move(p),1.0/size_pos_D);
 
     auto pA1 = std::make_unique<Agent>(listPointAttacker,State::agentEnum::A
             ,adversary,0);

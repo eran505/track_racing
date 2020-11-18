@@ -74,11 +74,11 @@ struct configGame{
     Point sizeGrid ;
     Point abst = Point(0);
     string config;
-    Point posAttacker;
+    vector<Point> posAttacker;
     int maxA{};
     u_int levelz=3;
     int maxD{};
-    Point posDefender;
+    vector<Point> posDefender;
     vector<Point> gGoals ;
     vector<double> probGoals;
     vector<bool> goalTarget;
@@ -95,8 +95,8 @@ public:
     {
         auto insetNoiseFunc = [&](Point &item){inset_noise_XY(item);};
         std::for_each(gGoals.begin(),gGoals.end(),insetNoiseFunc);
-        inset_noise_XY(this->posAttacker);
-        inset_noise_XY(this->posDefender);
+        inset_noise_XY(this->posAttacker.front());
+        inset_noise_XY(this->posDefender.front());
     }
     void inset_data(unordered_map<char,std::string> dicoD)
     {
@@ -113,8 +113,8 @@ public:
         distribution = std::uniform_int_distribution<int>(-1,1);
         idNumber=row[0];
         sizeGrid = Point(stoi(row[1]),stoi(row[2]),stoi(row[3]));
-        posAttacker = vecToPoint(splitStr(row[4],"|"));
-        posDefender = vecToPoint(splitStr(row[5],"|"));
+        posAttacker = VecToVecPoint(splitStr(row[4],"-"));
+        posDefender = VecToVecPoint(splitStr(row[5],"-"));
         auto goalsVecPos = splitStr(row[6],"-");
         auto goalsVecWights = splitStr(row[7],"-");
         auto midVec = splitStr(row[9],"-");
@@ -147,11 +147,16 @@ protected:
 
     static Point vecToPoint(vector<string> arr)
     {
-        if (Point::D == 3)
-            return Point(stoi(arr[0]),stoi(arr[1]),stoi(arr[2]));
-        if (Point::D == 2)
-            return Point(stoi(arr[0]),stoi(arr[1]));
-        throw std::invalid_argument( "No Matching Point Size [utilClass.hpp]" );
+        return Point(stoi(arr[0]),stoi(arr[1]),stoi(arr[2]));
+    }
+
+    static vector<Point> VecToVecPoint(vector<string> arr)
+    {
+        vector<Point> lVec;
+        std::transform(arr.begin(),arr.end(),std::back_inserter(lVec),[&](const std::string &item){
+            return vecToPoint(splitStr(item,"|"));
+        });
+        return lVec;
     }
     void addGoal(vector<string> &rGoalsVecPos,const vector<string>& rProbGoals){
         for(auto &item:rGoalsVecPos){

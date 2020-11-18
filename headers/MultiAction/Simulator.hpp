@@ -65,7 +65,7 @@ class SimulationGame{
     //Grid _g;
     short stop=0;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=80000000;//50M//100M;
+    u_int32_t iterationsMAX=200000;//50M//100M;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -289,6 +289,7 @@ private:
         _state->takeOff=false;
         _state->set_budget(_defender->get_id(),1);
         _state->set_budget(_attacker->get_id(),0);
+
     }
     void setPosSpeed(const Point &sSpeed,const Point &pPos,State::agentEnum id_str)
     {
