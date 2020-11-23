@@ -82,7 +82,7 @@ public:
         time_t+=jump;
         step_counter++;
         //cout<<"step_counter"<<step_counter<<endl;
-        assert(step_counter<1000);
+        assert(step_counter<5000);
         memo[step_counter]=time_t;
 
         return get_jumping_state(time_t,this->current_path);

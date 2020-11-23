@@ -347,7 +347,7 @@ int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos,int jumps)
         }
 
     }
-    return min_step/3 ;
+    return min_step ;
 
 }
 

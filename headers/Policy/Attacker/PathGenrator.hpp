@@ -99,8 +99,8 @@ private:
     {
         vector<AStar::StatePoint> seq_state;
         vector<AStar::StatePoint> seq_state_all;
-        //auto new_list = add_middle_point_at_random(A_list);
-        auto new_list=A_list;
+        auto new_list = add_middle_point_at_random(A_list);
+        //auto new_list=A_list;
         if(new_list.size()==3)
         {
             seq_state = aBFinder.get_pathz(new_list[0],new_list[1]);
@@ -123,7 +123,7 @@ private:
     StatePoint get_random_point(const StatePoint& sP)
     {
         Point p;
-        p.array[0]=int((this->grid_size[0]*0.0));
+        p.array[0]=int((this->grid_size[0]*0.1));
         p.array[1]=int(this->random_gen.get_double()*(this->grid_size[1]*0.95));
         //p.array[1]=int(this->random_gen.get_double()*(sP.pos[1]))*0.8+(sP.pos[1])*0.2;
         p.array[2]=2;//int(this->random_gen.get_double()*(3.0));
