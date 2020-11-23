@@ -122,10 +122,12 @@ private:
     }
     StatePoint get_random_point(const StatePoint& sP)
     {
+        double rand_num = this->random_gen.get_double();
+        cout<<rand_num<<endl;
         Point p;
         p.array[0]=int((this->grid_size[0]*0.1));
-        p.array[1]=int(this->random_gen.get_double()*(this->grid_size[1]*0.95));
-        //p.array[1]=int(this->random_gen.get_double()*(sP.pos[1]))*0.8+(sP.pos[1])*0.2;
+        //p.array[1]=int(this->random_gen.get_double()*(this->grid_size[1]*0.95));
+        p.array[1]=(int(rand_num*10)-5+(sP.pos[1]));
         p.array[2]=2;//int(this->random_gen.get_double()*(3.0));
         cout<<"Random--->"<<p.to_str()<<endl;
         return {p,Point(1,1,0)};

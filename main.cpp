@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
 
     int seed = 1594198815;//1594198815;
     seed = 1594133815;//1594198815;
-    seed=31489;
+    seed=31433389;
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -103,11 +103,12 @@ int main(int argc, char** argv) {
 
         configGame conf(row,seed);
         conf.inset_data(parser(argv,argc));
-        srand(conf._seed);
+
         //getConfigPath(argc,argv,conf);
         //conf.initRandomNoise(); // inset random noise (-1,1) XY
         conf.home=home;
         cout<<"seed:\t"<<conf._seed<<endl;
+        srand(conf._seed);
         string strId=row[0];
 
         curToCsv.append(toCsvPath);curToCsv.append("ID_");
@@ -218,7 +219,7 @@ void init_mdp(Grid *g, configGame &conf){
 //                                        g->getPointSzie(),conf._seed,conf.rRoutes);
 
     Policy *pAttcker = new StaticPolicy(conf.sizeGrid,maxA,pA1->get_id(),conf.rRoutes,conf.home
-                                        ,lStartingPointGoal,listPointAttacker);
+                                        ,lStartingPointGoal,listPointAttacker,conf._seed);
 
     //////// RTDP POLICY ////////
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);

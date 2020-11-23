@@ -22,9 +22,9 @@ public:
     {}
 
     vector<vector<AStar::StatePoint>> get_paht_a_b(AStar::StatePoint& source_,const AStar::StatePoint& target_){
-        cout<<"source:"<<source_<<" target:"<<target_<<endl;
+        //cout<<"source:"<<source_<<" target:"<<target_<<endl;
         gen.findPath(source_,target_,false, true);
-        cout<<"done A*"<<endl;
+        //cout<<"done A*"<<endl;
         assert(!gen.get_deep_list_nodes_ref_const().empty());
         return gen.get_deep_list_nodes();
         //assert(!list_nodes.empty());
@@ -86,7 +86,7 @@ private:
             bool bol=true;
             while(bol)
             {
-                cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
+                //cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
                 get_action_to_goal(cur,B);
                 bol=!vaild_move(cur);
                 assert(ctr++ < 10000);
