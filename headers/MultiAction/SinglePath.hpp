@@ -245,6 +245,9 @@ public:
     static void func2(Qtable_* big,const std::vector<std::unique_ptr<Qtable_>>& QVec,
                       const vector<cell>& pVec,const heuristicContainer& h_con)
     {
+        uint same=0;
+        uint diff=0;
+
         for(size_t j=0;j<pVec.size();++j)
         {
             //cout<<"j:"<<j<<endl;
@@ -254,10 +257,12 @@ public:
                 if(big->find(item.first)!=big->end())
                     continue; // if the key is already in the table
 
-                func4(big, item.first, QVec, pVec, h_con);
+                func4(big, item.first, QVec, pVec, h_con,same,diff);
             }
 
         }
+        cout<<"same: "<<same<<endl;
+        cout<<"diff: "<<diff<<endl;
     }
 
     static auto agg_Q_tables(const vector<cell>& pVec,const std::vector<std::unique_ptr<Qtable_>>& QVec,const heuristicContainer& h_con)
@@ -274,23 +279,20 @@ public:
         const auto _vecP = self_agg(vec_i,p);
         return agg(vec_big,_vecP);
     }
-    static void func4(unordered_map<u_int64_t,vector<cell>>* big, u_int64_t keyState,const std::vector<std::unique_ptr<Qtable_>>& QVec,
-                      const vector<cell>& pVec,const heuristicContainer& h_con){
+     static void func4(unordered_map<u_int64_t,vector<cell>>* big, u_int64_t keyState,const std::vector<std::unique_ptr<Qtable_>>& QVec,
+                      const vector<cell>& pVec,const heuristicContainer& h_con,uint& dif,uint& same){
 
         int occur =0;
         auto posBig = big->insert({keyState,vector<cell>(27)}).first;
         vector<cell> h_value = h_con.get_heuristic_path(keyState);
-
-
+        //std::fill(h_value.begin(),h_value.end(),0);
+        double p_h=0;
         for(size_t k=0;k<QVec.size();++k)
         {
 
             if(auto pos = QVec[k]->find(keyState);pos==QVec[k]->end())
             {
-                if(h_value.empty())
-                    h_value = h_con.get_heuristic_path(keyState);
-                posBig->second = func3(h_value,posBig->second,pVec[k]);
-
+                p_h+=pVec[k];
             }
             else{
                 const auto& vec_i = pos->second;
@@ -299,6 +301,21 @@ public:
 
             }
         }
+        cell v_max = *std::max_element(posBig->second.begin(),posBig->second.end());
+        std::for_each(h_value.begin(),h_value.end(),[p_h,v_max](cell &i){
+            if((i)>v_max*1/(1-p_h)){cout<<"b"<<endl;i=v_max*1/(1-p_h);}
+            //i = i>v_max?v_max:i;
+        }
+        );
+
+        posBig->second = func3(h_value,posBig->second,p_h);
+
+        if(posBig->second==h_value) same++;
+        else {
+
+            dif++;
+        }
+
         auto b = assert_func(posBig->second,h_value,keyState,occur);
 
     }
@@ -309,7 +326,7 @@ public:
             if(v[i]<0 and H_v[i]<0) continue;
             if(int(v[i])-int(H_v[i])>ep)
             {
-                cout<<key<<"<-key "<<i<<" mix:"<<v[i]<<" h:"<<H_v[i]<<" diff: "<<v[i]-H_v[i]<<" occur "<<occur<<endl;
+                // cout<<key<<"<-key "<<i<<" mix:"<<v[i]<<" h:"<<H_v[i]<<" diff: "<<v[i]-H_v[i]<<" occur "<<occur<<endl;
                 //return true;
                 //assert(false);
                 //return true;
@@ -364,6 +381,7 @@ public:
         std::unique_ptr<Qtable_> pytr = containerFixAggregator::agg_Q_tables(pVec,this->list_Q,heurist_con);
         this->set_all_Q_tavble(std::move(pytr));
 
+
         //get_policy_defender()->getUtilRTDP()->inset_move_dict_map(heurist_con.get_map_dict());
         cout<<"[][][][][][]"<<endl;
         eval_all_paths();
@@ -416,7 +434,7 @@ private:
     void eval_all_paths()
     {
         cout<<"[eval policy]"<<endl;
-        //_defender->evalPolicy();
+       // _defender->evalPolicy();
         _defender->getPolicyInt()->clear_tran();
         _defender->getPolicyInt()->add_tran(_attacker->getPolicyInt());
         get_policy_defender()->init_tran();

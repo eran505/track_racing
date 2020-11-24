@@ -132,13 +132,13 @@ private:
         }
         char sep=';';
         auto iter = probabilities.begin();
-//        for(const auto& item:all_paths) {
-//            cout<<*(iter++)<<sep;
-//            for (const auto & i : item) {
-//                cout << i << sep;
-//            }
-//            cout<<"\n"<<endl;
-//        }
+        for(const auto& item:all_paths) {
+            cout<<*(iter++)<<sep;
+            for (const auto & i : item) {
+                cout << i << sep;
+            }
+            cout<<"\n"<<endl;
+        }
 
     }
 

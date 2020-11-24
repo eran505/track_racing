@@ -13,7 +13,7 @@ public:
     valueType GoalReward = -500;
     valueType WallReward = -1000;
     valueType Step_reward = 0;
-    valueType discountF=0.99;//0.987;
+    valueType discountF=0.987;//0.987;
     static Rewards getRewards()
     {
         return Rewards();

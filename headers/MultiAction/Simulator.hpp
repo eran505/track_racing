@@ -302,12 +302,11 @@ private:
         iterations++;
         if(!save_data())
             return;
-//        cout<<"iterations: "<<iterations<<"\t";
-//        cout<<"Coll: "<<this->info[info::CollId]<<"\t";
-//        cout<<"Wall: "<<this->info[info::WallId]<<"\t";
-//        cout<<"Goal: "<<this->info[info::GoalId]<<"\t";
-//        cout<<"PassBy: "<<this->info[info::OpenId]<<"\t";
-//        cout<<endl;
+        cout<<"iterations: "<<iterations<<"\t";
+        cout<<"Coll: "<<this->info[info::CollId]<<"\t";
+        cout<<"Wall: "<<this->info[info::WallId]<<"\t";
+        cout<<"Goal: "<<this->info[info::GoalId]<<"\t";
+        cout<<endl;
         clear_info();
     }
     bool save_data()

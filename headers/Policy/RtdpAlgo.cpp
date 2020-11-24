@@ -51,7 +51,8 @@ Point RtdpAlgo::get_action(State *s)
              { s->takeOff = true; }
     }
     //inset to stack for backup update
-    this->stack_backup.inset_to_stack({State(*s),Point(action),entry});
+    if(!evalPolicy)
+        this->stack_backup.inset_to_stack({State(*s),Point(action),entry});
 
     //TODO: inset the state action tuple to the stack to update at the end of the episode
     //std::clock_t c_start = std::clock();
@@ -132,7 +133,7 @@ void RtdpAlgo::inset_to_stack(State *s,Point &action,u_int64_t state_entry)
 
 void RtdpAlgo::empty_stack_update() {
     if(this->stack_backup.is_empty()) return;
-    //if(evalPolicy) return;
+
     //this->stack_backup.pop();
     #ifdef PRINT
     this->stack_backup.print_stak();
