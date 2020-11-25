@@ -303,7 +303,7 @@ public:
         }
         cell v_max = *std::max_element(posBig->second.begin(),posBig->second.end());
         std::for_each(h_value.begin(),h_value.end(),[p_h,v_max](cell &i){
-            if((i)>v_max*1/(1-p_h)){cout<<"b"<<endl;i=v_max*1/(1-p_h);}
+            if((i)>v_max*1/(1-p_h)){i=v_max*1/(1-p_h);}
             //i = i>v_max?v_max:i;
         }
         );
