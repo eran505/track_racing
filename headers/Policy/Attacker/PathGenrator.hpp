@@ -99,8 +99,8 @@ private:
     {
         vector<AStar::StatePoint> seq_state;
         vector<AStar::StatePoint> seq_state_all;
-        //auto new_list = add_middle_point_at_random(A_list);
-        auto new_list=A_list;
+        auto new_list = add_middle_point_at_random(A_list);
+        //auto new_list=A_list;
         if(new_list.size()==3)
         {
             seq_state = aBFinder.get_pathz(new_list[0],new_list[1]);
@@ -126,27 +126,25 @@ private:
         double rand_num = this->random_gen.get_double();
         cout<<rand_num<<endl;
         Point p;
-        p.array[0]=int((this->grid_size[0]*0.1));
+        p.array[0]=int((this->grid_size[0]*0.5));
         //p.array[1]=int(this->random_gen.get_double()*(this->grid_size[1]*0.95));
         p.array[1]=(int(rand_num*gap*2)-gap+(sP.pos[1]));
         p.array[2]=2;
         cout<<"Random--->"<<p.to_str()<<endl;
         return {p,Point(1,1,0)};
     }
-    StatePoint get_random_pointV1(const StatePoint& sP)
+    StatePoint get_random_pointV1(const StatePoint& sP,double x_pos)
     {
         Point p;
-
-        p.array[0]=int((this->grid_size[0]*0.0));
-        p.array[1]=int(this->random_gen.get_double()*this->grid_size[1]*0.5+(this->grid_size[1]-1)*0.22);
-        //p.array[1]=int(this->random_gen.get_double()*(sP.pos[1]-1))*0.2+sP.pos[1]*0.80;
+        p.array[0]=int((this->grid_size[0]*x_pos));
+        p.array[1]=int(this->grid_size[1]*get_y_value_static_point(this->random_gen.get_double()));
         p.array[2]=2;
         cout<<"Random--->"<<p.to_str()<<endl;
         return {p,Point(1,1,0)};
     }
     std::vector<StatePoint> add_middle_point_at_random(const std::vector<StatePoint> &A_list)
     {
-        return {*A_list.begin(),get_random_point(A_list.back()),A_list.back()};
+        return {*A_list.begin(),get_random_pointV1(A_list.back(),0.2),get_random_pointV1(A_list.back(),0.58),A_list.back()};
     }
     void pathsToDict(const vector<AStar::StatePoint>& allPath) {
         //RAW_policyMap.clear();
@@ -178,6 +176,16 @@ private:
         }
         //cout<<allPath.back().pos.to_str()<<" | "<<allPath.back().speed.to_str()<<endl;
     }
+
+    static double get_y_value_static_point(double seed)
+    {
+        if(seed<0.3)
+            return 0.25;
+        else if (seed<0.7)
+            return 0.5;
+        else return 0.75;
+    }
+
 };
 
 #endif //TRACK_RACING_PATHGENRATOR_HPP
