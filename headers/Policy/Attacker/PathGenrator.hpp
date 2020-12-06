@@ -143,7 +143,7 @@ private:
     }
     std::vector<StatePoint> add_middle_point_at_random(const std::vector<StatePoint> &A_list)
     {
-        return {*A_list.begin(),get_random_pointV1(A_list.back(),0.5),A_list.back()};
+        return {*A_list.begin(),get_random_pointV1(A_list.back(),0.4),get_random_pointV1(A_list.back(),0.7),A_list.back()};
     }
     void pathsToDict(const vector<AStar::StatePoint>& allPath) {
         //RAW_policyMap.clear();
@@ -178,10 +178,10 @@ private:
 
     static double get_y_value_static_point(double seed)
     {
-        if(seed<0.2) return 0.2;
-        if(seed<0.5) return 0.4;
-        if(seed<0.7) return 0.6;
-        else return 0.8;
+        //if(seed<0.2) return 0.2;
+        if(seed<0.3) return 0.25;
+        if(seed<0.6) return 0.5;
+        else return 0.75;
     }
 
 };
