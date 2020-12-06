@@ -26,9 +26,11 @@ class MatchingPath{
     u_int16_t upper_thershold;
     u_int16_t differ_upper=3;
 public:
-    explicit MatchingPath(const Point &grid_size,uint16_t threshold=300):world_size(grid_size),upper_thershold(threshold ){}
+    explicit MatchingPath(const Point &grid_size,uint16_t threshold):world_size(grid_size),upper_thershold(threshold ){}
 
     std::vector<std::vector<u_int16_t>>  squarespace(std::vector<std::vector<Point>> attackerP,Point &&cube) {
+        if(upper_thershold==77)
+            return by_goalz(attackerP);
         std::vector<std::vector<u_int16_t>> similarity_array;
         std::vector<u_int16_t> similarity_array_AVG;
         similarity_array.reserve(1);
@@ -91,6 +93,27 @@ private:
             number_differ++;
         }
         return number_differ;
+    }
+    static std::vector<std::vector<u_int16_t>> by_goalz(const std::vector<std::vector<Point>> &attackerP)
+    {
+        std::vector<std::vector<u_int16_t>> idz_vector;
+        std::unordered_map<u_int64_t,u_int16_t> map_goal;
+        u_int16_t ctr_goal=0;
+        auto ctr_paths=0;
+        std::for_each(attackerP.begin(),attackerP.end(),[&](const std::vector<Point> &list_i){
+            if( auto pos = map_goal.find(list_i.back().expHash()); pos == map_goal.end())
+            {
+                map_goal.try_emplace(list_i.back().expHash(),ctr_goal++);
+                 idz_vector.emplace_back().push_back(ctr_paths++);
+                //v.push_back();
+            }
+            else{
+                idz_vector[pos->second].push_back(ctr_paths++);
+
+            }
+        });
+        cout<<"---> by Goals <---"<<endl;
+        return idz_vector;
     }
 
 };
@@ -279,12 +302,13 @@ public:
         const auto _vecP = self_agg(vec_i,p);
         return agg(vec_big,_vecP);
     }
-     static void func4(unordered_map<u_int64_t,vector<cell>>* big, u_int64_t keyState,const std::vector<std::unique_ptr<Qtable_>>& QVec,
+    static void func4(unordered_map<u_int64_t,vector<cell>>* big, u_int64_t keyState,const std::vector<std::unique_ptr<Qtable_>>& QVec,
                       const vector<cell>& pVec,const heuristicContainer& h_con,uint& dif,uint& same){
 
         int occur =0;
         auto posBig = big->insert({keyState,vector<cell>(27)}).first;
         vector<cell> h_value = h_con.get_heuristic_path(keyState);
+        cell max_item=-10000;
         //std::fill(h_value.begin(),h_value.end(),0);
         double p_h=0;
         for(size_t k=0;k<QVec.size();++k)
@@ -296,15 +320,18 @@ public:
             }
             else{
                 const auto& vec_i = pos->second;
+                max_item = std::max(max_item,*std::max_element(vec_i.begin(),vec_i.end()));
                 posBig->second = func3(vec_i,posBig->second,pVec[k]);
                 occur++;
 
             }
         }
         cell v_max = *std::max_element(posBig->second.begin(),posBig->second.end());
-        std::for_each(h_value.begin(),h_value.end(),[p_h,v_max](cell &i){
-            if((i)>v_max*1/(1-p_h)){i=v_max*1/(1-p_h);}
-            //i = i>v_max?v_max:i;
+        std::for_each(h_value.begin(),h_value.end(),[&](cell &i){
+            //if(i>max_item)i=max_item; // 1
+            if((i)>v_max*1/(1-p_h)){i=v_max*1/(1-p_h);} // 2
+            // 3
+
         }
         );
 
