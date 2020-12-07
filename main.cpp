@@ -71,7 +71,7 @@ void getConfigPath(int argc, char** argv,configGame &conf);
 typedef unsigned long ulong;
 int main(int argc, char** argv) {
 
-    int seed = 1594198815;//1594198815;
+    int seed = 31433389;//1594198815;
     //seed = 27328;//1594198815;
     //seed=31433389;
     //seed = int( time(nullptr));
