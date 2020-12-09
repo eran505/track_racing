@@ -69,10 +69,11 @@ void getConfigPath(int argc, char** argv,configGame &conf);
 #include <string_view>
 #include "Policy/Update_RTDP/PathMapper.hpp"
 typedef unsigned long ulong;
+bool admissible=false;
 int main(int argc, char** argv) {
 
-    int seed = 31433389;//1594198815;
-    //seed = 27328;//1594198815;
+    int seed = 91433389;//1594198815;
+    seed = 27328;//1594198815;
     //seed=31433389;
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
@@ -85,10 +86,11 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/eran/repo/track_racing/csv/small.csv";
+    pathCsv  = home + "/eran/repo/track_racing/csv/con500.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
+
 
 
     for (int i=1; i<csvRows.size();++i)
@@ -113,6 +115,7 @@ int main(int argc, char** argv) {
 
         curToCsvPolciy.append(toCsvPath);curToCsvPolciy.append("ID_");
         curToCsvPolciy.append(strId);curToCsvPolciy.append("_P.csv");
+
 
 
 

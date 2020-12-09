@@ -4,7 +4,7 @@
 
 #ifndef TRACK_RACING_SINGLEPATH_HPP
 #define TRACK_RACING_SINGLEPATH_HPP
-
+extern bool admissible;
 #include "Policy/Attacker/PathFinder.hpp"
 #include "Policy/Attacker/StaticPolicy.hpp"
 #include "Simulator.hpp"
@@ -23,14 +23,20 @@ typedef vector<vector<StatePoint>> attacker_pathz;
 class MatchingPath{
 
     Point world_size;
-    u_int16_t upper_thershold;
-    u_int16_t differ_upper=3;
+    int upper_thershold;
+    int differ_upper=3;
 public:
-    explicit MatchingPath(const Point &grid_size,uint16_t threshold):world_size(grid_size),upper_thershold(threshold ){}
+    explicit MatchingPath(const Point &grid_size,int threshold):world_size(grid_size),upper_thershold(threshold ){}
 
     std::vector<std::vector<u_int16_t>>  squarespace(std::vector<std::vector<Point>> attackerP,Point &&cube) {
-        if(upper_thershold==77)
+        if(upper_thershold==7)
             return by_goalz(attackerP);
+        // to set a id for the admissible H
+        if(upper_thershold<0)
+        {
+            admissible= true;
+            upper_thershold=0;
+        }
         std::vector<std::vector<u_int16_t>> similarity_array;
         std::vector<u_int16_t> similarity_array_AVG;
         similarity_array.reserve(1);
@@ -308,7 +314,7 @@ public:
         int occur =0;
         auto posBig = big->insert({keyState,vector<cell>(27)}).first;
         vector<cell> h_value = h_con.get_heuristic_path(keyState);
-        cell max_item=-10000;
+        cell max_item=1000000;
         //std::fill(h_value.begin(),h_value.end(),0);
         double p_h=0;
         for(size_t k=0;k<QVec.size();++k)
@@ -320,7 +326,7 @@ public:
             }
             else{
                 const auto& vec_i = pos->second;
-                max_item = std::max(max_item,*std::max_element(vec_i.begin(),vec_i.end()));
+                max_item = std::min(max_item,*std::max_element(vec_i.begin(),vec_i.end()));
                 posBig->second = func3(vec_i,posBig->second,pVec[k]);
                 occur++;
 
@@ -328,10 +334,13 @@ public:
         }
         cell v_max = *std::max_element(posBig->second.begin(),posBig->second.end());
         std::for_each(h_value.begin(),h_value.end(),[&](cell &i){
+                          // 0 /
             //if(i>max_item)i=max_item; // 1
-            if((i)>v_max*1/(1-p_h)){i=v_max*1/(1-p_h);} // 2
-            // 3
+            if(!admissible){
+                if((i)>v_max*1/(1-p_h)){i=v_max*1/(1-p_h);}
+            }
 
+            //if(i>v_max+p_h*i) i =v_max+p_h*i;
         }
         );
 

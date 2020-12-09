@@ -131,18 +131,18 @@ private:
         cout<<"Random--->"<<p.to_str()<<endl;
         return {p,Point(1,1,0)};
     }
-    StatePoint get_random_pointV1(const StatePoint& sP,double x_pos)
+    StatePoint get_random_pointV1(double x_pos,int div=3)
     {
         Point p;
         p.array[0]=int((this->grid_size[0]*x_pos));
-        p.array[1]=int(this->grid_size[1]*get_y_value_static_point(this->random_gen.get_double()));
+        p.array[1]=int(this->grid_size[1]*get_y_value_static_point_v1(this->random_gen.get_double(),div));
         p.array[2]=2;
         cout<<"Random--->"<<p.to_str()<<endl;
         return {p,Point(1,1,0)};
     }
     std::vector<StatePoint> add_middle_point_at_random(const std::vector<StatePoint> &A_list)
     {
-        return {*A_list.begin(),get_random_point(A_list.back(),0.4),get_random_pointV1(A_list.back(),0.7),A_list.back()};
+        return {*A_list.begin(),get_random_pointV1(0.3,4),get_random_pointV1(0.8,3),A_list.back()};
     }
     void pathsToDict(const vector<AStar::StatePoint>& allPath) {
         //RAW_policyMap.clear();
@@ -178,14 +178,25 @@ private:
     static double get_y_value_static_point(double seed)
     {
         //if(seed<0.1) return 0.1;
-        if(seed<0.2) return 0.2;
+        if(seed<0.20) return 0.2;
         //if(seed<0.3) return 0.3;
-        if(seed<0.4) return 0.4;
+        if(seed<0.40) return 0.4;
         //if(seed<0.5) return 0.5;
-        if(seed<0.6) return 0.6;
-        //if(seed<0.7) return 0.7;
-        if(seed<0.8) return 0.8;
-        else return 0.9;
+        if(seed<0.80) return 0.6;
+        //if(seed<0.7) return 0.7
+        else return 0.8;
+    }
+    static double get_y_value_static_point_v1(double seed,u_int16_t num_of_div)
+    {
+        double d = 1/double(num_of_div);
+        double acc=d;
+        while(acc<1)
+        {
+            if (seed<acc)
+                return acc;
+            acc+=d;
+        }
+        return 0.98;
     }
 
 };

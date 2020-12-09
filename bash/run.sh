@@ -17,11 +17,11 @@ fi
 
 ConstSeed=$RANDOM
 
-for i in {0..15}
+for i in {0..50}
 do
   echo "-->$i<--"
   cd "${PATHtoFileDir}" || exit
-  seed="$(($RANDOM+$i*31))"
+  seed="$((ConstSeed+$i*31))"
     echo "${seed}"
-    ./track_racing s ${seed}
+    ./track_racing1 s ${seed}
 done
