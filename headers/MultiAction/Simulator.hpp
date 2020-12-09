@@ -302,8 +302,8 @@ private:
         iterations++;
         if(!save_data())
             return;
-        cout<<"iterations: "<<iterations<<"\t";
-        cout<<"Coll: "<<this->info[info::CollId]<<"\t";
+//        cout<<"iterations: "<<iterations<<"\t";
+//        cout<<"Coll: "<<this->info[info::CollId]<<"\t";
 //        cout<<"Wall: "<<this->info[info::WallId]<<"\t";
 //        cout<<"Goal: "<<this->info[info::GoalId]<<"\t";
         cout<<endl;
