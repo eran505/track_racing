@@ -64,8 +64,9 @@ class SimulationGame{
 
     //Grid _g;
     short stop=0;
+    std::chrono::duration<long,std::ratio<1,1>>::rep time_start;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=20000000;//50M//20000000;
+    u_int32_t iterationsMAX=33000000;//50M//20000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -76,6 +77,8 @@ class SimulationGame{
     int last_mode=0;
     std::unique_ptr<Randomizer> random_object= nullptr;
     Grid *g= nullptr;
+    double alpha=1.0;
+    int stop_num =3;
     Saver<string> file_manger;
 #ifdef TRAJECTORY
     Saver<string> trajectory_file;
@@ -85,11 +88,11 @@ class SimulationGame{
 public:
 
     SimulationGame(configGame &conf,std::unique_ptr<Agent> agentA,
-                   std::unique_ptr<Agent> agentD,State *s):
+                   std::unique_ptr<Agent> agentD,State *s,bool is_single=false):
             _attacker(std::move(agentA)),
             _defender(std::move(agentD)),
             _state(std::make_unique<State>(*s)),random_object(std::make_unique<Randomizer>(conf._seed))
-            ,file_manger(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.eval_mode)+"_Eval.csv",10)
+            ,file_manger(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.eval_mode)+"_A"+std::to_string(conf.alpha)+"_Eval.csv",10)
             #ifdef TRAJECTORY
             ,trajectory_file(conf.home+STR_HOME_DIR+std::to_string(conf._seed)+"_u"+conf.idNumber+"_L"+std::to_string(conf.eval_mode)+"_Traj.csv",BUFFER_TRAJECTORY)//9000
             #endif
@@ -97,15 +100,23 @@ public:
 
         g=_state->g_grid;
         //this->iterationsMAX=std::max(g->getSizeIntGrid(),200000000);
-        file_manger.set_header_vec({"episodes","Collision","Wall" ,"Goal" ,"Inconsistent","States"});
+        file_manger.set_header_vec({"episodes","Collision","Wall" ,"Goal" ,"Inconsistent","States","time_ms"});
         #ifdef TRAJECTORY
         init_trajectory_file(conf);
         ///treeTraversal();
         #endif
-
+        time_start = conf.timeStart;
         this->_attacker->getPolicyInt()->prefix_file_name=std::to_string(conf._seed);
         this->_defender->getPolicyInt()->prefix_file_name=std::to_string(conf._seed);
-
+        if(is_single)
+        {
+            stop_num=1;
+            alpha=conf.alpha/10.0;
+            if(conf.alpha == 11){
+                this->alpha=1.0;
+                this->iterationsMAX=500000;
+            }
+        }
 
     }
     void init_trajectory_file(configGame &conf)
@@ -274,7 +285,7 @@ private:
         if(iterations>iterationsMAX ){
             cout<<"[iterationsMAX]"<<endl;
             return true;}
-        if( stop>=3){
+        if( stop>=stop_num){
             cout<<"[stop]"<<endl;
             return true;}
         return false;
@@ -302,8 +313,8 @@ private:
         iterations++;
         if(!save_data())
             return;
-//        cout<<"iterations: "<<iterations<<"\t";
-//        cout<<"Coll: "<<this->info[info::CollId]<<"\t";
+        cout<<"iterations: "<<iterations<<"\t";
+        cout<<"Coll: "<<this->info[info::CollId]<<"\t";
 //        cout<<"Wall: "<<this->info[info::WallId]<<"\t";
 //        cout<<"Goal: "<<this->info[info::GoalId]<<"\t";
         cout<<endl;
@@ -315,7 +326,7 @@ private:
         if(ctr%NUMBER>0)
             return false;
         u_int64_t ctr_states=0;
-        if(info[info::CollId]==NUMBER) {
+        if(info[info::CollId]>=NUMBER*alpha) {
             if(stop>1) {
                 auto *ptr = dynamic_cast<RtdpAlgo *>(_defender->getPolicyInt());
                 ptr->getUtilRTDP()->start_inset = true;
@@ -333,8 +344,12 @@ private:
         x.emplace_back(double(iterations)/double(iterationsMAX));
         for(auto item:info)
             x.emplace_back(item/double(NUMBER));
-        //x.emplace_back(ctr_action_defender);
         x.emplace_back(ctr_states);
+        //x.emplace_back(ctr_action_defender);
+        const auto p1 = std::chrono::system_clock::now();
+        x.emplace_back(std::chrono::duration_cast<std::chrono::microseconds>(
+                (p1).time_since_epoch()).count()-time_start);
+
 
 
         file_manger.inset_data(x);

@@ -101,12 +101,27 @@ private:
         vector<AStar::StatePoint> seq_state_all;
         auto new_list = add_middle_point_at_random(A_list);
         //auto new_list=A_list;
+        cout<<new_list<<endl;
         if(new_list.size()==3)
         {
             seq_state = aBFinder.get_pathz(new_list[0],new_list[1]);
             //for(const auto &x:seq_state)cout<<x.toStr()<<endl;
             std::move(seq_state.begin(), seq_state.end()-1, std::back_inserter(seq_state_all));
             seq_state = aBFinder.get_pathz(seq_state_all.back(),new_list[2]);
+            std::move(seq_state.begin()+1, seq_state.end(), std::back_inserter(seq_state_all));
+            return seq_state_all;
+
+        }
+        if(new_list.size()==4)
+        {
+
+            seq_state = aBFinder.get_pathz(new_list[0],new_list[1]);
+            //for(const auto &x:seq_state)cout<<x.toStr()<<endl;
+            std::move(seq_state.begin(), seq_state.end()-1, std::back_inserter(seq_state_all));
+            seq_state = aBFinder.get_pathz(seq_state_all.back(),new_list[2]);
+            std::move(seq_state.begin()+1, seq_state.end()-1, std::back_inserter(seq_state_all));
+
+            seq_state = aBFinder.get_pathz(seq_state_all.back(),new_list[3]);
             std::move(seq_state.begin()+1, seq_state.end(), std::back_inserter(seq_state_all));
             return seq_state_all;
 
@@ -135,14 +150,19 @@ private:
     {
         Point p;
         p.array[0]=int((this->grid_size[0]*x_pos));
-        p.array[1]=int(this->grid_size[1]*get_y_value_static_point_v1(this->random_gen.get_double(),div));
+        if (div==3)
+            p.array[1]=int(this->grid_size[1]*get_y_value_static_point_3(this->random_gen.get_double()));
+        else if (div==5)
+            p.array[1]=int(this->grid_size[1]*get_y_value_static_point_5(this->random_gen.get_double()));
+        else
+            p.array[1]=int(this->grid_size[1]*get_y_value_static_point_4(this->random_gen.get_double()));
         p.array[2]=2;
         cout<<"Random--->"<<p.to_str()<<endl;
         return {p,Point(1,1,0)};
     }
     std::vector<StatePoint> add_middle_point_at_random(const std::vector<StatePoint> &A_list)
     {
-        return {*A_list.begin(),get_random_pointV1(0.3,4),get_random_pointV1(0.8,3),A_list.back()};
+        return {*A_list.begin(),get_random_pointV1(0.3,5),get_random_pointV1(0.8,5),A_list.back()};
     }
     void pathsToDict(const vector<AStar::StatePoint>& allPath) {
         //RAW_policyMap.clear();
@@ -175,17 +195,40 @@ private:
         //cout<<allPath.back().pos.to_str()<<" | "<<allPath.back().speed.to_str()<<endl;
     }
 
-    static double get_y_value_static_point(double seed)
+    static double get_y_value_static_point_4(double seed)
+    {
+        //if(seed<0.1) return 0.1;
+        if(seed<0.25) return 0.2;
+        //if(seed<0.3) return 0.3;
+        if(seed<0.50) return 0.4;
+        //if(seed<0.5) return 0.5;
+        if(seed<0.75) return 0.6;
+        //if(seed<0.7) return 0.7
+        else return 0.8;
+    }
+    static double get_y_value_static_point_3(double seed)
+    {
+        //if(seed<0.1) return 0.1;
+        if(seed<0.33) return 0.3;
+        //if(seed<0.3) return 0.3;
+        if(seed<0.66) return 0.6;
+        //if(seed<0.5) return 0.5;
+        else return 0.9;
+
+    }
+    static double get_y_value_static_point_5(double seed)
     {
         //if(seed<0.1) return 0.1;
         if(seed<0.20) return 0.2;
         //if(seed<0.3) return 0.3;
         if(seed<0.40) return 0.4;
-        //if(seed<0.5) return 0.5;
-        if(seed<0.80) return 0.6;
-        //if(seed<0.7) return 0.7
-        else return 0.8;
+        if(seed<0.60) return 0.6;
+        if(seed<0.80) return 0.8;
+            //if(seed<0.7) return 0.7
+        else return 0.96;
     }
+
+
     static double get_y_value_static_point_v1(double seed,u_int16_t num_of_div)
     {
         double d = 1/double(num_of_div);

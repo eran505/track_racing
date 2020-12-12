@@ -23,7 +23,7 @@ void RtdpAlgo::reset_policy() {
 }
 
 
-const vector<double >* RtdpAlgo::TransitionAction(const State *s)const
+const vector<double>* RtdpAlgo::TransitionAction(const State *s)const
 {
 
     //return nullptr;
@@ -219,7 +219,6 @@ void RtdpAlgo::do_SEQ(State *s,const Point& a)
 {
     auto atmp=Point(a);
     s->applyAction(this->id_agent,atmp,this->max_speed,int(s->get_budget(this->get_id_name())));
-
 }
 
 //double RtdpAlgo::expected_reward_rec(State *s, int index_policy, deque<Point> &my_stack) {

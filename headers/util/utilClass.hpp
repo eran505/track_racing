@@ -9,6 +9,8 @@
 #ifndef TRACK_RACING_UTILCLASS_HPP
 #define TRACK_RACING_UTILCLASS_HPP
 
+
+
 unordered_map<char,string> parser(char** view_str,int size_arr)
 {
     unordered_map<char,string> argv_dict;
@@ -77,6 +79,8 @@ struct configGame{
     vector<Point> posAttacker;
     int maxA{};
     u_int levelz=3;
+
+    std::chrono::duration<long,std::ratio<1,1>>::rep timeStart;
     int maxD{};
     vector<Point> posDefender;
     vector<Point> gGoals ;
@@ -87,6 +91,7 @@ struct configGame{
     vector<Point> midPos;
     std::default_random_engine generator;
     std::uniform_int_distribution<int> distribution;
+    int alpha=10;
     int eval_mode = 0;
 public:
 
@@ -126,7 +131,12 @@ public:
         config = "";
         if(row.size()>10)
             eval_mode = stoi(row[11]);
+        if(row.size()>12)
+            alpha= stoi(row[12]);
         this->levelz=int(std::log2(this->sizeGrid.getMax()))+1;
+        const auto s = std::chrono::system_clock::now();
+        //std::chrono::duration<long,std::ratio<1,1>>::rep
+        timeStart = std::chrono::duration_cast<std::chrono::microseconds>(s.time_since_epoch()).count();
 
     };
     double getRandom(){return distribution(generator);}

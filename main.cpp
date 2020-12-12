@@ -72,9 +72,11 @@ typedef unsigned long ulong;
 bool admissible=false;
 int main(int argc, char** argv) {
 
+
+\
     int seed = 91433389;//1594198815;
-    seed = 27328;//1594198815;
-    //seed=31433389;
+    seed = 25627;//1594198815;
+    seed=31433389;
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -99,7 +101,7 @@ int main(int argc, char** argv) {
         string curToCsvPolciy;
         auto row = csvRows[i];
         // size of Grid
-
+        admissible=false;
         configGame conf(row,seed);
         conf.inset_data(parser(argv,argc));
 
@@ -232,7 +234,7 @@ void init_mdp(Grid *g, configGame &conf){
     auto *rtdp_ptr = dynamic_cast <RtdpAlgo*>(RTDP);
     rtdp_ptr->init_expder(level_num);
 
-//    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+    //std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
     FixAbstGame(conf,std::move(pA1),std::move(pD2),state0.get(),level_num);
 

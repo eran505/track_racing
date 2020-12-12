@@ -457,7 +457,7 @@ private:
         add_H(naive_attacker.get(),_defender.get());
 
         SimulationGame sim = SimulationGame(config,std::move(naive_attacker),
-                                            std::move(_defender),_start_state.get());
+                                            std::move(_defender),_start_state.get(), true);
 
         sim.main_loop();
         //sim.get_agnet_D()->getPolicy()->policy_data();
