@@ -114,7 +114,7 @@ public:
             alpha=conf.alpha/10.0;
             if(conf.alpha == 11){
                 this->alpha=1.0;
-                this->iterationsMAX=500000/conf.rRoutes;
+                this->iterationsMAX=15000;
             }
         }
 
