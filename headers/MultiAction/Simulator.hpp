@@ -66,7 +66,7 @@ class SimulationGame{
     short stop=0;
     std::chrono::duration<long,std::ratio<1,1>>::rep time_start;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=33000000;//50M//20000000;
+    u_int32_t iterationsMAX=10000000;//50M//20000000/3000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -112,9 +112,9 @@ public:
         {
             stop_num=1;
             alpha=conf.alpha/10.0;
-            if(conf.alpha == 11){
+            if(conf.alpha > 10){
                 this->alpha=1.0;
-                this->iterationsMAX=15000;
+                this->iterationsMAX=1000*((conf.alpha)-10);
             }
         }
 

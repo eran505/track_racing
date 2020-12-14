@@ -17,7 +17,7 @@ fi
 
 ConstSeed=$RANDOM
 
-for i in {0..50}
+for i in {0..3}
 do
   echo "-->$i<--"
   cd "${PATHtoFileDir}" || exit

@@ -32,11 +32,11 @@ public:
         if(upper_thershold==7)
             return by_goalz(attackerP);
         // to set a id for the admissible H
-        if(upper_thershold<0)
-        {
-            admissible= true;
-            upper_thershold=0;
-        }
+//        if(upper_thershold<0)
+//        {
+//            admissible= true;
+//            upper_thershold=0;
+//        }
         std::vector<std::vector<u_int16_t>> similarity_array;
         std::vector<u_int16_t> similarity_array_AVG;
         similarity_array.reserve(1);
@@ -332,27 +332,29 @@ public:
 
             }
         }
-        cell v_max = *std::max_element(posBig->second.begin(),posBig->second.end());
-        std::for_each(h_value.begin(),h_value.end(),[&](cell &i){
-                          // 0 /
-            //if(i>max_item)i=max_item; // 1
-            if(!admissible){
-                if((i)>v_max*1/(1-p_h)){i=v_max*1/(1-p_h);}
-            }
+        std::for_each(posBig->second.begin(), posBig->second.end(), [&](cell item) {
+            item = item / (1 - p_h);
+        });
 
-            //if(i>v_max+p_h*i) i =v_max+p_h*i;
-        }
-        );
+//        else{
+//            cell v_max = *std::max_element(posBig->second.begin(),posBig->second.end());
+//            std::for_each(h_value.begin(),h_value.end(),[&](cell &i){
+//                              if((i)>v_max*1/(1-p_h)){i=v_max*1/(1-p_h);}
+//                          }
+//            );
+//        }
 
-        posBig->second = func3(h_value,posBig->second,p_h);
 
-        if(posBig->second==h_value) same++;
-        else {
+//
+//        posBig->second = func3(h_value,posBig->second,p_h);
+//
+//        if(posBig->second==h_value) same++;
+//        else {
+//
+//            dif++;
+//        }
 
-            dif++;
-        }
-
-        auto b = assert_func(posBig->second,h_value,keyState,occur);
+        //auto b = assert_func(posBig->second,h_value,keyState,occur);
 
     }
     static bool assert_func(const vector<cell>& v,const vector<cell>& H_v,u_int64_t key,int occur)
