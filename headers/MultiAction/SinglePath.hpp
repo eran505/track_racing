@@ -313,7 +313,7 @@ public:
 
         int occur =0;
         auto posBig = big->insert({keyState,vector<cell>(27)}).first;
-        //vector<cell> h_value = h_con.get_heuristic_path(keyState);
+        vector<cell> h_value = h_con.get_heuristic_path(keyState);
         cell max_item=1000000;
         //std::fill(h_value.begin(),h_value.end(),0);
         double p_h=0;
@@ -332,22 +332,26 @@ public:
 
             }
         }
-        std::for_each(posBig->second.begin(), posBig->second.end(), [&](cell item) {
-            item = item / (1 - p_h);
-        });
-
-//        else{
-//            cell v_max = *std::max_element(posBig->second.begin(),posBig->second.end());
-//            std::for_each(h_value.begin(),h_value.end(),[&](cell &i){
-//                              if((i)>v_max*1/(1-p_h)){i=v_max*1/(1-p_h);}
-//                          }
-//            );
-//        }
+//        std::for_each(posBig->second.begin(), posBig->second.end(), [&](cell item) {
+//            item = item / (1 - p_h);
+//        });
 
 
-//
-//        posBig->second = func3(h_value,posBig->second,p_h);
-//
+//        cell v_max = *std::max_element(posBig->second.begin(),posBig->second.end());
+//        std::for_each(h_value.begin(),h_value.end(),[&](cell &i)
+//        { if((i)>v_max*1/(1-p_h)){i=v_max*1/(1-p_h); }});
+
+        for (int i = 0; i < h_value.size(); ++i) {
+            auto v_in = posBig->second[i]*1/(1-p_h);
+            if(h_value[i]>v_in) {
+                h_value[i] = v_in;
+            }
+        }
+
+
+
+        posBig->second = func3(h_value,posBig->second,p_h);
+
 //        if(posBig->second==h_value) same++;
 //        else {
 //

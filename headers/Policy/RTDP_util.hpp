@@ -167,6 +167,7 @@ public:
             //cout<<old<<":->"<<val;
             //cout<<"  S_ID:"<<entryState<<" actionID:"<<action.hashMeAction(Point::actionMax)<<endl;
             //assert(false);
+            //cout<<inconsistent<<endl;
             inconsistent++;
         }
         //if(std::abs(dif)==epslion) return;

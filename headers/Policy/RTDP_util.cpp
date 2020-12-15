@@ -70,7 +70,6 @@ void RTDP_util::heuristic(const State *s,keyItem entry_index)
             cout<<"  ["<<item_action.first<<"]="<<" step: "<<step<<" [s]->"<<oldState.to_string_state()<<" val="<<val<<endl;
         oldState.assignment(s,this->my_policy->id_agent);
         // insert to Q table
-
         this->set_value_matrix(entry_index,*item_action.second,val);
     }
    //cout<<endl;
@@ -338,22 +337,20 @@ int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos,int jumps)
         auto end = path.begin()+steo_takken+jumps+2;
         //end = path.end();
        // int ctr=0;
-       auto s_start =  path.begin()+steo_takken+jumps;
-        for(auto iter = s_start;iter!=end;iter++)
-        {
+       auto s_start=path.begin()+steo_takken+jumps;
+       for(auto iter = s_start;iter!=end;iter++)
+       {
             if (auto dif = Point::distance_min_step(agnet_pos, *iter);dif < min_step) {
                 min_step = dif;
             }
             //ctr+=2;
-        }
+       }
 
     }
-    return int(min_step/(3));
+    return int(min_step/3);
 
 }
 
 int RTDP_util::distance_H(const State &s) const {
-    auto d = Point::distance_min_step(s.get_position_ref(this->my_policy->cashID),s.get_position_ref(this->my_policy->get_id_name()));
-
-    return d/3;
+    return 10;
 }
