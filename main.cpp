@@ -76,7 +76,8 @@ int main(int argc, char** argv) {
 
     int seed = 91433389;//1594198815;
     seed = 25627;//1594198815;
-    seed=1607950615;
+    seed=1608028429;
+    seed =6714;
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);

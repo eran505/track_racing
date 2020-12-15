@@ -338,7 +338,8 @@ int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos,int jumps)
         auto end = path.begin()+steo_takken+jumps+2;
         //end = path.end();
        // int ctr=0;
-        for(auto iter = path.begin()+steo_takken+jumps+1;iter!=end;iter++)
+       auto s_start =  path.begin()+steo_takken+jumps;
+        for(auto iter = s_start;iter!=end;iter++)
         {
             if (auto dif = Point::distance_min_step(agnet_pos, *iter);dif < min_step) {
                 min_step = dif;
@@ -347,7 +348,7 @@ int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos,int jumps)
         }
 
     }
-    return min_step/3;
+    return int(min_step/(3));
 
 }
 

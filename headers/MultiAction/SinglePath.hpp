@@ -313,7 +313,7 @@ public:
 
         int occur =0;
         auto posBig = big->insert({keyState,vector<cell>(27)}).first;
-        vector<cell> h_value = h_con.get_heuristic_path(keyState);
+        //vector<cell> h_value = h_con.get_heuristic_path(keyState);
         cell max_item=1000000;
         //std::fill(h_value.begin(),h_value.end(),0);
         double p_h=0;

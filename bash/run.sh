@@ -18,9 +18,9 @@ if [[ ${HOME} == *"BGU-USER"* ]]; then
   PATHtoFileDir="/home/local/BGU-USERS/eranhe/eran/repo/track_racing"
 fi
 
-ConstSeed=$RANDOM
+ConstSeed=6714
 
-for i in {0..30}
+for i in {0..3}
 do
   echo "-->$i<--"
   cd "${PATHtoFileDir}" || exit
