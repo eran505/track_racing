@@ -226,10 +226,7 @@ private:
         return min_step/3;
     }
 
-    static int distance_H(const Point& Ap , const Point& Dp) {
-        auto d = Point::distance_min_step(Ap,Dp);
-        return d/3;
-    }
+
 
     static Point apply_action_sq(const Point& pos ,const Point &speed,const Point &action,int jumps,int max_speed)
     {
@@ -368,13 +365,6 @@ public:
 
         posBig->second = func3(h_value,posBig->second,p_h);
 
-//        if(posBig->second==h_value) same++;
-//        else {
-//
-//            dif++;
-//        }
-
-        //auto b = assert_func(posBig->second,h_value,keyState,occur);
 
     }
     static bool assert_func(const vector<cell>& v,const vector<cell>& H_v,u_int64_t key,int occur)

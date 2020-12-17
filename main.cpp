@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/eran/repo/track_racing/csv/con2.csv";
+    pathCsv  = home + "/eran/repo/track_racing/csv/con512.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
