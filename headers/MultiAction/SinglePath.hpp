@@ -24,13 +24,15 @@ class MatchingPath{
 
     Point world_size;
     int upper_thershold;
-    int differ_upper=3;
+    int differ_upper=2;
 public:
     explicit MatchingPath(const Point &grid_size,int threshold):world_size(grid_size),upper_thershold(threshold ){}
 
     std::vector<std::vector<u_int16_t>>  squarespace(std::vector<std::vector<Point>> attackerP,Point &&cube) {
         if(upper_thershold==7)
             return by_goalz(attackerP);
+        if (upper_thershold==0)
+            return single_path_div(attackerP);
         // to set a id for the admissible H
 //        if(upper_thershold<0)
 //        {
@@ -41,6 +43,7 @@ public:
         std::vector<u_int16_t> similarity_array_AVG;
         similarity_array.reserve(1);
         Point new_resolution = world_size / cube;
+        cout<<"new_resolution: "<<new_resolution.to_str()<<endl;
         differ_upper=attackerP.front().size()/3;
         //do
         std::for_each(attackerP[0].begin(), attackerP[0].end(), [&](Point &p) { p /= new_resolution; });
@@ -117,6 +120,19 @@ private:
                 idz_vector[pos->second].push_back(ctr_paths++);
 
             }
+        });
+        cout<<"---> by Goals <---"<<endl;
+        return idz_vector;
+    }
+    static std::vector<std::vector<u_int16_t>> single_path_div(const std::vector<std::vector<Point>> &attackerP)
+    {
+        std::vector<std::vector<u_int16_t>> idz_vector;
+        std::unordered_map<u_int64_t,u_int16_t> map_goal;
+        u_int16_t ctr_goal=0;
+        auto ctr_paths=0;
+        std::for_each(attackerP.begin(),attackerP.end(),[&](const std::vector<Point> &list_i){
+            map_goal.try_emplace(list_i.back().expHash(),ctr_goal++);
+            idz_vector.emplace_back().push_back(ctr_paths++);
         });
         cout<<"---> by Goals <---"<<endl;
         return idz_vector;
@@ -403,7 +419,7 @@ public:
     {
         get_all_paths();
         auto mp = MatchingPath(this->config.sizeGrid,config.eval_mode);
-        auto ids_vector = mp.squarespace(this->get_policy_attcker()->list_only_pos(),Point(10,10,1));
+        auto ids_vector = mp.squarespace(this->get_policy_attcker()->list_only_pos(),Point(5,5,1));
         auto l_list = sort_pathz_by_ids(ids_vector);
         if(l_list.size()==1){
             train_on_all_path();

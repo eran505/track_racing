@@ -309,7 +309,7 @@ void RTDP_util::resetQtable() {
 
 int RTDP_util::to_closet_path_H(const State &s)
 {
-    //return distance_H(s);
+   // return distance_H(s);
 #ifdef H_ZERO
     return 0;
 #endif
@@ -352,5 +352,5 @@ int RTDP_util::to_closet_path_H_calc(const Point& agnet_pos,int jumps)
 }
 
 int RTDP_util::distance_H(const State &s) const {
-    return 10;
+    return 10000;
 }
