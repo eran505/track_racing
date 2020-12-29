@@ -163,7 +163,7 @@ private:
     std::vector<StatePoint> add_middle_point_at_random(const std::vector<StatePoint> &A_list)
     {
         //return {*A_list.begin(),get_random_pointV1(0.3,5),get_random_pointV1(0.8,5),A_list.back()};
-        return {*A_list.begin(),get_random_point(0.5),A_list.back()};
+        return {*A_list.begin(),get_random_point(0.7),A_list.back()};
     }
     void pathsToDict(const vector<AStar::StatePoint>& allPath) {
         //RAW_policyMap.clear();

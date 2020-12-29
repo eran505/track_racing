@@ -66,7 +66,7 @@ class SimulationGame{
     short stop=0;
     std::chrono::duration<long,std::ratio<1,1>>::rep time_start;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=20000000;//10000000;//50M//20 000 000/3000000;
+    u_int32_t iterationsMAX=1000000;//10000000;//50M//20 000 000/3000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -78,7 +78,7 @@ class SimulationGame{
     std::unique_ptr<Randomizer> random_object= nullptr;
     Grid *g= nullptr;
     double alpha=1.0;
-    int stop_num =15;
+    int stop_num =25;
     Saver<string> file_manger;
 #ifdef TRAJECTORY
     Saver<string> trajectory_file;
@@ -398,7 +398,7 @@ private:
     {
         auto *ptr = dynamic_cast<RtdpAlgo *>(_defender->getPolicyInt());
         if(ptr->getUtilRTDP()->start_inset) return;
-        if(stop>2 or iterations+15000>iterationsMAX)
+        if(stop>2 or iterations+20000>iterationsMAX)
             ptr->getUtilRTDP()->start_inset = true;
     }
 
