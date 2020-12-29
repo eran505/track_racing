@@ -17,7 +17,7 @@
 #include "Policy/Attacker/PathFinder.hpp"
 #define DEBUGING
 //#define TRAJECTORY
-//#define Q_DATA
+#define Q_DATA
 #define A_DATA
 
 #define BUFFER_TRAJECTORY 1 // need to be 9000 when saving
@@ -66,7 +66,7 @@ class SimulationGame{
     short stop=0;
     std::chrono::duration<long,std::ratio<1,1>>::rep time_start;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=10000000;//10000000;//50M//20000000/3000000;
+    u_int32_t iterationsMAX=20000000;//10000000;//50M//20 000 000/3000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -78,7 +78,7 @@ class SimulationGame{
     std::unique_ptr<Randomizer> random_object= nullptr;
     Grid *g= nullptr;
     double alpha=1.0;
-    int stop_num =3;
+    int stop_num =15;
     Saver<string> file_manger;
 #ifdef TRAJECTORY
     Saver<string> trajectory_file;
@@ -325,15 +325,15 @@ private:
         ctr++;
         if(ctr%NUMBER>0)
             return false;
+        start_record_policy();
         u_int64_t ctr_states=0;
         if(info[info::CollId]>=NUMBER*alpha) {
+
             if(stop>1) {
                 auto *ptr = dynamic_cast<RtdpAlgo *>(_defender->getPolicyInt());
-                ptr->getUtilRTDP()->start_inset = true;
                 this->info[info::OpenId]=ptr->getUtilRTDP()->inconsistent;
                 this->info[info::Size]=ptr->getUtilRTDP()->inconsistent;
                 ctr_states = ptr->getUtilRTDP()->get_ctr_state();
-
             }
             stop += 1;
         }
@@ -393,6 +393,15 @@ private:
 #endif
 
     }
+
+    void start_record_policy()
+    {
+        auto *ptr = dynamic_cast<RtdpAlgo *>(_defender->getPolicyInt());
+        if(ptr->getUtilRTDP()->start_inset) return;
+        if(stop>2 or iterations+15000>iterationsMAX)
+            ptr->getUtilRTDP()->start_inset = true;
+    }
+
     void treeTraversal()
     {
         auto *ptr = dynamic_cast<PathFinder*>(this->_attacker->getPolicyInt());

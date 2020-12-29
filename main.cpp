@@ -76,9 +76,9 @@ int main(int argc, char** argv) {
 
     int seed = 91433389;//1594198815;
     seed = 25627;//1594198815;
-    seed=1608028429;
-    seed =6745;
+    seed=7745;
     seed=3467626;
+    seed =6962;
     //seed = int( time(nullptr));
     //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -90,7 +90,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/eran/repo/track_racing/csv/con512.csv";
+    pathCsv  = home + "/eran/repo/track_racing/csv/con3.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
