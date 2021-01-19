@@ -16,6 +16,8 @@ set(CMAKE_CXX_STANDARD 17)
 #set(CMAKE_CXX_FLAGS -DDEBUG)
 set(CMAKE_CXX_FLAGS "-Wall " )
 
+list(APPEND CMAKE_PREFIX_PATH "$ENV{HOME}/programs/torch/libtorch")
+
 find_package(Torch REQUIRED)
 
 include_directories(.)

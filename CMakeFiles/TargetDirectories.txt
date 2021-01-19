@@ -1,3 +1,0 @@
-/home/eranhe/eran/repo/track_racing/CMakeFiles/rebuild_cache.dir
-/home/eranhe/eran/repo/track_racing/CMakeFiles/track_racing.dir
-/home/eranhe/eran/repo/track_racing/CMakeFiles/edit_cache.dir
