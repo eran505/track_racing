@@ -106,17 +106,7 @@ public:
             distFirstMinusSec(posAgent,goalIdx,vec);
             //insetPoint(*goalIdx,vec);
         }
-        //==============debug====================================
-//        auto hashID = hashValueMe(*vec);
-//        if (mapStateHash.find(hashID)==mapStateHash.end())
-//        {
-//            auto str_state = s->to_string_state();
-//            string strPath = this->home+"/car_model/debug/d_states.csv";
-//            toCsvMap(strPath,hashID,str_state);
-//            mapStateHash.insert({hashID,str_state});
-//        }
 
-        // end================ debug===============================
         return vec ;
     }
     static unsigned long hashValueMe(vector<double> &vec){

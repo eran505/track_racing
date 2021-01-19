@@ -81,7 +81,7 @@ public:
         }else{ return pos->second;}
 
     }
-
+    [[nodiscard]] std::vector<int> to_mini_vector() const;
 
 
     bool is_collusion_radius(agentEnum id_player, agentEnum op_player, const Point &window);

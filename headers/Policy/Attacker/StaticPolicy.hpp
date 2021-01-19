@@ -29,6 +29,7 @@ public:
         make_mapper(std::move(lPathz),std::move(lProbabilites));
     }
 
+    u_int32_t get_max_len_path(){return mapper->get_max_path_size();}
 
     ~StaticPolicy() override = default;
     void reset_policy() override

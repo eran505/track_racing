@@ -11,6 +11,7 @@
 #include "headers/graph/graph_util.hpp"
 #include <memory>
 #include <utility>
+#include <cfloat>
 #include "Abstract/abstractionDiv.h"
 #include <vector>
 #include<algorithm>
@@ -29,10 +30,12 @@
 #include "Policy/Attacker/PathFinder.hpp"
 #include "MultiAction/SinglePath.hpp"
 #include "Policy/Attacker/StaticPolicy.hpp"
-//#include <torch/script.h> // One-stop header.
+#include "headers/learning/DeepAgent.hpp"
+#include "headers/learning/DeepSim.hpp"
+#include <torch/script.h> // One-stop header.
 #include "MultiAction/Simulator.hpp"
-#include "learning/ReplayBuffer/SumTree.hpp"
 #include "learning/ReplayBuffer/prioritizedExperienceReplay.hpp"
+#include "headers/learning/ReplayBuffer/TreeSum.hpp"
 u_int64_t H_me(std::vector<int> v);
 const char *  getConfigPath(int argc, char** argv);
 std::unique_ptr<Grid> init_grid(configGame &conf);
@@ -44,6 +47,7 @@ void toCsvString(string pathFile,vector<string>* infoArr);
 void toCSVTemp(string pathFile, vector<string> &data);
 void FixAbstGame(configGame &conf, std::unique_ptr<Agent> policyA,std::unique_ptr<Agent> policyD, State *s,int lev_number);
 void getConfigPath(int argc, char** argv,configGame &conf);
+void deep_learning(configGame &conf, std::unique_ptr<Agent> policyA, std::vector<weightedPosition> listPointDefender, State *s,int lev_number);
 /*
  * TODO LIST:
  * 1. in the State class, i think that its enough
@@ -68,19 +72,21 @@ void getConfigPath(int argc, char** argv,configGame &conf);
 
 #include <string_view>
 #include "Policy/Update_RTDP/PathMapper.hpp"
+
 typedef unsigned long ulong;
 bool admissible=false;
 int main(int argc, char** argv) {
 
 
 
+    printf("%d\n", FLT_EVAL_METHOD);
     int seed = 91433389;//1594198815;
     seed = 25627;//1594198815;
     seed=7745;
     seed=3467626;
     seed =6962;
     //seed = int( time(nullptr));
-    //torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
+    torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
     auto arrPAth = splitStr(getExePath(),"/");
     string f = "eran"; string sep = "/";
@@ -222,9 +228,11 @@ void init_mdp(Grid *g, configGame &conf){
 //                                       lStartingPointGoal,listPointAttacker,
 //                                        g->getPointSzie(),conf._seed,conf.rRoutes);
 
-    Policy *pAttcker = new StaticPolicy(conf.sizeGrid,maxA,pA1->get_id(),conf.rRoutes,conf.home
+    auto *pStaticPolicy = new StaticPolicy(conf.sizeGrid,maxA,pA1->get_id(),conf.rRoutes,conf.home
                                         ,lStartingPointGoal,listPointAttacker,conf._seed);
 
+    auto max_path_size = pStaticPolicy->get_max_len_path();
+    Policy *pAttcker = pStaticPolicy;
     //////// RTDP POLICY ////////
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
     Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),pD2->get_id(),conf.home);
@@ -236,14 +244,11 @@ void init_mdp(Grid *g, configGame &conf){
     auto *rtdp_ptr = dynamic_cast <RtdpAlgo*>(RTDP);
     rtdp_ptr->init_expder(level_num);
 
-    //std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
 
-    FixAbstGame(conf,std::move(pA1),std::move(pD2),state0.get(),level_num);
+    //FixAbstGame(conf,std::move(pA1),std::move(pD2),state0.get(),level_num);
+    conf.alpha=max_path_size;
+    deep_learning(conf,std::move(pA1),std::move(listPointDefender),state0.get(),level_num);
 
-//    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-//    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::seconds> (end - begin).count() << "[s]" << std::endl;
-//    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::microseconds>(end - begin).count() << "[µs]" << std::endl;
-//    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::nanoseconds> (end - begin).count() << "[ns]" << std::endl;
 
 
 }
@@ -255,7 +260,34 @@ void FixAbstGame(configGame &conf, std::unique_ptr<Agent> policyA,std::unique_pt
 
 
 }
+void deep_learning(configGame &conf, std::unique_ptr<Agent> policyA, std::vector<weightedPosition> listPointDefender, State *s,int lev_number)
+{
+    std::vector<int> vec_norm;
+    auto grid_size = s->g_grid->getPointSzie();
+    vec_norm.push_back(grid_size[0]); //0
+    vec_norm.push_back(grid_size[1]); //1
+    vec_norm.push_back(grid_size[2]); //2
+    vec_norm.push_back(conf.maxA);    //3
+    vec_norm.push_back(conf.maxA);    //4
+    vec_norm.push_back(conf.maxA);    //5
+    vec_norm.push_back(grid_size[0]); //6
+    vec_norm.push_back(grid_size[1]); //7
+    vec_norm.push_back(grid_size[2]); //8
+    vec_norm.push_back(conf.maxD);    //9
+    vec_norm.push_back(conf.maxD);    //10
+    vec_norm.push_back(conf.maxD);   //11
+    vec_norm.push_back(conf.alpha);   //12 \\ if time
+    auto l_g = s->g_grid->get_goals();
 
+
+    //auto d = std::make_unique<deepAgent>(std::move(listPointDefender));
+    auto dd = std::make_unique<deepAgent>(std::move(listPointDefender),
+                                          std::move(vec_norm),conf.sizeGrid,std::move(l_g)
+                                          ,conf._seed);
+    auto sim  = DeepSim::DeepSim(conf,std::move(policyA),std::move(dd),s);
+    sim.main_loop();
+
+}
 void toCSVTemp(string pathFile, vector<string> &data)
 {
     try

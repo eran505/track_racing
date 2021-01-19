@@ -35,7 +35,16 @@ public:
         memo=std::vector<u_int32_t>(max);
 
     }
-
+    u_int32_t get_max_path_size()
+    {
+        u_int32_t max =0;
+        for (auto path_item : all_paths)
+        {
+            if(max<path_item.size())
+                max=path_item.size();
+        }
+        return max;
+    }
     PathMapper()=default;
     void random_choose_path(double seed)
     {
