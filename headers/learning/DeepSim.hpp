@@ -4,7 +4,7 @@
 
 #ifndef TRACK_RACING_DEEPSIM_HPP
 #define TRACK_RACING_DEEPSIM_HPP
-
+#define OUTA
 #include <MultiAction/Simulator.hpp>
 #include "Policy.hpp"
 #include "Agent.hpp"
@@ -35,7 +35,7 @@ namespace DeepSim {
         Saver<string> file_manger;
         #endif
         std::vector<u_int64_t > _info= vector<u_int64_t>(5);
-        static constexpr u_int32_t learning_itreation=20000000;
+        static constexpr u_int32_t learning_itreation=200;
         static constexpr u_int32_t print_every=100;
         u_int32_t  steps=0;
     public:
@@ -80,18 +80,23 @@ namespace DeepSim {
             }
             reset();
             cout<<"[Simulator] EDN"<<endl;
+
+            #ifdef OUTA
+            this->_attacker->getPolicy()->policy_data();
+            #endif
+
         }
 
     private:
 
         void eval()
         {
-
+            u_int32_t ep_num=1;
             int wall_s=_info[entryID::WallId];
             int goal_s=_info[entryID::GoalId];
             int coll_s=_info[entryID::CollId];
 
-            for (int i = 0; i < 100; ++i) {
+            for (int i = 0; i < ep_num; ++i) {
                 reset();
                 while (true) {
                     this->_defender->do_action_eval(_state.get());
@@ -103,9 +108,9 @@ namespace DeepSim {
             }
             cout<<"\n-----EVAL----"<<endl;
             cout<<"iterations:"<<steps<<"\t";
-            cout<<"Coll: "<<_info[entryID::CollId]-coll_s<<"\t";
-            cout<<"Goal: "<<_info[entryID::GoalId]-goal_s<<"\t";
-            cout<<"Wall: "<<_info[entryID::WallId]-wall_s<<"\t\t\t";
+            cout<<"Coll: "<<float(_info[entryID::CollId]-coll_s)/ep_num<<"\t";
+            cout<<"Goal: "<<float(_info[entryID::GoalId]-goal_s)/ep_num<<"\t";
+            cout<<"Wall: "<<float(_info[entryID::WallId]-wall_s)/ep_num<<"\t\t\t";
             _info[entryID::WallId]=wall_s;
             _info[entryID::GoalId]=goal_s;
             _info[entryID::CollId]=coll_s;

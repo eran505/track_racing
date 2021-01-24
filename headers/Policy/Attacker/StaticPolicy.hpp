@@ -38,7 +38,7 @@ public:
     }
     void policy_data()const override{
 
-        string pathFile=this->home+"/car_model/debug/"+this->prefix_file_name+"_p.csv";
+        string pathFile=this->home+"/car_model/debug/p.csv";
 
         //print Q table--------------------------------
         try{

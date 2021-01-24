@@ -16,7 +16,7 @@
 class deepAgent{
     State::agentEnum id_agent = State::agentEnum::D;
     weightedPositionVector initialPosition;
-    ExperienceReplay buffer;
+    PriorBuffer<elementItem> buffer;
     u_int32_t counter_idx=0;
     // save the last step for the replay buffer (S,A)
     int last_action{};
@@ -34,8 +34,8 @@ class deepAgent{
     FF_net cur_net;
     FF_net target_net;
     std::unique_ptr<torch::optim::Adam> dqn_optimizer= nullptr;
-    double epsilon_start = 0.3;
-    double epsilon_final = 0.3;
+    double epsilon_start = 0.6;
+    double epsilon_final = 0.1;
     int64_t epsilon_decay = 30000;
     double epsilon=epsilon_start;
     int64_t batch_size = 4;
@@ -47,8 +47,8 @@ class deepAgent{
 public:
 
     deepAgent(std::vector<weightedPosition> &&start_positions,vector<int> normalization,const Point& Gird_size,vector<Point> l_goals,int seed
-              ,u_int32_t buffer_size=1000)
-    :initialPosition(start_positions),buffer(buffer_size),
+              ,u_int32_t buffer_size=50)
+    :initialPosition(start_positions),buffer(buffer_size,1.0,1e-6,true),
     _featuerzer(std::move(normalization),Gird_size,std::move(l_goals)),
      cur_net(_featuerzer.get_input_size()),
      target_net(_featuerzer.get_input_size()),
@@ -107,20 +107,10 @@ public:
         return id_agent;
     }
 
-    void push_batch_to_buffer(std::vector<std::tuple<torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor, torch::Tensor>> &tuple_list_bufffer,
-                              vector<float>& td_err)
+    void push_batch_to_buffer(const std::vector<unsigned int> &idx_vec,
+                              const vector<float>& td_err)
     {
-
-//        for(int i=0;i<td_err.size();++i)
-//        {
-//
-//            buffer.push(std::move(std::get<0>(tuple_list_bufffer[i])),
-//                        std::move(std::get<1>(tuple_list_bufffer[i])),
-//                        std::move(std::get<2>(tuple_list_bufffer[i])),
-//                        std::move(std::get<4>(tuple_list_bufffer[i])),
-//                        std::move(std::get<3>(tuple_list_bufffer[i]))
-//            );//,td_err[i],counter_idx++);
-//        }
+        buffer.updatePriorities_batch(idx_vec,td_err);
     }
 
     torch::Tensor compute_td_loss(u_int32_t k_batch_size)
@@ -133,13 +123,13 @@ public:
         std::vector<torch::Tensor> actions;
         std::vector<torch::Tensor> rewards;
         std::vector<torch::Tensor> dones;
-        for (auto i : sample_batch){
-           // i.to_string();
-            states.push_back(std::move(i._state));
-            new_states.push_back(std::move(i._next_state));
-            actions.push_back(std::move(i._action));
-            dones.push_back(std::move(i._done));
-            rewards.push_back(std::move(i._reward));
+        for (const auto &i : sample_batch){
+            elementItem objective = buffer.get_data_by_index(i);
+            states.push_back(objective.exp._state);
+            new_states.push_back(std::move(objective.exp._next_state));
+            actions.push_back(std::move(objective.exp._action));
+            dones.push_back(std::move(objective.exp._done));
+            rewards.push_back(std::move(objective.exp._reward));
         }
 
 
@@ -151,9 +141,9 @@ public:
 
 
 //        cout<<"S:"<<states_tensor<<endl;
-        //cout<<"A:"<<actions_tensor.item().toInt()<<endl;
-        //cout<<"R:"<<rewards_tensor.item().toFloat()<<endl;
-        //cout<<"Done:"<<dones_tensor.item().toFloat()<<endl;
+//        cout<<"A:"<<actions_tensor<<endl;
+//        cout<<"R:"<<rewards_tensor<<endl;
+//        cout<<"Done:"<<dones_tensor<<endl;
 //        cout<<"S':"<<new_states_tensor<<endl;
 
 
@@ -188,7 +178,7 @@ public:
 
         std::vector<float> loss_vec(td_err_ten.data_ptr<float>(), td_err_ten.data_ptr<float>() + td_err_ten.numel());
 
-        //push_batch_to_buffer(sample_batch,loss_vec);
+        push_batch_to_buffer(sample_batch,loss_vec);
        //cout<<"td_error: "<<loss_vec.front()<<endl;
 
 //        torch::NoGradGuard guard;
@@ -200,8 +190,6 @@ public:
 //        }
 //        for (auto& item :  cur_net.parameters())
 //            cout<<item.data()<<endl;
-
-        //torch::clamp_(parm.grad(), -this->GRADIENT_CLIP, GRADIENT_CLIP);
 
         return loss;
     }
@@ -228,12 +216,13 @@ public:
 
        // auto td_error_socre = buffer.biggest_error;
         // insert to buffer
-
-        buffer.push(std::move(expItem));//,td_error_socre,counter_idx);
-
-        if (counter_idx>=10)
+        if (reward>0) // TODO: if positive reward makes effect
+            buffer.push(10.0,std::move(expItem));
+        else
+            buffer.push(0.7,std::move(expItem));
+        if (counter_idx>=5)
         {
-            compute_td_loss(8);
+            compute_td_loss(2);
         }
 
         if(counter_idx%1==0)

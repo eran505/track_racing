@@ -10,7 +10,19 @@
 
 
 
+struct tmp{
 
+    int x;
+public:
+    explicit tmp(int _x):x(_x){}
+    tmp():x(0){}
+    [[nodiscard]] u_int64_t hashValue()const{return x;}
+
+    friend ostream& operator<<(ostream& os, const tmp& dt){
+        os<<dt.x;
+        return os;
+    }
+};
 
 
 
@@ -200,7 +212,7 @@ public:
     **/
     tuple<unsigned int,unsigned int>  getElementByPartialSum(metric s){
         auto idxTree= this->retrieve2(0, s);
-        auto idxData = idxTree - 3 + 1;
+        auto idxData = idxTree - this->capacity + 1;
         return {idxTree,idxData};
     }
     /**

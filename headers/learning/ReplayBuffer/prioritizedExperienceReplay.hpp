@@ -17,31 +17,33 @@ class PriorBuffer{
 
     unsigned int powerOf2Size;
 
-    int CAPACITY_FOR_LEARNING;
+
     short ctr=0;
     bool ready;
     std::unique_ptr< SumTree<T>> opSumTree= nullptr;
     double alpha;
-    double maximalPriority;
     double epsilon;
     bool allowDuplicatesInBatchSampling;
     std::default_random_engine generator;
     std::uniform_real_distribution<double> distribution;
+    int incermantl_size=0;
+public:
     vector<unsigned int> batchSampleIndex;
     vector<T> batchSampleData;
-
-    explicit PriorBuffer(unsigned int size,int _capacity,double _alpha=0.6, double _epslion=1e-6,
-                         double maximal_priority=1.0, bool _allowDuplicatesInBatchSampling=true, int seed=1234):powerOf2Size(1),
-                         alpha(_alpha), maximalPriority(maximal_priority)
+public:
+    explicit PriorBuffer(unsigned int size,double _alpha=0.6, double _epslion=1e-6,
+                          bool _allowDuplicatesInBatchSampling=true, int seed=1234):powerOf2Size(1),
+                         alpha(_alpha)
         , epsilon(_epslion), allowDuplicatesInBatchSampling(_allowDuplicatesInBatchSampling),generator(seed){
-        while(size > powerOf2Size) powerOf2Size *=2;
+        powerOf2Size = std::pow(2,int(log2(size))+1);
+        //while(size > powerOf2Size) powerOf2Size *=2;
         this->opSumTree = std::make_unique<SumTree<T>>(powerOf2Size, operationTree::addTree);
         ready=false;
-        CAPACITY_FOR_LEARNING=_capacity;
     }
 
-    void add(double error, T sample){
+    void push(double error, T sample){
         this->ctr++;
+        this->incermantl_size++;
         auto p =  powf((error + epsilon),this->alpha);
         this->opSumTree->add(p,sample);
     }
@@ -52,26 +54,32 @@ class PriorBuffer{
      :param size: the size of the batch to sample
      :return: a batch (list) of selected transitions from the replay buffer
     **/
-    void sample(unsigned int batchSize)
+    const std::vector<u_int>& sample_queue(unsigned int batchSize)
     {
-        this->batchSampleData.clear();
-        this->batchSampleIndex.clear();
+        if(batchSize-batchSampleIndex.size()!=0) {
+            batchSampleIndex = vector<unsigned int>(batchSize);
+        }
 
         auto segment = this->opSumTree->total()/double(batchSize);
         for (int i = 0; i < batchSize; ++i) {
-
             auto a = segment * double(i);
             auto b = segment * (double((i + 1)));
-            auto s = distribution(generator);
+            a=0;
+            b=this->opSumTree->total();
+            auto s = distribution(generator) * (b-a) + a;
             auto tupIndexes = this->opSumTree->getElementByPartialSum(s);
             auto idxTreeError = std::get<0>(tupIndexes);
             auto idxData = std::get<1>(tupIndexes);
-            batchSampleIndex.push_back(idxData);
-            auto expDAta = this->opSumTree->getData(idxData);
-            assert(expDAta != nullptr);
-            batchSampleData.push_back(expDAta);
+           // cout<<idxData<<":"<<this->opSumTree->tree[idxTreeError]<<" | ";
+            batchSampleIndex[i]=idxData;
         }
+      //  cout<<endl;
+        return batchSampleIndex;
+    }
 
+    T get_data_by_index(u_int64_t idx)
+    {
+        return opSumTree->dataTree[idx];
     }
 
     void updatePriority(unsigned int leafIdx, double error){
@@ -82,7 +90,7 @@ class PriorBuffer{
         this->opSumTree->update(leafIdx,newPriority);
     }
 
-    void updatePriorities_batch(vector<unsigned int> &leafIdxVec,vector<double> &errorVec)
+    void updatePriorities_batch(const vector<unsigned int> &leafIdxVec,const vector<float> &errorVec)
     {
         for (size_t i = 0; i < leafIdxVec.size(); ++i)
             this->updatePriority(leafIdxVec[i],errorVec[i]);

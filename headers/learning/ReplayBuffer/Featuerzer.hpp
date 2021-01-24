@@ -31,11 +31,12 @@ public:
         cout<<"_reward: "<<_reward<<endl;
         cout<<"_done: "<<_done<<endl;
     }
+    experienceTensor()=default;
 };
 
 struct elementItem{
 
-    u_int64_t hash;
+    u_int64_t hash=0;
     experienceTensor exp;
 
 public:
@@ -45,7 +46,7 @@ public:
     bool operator<(const struct elementItem& other) const{
         return td_error < other.td_error;
     }
-
+    elementItem()=default;
     elementItem(torch::Tensor &&s ,u_int64_t s_id , torch::Tensor &&s_next , u_int64_t s_next_id ,torch::Tensor &&action,torch::Tensor &&reward,torch::Tensor &&done)
     :hash(getHash(s_id,s_next_id, action.item().toLong()))
     ,exp(std::move(s),
@@ -58,10 +59,13 @@ public:
             if(exp._done.item().toInt()>0)
                 td_error=1;
     }
-//    std::back_insert_iterator<elementItem> back_inserter( elementItem& c )
-//    {
-//        return std::back_insert_iterator<elementItem>(c);
-//    }
+
+    [[nodiscard]] u_int64_t hashValue()const {return hash;}
+
+    friend ostream& operator<<(ostream& os,const elementItem &td)
+    {
+        return os<<"(h)"<<td.hash;
+    }
 
     static u_int64_t getHash(const u_int64_t s ,const u_int64_t s_next_id ,u_int64_t action)
     {
@@ -75,6 +79,8 @@ public:
 
 
 };
+
+
 
 class Featuerzer{
     std::unique_ptr<unordered_map<unsigned int,Point>> action_dico = Point::getDictActionUniqie();

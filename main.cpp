@@ -78,13 +78,12 @@ bool admissible=false;
 int main(int argc, char** argv) {
 
 
-
     printf("%d\n", FLT_EVAL_METHOD);
     int seed = 91433389;//1594198815;
-    seed = 25627;//1594198815;
-    seed=7745;
+    seed=1594198815;
     seed=3467626;
-    seed =6962;
+    seed = 25627;//1594198815;
+    //seed =6962;
     //seed = int( time(nullptr));
     torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
@@ -245,9 +244,9 @@ void init_mdp(Grid *g, configGame &conf){
     rtdp_ptr->init_expder(level_num);
 
 
-    //FixAbstGame(conf,std::move(pA1),std::move(pD2),state0.get(),level_num);
+    FixAbstGame(conf,std::move(pA1),std::move(pD2),state0.get(),level_num);
     conf.alpha=max_path_size;
-    deep_learning(conf,std::move(pA1),std::move(listPointDefender),state0.get(),level_num);
+    //deep_learning(conf,std::move(pA1),std::move(listPointDefender),state0.get(),level_num);
 
 
 
