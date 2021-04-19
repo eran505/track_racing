@@ -29,7 +29,7 @@ public:
         return gen.get_deep_list_nodes();
         //assert(!list_nodes.empty());
     }
-    vector<AStar::StatePoint> get_path_a_b_Astar(AStar::StatePoint& source_,const AStar::StatePoint& target_,bool at_random=true){
+    vector<AStar::StatePoint> get_path_a_b_Astar(AStar::StatePoint& source_,const AStar::StatePoint& target_,bool at_random=false){
         auto l = get_paht_a_b(source_,target_);
         int index=0;
         if(at_random)
@@ -44,8 +44,8 @@ public:
 class ABfinder{
     Randomizer randomizer_obj;
     Point GridSzie;
-    double stho=0.9;
-    u_int limt=16; //10
+    double stho=1.0;
+    u_int limt=15; //10
     u_int16_t MAX_SPEED=2;
     Point last_action;
     bool is_random=false;
@@ -89,7 +89,7 @@ private:
                 //cout<<"cur: {"<<cur.pos.to_str()<<"}, {"<<cur.speed.to_str()<<"}"<<"action="<<last_action.to_hash_str()<<endl;
                 get_action_to_goal(cur,B);
                 bol=!vaild_move(cur);
-                assert(ctr++ < 100000);
+                assert(ctr++ < 10000);
 
             }
             seq_state.emplace_back(cur);
@@ -151,6 +151,8 @@ private:
             return get_move_aixs_random(randomizer_obj.get_double());
         if(i==2)
         {
+            if (this->GridSzie[i]==1)
+                return 0;
             if(cur.pos[2]==this->GridSzie[2]-2 and  cur.speed[2]==0)
                 return 0;
             if(cur.pos[2]==this->GridSzie[2]-2 and  cur.speed[2]>0)

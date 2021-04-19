@@ -2,12 +2,13 @@
 // Created by ise on 15.12.2019.
 //
 
-
+#include "learning/FeatureGen.h"
 #include "RTDP_util.hpp"
 
 RTDP_util::RTDP_util(int grid_size,string &mHome):home(mHome),last_entry() {
     this->hashActionMap=Point::getDictAction();
     size_mapAction = hashActionMap->size();
+//    FeatureGen featurer (this->my_policy->id_agent,)
     HashFuction=[](const State *s){return s->getHashValue();};
 }
 

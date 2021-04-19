@@ -42,7 +42,7 @@ public:
     State():g_grid(nullptr),takeOff(false){};
     State(const State &other) = default;
 
-
+    [[nodiscard]] vector<float> state_to_features()const;
     void assignment( State &other);
     void assignment( const State *other,agentEnum idname);
     [[nodiscard]] double isGoal(agentEnum idStr)const;

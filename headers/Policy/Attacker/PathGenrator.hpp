@@ -99,8 +99,8 @@ private:
     {
         vector<AStar::StatePoint> seq_state;
         vector<AStar::StatePoint> seq_state_all;
-        //auto new_list = add_middle_point_at_random(A_list);
-        auto new_list=A_list;
+        auto new_list = add_middle_point_at_random(A_list);
+        //auto new_list=A_list;
         cout<<new_list<<endl;
         if(new_list.size()==3)
         {
@@ -142,7 +142,7 @@ private:
         Point p;
         p.array[0]=int((this->grid_size[0]*x_pos));
         p.array[1]=int(this->random_gen.get_double()*(this->grid_size[1]*0.98));
-        p.array[2]=2;
+        p.array[2]=0;
         cout<<"Random--->"<<p.to_str()<<endl;
         return {p,Point(1,1,0)};
     }
@@ -156,14 +156,15 @@ private:
             p.array[1]=int(this->grid_size[1]*get_y_value_static_point_5(this->random_gen.get_double()));
         else
             p.array[1]=int(this->grid_size[1]*get_y_value_static_point_4(this->random_gen.get_double()));
-        p.array[2]=2;
+        p.array[2]=0;
         cout<<"Random--->"<<p.to_str()<<endl;
         return {p,Point(1,1,0)};
     }
     std::vector<StatePoint> add_middle_point_at_random(const std::vector<StatePoint> &A_list)
     {
-        //return {*A_list.begin(),get_random_pointV1(0.3,5),get_random_pointV1(0.8,5),A_list.back()};
-        return {*A_list.begin(),get_random_point(0.4),A_list.back()};
+        return {*A_list.begin(),get_random_pointV1(0.6,4),A_list.back()};
+        //return {*A_list.begin(),get_random_pointV1(0.3,5),get_random_pointV1(0.7,5),A_list.back()};
+        //return {*A_list.begin(),get_random_point(0.4),A_list.back()};
     }
     void pathsToDict(const vector<AStar::StatePoint>& allPath) {
         //RAW_policyMap.clear();
@@ -209,6 +210,7 @@ private:
     }
     static double get_y_value_static_point_3(double seed)
     {
+
         //if(seed<0.1) return 0.1;
         if(seed<0.33) return 0.3;
         //if(seed<0.3) return 0.3;
@@ -219,6 +221,7 @@ private:
     }
     static double get_y_value_static_point_5(double seed)
     {
+
         //if(seed<0.1) return 0.1;
         if(seed<0.20) return 0.2;
         //if(seed<0.3) return 0.3;

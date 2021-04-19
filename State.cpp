@@ -85,27 +85,6 @@ bool State::is_collusion_radius(agentEnum id_player, agentEnum op_player, const 
 }
 
 
-//set<string> State::is_collusion() {
-//    //// return all player that collide
-//    set<string> values;
-//    for(auto item : this->pos_dict){
-//        char team_id = item.first.operator[](item.first.size()-1);
-//        for (auto item2 : this->pos_dict)
-//        {
-//            char team_id_other = item2.first.operator[](item.first.size()-1);
-//            if (team_id_other == team_id)
-//                continue;
-//            if (item.second.is_equal(&item2.second))
-//            {
-//                values.insert(item.first);
-//                values.insert(item2.first);
-//                break;
-//            }
-//        }
-//    }
-//    return values;
-//}
-
 
 
 
@@ -145,6 +124,14 @@ bool State::applyAction( agentEnum id,Point &action, int max_speed,int jumps) {
     }
     auto outBound = this->g_grid->is_wall(this->dataPoint[id*2]);
     return outBound;
+}
+
+
+
+vector<float> State::state_to_features() const
+{
+    vector<float> arr(12);
+    return arr;
 }
 
 

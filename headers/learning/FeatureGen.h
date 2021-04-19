@@ -14,8 +14,8 @@
  */
 
 class FeatureGen{
-    string uAgentId;
-    const string uOppId="0A";
+    State::agentEnum uAgentId=State::agentEnum::D;
+    State::agentEnum uOppId=State::agentEnum::A;
     int sizeVec;
     string home;
     int indexer;
@@ -25,7 +25,7 @@ class FeatureGen{
 
 public:
     void set_string_home(string &stringHome){this->home=stringHome;}
-    FeatureGen(string myId, int _numOfGoals,int _maxSpeed):sizeVec(0),uAgentId(std::move(myId)),indexer(0),actionMap(nullptr){
+    FeatureGen(int _numOfGoals,int _maxSpeed):sizeVec(0),indexer(0),actionMap(nullptr){
         this->sizeVec+=int(Point::D_point::D)*5;
         this->sizeVec+=_numOfGoals*int(Point::D_point::D)*2;
         actionMap=Point::getDictAction();
@@ -35,6 +35,7 @@ public:
         for (auto &item : *this->actionMap)
             delete(item.second);
     };
+
     int getFeatureVecSize(){ return this->sizeVec;}
     vector<double>* getFeaturesSA( State* s,const Point& actionA){
         auto vec = this->getFeaturesS(s);
@@ -118,17 +119,6 @@ public:
         return seed;
     }
 
-    static void toCsvMap(string &pathFile, unsigned long idHash, string &strState) {
-        try {
-            auto pathFileI = pathFile;
-            csvfile csv(move(pathFileI), ",");
-            csv << idHash;
-            csv << strState;
-            csv << endrow;
-        }
-        catch (const std::exception &ex) {std::cout << "Exception was thrown: " << ex.what() << std::endl;}
-
-    }
 
 
 

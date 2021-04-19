@@ -10,6 +10,7 @@ extern bool admissible;
 #include "Simulator.hpp"
 #define ASSERT
 #define DEBUG_DATA
+//#define DOG
 typedef vector<pair<cell,vector<StatePoint>>> vector_p_path;
 typedef unordered_map<keyItem ,arr> Qtable_;
 typedef std::unique_ptr<Agent> unique_agnet;
@@ -537,8 +538,13 @@ private:
         auto rtdp = dynamic_cast<PolicyD*>(d->getPolicyInt());
         auto pathfinder = dynamic_cast<const PolicyA*>(a->getPolicy());
         vector<vector<Point>> l = pathfinder->list_only_pos();
+#ifndef DOG
         rtdp->getUtilRTDP()->l_p_H=l;
         rtdp->getUtilRTDP()->ctr_state_reset();
+#else
+        auto dog = dynamic_cast<Dog*>(d->getPolicyInt());
+        dog->set_all_paths(l);
+    #endif
 
     }
     auto map_path_by_goal() -> std::unordered_map<u_int64_t, pair<vector<u_int16_t>, double>> {

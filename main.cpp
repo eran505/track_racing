@@ -4,9 +4,7 @@
 #include "headers/Agent.hpp"
 #include <list>
 #include "headers/util_game.hpp"
-#include "headers/MdpPlaner.hpp"
 #include "Abstract/RealTimeSimulation.hpp"
-#include "headers/Game.hpp"
 #include "headers/Policy/Dog.hpp"
 #include "headers/graph/graph_util.hpp"
 #include <memory>
@@ -32,7 +30,7 @@
 #include "Policy/Attacker/StaticPolicy.hpp"
 #include "headers/learning/DeepAgent.hpp"
 #include "headers/learning/DeepSim.hpp"
-#include <torch/script.h> // One-stop header.
+//#include <torch/script.h> // One-stop header.
 #include "MultiAction/Simulator.hpp"
 #include "learning/ReplayBuffer/prioritizedExperienceReplay.hpp"
 #include "headers/learning/ReplayBuffer/TreeSum.hpp"
@@ -48,6 +46,7 @@ void toCSVTemp(string pathFile, vector<string> &data);
 void FixAbstGame(configGame &conf, std::unique_ptr<Agent> policyA,std::unique_ptr<Agent> policyD, State *s,int lev_number);
 void getConfigPath(int argc, char** argv,configGame &conf);
 void deep_learning(configGame &conf, std::unique_ptr<Agent> policyA, std::vector<weightedPosition> listPointDefender, State *s,int lev_number);
+std::unique_ptr<State> make_inital_state(Agent *ptr1,Agent *ptr2,Grid *g);
 /*
  * TODO LIST:
  * 1. in the State class, i think that its enough
@@ -80,12 +79,12 @@ int main(int argc, char** argv) {
 
     printf("%d\n", FLT_EVAL_METHOD);
     int seed = 91433389;//1594198815;
-    seed=1594198815;
-    seed=3467626;
     seed = 25627;//1594198815;
-    //seed =6962;
+    seed=3467626;
+    seed=1594198815;
+    seed =6962;
     //seed = int( time(nullptr));
-    torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
+//    torch::manual_seed(seed);// #TODO: un-comment this line when doing deep learning debug
     srand(seed);
     auto arrPAth = splitStr(getExePath(),"/");
     string f = "eran"; string sep = "/";
@@ -95,7 +94,7 @@ int main(int argc, char** argv) {
     f = "track_racing";
     string repo = join(cut_first_appear(arrPAth,f),sep);
     string pathCsv;
-    pathCsv  = home + "/eran/repo/track_racing/csv/con3.csv";
+    pathCsv  = home + "/eran/repo/track_racing/csv/con16.csv";
     std::string toCsvPath (home+ "/car_model/exp/out/");
     auto csvRows = readConfigFile(pathCsv);
     int ctrId=1;
@@ -165,6 +164,7 @@ std::unique_ptr<Grid> init_grid(configGame& conf){
     return g;
 
 }
+
 void init_mdp(Grid *g, configGame &conf){
     int maxA=2;   //TODO:: change it to plus one !!!!!!!!!!!!!!!!!!!!!!!
     int maxD=1;
@@ -209,8 +209,7 @@ void init_mdp(Grid *g, configGame &conf){
         ref_pos.second=conf.probGoals[i];
     }
 
-    auto s = std::make_unique<MdpPlaner>();
-    auto state0 = s->make_inital_state(pA1.get(),pD2.get(),g);
+    auto state0 =make_inital_state(pA1.get(),pD2.get(),g);
 
 
     //////// PATH POLICY ////////////
@@ -236,12 +235,21 @@ void init_mdp(Grid *g, configGame &conf){
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
     Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),pD2->get_id(),conf.home);
 
+//    auto *dog = new Dog(1,1,pD2->get_id(),conf.home);
+//    for(const auto& goalI :g->get_goals())
+//        dog->set_goal(goalI);
+//    Policy* dog_policy = dog;
+
     int level_num=conf.levelz;
     RTDP->add_tran(pAttcker);
     pA1->setPolicy(pAttcker);
     pD2->setPolicy(RTDP);
     auto *rtdp_ptr = dynamic_cast <RtdpAlgo*>(RTDP);
     rtdp_ptr->init_expder(level_num);
+
+//    dog_policy->add_tran((pAttcker));
+//    pD2->setPolicy(dog_policy);
+
 
 
     FixAbstGame(conf,std::move(pA1),std::move(pD2),state0.get(),level_num);
@@ -280,11 +288,11 @@ void deep_learning(configGame &conf, std::unique_ptr<Agent> policyA, std::vector
 
 
     //auto d = std::make_unique<deepAgent>(std::move(listPointDefender));
-    auto dd = std::make_unique<deepAgent>(std::move(listPointDefender),
-                                          std::move(vec_norm),conf.sizeGrid,std::move(l_g)
-                                          ,conf._seed);
-    auto sim  = DeepSim::DeepSim(conf,std::move(policyA),std::move(dd),s);
-    sim.main_loop();
+//    auto dd = std::make_unique<deepAgent>(std::move(listPointDefender),
+//                                          std::move(vec_norm),conf.sizeGrid,std::move(l_g)
+//                                          ,conf._seed);
+//    auto sim  = DeepSim::DeepSim(conf,std::move(policyA),std::move(dd),s);
+   // sim.main_loop();
 
 }
 void toCSVTemp(string pathFile, vector<string> &data)
@@ -390,4 +398,14 @@ u_int64_t H_me(std::vector<int> v)
     return seed;
 }
 
+std::unique_ptr<State> make_inital_state(Agent *ptr1,Agent *ptr2,Grid *g)
+{
+    auto s = std::make_unique<State>();
+    auto positionSpeed = ptr1->get_pos(0);
+    s->add_player_state(ptr1->get_name_id(),positionSpeed.first,positionSpeed.second,ptr1->get_budget());
+    auto positionSpeed2 = ptr2->get_pos(0);
+    s->add_player_state(ptr2->get_name_id(),positionSpeed2.first,positionSpeed2.second,ptr2->get_budget());
+    s->g_grid=g;
+    return s;
 
+}

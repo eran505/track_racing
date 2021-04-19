@@ -15,10 +15,12 @@
 #include "Policy/RtdpAlgo.hpp"
 #include "Policy/RTDP_util.hpp"
 #include "Policy/Attacker/PathFinder.hpp"
+#include <cmath>
 #define DEBUGING
 //#define TRAJECTORY
 #define Q_DATA
 #define A_DATA
+//#define DOG
 
 #define BUFFER_TRAJECTORY 1 // need to be 9000 when saving
 #define STR_HOME_DIR "/car_model/out/"
@@ -66,7 +68,7 @@ class SimulationGame{
     short stop=0;
     std::chrono::duration<long,std::ratio<1,1>>::rep time_start;
     u_int32_t NUMBER=1000;
-    u_int32_t iterationsMAX=1000000;//10000000;//50M//20 000 000/3000000;
+    u_int32_t iterationsMAX=2000000;//10000000;//50M//2000 000/3000000;
     u_int64_t iterations=0;
     u_int ctr_action_defender=0;
     u_int32_t ctr=0;
@@ -78,7 +80,7 @@ class SimulationGame{
     std::unique_ptr<Randomizer> random_object= nullptr;
     Grid *g= nullptr;
     double alpha=1.0;
-    int stop_num =25;
+    int stop_num =1;
     Saver<string> file_manger;
 #ifdef TRAJECTORY
     Saver<string> trajectory_file;
@@ -144,7 +146,7 @@ public:
                 if(loop())
                     break;
             }
-
+            //cout<<"END\n";
             #ifdef PRINT
             cout<<"END\n";
             #endif
@@ -157,7 +159,12 @@ public:
     }
     bool loop()
     {
+        #ifndef DOG
         change_abstraction();
+        #else
+        change_dog_scope();
+        #endif
+
         //cout<<this->_state->to_string_state()<<"   last_mode: "<<last_mode<<endl;
         #ifdef PRINT
         cout<<"last_mode: "<<last_mode<<" [real] ";
@@ -325,7 +332,9 @@ private:
         ctr++;
         if(ctr%NUMBER>0)
             return false;
-        start_record_policy();
+#ifndef DOG
+        //start_record_policy();
+#endif
         u_int64_t ctr_states=0;
         if(info[info::CollId]>=NUMBER*alpha) {
 
@@ -333,7 +342,9 @@ private:
                 auto *ptr = dynamic_cast<RtdpAlgo *>(_defender->getPolicyInt());
                 this->info[info::OpenId]=ptr->getUtilRTDP()->inconsistent;
                 this->info[info::Size]=ptr->getUtilRTDP()->inconsistent;
-                ctr_states = ptr->getUtilRTDP()->get_ctr_state();
+#ifndef DOG
+                //ctr_states = ptr->getUtilRTDP()->get_ctr_state();
+#endif
             }
             stop += 1;
         }
@@ -417,6 +428,17 @@ private:
         }
         cout<<"all="<<myPaths->size()<<endl;
 
+    }
+
+    void change_dog_scope()
+    {
+        auto dif = (this->_state->get_position_ref(this->_attacker->get_id())-
+                _state->get_position_ref(this->_defender->get_id())).AbsPoint();
+        auto diff_dist = dif.getMax();
+        int logme= std::max((int(log2(diff_dist))+1)-3,0);
+
+        int x = std::pow(2,logme);
+        last_mode=1;
     }
 };
 
