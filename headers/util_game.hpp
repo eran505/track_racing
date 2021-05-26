@@ -484,7 +484,6 @@ int getMaxDistance(const Point &a , const  Point &b );
 int getMaxDistancePos(const Point &a , const  Point &b );
 int range_random(int min, int max); //range : [min, max)
 vector<double> getTopK(int k,vector<double> &vec);
-
 //template<typename T>
 //std::ostream& print(std::ostream &out, T const &val) {
 //    return (out << val << " ");

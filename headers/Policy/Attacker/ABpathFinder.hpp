@@ -45,7 +45,7 @@ class ABfinder{
     Randomizer randomizer_obj;
     Point GridSzie;
     double stho=1.0;
-    u_int limt=15; //10
+    u_int limt=10; //10
     u_int16_t MAX_SPEED=2;
     Point last_action;
     bool is_random=false;
@@ -114,8 +114,9 @@ private:
     {
         //cout<<"noise"<<endl;
 
-        if(randomizer_obj.get_double()>stho)
+        if(randomizer_obj.get_double()>stho )
         {
+
             for(int i=0;i<last_action.capacity;++i)
                 last_action.array[i]=get_move_aixs_random(randomizer_obj.get_double());
             last_action.array[2]=0;

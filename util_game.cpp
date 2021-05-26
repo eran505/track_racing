@@ -107,6 +107,15 @@ int getMaxDistancePos(const Point &a , const  Point &b )
     return pos;
 }
 
+template< typename V>
+static size_t get_max_index_random(std::vector<V> list_vec,std::default_random_engine &rng)
+{
+    std::shuffle(std::begin(list_vec), std::end(list_vec), rng);
+    return std::distance(list_vec.begin(),std::max_element(list_vec.begin(),list_vec.end()));
+
+}
+
+
 vector<double> getTopK(int k,vector<double> &vec){
     vector<double> vectorSorted;
     vector<double> vectorTopK;

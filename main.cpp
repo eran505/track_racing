@@ -29,6 +29,7 @@
 #include "MultiAction/SinglePath.hpp"
 #include "Policy/Attacker/StaticPolicy.hpp"
 #include "headers/learning/DeepAgent.hpp"
+#include "GR/GoalRec.hpp"
 #include "headers/learning/DeepSim.hpp"
 //#include <torch/script.h> // One-stop header.
 #include "MultiAction/Simulator.hpp"
@@ -246,6 +247,26 @@ void init_mdp(Grid *g, configGame &conf){
     pD2->setPolicy(RTDP);
     auto *rtdp_ptr = dynamic_cast <RtdpAlgo*>(RTDP);
     rtdp_ptr->init_expder(level_num);
+
+
+
+    auto gr = GoalRecognition(conf._seed);
+    gr.load_agent_paths(pStaticPolicy->list_only_pos(),pStaticPolicy->get_copy_probabilities());
+
+    auto p1 = Point(3, 10, 2);
+    cout<<"---"<<p1.to_str()<<"---\n";
+    gr.make_decsion(p1);
+    p1  = Point(14, 12, 1);
+    cout<<"---"<<p1.to_str()<<"---\n";
+    gr.make_decsion(p1);
+    p1  = Point(28, 11, 2);
+    cout<<"---"<<p1.to_str()<<"---\n";
+    gr.make_decsion(p1);
+    gr.reset_ptr();
+    p1  = Point(45, 18, 3);
+    cout<<"---"<<p1.to_str()<<"---\n";
+    gr.make_decsion(p1);
+
 
 //    dog_policy->add_tran((pAttcker));
 //    pD2->setPolicy(dog_policy);

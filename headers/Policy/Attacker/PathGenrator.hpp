@@ -118,10 +118,10 @@ private:
             seq_state = aBFinder.get_pathz(new_list[0],new_list[1]);
             //for(const auto &x:seq_state)cout<<x.toStr()<<endl;
             std::move(seq_state.begin(), seq_state.end()-1, std::back_inserter(seq_state_all));
-            seq_state = aBFinder.get_pathz(seq_state_all.back(),new_list[2]);
+            seq_state = aBFinder.get_pathz(new_list[1],new_list[2]);
             std::move(seq_state.begin()+1, seq_state.end()-1, std::back_inserter(seq_state_all));
 
-            seq_state = aBFinder.get_pathz(seq_state_all.back(),new_list[3]);
+            seq_state = aBFinder.get_pathz(new_list[2],new_list[3]);
             std::move(seq_state.begin()+1, seq_state.end(), std::back_inserter(seq_state_all));
             return seq_state_all;
 
@@ -162,8 +162,8 @@ private:
     }
     std::vector<StatePoint> add_middle_point_at_random(const std::vector<StatePoint> &A_list)
     {
-        return {*A_list.begin(),get_random_pointV1(0.6,4),A_list.back()};
-        //return {*A_list.begin(),get_random_pointV1(0.3,5),get_random_pointV1(0.7,5),A_list.back()};
+        //return {*A_list.begin(),get_random_pointV1(0.6,5),A_list.back()};
+        return {*A_list.begin(),get_random_pointV1(0.25,3),get_random_pointV1(0.7,3),A_list.back()};
         //return {*A_list.begin(),get_random_point(0.4),A_list.back()};
     }
     void pathsToDict(const vector<AStar::StatePoint>& allPath) {
