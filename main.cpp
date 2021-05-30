@@ -71,6 +71,7 @@ std::unique_ptr<State> make_inital_state(Agent *ptr1,Agent *ptr2,Grid *g);
 #include <string>
 
 #include <string_view>
+#include <GR/PRecAgent.hpp>
 #include "Policy/Update_RTDP/PathMapper.hpp"
 
 typedef unsigned long ulong;
@@ -234,42 +235,28 @@ void init_mdp(Grid *g, configGame &conf){
     Policy *pAttcker = pStaticPolicy;
     //////// RTDP POLICY ////////
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
-    Policy *RTDP = new RtdpAlgo(maxD,g->getSizeIntGrid(),pD2->get_id(),conf.home);
+    //Policy *D_policy = new RtdpAlgo(maxD,g->getSizeIntGrid(),pD2->get_id(),conf.home);
 
 //    auto *dog = new Dog(1,1,pD2->get_id(),conf.home);
 //    for(const auto& goalI :g->get_goals())
 //        dog->set_goal(goalI);
 //    Policy* dog_policy = dog;
 
+    auto *dog = new PRecAgent(maxD,pD2->get_id(),conf.home,conf._seed);
+    dog->intial_args(pStaticPolicy->list_only_pos(),pStaticPolicy->get_copy_probabilities());
+    Policy* D_policy = dog;
+
+
     int level_num=conf.levelz;
-    RTDP->add_tran(pAttcker);
+    D_policy->add_tran(pAttcker);
     pA1->setPolicy(pAttcker);
-    pD2->setPolicy(RTDP);
-    auto *rtdp_ptr = dynamic_cast <RtdpAlgo*>(RTDP);
-    rtdp_ptr->init_expder(level_num);
+    pD2->setPolicy(D_policy);
+
+//    auto *rtdp_ptr = dynamic_cast <RtdpAlgo*>(D_policy);
+//    rtdp_ptr->init_expder(level_num);
 
 
 
-    auto gr = GoalRecognition(conf._seed);
-    gr.load_agent_paths(pStaticPolicy->list_only_pos(),pStaticPolicy->get_copy_probabilities());
-
-    auto p1 = Point(3, 10, 2);
-    cout<<"---"<<p1.to_str()<<"---\n";
-    gr.make_decsion(p1);
-    p1  = Point(14, 12, 1);
-    cout<<"---"<<p1.to_str()<<"---\n";
-    gr.make_decsion(p1);
-    p1  = Point(28, 11, 2);
-    cout<<"---"<<p1.to_str()<<"---\n";
-    gr.make_decsion(p1);
-    gr.reset_ptr();
-    p1  = Point(45, 18, 3);
-    cout<<"---"<<p1.to_str()<<"---\n";
-    gr.make_decsion(p1);
-
-
-//    dog_policy->add_tran((pAttcker));
-//    pD2->setPolicy(dog_policy);
 
 
 

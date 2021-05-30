@@ -20,8 +20,8 @@
 //#define TRAJECTORY
 #define Q_DATA
 #define A_DATA
-//#define DOG
-
+#define DOG
+//#define PRINT
 #define BUFFER_TRAJECTORY 1 // need to be 9000 when saving
 #define STR_HOME_DIR "/car_model/out/"
 #include "util/Rand.hpp"

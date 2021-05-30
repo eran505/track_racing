@@ -6,66 +6,70 @@
 #define TRACK_RACING_PRECAGENT_HPP
 
 #include "Policy.hpp"
-class PRecAgent : Policy{
-    ~PRecAgent() override= default;
+#include "GoalRec.hpp"
+class PRecAgent : public Policy{
 
-    PRecAgent(int maxSpeedAgent, short agentId, string &home1,
-              const string& namePolicy, int speed_MAX, int seed, const string& agentID, string &home);
+
+
+    State::agentEnum attackerID = State::agentEnum::A;
+
+    GoalRecognition GR;
+
+public:
+    PRecAgent(int maxSpeedAgent, short agentId, string &home1, int seed);
 
     Point get_action(State *s) override;
-    void make_action(State *s,int jumps)override;
+    ~PRecAgent() override;
+
     void reset_policy() override;
-    void minimization()override;
-    void update_final_state(State *s)override;
-    void learnRest()override;
-    void policy_data()override;
-    bool isInPolicy(const State *s)const override;
-    const vector<double>* TransitionAction(const State *s)override;
+    void policy_data() const override;
+    std::vector<double>* TransitionAction(const State*) const override;
+
+    void intial_args(const std::vector<std::vector<Point>> &pathz,vector<double> &&path_probabilties);
+
 
 };
-PRecAgent::PRecAgent() = default;
 
-Point PRecAgent::get_action(State *s) {
-    return Point();
+
+void PRecAgent::intial_args(const vector<std::vector<Point>> &pathz, vector<double> &&path_probabilties) {
+    this->GR.load_agent_paths(pathz,std::move(path_probabilties));
+
 }
 
-void PRecAgent::make_action(State *s, int jumps) {
-    Policy::make_action(s, jumps);
+PRecAgent::PRecAgent(int maxSpeedAgent, short agentId, string &home, int seed
+                     ):Policy(maxSpeedAgent,agentId,home,seed) , GR(seed) {
+
 }
+
+Point PRecAgent::get_action(State *s){
+
+    GR.set_my_location(s->get_position(this->id_agent));
+    auto action  = GR.do_action(s->get_position(this->attackerID),
+                                s->get_speed_ref(this->id_agent));
+    return action;
+}
+
 
 void PRecAgent::reset_policy() {
-    Policy::reset_policy();
-}
-
-void PRecAgent::minimization() {
-    Policy::minimization();
-}
-
-void PRecAgent::update_final_state(State *s) {
-    Policy::update_final_state(s);
-}
-
-void PRecAgent::learnRest() {
-    Policy::learnRest();
-}
-
-void PRecAgent::policy_data() {
+    this->GR.reset_ptr();
 
 }
 
-bool PRecAgent::isInPolicy(const State *s) const {
-    return Policy::isInPolicy(s);
-}
-
-const vector<double> *PRecAgent::TransitionAction(const State *s) {
-    return nullptr;
+void PRecAgent::policy_data() const {
+    printf("PRecAgent::No Data is available");
 }
 
 
-PRecAgent::PRecAgent(int maxSpeedAgent, short agentId, string &home1, const string& namePolicy, int speed_MAX, int seed,
-         const string& agentID, string &home) : Policy(maxSpeedAgent, agentId, home1, seed) {
-
+PRecAgent::~PRecAgent() {
+    cout<<"del PRecAgent"<<endl;
 }
+
+
+
+std::vector<double> *PRecAgent::TransitionAction(const State *s)const {
+    return new std::vector<double>();
+}
+
 
 
 #endif //TRACK_RACING_PRECAGENT_HPP

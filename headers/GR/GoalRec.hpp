@@ -7,6 +7,7 @@
 #include "util_game.hpp"
 #define MAX_SPEED_E 2
 #define MAX_SPEED_P 1
+//#define VERBOSE
 
 struct NodeG{
     Point pos;
@@ -55,14 +56,16 @@ class GoalRecognition{
     std::vector<double> probabilities;
     std::default_random_engine rng;
     bool start_move=false;
+    int found_path=-1;
+
 public:
 
     explicit GoalRecognition(int _seed):root(std::make_unique<NodeG>()),my_loction(-1),rng(_seed)
     {
         cout<<root->pos.to_str()<<endl;
         curr_ptr=root.get();
-
     }
+
     void set_my_location(const Point& p);
 
     void load_agent_paths(const std::vector<std::vector<Point>> &pathz,vector<double> &&path_probabilties);
@@ -77,6 +80,7 @@ public:
     {
         curr_ptr= root.get();
         start_move=false;
+        this->found_path=-1;
         //set_my_location(this->my_loction);
     }
 
@@ -90,7 +94,7 @@ public:
     template< typename V>
     static size_t get_max_index_random(std::vector<V> list_vec,std::default_random_engine &rng);
 
-    Point do_action(const Point &evader );
+    Point do_action(const Point &evader,const Point &my_speed );
 
 };
 
@@ -101,7 +105,7 @@ void GoalRecognition::load_agent_paths(const std::vector<std::vector<Point>> &pa
     for(size_t i=0; i < pathz.size();++i)
         GoalRecognition::add_path(pathz[i],u_int16_t(i),root.get());
 
-    printTree();
+    //printTree();
 
 }
 
@@ -203,20 +207,21 @@ size_t GoalRecognition::make_decsion(const Point &evader ) {
     //assert(evader==curr_ptr->pos);
 
     vector<u_int32_t > most_likely_paths;
-
     double max_prob=0;
     size_t ctr=0;
     size_t max_indx=0;
     size_t likely_path=0;
 
-    if (curr_ptr->goal_list.size()>1)
-        max_indx = get_max_index_random(curr_ptr->goal_likelihood,rng);
-
+    if (curr_ptr->goal_list.size()>1) {
+        max_indx = get_max_index_random(curr_ptr->goal_likelihood, rng);
+    }
     if (curr_ptr->goal_list[max_indx].second.size()>1) {
         std::vector<u_int16_t> list_of_paths = curr_ptr->goal_list[max_indx].second;
         likely_path = get_the_most_likely_path(list_of_paths);
     }
+    else  likely_path=curr_ptr->goal_list[max_indx].second.front();
 
+#ifdef VERBOSE
     cout << "goal_likly:" << curr_ptr->goal_list[max_indx].first.to_str() << endl;
     cout<<"likely_path:"<<likely_path<<endl;
 
@@ -232,6 +237,7 @@ size_t GoalRecognition::make_decsion(const Point &evader ) {
         cout<<"}\n";
         ctr++;
     }
+#endif
     return likely_path;
 }
 
@@ -242,18 +248,18 @@ void GoalRecognition::populate_distances() {
 }
 void GoalRecognition::set_my_location(const Point& p)
 {
+    if(this->my_loction == p)
+        return;
     my_loction=p;
-    if (!start_move)
-        this->populate_distances();
+    this->populate_distances();
 }
 
 template<typename V>
 size_t GoalRecognition::get_max_index_random(vector<V> list_vec, std::default_random_engine &rng) {
     std::vector<u_int32_t> l;
     auto it = std::max_element(list_vec.begin(),list_vec.end());
-    size_t index_it = std::distance(list_vec.begin(),it);
-    l.push_back(index_it);
-    std::for_each(it,list_vec.end(),[&](V &val){
+    size_t index_it = 0;
+    std::for_each(list_vec.begin(),list_vec.end(),[&](V &val){
         if (val==*it)
             l.push_back(index_it);
         index_it++;
@@ -277,16 +283,25 @@ bool GoalRecognition::is_stay_inplace(const Point &evader) {
     size_t min_step = curr_ptr->min_step;
     assert(evader==curr_ptr->pos);
     std::vector<size_t> relevent_pathz;
+    if (curr_ptr->goal_list.size()==1)
+        if (curr_ptr->goal_list.front().second.size()==1)
+        {
+            this->found_path=curr_ptr->goal_list.front().second.front();
+            return false;
+        }
+
     for (const auto& [g,list_idx]:curr_ptr->goal_list){
-        for (const auto id_pathz : list_idx )
-            if (this->min_step_path[id_pathz]<(curr_ptr->min_step+MAX_SPEED_E))
+        for (const auto id_pathz : list_idx ) {
+            if (this->min_step_path[id_pathz] >= (curr_ptr->min_step - MAX_SPEED_E-1))
                 return false;
+        }
     }
     return true;
 
 }
 
-Point GoalRecognition::do_action(const Point &evader) {
+Point GoalRecognition::do_action(const Point &evader,const Point &my_speed) {
+    //cout<<evader.to_str()<<endl;
     if (!start_move){
         if (is_stay_inplace(evader))
             return Point(0);
@@ -294,10 +309,12 @@ Point GoalRecognition::do_action(const Point &evader) {
             start_move=true;
     }
     auto path = this->make_decsion(evader);
-    auto goal = this->all_pathz[path][this->all_pathz[path].size()-2];
-    Point dif = goal-my_loction;
+    if (found_path!=-1)
+        path=found_path;
+    auto goal_loc = this->all_pathz[path][this->all_pathz[path].size()-2];
+    Point dif = goal_loc-my_loction;
     dif.change_speed_max(MAX_SPEED_P);
-    return dif;
+    return dif-my_speed;
 }
 
 
