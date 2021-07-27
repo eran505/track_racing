@@ -10,7 +10,7 @@ extern bool admissible;
 #include "Simulator.hpp"
 #define ASSERT
 #define DEBUG_DATA
-#define DOG
+//#define DOG
 typedef vector<pair<cell,vector<StatePoint>>> vector_p_path;
 typedef unordered_map<keyItem ,arr> Qtable_;
 typedef std::unique_ptr<Agent> unique_agnet;

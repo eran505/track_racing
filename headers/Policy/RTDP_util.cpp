@@ -311,6 +311,7 @@ void RTDP_util::resetQtable() {
 int RTDP_util::to_closet_path_H(const State &s)
 {
    // return distance_H(s);
+    return  0;
 #ifdef H_ZERO
     return 0;
 #endif

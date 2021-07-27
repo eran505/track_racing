@@ -235,16 +235,16 @@ void init_mdp(Grid *g, configGame &conf){
     Policy *pAttcker = pStaticPolicy;
     //////// RTDP POLICY ////////
     //Policy *RTDP = new DeepRTDP("deepRTDP",maxD,rand(),pD2->get_id(), gloz_l.size(),conf.home,0,gameInfo_share);
-    //Policy *D_policy = new RtdpAlgo(maxD,g->getSizeIntGrid(),pD2->get_id(),conf.home);
+    Policy *D_policy = new RtdpAlgo(maxD,g->getSizeIntGrid(),pD2->get_id(),conf.home);
 
 //    auto *dog = new Dog(1,1,pD2->get_id(),conf.home);
 //    for(const auto& goalI :g->get_goals())
 //        dog->set_goal(goalI);
 //    Policy* dog_policy = dog;
 
-    auto *dog = new PRecAgent(maxD,pD2->get_id(),conf.home,conf._seed);
-    dog->intial_args(pStaticPolicy->list_only_pos(),pStaticPolicy->get_copy_probabilities());
-    Policy* D_policy = dog;
+    //auto *dog = new PRecAgent(maxD,pD2->get_id(),conf.home,conf._seed);
+    //dog->intial_args(pStaticPolicy->list_only_pos(),pStaticPolicy->get_copy_probabilities());
+    //Policy* D_policy = dog;
 
 
     int level_num=conf.levelz;
@@ -252,8 +252,8 @@ void init_mdp(Grid *g, configGame &conf){
     pA1->setPolicy(pAttcker);
     pD2->setPolicy(D_policy);
 
-//    auto *rtdp_ptr = dynamic_cast <RtdpAlgo*>(D_policy);
-//    rtdp_ptr->init_expder(level_num);
+    auto *rtdp_ptr = dynamic_cast <RtdpAlgo*>(D_policy);
+    rtdp_ptr->init_expder(level_num);
 
 
 

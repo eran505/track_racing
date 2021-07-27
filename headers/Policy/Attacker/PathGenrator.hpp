@@ -99,8 +99,8 @@ private:
     {
         vector<AStar::StatePoint> seq_state;
         vector<AStar::StatePoint> seq_state_all;
-        auto new_list = add_middle_point_at_random(A_list);
-        //auto new_list=A_list;
+        //auto new_list = add_middle_point_at_random(A_list);
+        auto new_list=A_list;
         cout<<new_list<<endl;
         if(new_list.size()==3)
         {
@@ -163,7 +163,7 @@ private:
     std::vector<StatePoint> add_middle_point_at_random(const std::vector<StatePoint> &A_list)
     {
         //return {*A_list.begin(),get_random_pointV1(0.6,5),A_list.back()};
-        return {*A_list.begin(),get_random_pointV1(0.25,3),get_random_pointV1(0.7,3),A_list.back()};
+        return {*A_list.begin(),get_random_pointV1(0.25,5),get_random_pointV1(0.7,5),A_list.back()};
         //return {*A_list.begin(),get_random_point(0.4),A_list.back()};
     }
     void pathsToDict(const vector<AStar::StatePoint>& allPath) {
